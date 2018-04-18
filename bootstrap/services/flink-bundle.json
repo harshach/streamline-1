@@ -1,0 +1,15 @@
+{
+  "name": "FLINK",
+  "registerClass": "com.hortonworks.streamline.streams.cluster.register.impl.FlinkServiceRegistrar",
+  "serviceUISpecification": {
+    "fields": [
+      {
+        "uiName": "Dummy Flink setting",
+        "fieldName": "dummy",
+        "isOptional": true,
+        "tooltip": "Dummy Flink setting",
+        "type": "string"
+      }
+    ]
+  }
+}

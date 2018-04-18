@@ -10,14 +10,15 @@ modules:
     config:
       #change the below to the path on your local machine
       streamlineStormJar: /tmp/streamline-runtime-storm-0.6.0-SNAPSHOT.jar
-      stormHomeDir: /usr/local/Cellar/storm/0.10.0/
+      stormHomeDir: /Users/suez/Downloads/apache-storm-1.2.1
+      flinkHomeDir: /Users/suez/Downloads/flink-1.3.2
       # directory to store the results of topology test run
       topologyTestRunResultDir: /tmp
       # schema registry configuration
       schemaRegistryUrl: "http://localhost:9090/api/v1"
       mavenRepoUrl: "hwx-public^http://repo.hortonworks.com/content/groups/public/,hwx-private^http://nexus-private.hortonworks.com/nexus/content/groups/public/"
 
-catalogRootUrl: "http://localhost:8080/api/v1/catalog"
+catalogRootUrl: "http://localhost:8090/api/v1/catalog"
 
 enableCors: true
 corsUrlPatterns:
@@ -27,7 +28,7 @@ server:
   rootPath: '/api/*'
   applicationConnectors:
     - type: http
-      port: 8080
+      port: 8090
   adminConnectors:
     - type: http
       port: 8081
@@ -67,22 +68,22 @@ fileStorageConfiguration:
 # --
 # In-memory storage provider configuration:
 # --
-storageProviderConfiguration:
-  providerClass: "com.hortonworks.registries.storage.impl.memory.InMemoryStorageManager"
+#storageProviderConfiguration:
+# providerClass: "com.hortonworks.registries.storage.impl.memory.InMemoryStorageManager"
 
 # --
 # MySQL based storage provider configuration:
 # --
-#storageProviderConfiguration:
-# providerClass: "com.hortonworks.registries.storage.impl.jdbc.JdbcStorageManager"
-# properties:
-#  db.type: "mysql"
-#  queryTimeoutInSecs: 30
-#  db.properties:
-#    dataSourceClassName: "com.mysql.jdbc.jdbc2.optional.MysqlDataSource"
-#    dataSource.url: "jdbc:mysql://localhost/streamline_db"
-#    dataSource.user: "streamline_user"
-#    dataSource.password: "streamline_password"
+storageProviderConfiguration:
+ providerClass: "com.hortonworks.registries.storage.impl.jdbc.JdbcStorageManager"
+ properties:
+  db.type: "mysql"
+  queryTimeoutInSecs: 30
+  db.properties:
+    dataSourceClassName: "com.mysql.jdbc.jdbc2.optional.MysqlDataSource"
+    dataSource.url: "jdbc:mysql://localhost/streamline_db"
+    dataSource.user: "root"
+    dataSource.password: "12345678"
 
 # --
 # PostgreSQL based storage provider configuration

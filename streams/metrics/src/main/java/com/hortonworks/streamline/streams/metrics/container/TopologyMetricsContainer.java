@@ -59,8 +59,15 @@ public class TopologyMetricsContainer extends NamespaceAwareContainer<TopologyMe
         }
 
         // FIXME: "how to initialize" is up to implementation detail - now we just only consider about Storm implementation
-        Map<String, Object> conf = buildStormTopologyMetricsConfigMap(namespace, streamingEngine, subject);
-
+        Map<String, Object> conf;
+        switch (streamingEngine) {
+            case "STORM":
+                conf = buildStormTopologyMetricsConfigMap(namespace, streamingEngine, subject);
+                break;
+            case "FLINK":
+            default:
+                conf = new HashMap<>();
+        }
         String className = metricsImpl.getClassName();
         TopologyMetrics topologyMetrics = initTopologyMetrics(conf, className);
 

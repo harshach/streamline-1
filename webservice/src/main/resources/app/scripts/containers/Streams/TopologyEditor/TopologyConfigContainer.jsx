@@ -257,6 +257,7 @@ export default class TopologyConfigContainer extends Component {
   }
 
   handleSave() {
+    console.log("ufo", this.props);
     const {topologyName, topologyId, versionId} = this.props;
     const {advancedField} = this.state;
     let data = _.cloneDeep(this.refs.Form.state.FormData);

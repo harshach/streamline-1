@@ -16,7 +16,8 @@
 package com.hortonworks.streamline.streams.actions.container.mapping;
 
 public enum MappedTopologyActionsImpl {
-    STORM("com.hortonworks.streamline.streams.actions.storm.topology.StormTopologyActionsImpl");
+    STORM("com.hortonworks.streamline.streams.actions.storm.topology.StormTopologyActionsImpl"),
+    FLINK("com.hortonworks.streamline.streams.actions.flink.topology.FlinkTopologyActionsImpl");
 
     private final String className;
 

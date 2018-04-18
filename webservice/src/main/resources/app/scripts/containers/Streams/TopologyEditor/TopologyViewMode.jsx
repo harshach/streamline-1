@@ -207,7 +207,7 @@ class TopologyViewMode extends Component {
     const {misc} = metricWrap || {
       misc: (metricWrap === '')
         ? ''
-        : metricWrap.misc
+        : '' // metricWrap.misc
     };
     const latencyText = Utils.secToMinConverter(metric.latency, "graph").split('/');
     const emittedText = Utils.kFormatter(misc.emitted).toString();

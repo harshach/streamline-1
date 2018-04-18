@@ -23,6 +23,10 @@ public final class Constants {
         public static final String SERVICE_NAME = "STORM";
     }
 
+    public static class Flink {
+        public static final String SERVICE_NAME = "FLINK";
+    }
+
     public static class Kafka {
         public static final String SERVICE_NAME = "KAFKA";
         public static final String PROPERTY_KEY_ZOOKEEPER_CONNECT = "zookeeper.connect";

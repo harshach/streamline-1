@@ -15,6 +15,7 @@
  **/
 package com.hortonworks.streamline.streams.actions.topology.state;
 
+import com.google.common.collect.ImmutableList;
 import com.hortonworks.registries.storage.exception.IgnoreTransactionRollbackException;
 import com.hortonworks.streamline.streams.actions.TopologyActions;
 import com.hortonworks.streamline.streams.catalog.CatalogToLayoutConverter;
@@ -22,8 +23,12 @@ import com.hortonworks.streamline.streams.catalog.Topology;
 import com.hortonworks.streamline.streams.exception.TopologyNotAliveException;
 import com.hortonworks.streamline.streams.layout.component.TopologyDag;
 import com.hortonworks.streamline.streams.layout.component.TopologyLayout;
+import org.apache.calcite.avatica.org.apache.http.annotation.Immutable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.net.URL;
+import java.net.URLClassLoader;
 
 /**
  * The class captures the different states a 'topology' can be in and the state transitions.
@@ -117,6 +122,7 @@ public final class TopologyStates {
             if (dag == null) {
                 throw new IllegalStateException("Topology dag not set up");
             }
+
             try {
                 context.setCurrentAction("Submitting topology to streaming engine");
                 String mavenArtifacts = context.getMavenArtifacts();

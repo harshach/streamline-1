@@ -741,6 +741,21 @@
             </dependency>
             <dependency>
                 <groupId>com.hortonworks.streamline</groupId>
+                <artifactId>streamline-actions-flink</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.hortonworks.streamline</groupId>
+                <artifactId>streamline-layout-flink</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.hortonworks.streamline</groupId>
+                <artifactId>streamline-metrics-flink</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.hortonworks.streamline</groupId>
                 <artifactId>streamline-actions-storm</artifactId>
                 <version>${project.version}</version>
             </dependency>
@@ -778,6 +793,11 @@
             <dependency>
                 <groupId>com.hortonworks.streamline</groupId>
                 <artifactId>streamline-sampling-storm</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.hortonworks.streamline</groupId>
+                <artifactId>streamline-sampling-flink</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>

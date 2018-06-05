@@ -49,6 +49,7 @@ public class TopologyActionsContainer extends NamespaceAwareContainer<TopologyAc
     private static final String NIMBUS_PORT = "nimbus.port";
     public static final String STREAMLINE_STORM_JAR = "streamlineStormJar";
     public static final String STORM_HOME_DIR = "stormHomeDir";
+    public static final String FLINK_HOME_DIR = "flinkHomeDir";
 
     public static final String RESERVED_PATH_STREAMLINE_HOME = "${STREAMLINE_HOME}";
     public static final String SYSTEM_PROPERTY_STREAMLINE_HOME = "streamline.home";
@@ -78,7 +79,16 @@ public class TopologyActionsContainer extends NamespaceAwareContainer<TopologyAc
         }
 
         // FIXME: "how to initialize" is up to implementation detail - now we just only consider about Storm implementation
-        Map<String, Object> conf = buildStormTopologyActionsConfigMap(namespace, streamingEngine, subject);
+        Map<String, Object> conf = new HashMap<>();
+        switch (streamingEngine) {
+            case "STORM":
+                conf = buildStormTopologyActionsConfigMap(namespace, streamingEngine, subject);
+                break;
+            case "FLINK":
+                conf.put(FLINK_HOME_DIR, streamlineConf.get(FLINK_HOME_DIR));
+                break;
+            default:
+        }
 
         String className = actionsImpl.getClassName();
         return initTopologyActions(conf, className);

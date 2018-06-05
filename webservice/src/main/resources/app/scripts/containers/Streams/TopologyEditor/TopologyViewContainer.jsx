@@ -137,7 +137,8 @@ class TopologyViewContainer extends Component {
           let unknown = data.running;
           let isAppRunning = false;
           let status = '';
-          if (this.topologyMetric.metric.status) {
+          console.log("tao", this.topologyMetric);
+          if (this.topologyMetric.metric && this.topologyMetric.metric.status) {
             status = this.topologyMetric.metric.status;
             if (status === 'ACTIVE' || status === 'INACTIVE') {
               isAppRunning = true;

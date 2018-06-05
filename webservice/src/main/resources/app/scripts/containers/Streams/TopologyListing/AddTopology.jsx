@@ -54,7 +54,8 @@ class AddTopology extends Component {
         FSReactToastr.error(
           <CommonNotification flag="error" content={config.responseMessage}/>, '', toastOpt);
       } else {
-        const configFields = config.entities[0].topologyComponentUISpecification;
+        console.log("hbo", config.entities);
+        const configFields = config.entities[1].topologyComponentUISpecification;
         this.setState({formField: configFields});
       }
       if (result[1].responseMessage !== undefined) {

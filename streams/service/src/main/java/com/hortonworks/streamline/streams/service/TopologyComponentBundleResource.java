@@ -137,6 +137,7 @@ public class TopologyComponentBundleResource {
         Collection<TopologyComponentBundle> topologyComponentBundles = catalogService
                 .listTopologyComponentBundlesForTypeWithFilter(componentType, queryParams);
         if (topologyComponentBundles != null) {
+            LOG.info("{} TopologyComponentBundles of {}: {}", uriInfo.getAbsolutePath(), componentType, topologyComponentBundles);
             return WSUtils.respondEntities(topologyComponentBundles, OK);
         }
 

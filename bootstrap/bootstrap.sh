@@ -18,7 +18,7 @@
 
 # defaults
 bootstrap_dir=$(dirname $0)
-CONFIG_FILE_PATH=${bootstrap_dir}/../conf/streamline.yaml
+CONFIG_FILE_PATH=${bootstrap_dir}/../conf/streamline-dev.yaml
 MIGRATION_SCRIPT_PATH=${bootstrap_dir}/shell
 
 # Which java to use
@@ -33,6 +33,8 @@ for file in "${bootstrap_dir}"/lib/*.jar;
 do
     CLASSPATH="$CLASSPATH":"$file"
 done
+
+echo $CLASSPATH
 
 function execute {
     echo "Using Configuration file: ${CONFIG_FILE_PATH}"

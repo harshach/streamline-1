@@ -82,7 +82,8 @@ public class TopologyMetricsService implements ContainingNamespaceAwareContainer
 
         List<Pair<String, Double>> topNAndOther = new ArrayList<>();
 
-        List<ImmutablePair<String, Double>> latencyOrderedComponents = metricsForTopology.entrySet().stream()
+        if (metricsForTopology != null) {
+            List<ImmutablePair<String, Double>> latencyOrderedComponents = metricsForTopology.entrySet().stream()
                 .map((x) -> new ImmutablePair<>(x.getValue().getComponentName(), x.getValue().getProcessedTime()))
                 // reversed sort
                 .sorted((c1, c2) -> {
@@ -95,13 +96,13 @@ public class TopologyMetricsService implements ContainingNamespaceAwareContainer
                 })
                 .collect(toList());
 
-        latencyOrderedComponents.stream().limit(nOfTopN).forEachOrdered(topNAndOther::add);
-        double sumLatencyOthers = latencyOrderedComponents.stream()
+            latencyOrderedComponents.stream().limit(nOfTopN).forEachOrdered(topNAndOther::add);
+            double sumLatencyOthers = latencyOrderedComponents.stream()
                 .skip(nOfTopN).filter((x) -> x.getValue() != null)
                 .mapToDouble(Pair::getValue).sum();
 
-        topNAndOther.add(new ImmutablePair<>("Others", sumLatencyOthers));
-
+            topNAndOther.add(new ImmutablePair<>("Others", sumLatencyOthers));
+        }
         return topNAndOther;
     }
 

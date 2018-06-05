@@ -16,7 +16,8 @@
 package com.hortonworks.streamline.streams.metrics.container.mapping;
 
 public enum MappedTopologyMetricsImpl {
-    STORM("com.hortonworks.streamline.streams.metrics.storm.topology.StormTopologyMetricsImpl");
+    STORM("com.hortonworks.streamline.streams.metrics.storm.topology.StormTopologyMetricsImpl"),
+    FLINK("com.hortonworks.streamline.streams.metrics.flink.topology.FlinkTopologyMetricsImpl");
 
     private final String className;
 

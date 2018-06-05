@@ -41,8 +41,15 @@ public class TopologySamplingContainer extends NamespaceAwareContainer<TopologyS
 
     private Map<String, Object> buildConfig(Namespace namespace, String streamingEngine) {
         Map<String, Object> conf = new HashMap<>();
-        conf.put(TopologyLayoutConstants.STORM_API_ROOT_URL_KEY, buildStormRestApiRootUrl(namespace, streamingEngine));
-        conf.put(TopologyLayoutConstants.SUBJECT_OBJECT, subject);
+        switch (streamingEngine) {
+            case "STORM":
+                conf.put(TopologyLayoutConstants.STORM_API_ROOT_URL_KEY,
+                    buildStormRestApiRootUrl(namespace, streamingEngine));
+                conf.put(TopologyLayoutConstants.SUBJECT_OBJECT, subject);
+                break;
+            case "FLINK":
+            default:
+        }
         return conf;
     }
 

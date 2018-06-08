@@ -20,7 +20,7 @@
 verbose=false
 shell_dir=$(dirname $0)
 bootstrap_dir=${shell_dir}/..
-CONFIG_FILE_PATH=${bootstrap_dir}/../conf/streamline-dev.yaml
+CONFIG_FILE_PATH=${bootstrap_dir}/../conf/streamline.yaml
 
 # Which java to use
 if [ -z "${JAVA_HOME}" ]; then

@@ -18,7 +18,7 @@
 
 # defaults
 bootstrap_dir=$(dirname $0)
-CONFIG_FILE_PATH=${bootstrap_dir}/../conf/streamline-dev.yaml
+CONFIG_FILE_PATH=${bootstrap_dir}/../conf/streamline.yaml
 MIGRATION_SCRIPT_PATH=${bootstrap_dir}/shell
 
 # Which java to use

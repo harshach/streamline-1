@@ -15,8 +15,10 @@
  **/
 package com.hortonworks.streamline.streams.actions;
 
+import com.hortonworks.streamline.streams.actions.topology.service.TopologyActionsService;
 import com.hortonworks.streamline.streams.catalog.Topology;
 import com.hortonworks.streamline.streams.catalog.TopologyTestRunHistory;
+import com.hortonworks.streamline.streams.layout.component.TopologyDag;
 import com.hortonworks.streamline.streams.layout.component.TopologyLayout;
 import com.hortonworks.streamline.streams.layout.component.impl.testing.TestRunProcessor;
 import com.hortonworks.streamline.streams.layout.component.impl.testing.TestRunRulesProcessor;
@@ -34,11 +36,16 @@ import java.util.Optional;
  */
 public interface TopologyActions {
     // Any one time initialization is done here
-    void init (Map<String, Object> conf);
+    void init (Map<String, Object> conf, TopologyActionsService topologyActionsService);
+
 
     // Setup extra jars needed for deploying the topology
-    String setUpExtraJars(Topology topology, TopologyActions topologyActions) throws IOException;
+    String setUpExtraJars(Topology topology) throws IOException;
 
+
+    void setUpClusterArtifacts(Topology topology) throws IOException;
+
+    void ensureValid(TopologyDag topologyDag);
 
     // Deploy the artifact generated using the underlying streaming
     // engine

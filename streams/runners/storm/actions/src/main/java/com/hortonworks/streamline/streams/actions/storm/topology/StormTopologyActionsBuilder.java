@@ -2,6 +2,7 @@ package com.hortonworks.streamline.streams.actions.storm.topology;
 
 import com.hortonworks.streamline.streams.actions.TopologyActions;
 import com.hortonworks.streamline.streams.actions.builder.TopologyActionsBuilder;
+import com.hortonworks.streamline.streams.actions.topology.service.TopologyActionsService;
 import com.hortonworks.streamline.streams.cluster.catalog.*;
 import com.hortonworks.streamline.streams.cluster.discovery.ambari.ComponentPropertyPattern;
 import com.hortonworks.streamline.streams.cluster.discovery.ambari.ServiceConfigurations;
@@ -38,18 +39,18 @@ public class StormTopologyActionsBuilder implements TopologyActionsBuilder<Map<S
     private static final String DEFAULT_STORM_JAR_FILE_PREFIX = "streamline-runtime-storm-";
 
     private Map<String, String> streamlineConf;
-    private Map<String, Object> conf;
-    private Subject subject;
-    private EnvironmentService environmentService;
+    private TopologyActionsService topologyActionsService;
     private TopologyActions stormTopologyActions;
+    private Map<String, Object> conf;
 
-    public void init(Map<String, String> streamlineConf, EnvironmentService service, Namespace namespace, Subject subject) {
-        this.environmentService = service;
+    public void init(Map<String, String> streamlineConf, TopologyActionsService topologyActionsService, Namespace namespace,
+                     Subject subject) {
+        this.conf = new HashMap<>();
+        this.topologyActionsService = topologyActionsService;
         this.streamlineConf = streamlineConf;
-        this.subject = subject;
         buildStormTopologyActionsConfigMap(namespace, subject);
         stormTopologyActions = new StormTopologyActionsImpl();
-        stormTopologyActions.init(conf);
+        stormTopologyActions.init(conf, topologyActionsService);
     }
 
     public TopologyActions getTopologyActions() {
@@ -65,16 +66,17 @@ public class StormTopologyActionsBuilder implements TopologyActionsBuilder<Map<S
     }
 
     private void buildStormTopologyActionsConfigMap(Namespace namespace,  Subject subject) {
+        EnvironmentService environmentService = topologyActionsService.getEnvironmentService();
         // Assuming that a namespace has one mapping of streaming engine except test environment
         Service engineService = ServiceUtils.getFirstOccurenceServiceForNamespace(namespace, ENGINE_SERVICE_NAME,
-                environmentService);
+                topologyActionsService.getEnvironmentService());
         if (engineService == null) {
             if (!namespace.getInternal()) {
                 throw new RuntimeException("Engine " + ENGINE_SERVICE_NAME+ " is not associated to the namespace " +
                         namespace.getName() + "(" + namespace.getId() + ")");
             } else {
                 // the namespace is purposed for test run
-                buildStormTopologyActionsConfigMapForTestRun(namespace, subject);
+                conf = buildStormTopologyActionsConfigMapForTestRun(namespace, subject);
                 return;
             }
         }
@@ -168,7 +170,7 @@ public class StormTopologyActionsBuilder implements TopologyActionsBuilder<Map<S
 
         // TopologyActionImpl needs 'EnvironmentService' and namespace ID to load service configurations
         // for specific cluster associated to the namespace
-        conf.put(TopologyLayoutConstants.ENVIRONMENT_SERVICE_OBJECT, environmentService);
+        conf.put(TopologyLayoutConstants.ENVIRONMENT_SERVICE_OBJECT, topologyActionsService.getEnvironmentService());
         conf.put(TopologyLayoutConstants.NAMESPACE_ID, namespace.getId());
 
         return conf;
@@ -176,10 +178,10 @@ public class StormTopologyActionsBuilder implements TopologyActionsBuilder<Map<S
 
     private void putStormConfigurations(Service streamingEngineService, Map<String, Object> conf) {
         ServiceConfiguration storm = ServiceUtils.getServiceConfiguration(streamingEngineService, SERVICE_CONFIGURATION_STORM,
-                environmentService)
+                topologyActionsService.getEnvironmentService())
                 .orElse(new ServiceConfiguration());
         ServiceConfiguration stormEnv = ServiceUtils.getServiceConfiguration(streamingEngineService, SERVICE_CONFIGURATION_STORM_ENV,
-                environmentService)
+                topologyActionsService.getEnvironmentService())
                 .orElse(new ServiceConfiguration());
 
         try {

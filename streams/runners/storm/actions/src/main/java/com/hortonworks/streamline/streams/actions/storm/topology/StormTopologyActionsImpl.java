@@ -15,24 +15,33 @@
  **/
 package com.hortonworks.streamline.streams.actions.storm.topology;
 
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.base.Joiner;
 import com.google.common.collect.Lists;
 import com.hortonworks.streamline.common.Config;
+import com.hortonworks.streamline.common.configuration.ConfigFileType;
+import com.hortonworks.streamline.common.configuration.ConfigFileWriter;
 import com.hortonworks.streamline.common.exception.service.exception.request.TopologyAlreadyExistsOnCluster;
 import com.hortonworks.streamline.streams.actions.StatusImpl;
 import com.hortonworks.streamline.streams.actions.TopologyActionContext;
 import com.hortonworks.streamline.streams.actions.TopologyActions;
+import com.hortonworks.streamline.streams.actions.topology.service.StormTopologyDependenciesHandler;
+import com.hortonworks.streamline.streams.actions.topology.service.TopologyActionsService;
+import com.hortonworks.streamline.streams.catalog.CatalogToLayoutConverter;
+import com.hortonworks.streamline.streams.catalog.Topology;
 import com.hortonworks.streamline.streams.catalog.TopologyTestRunHistory;
+import com.hortonworks.streamline.streams.catalog.topology.TopologyComponentBundle;
 import com.hortonworks.streamline.streams.cluster.Constants;
+import com.hortonworks.streamline.streams.cluster.catalog.Namespace;
 import com.hortonworks.streamline.streams.cluster.catalog.NamespaceServiceClusterMap;
+import com.hortonworks.streamline.streams.cluster.catalog.Service;
+import com.hortonworks.streamline.streams.cluster.catalog.ServiceConfiguration;
 import com.hortonworks.streamline.streams.cluster.discovery.ambari.ServiceConfigurations;
 import com.hortonworks.streamline.streams.cluster.service.EnvironmentService;
 import com.hortonworks.streamline.streams.exception.TopologyNotAliveException;
 import com.hortonworks.streamline.streams.layout.TopologyLayoutConstants;
-import com.hortonworks.streamline.streams.layout.component.InputComponent;
-import com.hortonworks.streamline.streams.layout.component.OutputComponent;
-import com.hortonworks.streamline.streams.layout.component.TopologyDag;
-import com.hortonworks.streamline.streams.layout.component.TopologyLayout;
+import com.hortonworks.streamline.streams.layout.component.*;
 import com.hortonworks.streamline.streams.layout.component.impl.HBaseSink;
 import com.hortonworks.streamline.streams.layout.component.impl.HdfsSink;
 import com.hortonworks.streamline.streams.layout.component.impl.HdfsSource;
@@ -71,17 +80,7 @@ import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
@@ -95,9 +94,9 @@ import static java.util.stream.Collectors.toList;
  */
 public class StormTopologyActionsImpl implements TopologyActions {
     private static final Logger LOG = LoggerFactory.getLogger(StormTopologyActionsImpl.class);
-    public static final int DEFAULT_WAIT_TIME_SEC = 30;
-    public static final int TEST_RUN_TOPOLOGY_DEFAULT_WAIT_MILLIS_FOR_SHUTDOWN = 30_000;
-    public static final String ROOT_LOGGER_NAME = "ROOT";
+    private static final int DEFAULT_WAIT_TIME_SEC = 30;
+    private static final int TEST_RUN_TOPOLOGY_DEFAULT_WAIT_MILLIS_FOR_SHUTDOWN = 30_000;
+    private static final String ROOT_LOGGER_NAME = "ROOT";
 
     private static final String DEFAULT_THRIFT_TRANSPORT_PLUGIN = "org.apache.storm.security.auth.SimpleTransportPlugin";
     private static final String DEFAULT_PRINCIPAL_TO_LOCAL = "org.apache.storm.security.auth.DefaultPrincipalToLocal";
@@ -110,34 +109,34 @@ public class StormTopologyActionsImpl implements TopologyActions {
     private static final String NIMBUS_SEEDS = "nimbus.seeds";
     private static final String NIMBUS_PORT = "nimbus.port";
 
-    public static final String STREAMLINE_TOPOLOGY_CONFIG_CLUSTER_SECURITY_CONFIG = "clustersSecurityConfig";
-    public static final String STREAMLINE_TOPOLOGY_CONFIG_CLUSTER_ID = "clusterId";
-    public static final String STREAMLINE_TOPOLOGY_CONFIG_PRINCIPAL = "principal";
-    public static final String STREAMLINE_TOPOLOGY_CONFIG_KEYTAB_PATH = "keytabPath";
+    private static final String STREAMLINE_TOPOLOGY_CONFIG_CLUSTER_SECURITY_CONFIG = "clustersSecurityConfig";
+    private static final String STREAMLINE_TOPOLOGY_CONFIG_CLUSTER_ID = "clusterId";
+    private static final String STREAMLINE_TOPOLOGY_CONFIG_PRINCIPAL = "principal";
+    private static final String STREAMLINE_TOPOLOGY_CONFIG_KEYTAB_PATH = "keytabPath";
 
-    public static final String STORM_TOPOLOGY_CONFIG_AUTO_CREDENTIALS = "topology.auto-credentials";
-    public static final String TOPOLOGY_CONFIG_KEY_CLUSTER_KEY_PREFIX_HDFS = "hdfs_";
-    public static final String TOPOLOGY_CONFIG_KEY_CLUSTER_KEY_PREFIX_HBASE = "hbase_";
-    public static final String TOPOLOGY_CONFIG_KEY_CLUSTER_KEY_PREFIX_HIVE = "hive_";
-    public static final String TOPOLOGY_CONFIG_KEY_HDFS_KEYTAB_FILE = "hdfs.keytab.file";
-    public static final String TOPOLOGY_CONFIG_KEY_HBASE_KEYTAB_FILE = "hbase.keytab.file";
-    public static final String TOPOLOGY_CONFIG_KEY_HIVE_KEYTAB_FILE = "hive.keytab.file";
-    public static final String TOPOLOGY_CONFIG_KEY_HDFS_KERBEROS_PRINCIPAL = "hdfs.kerberos.principal";
-    public static final String TOPOLOGY_CONFIG_KEY_HBASE_KERBEROS_PRINCIPAL = "hbase.kerberos.principal";
-    public static final String TOPOLOGY_CONFIG_KEY_HIVE_KERBEROS_PRINCIPAL = "hive.kerberos.principal";
-    public static final String TOPOLOGY_CONFIG_KEY_HDFS_CREDENTIALS_CONFIG_KEYS = "hdfsCredentialsConfigKeys";
-    public static final String TOPOLOGY_CONFIG_KEY_HBASE_CREDENTIALS_CONFIG_KEYS = "hbaseCredentialsConfigKeys";
-    public static final String TOPOLOGY_CONFIG_KEY_HIVE_CREDENTIALS_CONFIG_KEYS = "hiveCredentialsConfigKeys";
-    public static final String TOPOLOGY_CONFIG_KEY_NOTIFIER_PLUGIN = "storm.topology.submission.notifier.plugin.class";
-    public static final String TOPOLOGY_AUTO_CREDENTIAL_CLASSNAME_HDFS = "org.apache.storm.hdfs.security.AutoHDFS";
-    public static final String TOPOLOGY_AUTO_CREDENTIAL_CLASSNAME_HBASE = "org.apache.storm.hbase.security.AutoHBase";
-    public static final String TOPOLOGY_AUTO_CREDENTIAL_CLASSNAME_HIVE = "org.apache.storm.hive.security.AutoHive";
-    public static final String TOPOLOGY_NOTIFIER_PLUGIN_CLASSNAME_ATLAS = "org.apache.atlas.storm.hook.StormAtlasHook";
+    private static final String STORM_TOPOLOGY_CONFIG_AUTO_CREDENTIALS = "topology.auto-credentials";
+    private static final String TOPOLOGY_CONFIG_KEY_CLUSTER_KEY_PREFIX_HDFS = "hdfs_";
+    private static final String TOPOLOGY_CONFIG_KEY_CLUSTER_KEY_PREFIX_HBASE = "hbase_";
+    private static final String TOPOLOGY_CONFIG_KEY_CLUSTER_KEY_PREFIX_HIVE = "hive_";
+    private static final String TOPOLOGY_CONFIG_KEY_HDFS_KEYTAB_FILE = "hdfs.keytab.file";
+    private static final String TOPOLOGY_CONFIG_KEY_HBASE_KEYTAB_FILE = "hbase.keytab.file";
+    private static final String TOPOLOGY_CONFIG_KEY_HIVE_KEYTAB_FILE = "hive.keytab.file";
+    private static final String TOPOLOGY_CONFIG_KEY_HDFS_KERBEROS_PRINCIPAL = "hdfs.kerberos.principal";
+    private static final String TOPOLOGY_CONFIG_KEY_HBASE_KERBEROS_PRINCIPAL = "hbase.kerberos.principal";
+    private static final String TOPOLOGY_CONFIG_KEY_HIVE_KERBEROS_PRINCIPAL = "hive.kerberos.principal";
+    private static final String TOPOLOGY_CONFIG_KEY_HDFS_CREDENTIALS_CONFIG_KEYS = "hdfsCredentialsConfigKeys";
+    private static final String TOPOLOGY_CONFIG_KEY_HBASE_CREDENTIALS_CONFIG_KEYS = "hbaseCredentialsConfigKeys";
+    private static final String TOPOLOGY_CONFIG_KEY_HIVE_CREDENTIALS_CONFIG_KEYS = "hiveCredentialsConfigKeys";
+    private static final String TOPOLOGY_CONFIG_KEY_NOTIFIER_PLUGIN = "storm.topology.submission.notifier.plugin.class";
+    private static final String TOPOLOGY_AUTO_CREDENTIAL_CLASSNAME_HDFS = "org.apache.storm.hdfs.security.AutoHDFS";
+    private static final String TOPOLOGY_AUTO_CREDENTIAL_CLASSNAME_HBASE = "org.apache.storm.hbase.security.AutoHBase";
+    private static final String TOPOLOGY_AUTO_CREDENTIAL_CLASSNAME_HIVE = "org.apache.storm.hive.security.AutoHive";
+    private static final String TOPOLOGY_NOTIFIER_PLUGIN_CLASSNAME_ATLAS = "org.apache.atlas.storm.hook.StormAtlasHook";
 
     private static final Long DEFAULT_NIMBUS_THRIFT_MAX_BUFFER_SIZE = 1048576L;
 
-    public static final String TOPOLOGY_EVENTLOGGER_REGISTER = "topology.event.logger.register";
-    public static final String TOPOLOGY_EVENTLOGGER_CLASSNAME_STREAMLINE = "com.hortonworks.streamline.streams.runtime.storm.event.sample.StreamlineEventLogger";
+    private static final String TOPOLOGY_EVENTLOGGER_REGISTER = "topology.event.logger.register";
+    private static final String TOPOLOGY_EVENTLOGGER_CLASSNAME_STREAMLINE = "com.hortonworks.streamline.streams.runtime.storm.event.sample.StreamlineEventLogger";
 
 
 
@@ -160,11 +159,14 @@ public class StormTopologyActionsImpl implements TopologyActions {
     private final ConcurrentHashMap<Long, Boolean> forceKillRequests = new ConcurrentHashMap<>();
     private Set<String> environmentServiceNames;
 
+    private TopologyActionsService topologyActionsService;
+
     public StormTopologyActionsImpl() {
     }
 
     @Override
-    public void init (Map<String, Object> conf) {
+    public void init (Map<String, Object> conf, TopologyActionsService topologyActionsService) {
+        this.topologyActionsService = topologyActionsService;
         this.conf = conf;
         if (conf != null) {
             if (conf.containsKey(StormTopologyLayoutConstants.STORM_ARTIFACTS_LOCATION_KEY)) {
@@ -250,6 +252,105 @@ public class StormTopologyActionsImpl implements TopologyActions {
         }
     }
 
+    /* Should have
+     * at-least 1 processor
+     * OR
+     * at-least 1 source with an edge.
+     */
+    @Override
+    public void ensureValid(TopologyDag dag) {
+        if (dag.getComponents().isEmpty()) {
+            throw new IllegalStateException("Empty topology");
+        }
+        java.util.Optional<OutputComponent> processor = dag.getOutputComponents().stream()
+                .filter(x -> x instanceof StreamlineProcessor)
+                .findFirst();
+        if (!processor.isPresent()) {
+            java.util.Optional<OutputComponent> sourceWithOutgoingEdge = dag.getOutputComponents().stream()
+                    .filter(x -> x instanceof StreamlineSource && !dag.getEdgesFrom(x).isEmpty())
+                    .findFirst();
+            if (!sourceWithOutgoingEdge.isPresent()) {
+                throw new IllegalStateException("Topology does not contain a processor or a source with an outgoing edge");
+            }
+        }
+
+        Optional<Edge> edge = dag.getAllEdges().stream()
+                .filter(e -> e.getStreamGroupings().stream().anyMatch(g -> !g.isValid()))
+                .findFirst();
+        if (edge.isPresent()) {
+            throw new IllegalStateException("Topology edge between "
+                    + edge.get().getFrom().getName() + " and " + edge.get().getTo().getName()
+                    + " has invalid stream grouping.");
+        }
+    }
+
+    @Override
+    public String setUpExtraJars(Topology topology) throws IOException {
+        StormTopologyDependenciesHandler extraJarsHandler = new StormTopologyDependenciesHandler(topologyActionsService.getCatalogService());
+        topology.getTopologyDag().traverse(extraJarsHandler);
+        Path extraJarsLocation = getExtraJarsLocation(CatalogToLayoutConverter.getTopologyLayout(topology));
+        makeEmptyDir(extraJarsLocation);
+        Set<String> extraJars = new HashSet<>();
+        extraJars.addAll(extraJarsHandler.getExtraJars());
+        extraJars.addAll(getBundleJars(extraJarsHandler.getTopologyComponentBundleSet()));
+        downloadAndCopyJars(extraJars, extraJarsLocation);
+        return extraJarsHandler.getMavenDeps();
+    }
+
+    @Override
+    public void setUpClusterArtifacts(Topology topology) throws IOException {
+        EnvironmentService environmentService = topologyActionsService.getEnvironmentService();
+        Namespace namespace = environmentService.getNamespace(topology.getNamespaceId());
+        if (namespace == null) {
+            throw new RuntimeException("Corresponding namespace not found: " + topology.getNamespaceId());
+        }
+
+        ObjectMapper objectMapper = new ObjectMapper();
+        Path artifactsDir = getArtifactsLocation(CatalogToLayoutConverter.getTopologyLayout(topology));
+        makeEmptyDir(artifactsDir);
+
+        Collection<NamespaceServiceClusterMap> serviceClusterMappings = environmentService.listServiceClusterMapping(namespace.getId());
+        for (NamespaceServiceClusterMap serviceClusterMapping : serviceClusterMappings) {
+            Service service = environmentService.getServiceByName(serviceClusterMapping.getClusterId(),
+                    serviceClusterMapping.getServiceName());
+            if (service != null) {
+                Collection<ServiceConfiguration> serviceConfigurations = environmentService.listServiceConfigurations(service.getId());
+                if (serviceConfigurations != null) {
+                    for (ServiceConfiguration serviceConfiguration : serviceConfigurations) {
+                        writeConfigurationFile(objectMapper, artifactsDir, serviceConfiguration);
+                    }
+                }
+            }
+        }
+    }
+
+
+    // Only known configuration files will be saved to local
+    private void writeConfigurationFile(ObjectMapper objectMapper, Path artifactsDir,
+                                        ServiceConfiguration configuration) throws IOException {
+        ConfigFileWriter configFileWriter = new ConfigFileWriter();
+        String filename = configuration.getFilename();
+        if (filename != null && !filename.isEmpty()) {
+            // Configuration itself is aware of file name
+            ConfigFileType fileType = ConfigFileType.getFileTypeFromFileName(filename);
+
+            if (fileType != null) {
+                File destPath = Paths.get(artifactsDir.toString(), filename).toFile();
+
+                Map<String, String> conf = objectMapper.readValue(configuration.getConfiguration(),
+                        new TypeReference<Map<String, String>>() {});
+
+                try {
+                    configFileWriter.writeConfigToFile(fileType, conf, destPath);
+                    LOG.debug("Resource {} written to {}", filename, destPath);
+                } catch (IllegalArgumentException e) {
+                    LOG.warn("Don't know how to write resource {} skipping...", filename);
+                }
+            }
+        }
+    }
+
+
     @Override
     public void deploy(TopologyLayout topology, String mavenArtifacts, TopologyActionContext ctx, String asUser) throws Exception {
         ctx.setCurrentAction("Adding artifacts to jar");
@@ -257,7 +358,7 @@ public class StormTopologyActionsImpl implements TopologyActions {
         ctx.setCurrentAction("Creating Storm topology YAML file");
         String fileName = createYamlFileForDeploy(topology);
         ctx.setCurrentAction("Deploying topology via 'storm jar' command");
-        List<String> commands = new ArrayList<String>();
+        List<String> commands = new ArrayList<>();
         commands.add(stormCliPath);
         commands.add("jar");
         commands.add(jarToDeploy.toString());
@@ -308,7 +409,7 @@ public class StormTopologyActionsImpl implements TopologyActions {
 
         Path jarToDeploy = addArtifactsToJar(getArtifactsLocation(testTopology));
         String fileName = createYamlFileForTest(testTopology);
-        List<String> commands = new ArrayList<String>();
+        List<String> commands = new ArrayList<>();
         commands.add(stormCliPath);
         commands.add("jar");
         commands.add(jarToDeploy.toString());
@@ -399,7 +500,7 @@ public class StormTopologyActionsImpl implements TopologyActions {
     }
 
     @Override
-    public Status status(TopologyLayout topology, String asUser) throws Exception {
+    public Status status(TopologyLayout topology, String asUser) {
         String stormTopologyId = getRuntimeTopologyId(topology, asUser);
 
         Map topologyStatus = client.getTopology(stormTopologyId, asUser);
@@ -413,7 +514,7 @@ public class StormTopologyActionsImpl implements TopologyActions {
     }
 
     @Override
-    public LogLevelInformation configureLogLevel(TopologyLayout topology, LogLevel targetLogLevel, int durationSecs, String asUser) throws Exception {
+    public LogLevelInformation configureLogLevel(TopologyLayout topology, LogLevel targetLogLevel, int durationSecs, String asUser) {
         String stormTopologyId = StormTopologyUtil.findStormTopologyId(client, topology.getId(), asUser);
         if (StringUtils.isEmpty(stormTopologyId)) {
             return null;
@@ -424,7 +525,7 @@ public class StormTopologyActionsImpl implements TopologyActions {
     }
 
     @Override
-    public LogLevelInformation getLogLevel(TopologyLayout topology, String asUser) throws Exception {
+    public LogLevelInformation getLogLevel(TopologyLayout topology, String asUser) {
         String stormTopologyId = StormTopologyUtil.findStormTopologyId(client, topology.getId(), asUser);
         if (StringUtils.isEmpty(stormTopologyId)) {
             return null;
@@ -457,6 +558,56 @@ public class StormTopologyActionsImpl implements TopologyActions {
 
     private TopologyLayout copyTopologyLayout(TopologyLayout topology, TopologyDag replacedTopologyDag) {
         return new TopologyLayout(topology.getId(), topology.getName(), topology.getConfig(), replacedTopologyDag);
+    }
+
+
+    private Set<String> getBundleJars (Set<TopologyComponentBundle> bundlesToDeploy) throws IOException {
+        Set<String> bundleJars = new HashSet<>();
+        for (TopologyComponentBundle topologyComponentBundle: bundlesToDeploy) {
+            bundleJars.add(topologyComponentBundle.getBundleJar());
+        }
+        return bundleJars;
+    }
+
+
+    private void downloadAndCopyJars (Set<String> jarsToDownload, Path destinationPath) throws IOException {
+        Set<String> copiedJars = new HashSet<>();
+        for (String jar: jarsToDownload) {
+            if (!copiedJars.contains(jar)) {
+                Path jarPath = Paths.get(jar);
+                if (destinationPath == null || jarPath == null) {
+                    throw new IllegalArgumentException("null destinationPath or jarPath");
+                }
+                Path jarFileName = jarPath.getFileName();
+                if (jarFileName == null) {
+                    throw new IllegalArgumentException("null farFileName");
+                }
+                File destPath = Paths.get(destinationPath.toString(), jarFileName.toString()).toFile();
+                try (InputStream src = topologyActionsService.getFileStorage().download(jar);
+                     FileOutputStream dest = new FileOutputStream(destPath)
+                ) {
+                    IOUtils.copy(src, dest);
+                    copiedJars.add(jar);
+                    LOG.debug("Jar {} copied to {}", jar, destPath);
+                }
+            }
+        }
+    }
+
+
+    private void makeEmptyDir(Path path) throws IOException {
+        if (path.toFile().exists()) {
+            if (path.toFile().isDirectory()) {
+                FileUtils.cleanDirectory(path.toFile());
+            } else {
+                final String errorMessage = String.format("Location '%s' must be a directory.", path);
+                LOG.error(errorMessage);
+                throw new IOException(errorMessage);
+            }
+        } else if (!path.toFile().mkdirs()) {
+            LOG.error("Could not create dir {}", path);
+            throw new IOException("Could not create dir: " + path);
+        }
     }
 
     private List<String> getMavenArtifactsRelatedArgs (String mavenArtifacts) {
@@ -774,9 +925,9 @@ public class StormTopologyActionsImpl implements TopologyActions {
         }
     }
 
-    public boolean checkTopologyContainingServiceRelatedComponent(TopologyDag topologyDag,
-                                                                  List<Class<?>> outputComponentClasses,
-                                                                  List<Class<?>> inputComponentClasses) {
+    private boolean checkTopologyContainingServiceRelatedComponent(TopologyDag topologyDag,
+                                                                   List<Class<?>> outputComponentClasses,
+                                                                   List<Class<?>> inputComponentClasses) {
         boolean componentExists = false;
         for (OutputComponent outputComponent : topologyDag.getOutputComponents()) {
             for (Class<?> clazz : outputComponentClasses) {
@@ -898,7 +1049,7 @@ public class StormTopologyActionsImpl implements TopologyActions {
         return new ShellProcessResult(exitValue, stdout);
     }
 
-    private ShellProcessResult waitTestRunProcess(Process process, long topologyRunHistoryId) throws IOException {
+    private ShellProcessResult waitTestRunProcess(Process process, long topologyRunHistoryId)  {
         forceKillRequests.put(topologyRunHistoryId, false);
 
         LOG.info("Waiting for test run for history {} to be finished...", topologyRunHistoryId);

@@ -200,15 +200,15 @@ public class TopologyTestRunner {
     private Void runTestInBackground(TopologyActions topologyActions, Topology topology,
                                      TopologyTestRunHistory history,
                                      Map<String, TestRunSource> testRunSourceMap,
-                                     Map<String, TestRunProcessor> testRunProcessorMap,
+                                      Map<String, TestRunProcessor> testRunProcessorMap,
                                      Map<String, TestRunRulesProcessor> testRunRulesProcessorMap,
                                      Map<String, TestRunSink> testRunSinkMap,
                                      Map<String, List<Map<String, Object>>> expectedOutputRecordsMap,
                                      Optional<Long> durationSecs) throws IOException {
         TopologyLayout topologyLayout = CatalogToLayoutConverter.getTopologyLayout(topology, topology.getTopologyDag());
         try {
-            topologyActionsService.setUpClusterArtifacts(topology, topologyActions);
-            String mavenArtifacts = topologyActionsService.setUpExtraJars(topology, topologyActions);
+            topologyActions.setUpClusterArtifacts(topology);
+            String mavenArtifacts = topologyActions.setUpExtraJars(topology);
 
             topologyActions.runTest(topologyLayout, history, mavenArtifacts, testRunSourceMap, testRunProcessorMap,
                     testRunRulesProcessorMap, testRunSinkMap, durationSecs);

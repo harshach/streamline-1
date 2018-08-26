@@ -39,7 +39,7 @@ public final class TopologyStates {
             try {
                 context.setCurrentAction("Constructing topology DAG");
                 Topology topology = context.getTopology();
-                TopologyDag dag = context.getTopologyActionsService().getTopologyDagBuilder().getDag(topology);
+                TopologyDag dag = topology.getTopologyDag();
                 topology.setTopologyDag(dag);
                 context.setState(TOPOLOGY_STATE_DAG_CONSTRUCTED);
                 context.setCurrentAction("DAG constructed");
@@ -57,7 +57,7 @@ public final class TopologyStates {
             try {
                 context.setCurrentAction("Validating topology DAG");
                 TopologyDag dag = context.getTopology().getTopologyDag();
-                context.getTopologyActionsService().ensureValid(dag);
+                context.getTopologyActions().ensureValid(dag);
                 context.setState(TOPOLOGY_STATE_DAG_VALIDATED);
                 context.setCurrentAction("Topology DAG validated");
             } catch (Exception ex) {
@@ -75,7 +75,7 @@ public final class TopologyStates {
                 context.setCurrentAction("Setting up cluster artifacts");
                 Topology topology = context.getTopology();
                 TopologyActions topologyActions = context.getTopologyActions();
-                context.getTopologyActionsService().setUpClusterArtifacts(topology, topologyActions);
+                topologyActions.setUpClusterArtifacts(topology);
                 context.setState(TOPOLOGY_STATE_CLUSTER_ARTIFACTS_SETUP);
                 context.setCurrentAction("Cluster artifacts set up");
             } catch (Exception ex) {
@@ -94,7 +94,7 @@ public final class TopologyStates {
                 context.setCurrentAction("Setting up extra jars");
                 Topology topology = context.getTopology();
                 TopologyActions topologyActions = context.getTopologyActions();
-                String mavenArtifacts = context.getTopologyActionsService().setUpExtraJars(topology, topologyActions);
+                String mavenArtifacts = topologyActions.setUpExtraJars(topology);
                 context.setMavenArtifacts(mavenArtifacts);
                 context.setState(TOPOLOGY_STATE_EXTRA_JARS_SETUP);
                 context.setCurrentAction("Extra jars set up");

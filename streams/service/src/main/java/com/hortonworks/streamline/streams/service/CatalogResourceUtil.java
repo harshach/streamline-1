@@ -19,7 +19,6 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.google.common.base.Stopwatch;
 import com.hortonworks.streamline.streams.actions.topology.service.TopologyActionsService;
 import com.hortonworks.streamline.streams.actions.topology.state.TopologyStateFactory;
-import com.hortonworks.streamline.streams.actions.topology.state.TopologyStates;
 import com.hortonworks.streamline.streams.cluster.catalog.Namespace;
 import com.hortonworks.streamline.streams.cluster.catalog.NamespaceServiceClusterMap;
 import com.hortonworks.streamline.streams.catalog.Topology;
@@ -144,7 +143,8 @@ public final class CatalogResourceUtil {
                 detailedResponse = new TopologyDashboardResponse(topology, TopologyRunningStatus.NOT_RUNNING, namespaceName);
                 catalogService.getTopologyState(topology.getId())
                         .ifPresent(state -> {
-                            if (TopologyStateFactory.getInstance().getTopologyState(state.getName()) == TopologyStates.TOPOLOGY_STATE_DEPLOYED) {
+                            if (TopologyStateFactory.getInstance().getTopologyState(state.getName()) ==
+                                    TopologyStateFactory.getInstance().deployedState()) {
                                 try {
                                     LOG.info("Force killing streamline topology since its not alive in the cluster");
                                     actionsService.killTopology(topology, asUser);

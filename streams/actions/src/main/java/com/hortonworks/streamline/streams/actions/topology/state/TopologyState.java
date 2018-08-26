@@ -32,6 +32,13 @@ public abstract class TopologyState {
         throw new IllegalStateException("Invalid action for current state: " + this);
     }
 
+    /**
+     * A unique name that identifies the state
+     *
+     * @return the state name
+     */
+    public abstract String getName();
+
     @Override
     public String toString() {
         return TopologyStateFactory.getInstance().getTopologyStateName(this);

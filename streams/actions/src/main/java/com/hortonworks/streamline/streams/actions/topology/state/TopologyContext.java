@@ -34,10 +34,6 @@ public class TopologyContext implements TopologyActionContext {
     private TopologyState state;
     private String asUser;
 
-    public TopologyContext(Topology topology, TopologyActions topologyActions, TopologyActionsService topologyActionsService) {
-        this(topology, topologyActions, topologyActionsService, TopologyStates.TOPOLOGY_STATE_INITIAL, null);
-    }
-
     public TopologyContext(Topology topology, TopologyActions topologyActions, TopologyActionsService topologyActionsService,
                            TopologyState state, String asUser) {
         Objects.requireNonNull(topology, "null topology");
@@ -88,7 +84,7 @@ public class TopologyContext implements TopologyActionContext {
     }
 
     public void deploy() throws Exception {
-        state.deploy(this);
+        state.deploy(this); 
     }
 
     public void kill() throws Exception {

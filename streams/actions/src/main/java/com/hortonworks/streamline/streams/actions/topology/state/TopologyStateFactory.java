@@ -19,8 +19,6 @@ import com.hortonworks.streamline.common.util.Utils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.lang.reflect.Field;
-import java.lang.reflect.Modifier;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -32,24 +30,19 @@ public class TopologyStateFactory {
 
     private static final TopologyStateFactory INSTANCE = new TopologyStateFactory();
 
+    // TODO: plug this in based on the engine
+    private TopologyStateMachine stateMachine = new DefaultTopologyStateMachine();
+
     public static TopologyStateFactory getInstance() {
         return INSTANCE;
     }
 
     private TopologyStateFactory() {
-        try {
-            for (Field field : TopologyStates.class.getDeclaredFields()) {
-                if (Modifier.isStatic(field.getModifiers())
-                        && TopologyState.class.isAssignableFrom(field.getType())) {
-                    TopologyState state = (TopologyState) field.get(null);
-                    String name = field.getName();
-                    states.put(name, state);
-                    stateNames.put(state, name);
-                    LOG.debug("Registered topology state {}", name);
-                }
-            }
-        } catch (IllegalAccessException ex) {
-            throw new RuntimeException(ex);
+        for (TopologyState state : stateMachine.allStates()) {
+            String name = state.getName();
+            states.put(name, state);
+            stateNames.put(state, name);
+            LOG.debug("Registered topology state {}", name);
         }
     }
 
@@ -68,5 +61,13 @@ public class TopologyStateFactory {
             throw new IllegalArgumentException("Unknown state " + state);
         }
         return name;
+    }
+
+    public TopologyState deployedState() {
+        return stateMachine.deployedState();
+    }
+
+    public TopologyState initialState() {
+        return stateMachine.initialState();
     }
 }

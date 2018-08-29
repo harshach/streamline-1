@@ -209,6 +209,12 @@ public class StreamCatalogService {
         return engine;
     }
 
+    public Engine getEngine(Long engineId) {
+        Engine engine = new Engine();
+        engine.setId(engineId);
+        return dao.get(engine.getStorableKey());
+    }
+
     public Collection<Template> listTemplates(List<QueryParam> queryParams) { return dao.find(TEMPLATE_NAMESPACE, queryParams);}
 
     public Template addTemplate(Template template) {

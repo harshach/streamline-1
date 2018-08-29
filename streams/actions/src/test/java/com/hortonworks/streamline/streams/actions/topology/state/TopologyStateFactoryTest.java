@@ -28,6 +28,6 @@ public class TopologyStateFactoryTest {
     public void getTopologyStateValid() throws Exception {
         TopologyStateFactory topologyStateFactory = TopologyStateFactory.getInstance();
         TopologyState state = topologyStateFactory.getTopologyState("TOPOLOGY_STATE_INITIAL");
-        assertEquals(state, TopologyStates.TOPOLOGY_STATE_INITIAL);
+        assertEquals(state, topologyStateFactory.initialState());
     }
 }

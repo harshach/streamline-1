@@ -29,7 +29,7 @@ import com.hortonworks.streamline.common.util.FileStorage;
 import com.hortonworks.streamline.registries.model.client.MLModelRegistryClient;
 import com.hortonworks.streamline.registries.tag.client.TagClient;
 import com.hortonworks.streamline.storage.StorageManager;
-import com.hortonworks.streamline.streams.actions.container.mapping.MappedTopologyActionsImpl;
+import com.hortonworks.streamline.streams.actions.builder.mapping.MappedTopologyActionsBuilder;
 import com.hortonworks.streamline.streams.actions.topology.service.TopologyActionsService;
 import com.hortonworks.streamline.streams.catalog.TopologyVersion;
 import com.hortonworks.streamline.streams.catalog.service.CatalogService;
@@ -232,7 +232,7 @@ public class StreamsModule implements ModuleRegistration, StorageManagerAware, T
                     testNamespace = new Namespace();
                     testNamespace.setId(EnvironmentService.TEST_ENVIRONMENT_ID);
                     testNamespace.setName("Test Environment");
-                    testNamespace.setStreamingEngine(MappedTopologyActionsImpl.STORM.name());
+                    testNamespace.setStreamingEngine(MappedTopologyActionsBuilder.STORM.name());
                     // no metric service, no log search service
                     testNamespace.setDescription("Empty environment to test the topology which doesn't require external service.");
                     testNamespace.setInternal(true);

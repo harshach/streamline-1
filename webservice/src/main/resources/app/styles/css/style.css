@@ -370,6 +370,10 @@ label {
   border-color: #C00;
 }
 
+.form-datepicker-group .btn{
+  border-radius: 4px;
+}
+
 .modal-sidebar-right {
   border-left: 2px #fafafa solid;
   width: 300px;

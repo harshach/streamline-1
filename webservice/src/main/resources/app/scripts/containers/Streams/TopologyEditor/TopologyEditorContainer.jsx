@@ -364,7 +364,7 @@ class TopologyEditorContainer extends Component {
     const obj = _.find(fields, (field) => {
       return field.fieldName === "topology.message.timeout.secs";
     });
-    return obj.defaultValue;
+    return obj ? obj.defaultValue : 0;
   }
 
   // fetchProcessors on graph render

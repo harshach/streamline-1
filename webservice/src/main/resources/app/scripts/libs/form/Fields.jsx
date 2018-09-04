@@ -33,6 +33,8 @@ import _ from 'lodash';
 import Utils from '../../utils/Utils';
 import TopologyREST from '../../rest/TopologyREST';
 import ProcessorUtils from '../../utils/ProcessorUtils';
+import DatetimeRangePicker from 'react-bootstrap-datetimerangepicker';
+import moment from 'moment';
 
 export class BaseField extends Component {
   type = 'FormField';
@@ -320,6 +322,46 @@ export class string extends BaseField {
             ? "form-control invalidInput"
             : "form-control"} ref="input" value={this.props.data[this.props.value] || ''} disabled={disabledField} {...this.props.attrs} onChange={this.handleChange} onBlur={this.handleOnBlur}/>
     );
+  }
+}
+
+export class date extends BaseField {
+  handleChange = (e, datePicker) => {
+    const {Form} = this.context;
+    this.props.data[this.props.value] = datePicker.startDate.format('YYYY-MM-DD HH:mm:ss');
+    Form.setState(Form.state, () => {
+      this.validate();
+    });
+  }
+
+  validate() {
+    return super.validate(this.props.data[this.props.value]);
+  }
+
+  getField = () => {
+    if(!this.props.data[this.props.value]){
+      this.props.data[this.props.value] = moment().format('YYYY-MM-DD HH:mm:ss');
+    }
+
+    const value = moment(this.props.data[this.props.value]);
+
+    return (<DatetimeRangePicker
+      singleDatePicker
+      timePicker timePicker24Hour timePickerSeconds autoUpdateInput={true}
+      showDropdowns
+      startDate={value}
+      endDate={value}
+      onApply={this.handleChange}
+    >
+      <InputGroup className="selected-date-range-btn form-datepicker-group">
+        <Button>
+          <div className="pull-right">
+            <i className="fa fa-calendar"/>
+          </div>
+          <span className="pull-left">{value.format('YYYY-MM-DD HH:mm:ss')}</span>&nbsp;
+        </Button>
+      </InputGroup>
+    </DatetimeRangePicker>);
   }
 }
 

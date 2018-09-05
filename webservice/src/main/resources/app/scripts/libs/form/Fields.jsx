@@ -33,6 +33,8 @@ import _ from 'lodash';
 import Utils from '../../utils/Utils';
 import TopologyREST from '../../rest/TopologyREST';
 import ProcessorUtils from '../../utils/ProcessorUtils';
+import DatetimeRangePicker from 'react-bootstrap-datetimerangepicker';
+import moment from 'moment';
 
 export class BaseField extends Component {
   type = 'FormField';
@@ -320,6 +322,82 @@ export class string extends BaseField {
             ? "form-control invalidInput"
             : "form-control"} ref="input" value={this.props.data[this.props.value] || ''} disabled={disabledField} {...this.props.attrs} onChange={this.handleChange} onBlur={this.handleOnBlur}/>
     );
+  }
+}
+
+export class date extends BaseField {
+  get dateFormat(){
+    return 'YYYY-MM-DD';
+  }
+  get datePickerOptions(){
+    return {};
+  }
+  componentDidMount(){
+    if(this.parentEl != this.datePickerRef){
+      this.parentEl = $(this.datePickerRef);
+      this.forceUpdate();
+    }
+  }
+  handleChange = (e, datePicker) => {
+    const {Form} = this.context;
+    this.props.data[this.props.value] = datePicker.startDate.format(this.dateFormat);
+    Form.setState(Form.state, () => {
+      this.validate();
+    });
+  }
+  validate() {
+    return super.validate(this.props.data[this.props.value]);
+  }
+  getField = () => {
+    const form_value = this.props.data[this.props.value];
+
+    const value = form_value && moment(form_value);
+
+    const errorClass = this.context.Form.state.Errors[this.props.valuePath] ? 'invalidInput' : '';
+
+    return (<div
+      ref={(ref) => this.datePickerRef = ref}
+      style={{position: 'relative'}}
+    >
+    {this.parentEl ?
+      <DatetimeRangePicker
+        singleDatePicker
+        autoUpdateInput={true}
+        showDropdowns
+        startDate={value}
+        endDate={value}
+        onApply={this.handleChange}
+        parentEl={this.parentEl}
+        {...this.datePickerOptions}
+      >
+        <InputGroup className="selected-date-range-btn form-datepicker-group">
+          <Button className={`${errorClass}`}>
+            <div className="pull-right">
+              <i className="fa fa-calendar"/>
+            </div>
+            {form_value ?
+              <span className="pull-left">{value.format(this.dateFormat)}</span>
+              :
+              <label className="place-holder">Select Date</label>}
+            &nbsp;
+          </Button>
+        </InputGroup>
+      </DatetimeRangePicker>
+    : null}
+    </div>);
+  }
+}
+
+export class datetime extends date {
+  get dateFormat(){
+    return 'YYYY-MM-DD HH:mm:ss';
+  }
+  get datePickerOptions(){
+    return {
+      timePicker: true,
+      timePicker24Hour:true,
+      timePickerSeconds: true
+    };
   }
 }
 

@@ -170,8 +170,9 @@ public class TopologyActionsService implements ContainingNamespaceAwareContainer
             throw new RuntimeException("Corresponding namespace not found: " + ds.getNamespaceId());
         }
         Engine engine = catalogService.getEngine(ds.getEngineId());
-        Map<Namespace, TopologyActionsBuilder> topologyActionsMap = topologyActionsBuilderMap.putIfAbsent(engine,
+        topologyActionsBuilderMap.putIfAbsent(engine,
                 new HashMap<>());
+        Map<Namespace, TopologyActionsBuilder> topologyActionsMap = topologyActionsBuilderMap.get(engine);
         TopologyActionsBuilder topologyActionsBuilder = topologyActionsMap.get(namespace);
         String className = Strings.EMPTY;
         if (topologyActionsBuilder == null) {

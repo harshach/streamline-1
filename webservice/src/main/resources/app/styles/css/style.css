@@ -4514,3 +4514,10 @@ div.hint-tooltip{
 .topology-foot-graphs .tick > text {
   font-size: 6px;
 }
+
+.form-datepicker-group .btn{
+  border-radius: 4px;
+}
+.form-datepicker-group .place-holder{
+  margin-bottom: 0px;
+}

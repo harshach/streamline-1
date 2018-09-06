@@ -79,7 +79,7 @@ export default class TopologyConfigContainer extends Component {
           clusters = _.uniqBy(clusters, 'id');
           let securityFieldsObj = _.find(formField.fields, {"fieldName": "clustersSecurityConfig"});
           if(securityFieldsObj){
-            let securityFields = securityFieldsObj.fields;
+            var securityFields = securityFieldsObj.fields;
             if(securityFields){
               let fieldObj = _.find(securityFields, {"fieldName": "clusterId"});
               if(fieldObj){
@@ -109,60 +109,60 @@ export default class TopologyConfigContainer extends Component {
           if (mapObj) {
             var stormClusterId = mapObj.clusterId;
             let hasSecurity = false, principalsArr = [], keyTabsArr = [];
-            ClusterREST.getStormSecurityDetails(stormClusterId)
-              .then((entity)=>{
-                if(entity.responseMessage !== undefined) {
-                  let msg = entity.responseMessage.indexOf('StreamlinePrincipal') !== -1
-                  ? " Please contact admin to get access for this application's services."
-                  : entity.responseMessage;
-                  FSReactToastr.error(<CommonNotification flag="error" content={msg}/>, '', toastOpt);
-                } else {
-                  if(entity.security.authentication.enabled) {
-                    hasSecurity = true;
-                  }
-                  let stormPrincipals = (entity.security.principals && entity.security.principals["storm"]) || [];
-                  stormPrincipals.map((o)=>{
-                    principalsArr.push(o.name);
-                  });
+            // ClusterREST.getStormSecurityDetails(stormClusterId)
+            //   .then((entity)=>{
+            //     if(entity.responseMessage !== undefined) {
+            //       let msg = entity.responseMessage.indexOf('StreamlinePrincipal') !== -1
+            //       ? " Please contact admin to get access for this application's services."
+            //       : entity.responseMessage;
+            //       FSReactToastr.error(<CommonNotification flag="error" content={msg}/>, '', toastOpt);
+            //     } else {
+            //       if(entity.security.authentication.enabled) {
+            //         hasSecurity = true;
+            //       }
+                  // let stormPrincipals = (entity.security.principals && entity.security.principals["storm"]) || [];
+                  // stormPrincipals.map((o)=>{
+                  //   principalsArr.push(o.name);
+                  // });
 
-                  _.keys(entity.security.keytabs).map((kt)=>{
-                    keyTabsArr.push(entity.security.keytabs[kt]);
-                  });
+                  // _.keys(entity.security.keytabs).map((kt)=>{
+                  //   keyTabsArr.push(entity.security.keytabs[kt]);
+                  // });
 
-                  let principalFieldObj = _.find(securityFields, {"fieldName": "principal"});
-                  principalFieldObj.options = principalsArr;
+            let principalFieldObj = _.find(securityFields, {"fieldName": "principal"});
+            principalFieldObj.options = principalsArr;
 
-                  let keyTabFieldObj = _.find(securityFields, {"fieldName": "keytabPath"});
-                  keyTabFieldObj.options = keyTabsArr;
-                }
+            let keyTabFieldObj = _.find(securityFields, {"fieldName": "keytabPath"});
+            keyTabFieldObj.options = keyTabsArr;
+                // }
                 //removing security related fields for non-secure mode
-                if(hasSecurity === false) {
-                  if(formField.fields && formField.fields.length > 0) {
-                    formField.fields = _.filter(formField.fields, (f)=>{
-                      if(f.hint && f.hint.indexOf('security_') !== -1) {
-                        return false;
-                      } else {
-                        return true;
-                      }
-                    });
+            if(hasSecurity === false) {
+              if(formField.fields && formField.fields.length > 0) {
+                formField.fields = _.filter(formField.fields, (f)=>{
+                  if(f.hint && f.hint.indexOf('security_') !== -1) {
+                    return false;
+                  } else {
+                    return true;
                   }
-                } else {
-                  let nodes = this.props.topologyNodes.filter((c)=>{
-                    return c.currentType.toLowerCase() === 'hbase' || c.currentType.toLowerCase() === 'hdfs' || c.currentType.toLowerCase() === 'hive';
-                  });
-                  if(nodes.length == 0) {
-                    let nameField = _.find(securityFields, {"fieldName": "clusterId"});
-                    nameField.isOptional = true;
-
-                    let principalField = _.find(securityFields, {"fieldName": "principal"});
-                    principalField.isOptional = true;
-
-                    let keyTabField = _.find(securityFields, {"fieldName": "keytabPath"});
-                    keyTabField.isOptional = true;
-                  }
-                }
-                this.setState({hasSecurity: hasSecurity, formField: formField});
+                });
+              }
+            } else {
+              let nodes = this.props.topologyNodes.filter((c)=>{
+                return c.currentType.toLowerCase() === 'hbase' || c.currentType.toLowerCase() === 'hdfs' || c.currentType.toLowerCase() === 'hive';
               });
+              if(nodes.length == 0) {
+                let nameField = _.find(securityFields, {"fieldName": "clusterId"});
+                nameField.isOptional = true;
+
+                let principalField = _.find(securityFields, {"fieldName": "principal"});
+                principalField.isOptional = true;
+
+                let keyTabField = _.find(securityFields, {"fieldName": "keytabPath"});
+                keyTabField.isOptional = true;
+              }
+            }
+            this.setState({hasSecurity: hasSecurity, formField: formField});
+              // });
           } else {
             //topology created using TestEnvironment does not have mappings in the environment
             //so removing the security fields from the config.

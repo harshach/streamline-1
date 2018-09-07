@@ -16,6 +16,15 @@
 
 package com.hortonworks.streamline.streams.catalog.service;
 
+import static com.hortonworks.streamline.common.ComponentTypes.NOTIFICATION;
+import static com.hortonworks.streamline.common.util.WSUtils.CURRENT_VERSION;
+import static com.hortonworks.streamline.common.util.WSUtils.buildEdgesFromQueryParam;
+import static com.hortonworks.streamline.common.util.WSUtils.buildEdgesToQueryParam;
+import static com.hortonworks.streamline.common.util.WSUtils.currentVersionQueryParam;
+import static com.hortonworks.streamline.common.util.WSUtils.versionIdQueryParam;
+import static com.hortonworks.streamline.streams.catalog.TopologyEdge.StreamGrouping;
+import static com.hortonworks.streamline.streams.catalog.TopologyEditorMetadata.TopologyUIData;
+
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -28,26 +37,55 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
-import com.hortonworks.streamline.common.QueryParam;
 import com.hortonworks.registries.common.Schema;
-import com.hortonworks.streamline.common.util.FileStorage;
-import com.hortonworks.streamline.storage.StorableKey;
-import com.hortonworks.streamline.storage.StorageManager;
-import com.hortonworks.streamline.storage.exception.StorageException;
-import com.hortonworks.streamline.storage.util.StorageUtils;
 import com.hortonworks.streamline.common.ComponentTypes;
 import com.hortonworks.streamline.common.ComponentUISpecification;
+import com.hortonworks.streamline.common.QueryParam;
 import com.hortonworks.streamline.common.exception.ComponentConfigException;
+import com.hortonworks.streamline.common.util.FileStorage;
 import com.hortonworks.streamline.common.util.FileUtil;
 import com.hortonworks.streamline.common.util.ProxyUtil;
 import com.hortonworks.streamline.common.util.Utils;
 import com.hortonworks.streamline.common.util.WSUtils;
 import com.hortonworks.streamline.registries.model.client.MLModelRegistryClient;
+import com.hortonworks.streamline.storage.StorableKey;
+import com.hortonworks.streamline.storage.StorageManager;
+import com.hortonworks.streamline.storage.exception.StorageException;
+import com.hortonworks.streamline.storage.search.SearchQuery;
+import com.hortonworks.streamline.storage.util.StorageUtils;
 import com.hortonworks.streamline.streams.StreamlineEvent;
-import com.hortonworks.streamline.streams.catalog.*;
+import com.hortonworks.streamline.streams.catalog.BaseTopologyRule;
+import com.hortonworks.streamline.streams.catalog.Engine;
+import com.hortonworks.streamline.streams.catalog.File;
+import com.hortonworks.streamline.streams.catalog.Notifier;
+import com.hortonworks.streamline.streams.catalog.Project;
+import com.hortonworks.streamline.streams.catalog.Projection;
+import com.hortonworks.streamline.streams.catalog.Template;
+import com.hortonworks.streamline.streams.catalog.Topology;
+import com.hortonworks.streamline.streams.catalog.TopologyBranchRule;
+import com.hortonworks.streamline.streams.catalog.TopologyComponent;
+import com.hortonworks.streamline.streams.catalog.TopologyEdge;
+import com.hortonworks.streamline.streams.catalog.TopologyEditorMetadata;
+import com.hortonworks.streamline.streams.catalog.TopologyEditorToolbar;
+import com.hortonworks.streamline.streams.catalog.TopologyOutputComponent;
+import com.hortonworks.streamline.streams.catalog.TopologyProcessor;
+import com.hortonworks.streamline.streams.catalog.TopologyProcessorStreamMap;
+import com.hortonworks.streamline.streams.catalog.TopologyRule;
+import com.hortonworks.streamline.streams.catalog.TopologySink;
+import com.hortonworks.streamline.streams.catalog.TopologySource;
+import com.hortonworks.streamline.streams.catalog.TopologySourceStreamMap;
+import com.hortonworks.streamline.streams.catalog.TopologyStream;
+import com.hortonworks.streamline.streams.catalog.TopologyTestRunCase;
+import com.hortonworks.streamline.streams.catalog.TopologyTestRunCaseSink;
+import com.hortonworks.streamline.streams.catalog.TopologyTestRunCaseSource;
+import com.hortonworks.streamline.streams.catalog.TopologyTestRunHistory;
+import com.hortonworks.streamline.streams.catalog.TopologyVersion;
+import com.hortonworks.streamline.streams.catalog.TopologyWindow;
+import com.hortonworks.streamline.streams.catalog.UDF;
 import com.hortonworks.streamline.streams.catalog.processor.CustomProcessorInfo;
 import com.hortonworks.streamline.streams.catalog.rule.RuleParser;
 import com.hortonworks.streamline.streams.catalog.topology.TopologyComponentBundle;
+import com.hortonworks.streamline.streams.catalog.topology.TopologyComponentBundle.TopologyComponentType;
 import com.hortonworks.streamline.streams.catalog.topology.TopologyData;
 import com.hortonworks.streamline.streams.catalog.topology.component.TopologyDagBuilder;
 import com.hortonworks.streamline.streams.catalog.topology.component.TopologyExportVisitor;
@@ -70,12 +108,6 @@ import com.hortonworks.streamline.streams.rule.UDF5;
 import com.hortonworks.streamline.streams.rule.UDF6;
 import com.hortonworks.streamline.streams.rule.UDF7;
 import com.hortonworks.streamline.streams.runtime.CustomProcessorRuntime;
-import org.apache.commons.codec.binary.Hex;
-import org.apache.commons.lang.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import javax.annotation.Nullable;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -99,15 +131,11 @@ import java.util.function.BiFunction;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
-
-import static com.hortonworks.streamline.common.ComponentTypes.NOTIFICATION;
-import static com.hortonworks.streamline.common.util.WSUtils.CURRENT_VERSION;
-import static com.hortonworks.streamline.common.util.WSUtils.buildEdgesFromQueryParam;
-import static com.hortonworks.streamline.common.util.WSUtils.buildEdgesToQueryParam;
-import static com.hortonworks.streamline.common.util.WSUtils.currentVersionQueryParam;
-import static com.hortonworks.streamline.common.util.WSUtils.versionIdQueryParam;
-import static com.hortonworks.streamline.streams.catalog.TopologyEdge.StreamGrouping;
-import static com.hortonworks.streamline.streams.catalog.TopologyEditorMetadata.TopologyUIData;
+import javax.annotation.Nullable;
+import org.apache.commons.codec.binary.Hex;
+import org.apache.commons.lang.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * A service layer where we could put our business logic.
@@ -1061,7 +1089,7 @@ public class StreamCatalogService {
         List<QueryParam> queryParamsForTopologyComponent = new ArrayList<>();
         queryParamsForTopologyComponent.add(new QueryParam(TopologyComponentBundle.SUB_TYPE, TopologyLayoutConstants.JSON_KEY_CUSTOM_PROCESSOR_SUB_TYPE));
         for (QueryParam qp : params) {
-            if (qp.getName().equals(TopologyComponentBundle.STREAMING_ENGINE)) {
+            if (qp.getName().equals(TopologyComponentBundle.ENGINE)) {
                 queryParamsForTopologyComponent.add(qp);
             }
         }
@@ -1075,7 +1103,7 @@ public class StreamCatalogService {
             }
             boolean matches = true;
             for (QueryParam qp : params) {
-                if (!qp.getName().equals(TopologyComponentBundle.STREAMING_ENGINE) && !qp.getValue().equals(config.get(qp.getName()))) {
+                if (!qp.getName().equals(TopologyComponentBundle.ENGINE) && !qp.getValue().equals(config.get(qp.getName()))) {
                     matches = false;
                     break;
                 }
@@ -2767,7 +2795,7 @@ public class StreamCatalogService {
     }
 
     private void loadTransformationClassForBundle (TopologyComponentBundle topologyComponentBundle, java.io.File bundleJar) {
-        if (topologyComponentBundle.getStreamingEngine().equals(TopologyLayoutConstants.STORM_STREAMING_ENGINE)) {
+        if (topologyComponentBundle.getEngine().equals(TopologyLayoutConstants.STORM_ENGINE)) {
             if (topologyComponentBundle.getBuiltin()) {
                 // no transformation class validations for top level topology type
                 if (topologyComponentBundle.getType() == TopologyComponentBundle.TopologyComponentType.TOPOLOGY) {
@@ -2794,7 +2822,7 @@ public class StreamCatalogService {
     }
 
     private String getTopologyComponentBundleJarName (TopologyComponentBundle topologyComponentBundle) {
-        List<String> jarFileName = Arrays.asList(topologyComponentBundle.getStreamingEngine(), topologyComponentBundle.getType().name(), topologyComponentBundle
+        List<String> jarFileName = Arrays.asList(topologyComponentBundle.getEngine(), topologyComponentBundle.getType().name(), topologyComponentBundle
                 .getSubType(), UUID.randomUUID().toString(), ".jar");
         String bundleJarFileName = String.join("-", jarFileName);
         return bundleJarFileName;
@@ -3113,4 +3141,15 @@ public class StreamCatalogService {
         return result;
     }
 
+    public Collection<TopologyComponentBundle> listTopologyComponentBundlesBasedOnSearchQuery(
+        TopologyComponentType componentType, SearchQuery searchQuery) {
+        List<TopologyComponentBundle> topologyComponentBundles = new ArrayList<>();
+        Collection<TopologyComponentBundle> filtered = dao.search(searchQuery);
+        for (TopologyComponentBundle tcb : filtered) {
+            if (tcb.getType().equals(componentType)) {
+                topologyComponentBundles.add(tcb);
+            }
+        }
+        return topologyComponentBundles;
+    }
 }

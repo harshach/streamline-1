@@ -51,7 +51,7 @@ public interface TopologyActions {
     // engine
     void deploy(TopologyLayout topology, String mavenArtifacts, TopologyActionContext ctx, String asUser) throws Exception;
 
-    // Compose and run parameter topology as test mode using the underlying streaming engine.
+    // Compose and run parameter topology as test mode using the underlying engine.
     // The parameter 'topology' should contain its own topology DAG.
     // Please refer the javadoc of TestRunSource and also TestRunSink to see which information this method requires.
     void runTest(TopologyLayout topology, TopologyTestRunHistory testRunHistory, String mavenArtifacts,
@@ -106,7 +106,7 @@ public interface TopologyActions {
     Path getExtraJarsLocation(TopologyLayout topology);
 
     /**
-     * the topology id which is running in runtime streaming engine
+     * the topology id which is running in runtime engine
      */
     String getRuntimeTopologyId(TopologyLayout topology, String asUser);
 

@@ -52,7 +52,7 @@ public class CustomProcessorInfo {
         PROPERTY_KEYS = result;
     }
 
-    private String streamingEngine;
+    private String engine;
     private String name;
     private String description;
     private String jarFileName;
@@ -74,7 +74,7 @@ public class CustomProcessorInfo {
 
     public CustomProcessorInfo(String name,
                                String description,
-                               String streamingEngine,
+                               String engine,
                                String jarFileName,
                                String customProcessorImpl,
                                Schema inputSchema,
@@ -83,7 +83,7 @@ public class CustomProcessorInfo {
                                String digest) {
         this.name = name;
         this.description = description;
-        this.streamingEngine = streamingEngine;
+        this.engine = engine;
         this.jarFileName = jarFileName;
         this.customProcessorImpl = customProcessorImpl;
         this.inputSchema = inputSchema;
@@ -100,12 +100,12 @@ public class CustomProcessorInfo {
         this.outputSchema = outputSchema;
     }
 
-    public String getStreamingEngine() {
-        return streamingEngine;
+    public String getEngine() {
+        return engine;
     }
 
-    public void setStreamingEngine(String streamingEngine) {
-        this.streamingEngine = streamingEngine;
+    public void setEngine(String engine) {
+        this.engine = engine;
     }
 
     public String getName() {
@@ -178,7 +178,7 @@ public class CustomProcessorInfo {
 
         return new CustomProcessorInfo(config.get(NAME),
                 config.get(DESCRIPTION),
-                topologyComponentBundle.getStreamingEngine(),
+                topologyComponentBundle.getEngine(),
                 config.get(JAR_FILE_NAME),
                 config.get(CUSTOM_PROCESSOR_IMPL),
                 Utils.getSchemaFromConfig(config.get(INPUT_SCHEMA)),
@@ -191,7 +191,7 @@ public class CustomProcessorInfo {
     @Override
     public String toString() {
         return "CustomProcessorInfo{" +
-                "streamingEngine='" + streamingEngine + '\'' +
+                "engine='" + engine + '\'' +
                 ", name='" + name + '\'' +
                 ", description='" + description + '\'' +
                 ", jarFileName='" + jarFileName + '\'' +
@@ -210,7 +210,7 @@ public class CustomProcessorInfo {
 
         CustomProcessorInfo that = (CustomProcessorInfo) o;
 
-        if (streamingEngine != null ? !streamingEngine.equals(that.streamingEngine) : that.streamingEngine != null) return false;
+        if (engine != null ? !engine.equals(that.engine) : that.engine != null) return false;
         if (name != null ? !name.equals(that.name) : that.name != null) return false;
         if (description != null ? !description.equals(that.description) : that.description != null) return false;
         if (jarFileName != null ? !jarFileName.equals(that.jarFileName) : that.jarFileName != null) return false;
@@ -226,7 +226,7 @@ public class CustomProcessorInfo {
 
     @Override
     public int hashCode() {
-        int result = streamingEngine != null ? streamingEngine.hashCode() : 0;
+        int result = engine != null ? engine.hashCode() : 0;
         result = 31 * result + (name != null ? name.hashCode() : 0);
         result = 31 * result + (description != null ? description.hashCode() : 0);
         result = 31 * result + (jarFileName != null ? jarFileName.hashCode() : 0);
@@ -243,8 +243,8 @@ public class CustomProcessorInfo {
         result.setTimestamp(System.currentTimeMillis());
         result.setType(TopologyComponentBundle.TopologyComponentType.PROCESSOR);
         result.setSubType(TopologyLayoutConstants.JSON_KEY_CUSTOM_PROCESSOR_SUB_TYPE);
-        result.setStreamingEngine(this.streamingEngine);
-        if (TopologyLayoutConstants.STORM_STREAMING_ENGINE.equals(this.streamingEngine)) {
+        result.setEngine(this.engine);
+        if (TopologyLayoutConstants.STORM_ENGINE.equals(this.engine)) {
             result.setName("customProcessorBoltComponent");
         }
         result.setBuiltin(true);

@@ -21,8 +21,8 @@ public final class TopologyLayoutConstants {
 
 
     private TopologyLayoutConstants () {}
-    // streaming engines
-    public static final String STORM_STREAMING_ENGINE = "STORM";
+    //engines
+    public static final String STORM_ENGINE = "STORM";
 
     public static final String STORM_NIMBUS_PRINCIPAL_NAME = "nimbus_principal_name";
 

@@ -61,7 +61,7 @@ export default class ComponentNodeContainer extends Component {
       };
     }
     //Sorting the components by name
-    var sortedDS = Utils.sortArray(bundleArr.sourceBundle, 'name', true);
+    var sortedDS = Utils.sortArray(x``.sourceBundle, 'name', true);
     var sortedProcessors = Utils.sortArray(bundleArr.processorsBundle, 'name', true);
     var sortedSinks = Utils.sortArray(bundleArr.sinksBundle, 'name', true);
 

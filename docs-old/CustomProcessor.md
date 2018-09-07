@@ -16,7 +16,7 @@ CustomProcessor interface
 
 Field| Type | Comment
 ---|---|----
-streamingEngine| String| Streaming Engine for this custom processor - e.g. STORM
+engine| String| Engine for this custom processor - e.g. STORM
 name| String| Name of the custom processor. This should uniquely identify the custom processor 
 description| String| Description of the custom processor
 customProcessorImpl| String| Fully qualified class name implementing the interface
@@ -42,7 +42,7 @@ topologyComponentUISpecification|TopologyComponentUISpecification| List of field
     "responseMessage":"Success",
     "entities":[
         {
-            "streamingEngine":"STORM",
+            "engine":"STORM",
             "name":"Console Custom Processor",
             "description":"Console Custom Processor",
             "inputSchema":{
@@ -171,7 +171,7 @@ the class should be the same as the value of the property customProcessorImpl in
 
 ```json
 {
-  "streamingEngine": "STORM",
+  "engine": "STORM",
   "name": "Console Custom Processor",
   "description": "Console Custom Processor",
   "topologyComponentUISpecification": {"fields": []},

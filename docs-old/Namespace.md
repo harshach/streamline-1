@@ -96,7 +96,7 @@ Users can also provide `detail=true` to query parameter and get corresponding ma
       "namespace": {
         "id": 3,
         "name": "production3",
-        "streamingEngine": "STORM",
+        "engine": "STORM",
         "timeSeriesDB": "AMBARI_METRICS",
         "description": "namespace for production env. 3",
         "timestamp": 1480338278241
@@ -107,7 +107,7 @@ Users can also provide `detail=true` to query parameter and get corresponding ma
       "namespace": {
         "id": 2,
         "name": "production2",
-        "streamingEngine": "STORM",
+        "engine": "STORM",
         "timeSeriesDB": "AMBARI_METRICS",
         "description": "namespace for production env. 2",
         "timestamp": 1480338238483
@@ -129,7 +129,7 @@ Users can also provide `detail=true` to query parameter and get corresponding ma
       "namespace": {
         "id": 1,
         "name": "production",
-        "streamingEngine": "STORM",
+        "engine": "STORM",
         "timeSeriesDB": "AMBARI_METRICS",
         "description": "namespace for production env.",
         "timestamp": 1480338084732
@@ -200,7 +200,7 @@ Users can also provide `detail=true` to query parameter and get corresponding ma
   "namespace": {
     "id": 1,
     "name": "production",
-    "streamingEngine": "STORM",
+    "engine": "STORM",
     "timeSeriesDB": "AMBARI_METRICS",
     "description": "namespace for production env.",
     "timestamp": 1480338084732
@@ -269,7 +269,7 @@ Users can also provide `detail=true` to query parameter and get corresponding ma
   "namespace": {
     "id": 1,
     "name": "production",
-    "streamingEngine": "STORM",
+    "engine": "STORM",
     "timeSeriesDB": "AMBARI_METRICS",
     "description": "namespace for production env.",
     "timestamp": 1480338084732

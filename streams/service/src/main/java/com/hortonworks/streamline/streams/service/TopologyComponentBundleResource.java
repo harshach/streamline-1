@@ -25,6 +25,10 @@ import com.hortonworks.streamline.common.exception.service.exception.request.Ent
 import com.hortonworks.streamline.common.util.FileUtil;
 import com.hortonworks.streamline.common.util.ProxyUtil;
 import com.hortonworks.streamline.common.util.WSUtils;
+import com.hortonworks.streamline.storage.search.OrderBy;
+import com.hortonworks.streamline.storage.search.SearchQuery;
+import com.hortonworks.streamline.storage.search.WhereClause;
+import com.hortonworks.streamline.storage.search.WhereClauseCombiner;
 import com.hortonworks.streamline.streams.cluster.catalog.Namespace;
 import com.hortonworks.streamline.streams.catalog.processor.CustomProcessorInfo;
 import com.hortonworks.streamline.streams.catalog.service.StreamCatalogService;
@@ -52,7 +56,6 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.MultivaluedHashMap;
 import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.SecurityContext;
@@ -134,8 +137,9 @@ public class TopologyComponentBundleResource {
         List<QueryParam> queryParams;
         MultivaluedMap<String, String> params = uriInfo.getQueryParameters();
         queryParams = WSUtils.buildQueryParameters(params);
+        SearchQuery searchQuery = createSearchQueryBasedonQueryParams(queryParams);
         Collection<TopologyComponentBundle> topologyComponentBundles = catalogService
-                .listTopologyComponentBundlesForTypeWithFilter(componentType, queryParams);
+                .listTopologyComponentBundlesBasedOnSearchQuery(componentType, searchQuery);
         if (topologyComponentBundles != null) {
             return WSUtils.respondEntities(topologyComponentBundles, OK);
         }
@@ -188,13 +192,8 @@ public class TopologyComponentBundleResource {
                 LOG.debug(TOPOLOGY_COMPONENT_BUNDLE_PARAM_NAME + " is missing or invalid");
                 throw BadRequestException.missingParameter(TOPOLOGY_COMPONENT_BUNDLE_PARAM_NAME);
             }
-            List<QueryParam> queryParams;
-            MultivaluedMap<String, String> params = new MultivaluedHashMap<>();
-            params.putSingle(TopologyComponentBundle.STREAMING_ENGINE, topologyComponentBundle.getStreamingEngine());
-            params.putSingle(TopologyComponentBundle.SUB_TYPE, topologyComponentBundle.getSubType());
-            queryParams = WSUtils.buildQueryParameters(params);
-            Collection<TopologyComponentBundle> topologyComponentBundles = catalogService.listTopologyComponentBundlesForTypeWithFilter(componentType,
-                    queryParams);
+            SearchQuery searchQuery = createSearchQueryBasedonTopologyComponentBundle(topologyComponentBundle);
+            Collection<TopologyComponentBundle> topologyComponentBundles = catalogService.listTopologyComponentBundlesBasedOnSearchQuery(componentType, searchQuery);
             if (topologyComponentBundles != null && !topologyComponentBundles.isEmpty()) {
                 LOG.warn("Received a post request for an already registered bundle. Not creating entity for " + topologyComponentBundle);
                 return WSUtils.respondEntity(topologyComponentBundle, CONFLICT);
@@ -276,7 +275,7 @@ public class TopologyComponentBundleResource {
     }
 
     /**
-     * Update a topology component bundle by trying to find id using type, sub type and streaming engine.
+     * Update a topology component bundle by trying to find id using type, sub type and engine.
      * <p>
      * curl -sS -X PUT -i -F topologyComponentBundle=@kafka-topology-bundle -F bundleJar=@/Users/pshah/dev/IoTaS/streams/runners/storm/layout/target/streams-layout-storm-0.6.0-SNAPSHOT.jar  http://localhost:8080/api/v1/catalog/streams/componentbundles/SOURCE/
      * </p>
@@ -312,17 +311,14 @@ public class TopologyComponentBundleResource {
                 }
             }
             validateTopologyBundle(topologyComponentBundle);
-            List<QueryParam> queryParams = new ArrayList<>();
-            queryParams.add(new QueryParam(TopologyComponentBundle.STREAMING_ENGINE, topologyComponentBundle.getStreamingEngine()));
-            queryParams.add(new QueryParam(TopologyComponentBundle.TYPE, topologyComponentBundle.getType().name()));
-            queryParams.add(new QueryParam(TopologyComponentBundle.SUB_TYPE, topologyComponentBundle.getSubType()));
-            Collection<TopologyComponentBundle> existing = catalogService.listTopologyComponentBundlesForTypeWithFilter(componentType, queryParams);
+            SearchQuery searchQuery = createSearchQueryBasedonTopologyComponentBundle(topologyComponentBundle);
+            Collection<TopologyComponentBundle> existing = catalogService.listTopologyComponentBundlesBasedOnSearchQuery(componentType, searchQuery);
             if (existing != null && existing.size() == 1) {
                 TopologyComponentBundle updatedBundle = catalogService.addOrUpdateTopologyComponentBundle(existing.iterator().next().getId(),
                         topologyComponentBundle, tmpFile);
                 return WSUtils.respondEntity(updatedBundle, OK);
             } else {
-                String message = "Cant update because lookup using streaming engine, type and subtype returned either no existing bundle or more than one";
+                String message = "Cant update because lookup using engine, type and subtype returned either no existing bundle or more than one";
                 LOG.debug(message);
                 throw BadRequestException.message(message);
             }
@@ -530,8 +526,11 @@ public class TopologyComponentBundleResource {
         if (StringUtils.isEmpty(topologyComponentBundle.getName())) {
             missingParam = Optional.of(TopologyComponentBundle.NAME);
         }
-        if (StringUtils.isEmpty(topologyComponentBundle.getStreamingEngine())) {
-            missingParam = Optional.of(TopologyComponentBundle.STREAMING_ENGINE);
+        if (StringUtils.isEmpty(topologyComponentBundle.getEngine())) {
+            missingParam = Optional.of(TopologyComponentBundle.ENGINE);
+        }
+        if (topologyComponentBundle.getTemplate() == null || topologyComponentBundle.getTemplate().length == 0) {
+            missingParam = Optional.of(TopologyComponentBundle.TEMPLATE);
         }
         if (StringUtils.isEmpty(topologyComponentBundle.getSubType())) {
             missingParam = Optional.of(TopologyComponentBundle.SUB_TYPE);
@@ -560,6 +559,66 @@ public class TopologyComponentBundleResource {
         }
         return result;
     }
+
+    private SearchQuery createSearchQueryBasedonTopologyComponentBundle(TopologyComponentBundle topologyComponentBundle) {
+        return SearchQuery
+            .searchFrom(TopologyComponentBundle.NAME_SPACE)
+            .where(WhereClause.begin()
+                .eq(TopologyComponentBundle.ENGINE, topologyComponentBundle.getEngine())
+                .and()
+                .eq(TopologyComponentBundle.TYPE, topologyComponentBundle.getType().name())
+                .and()
+                .eq(TopologyComponentBundle.SUB_TYPE, topologyComponentBundle.getSubType())
+                .and()
+                .contains(TopologyComponentBundle.TEMPLATE, String.join(",", topologyComponentBundle.getTemplate()))
+                .combine())
+            .orderBy(OrderBy.asc(TopologyComponentBundle.NAME));
+    }
+
+    private SearchQuery createSearchQueryBasedonQueryParams(
+        List<QueryParam> queryParams) {
+
+        SearchQuery searchQuery = SearchQuery.searchFrom(TopologyComponentBundle.NAME_SPACE);
+        WhereClause whereClause = null;
+        WhereClause.Builder whereClauseBuilder = WhereClause.begin();
+        WhereClauseCombiner whereClauseCombiner = null;
+
+        int currentParamCount = 0;
+        int totalParamCount = queryParams.size();
+        for (QueryParam queryParam : queryParams) {
+            String name = queryParam.getName();
+            String value = queryParam.getValue();
+            currentParamCount++;
+
+            switch (name) {
+                case TopologyComponentBundle.TEMPLATE:
+                    if (currentParamCount == totalParamCount) {
+                        whereClauseCombiner = whereClauseBuilder.contains(name, value);
+                    } else {
+                        whereClauseBuilder = whereClauseBuilder.contains(name, value).and();
+                    }
+                    break;
+
+                case TopologyComponentBundle.ENGINE:
+                case TopologyComponentBundle.TYPE:
+                case TopologyComponentBundle.SUB_TYPE:
+                    if(currentParamCount == totalParamCount) {
+                        whereClauseCombiner = whereClauseBuilder.eq(name, value);
+                    } else {
+                        whereClauseBuilder = whereClauseBuilder.eq(name, value).and();
+                    }
+                    break;
+
+                default:
+                    throw BadRequestException.message("Invalid query param=" + name);
+            }
+
+            if (whereClauseCombiner != null) {
+                whereClause = whereClauseCombiner.combine();
+            } else {
+                whereClause = whereClauseBuilder.build();
+            }
+        }
+        return searchQuery.where(whereClause).orderBy(OrderBy.asc(TopologyComponentBundle.ID));
+    }
 }
-
-

@@ -2,7 +2,7 @@
   "type": "SOURCE",
   "name": "File",
   "subType": "FILE",
-  "streamingEngine": "STORM",
+  "engine": "STORM",
   "builtin": false,
   "transformationClass": "com.hortonworks.streamline.examples.sources.FileReaderSpoutFluxComponent",
   "mavenDeps": "com.hortonworks.streamline:streamline-examples-sources:0.6.0-SNAPSHOT",

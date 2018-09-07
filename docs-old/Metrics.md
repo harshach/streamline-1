@@ -1,6 +1,6 @@
 # Topology Metrics API
 
-## Streaming Engine 
+## Engine 
 
 ### Get topology components metrics
 

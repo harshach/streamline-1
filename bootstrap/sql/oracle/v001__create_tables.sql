@@ -98,7 +98,7 @@ CALL create_if_not_exists('TABLE', 'CREATE TABLE "file" (
 CALL create_if_not_exists('TABLE', 'CREATE TABLE "namespace" (
   "id"              NUMBER(19,0)    NOT NULL,
   "name"            VARCHAR2(255)   NOT NULL,
-  "streamingEngine" VARCHAR2(255)   NOT NULL,
+  "engine" VARCHAR2(255)   NOT NULL,
   "timeSeriesDB"    VARCHAR2(255)   NULL,
   "description"     VARCHAR2(255),
   "timestamp"       NUMBER(19,0),
@@ -138,7 +138,8 @@ CALL create_if_not_exists('TABLE', 'CREATE TABLE "topology_component_bundle" (
   "name"                             VARCHAR2(255)   NOT NULL,
   "type"                             VARCHAR2(4000)  NOT NULL,
   "subType"                          VARCHAR2(4000)  NOT NULL,
-  "streamingEngine"                  VARCHAR2(4000)  NOT NULL,
+  "engine"                           VARCHAR2(4000)  NOT NULL,
+  "template"                         VARCHAR2(4000)  NOT NULL,
   "topologyComponentUISpec"          CLOB            NOT NULL,
   "fieldHintProviderClass"           VARCHAR2(4000),
   "transformationClass"              VARCHAR2(4000),

@@ -23,7 +23,7 @@ ALTER TABLE `datasource` MODIFY `description` VARCHAR(255) NOT NULL;
 ALTER TABLE `datasource` MODIFY `type` VARCHAR(255) NOT NULL;
 ALTER TABLE `datasource` MODIFY `url` VARCHAR(255) NOT NULL;
 ALTER TABLE `namespace` MODIFY `name` VARCHAR(255) NOT NULL;
-ALTER TABLE `namespace` MODIFY `streamingEngine` VARCHAR(255) NOT NULL;
+ALTER TABLE `namespace` MODIFY `engine` VARCHAR(255) NOT NULL;
 ALTER TABLE `namespace` MODIFY `timeSeriesDB` VARCHAR(255) NULL;
 ALTER TABLE `namespace` MODIFY `description` VARCHAR(255);
 ALTER TABLE `topology_version` MODIFY `name` VARCHAR(255) NOT NULL;

@@ -247,7 +247,7 @@ __We refer Environment as namespaces in this doc__
     "namespace": {
     "id": 1,
     "name": "double_env",
-    "streamingEngine": "STORM",
+    "engine": "STORM",
     "timeSeriesDB": "AMBARI_METRICS",
     "description": "ddsf",
     "timestamp": 1486360316889
@@ -261,7 +261,7 @@ __Response Fields__:
 |---	|---	|---
 |id|Integer| namespaces unique-id|
 |name | String | namespaces name|
-|StreamingEngine | String | namespaces run on this Stream Engine|
+|Engine | String | namespaces run on this Stream Engine|
 |timeSeriesDB |String| service name of supporting timeseries |
 |description |String| description about the namespaces|
 |timestamp:|String|namespaces created time|
@@ -285,7 +285,7 @@ __Sample Response__:
     "namespace": {
     "id": 1,
     "name": "double_env",
-    "streamingEngine": "STORM",
+    "engine": "STORM",
     "timeSeriesDB": "AMBARI_METRICS",
     "description": "ddsf",
     "timestamp": 1486360316889
@@ -301,7 +301,7 @@ __Response Fields__:
 |---	|---	|---
 |id|Integer| namespaces unique-id|
 |name | String | namespaces name|
-|streamingEngine | String | namespaces run on this Stream Engine|
+|engine | String | namespaces run on this Stream Engine|
 |timeSeriesDB |String| service name of supporting timeseries|
 |description |String| description about the namespaces|
 |timestamp:|String|namespaces created time|
@@ -316,7 +316,7 @@ __Request fields__:
 |Parameter |Value   |Description  |
 |----------|--------|-------------|
 |name   |String | namespace name |
-|streamingEngine | String | namespaces run on this Stream Engine|
+|engine | String | namespaces run on this Stream Engine|
 |timeSeriesDB |String| service name of supporting timeseries |
 |description |String| description about the namespaces|
 |timestamp:|String|namespaces created time|
@@ -326,7 +326,7 @@ __Request JSON__ :
 ``` json
 {
   "name":"test3",
-  "streamingEngine":"STORM",
+  "engine":"STORM",
   "timeSeriesDB":"AMBARI_METRICS",
   "description":"werewr",
   "timestamp":1486462712630
@@ -339,7 +339,7 @@ __Sample response__:
 {
   "id":2,
   "name":"test3",
-  "streamingEngine":"STORM",
+  "engine":"STORM",
   "timeSeriesDB":"AMBARI_METRICS",
   "description":"werewr",
   "timestamp":1486462712630
@@ -352,7 +352,7 @@ __Response Fields__ :
 |----------|--------|-------------|
 |id        |Integer| namespaces unique-id|
 |name   |String | namespace name |
-|streamingEngine | String | namespaces run on this Stream Engine|
+|engine | String | namespaces run on this Stream Engine|
 |timeSeriesDB |String| service name of supporting timeseries |
 |description |String| description about the namespaces|
 |timestamp:|String|namespaces created time|
@@ -467,7 +467,7 @@ __Sample response__:
 {
 	"id": 2,
 	"name": "test3",
-	"streamingEngine": "STORM",
+	"engine": "STORM",
 	"timeSeriesDB": "AMBARI_METRICS",
 	"description": "werewr",
 	"timestamp": 1486462712630
@@ -480,7 +480,7 @@ __Response Fields__ :
 |----------|--------|-------------|
 |id        |Integer| namespaces unique-id|
 |name   |String | namespace name |
-|streamingEngine | String | namespaces run on this Stream Engine|
+|engine | String | namespaces run on this Stream Engine|
 |timeSeriesDB |String| service name of supporting timeseries |
 |description |String| description about the namespaces|
 |timestamp:|String|namespaces created time|

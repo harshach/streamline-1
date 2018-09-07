@@ -210,7 +210,7 @@ class AddEnvironment extends Component {
       const obj = {
         name: evt_name,
         description: desc,
-        streamingEngine: 'STORM'
+        engine: 'STORM'
       };
       tempData = _.flatten(tempData);
       if (tempData.find((o) => {
@@ -275,7 +275,7 @@ class AddEnvironment extends Component {
             });
             if (r_index !== -1 && r_flag) {
               if (dataObj.serviceName.toLowerCase() === "storm") {
-                this.refs.changeStreamEngine.show({title: 'Are you sure you want to change storm for this environment?'}).then(() => {
+                this.refs.changeEngine.show({title: 'Are you sure you want to change storm for this environment?'}).then(() => {
                   this.sliceSelectedKeyIndex(storm_id, dataObj.serviceName);
                 }, () => {
                   this.sliceSelectedKeyIndex(dataObj.clusterId, dataObj.serviceName);
@@ -334,7 +334,7 @@ class AddEnvironment extends Component {
     cancelIndex !== -1
       ? this.selectionList[r_serviceId].splice(cancelIndex, 1)
       : '';
-    this.refs.changeStreamEngine.hide();
+    this.refs.changeEngine.hide();
   }
 
   componentWillUnmount() {
@@ -361,7 +361,7 @@ class AddEnvironment extends Component {
           <h4 className="environment-modal-title" data-stest="selectServicesLabel">Select Services</h4>
           {entities.length !== 0
             ? <small ref="missingStorm">
-                (Atleast one streaming engine (eg: STORM) must be selected.)</small>
+                (Atleast one engine (eg: STORM) must be selected.)</small>
             : ''
 }
           {
@@ -391,7 +391,7 @@ class AddEnvironment extends Component {
 
           </div>
         </div>
-        <Confirm ref="changeStreamEngine"/>
+        <Confirm ref="changeEngine"/>
       </div>
     );
   }

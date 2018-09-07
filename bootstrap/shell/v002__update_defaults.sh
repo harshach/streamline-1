@@ -96,7 +96,7 @@ function put_topology_component_bundle {
   uri=$1
   data=$2
   subType=$3
-  out=$(curl -i --negotiate -u:anyUser  -b /tmp/cookiejar.txt -c /tmp/cookiejar.txt -s -X GET -H "Content-Type: application/json" -H "Cache-Control: no-cache" "${CATALOG_ROOT_URL}$uri?subType=${subType}&streamingEngine=STORM")
+  out=$(curl -i --negotiate -u:anyUser  -b /tmp/cookiejar.txt -c /tmp/cookiejar.txt -s -X GET -H "Content-Type: application/json" -H "Cache-Control: no-cache" "${CATALOG_ROOT_URL}$uri?subType=${subType}&engine=STORM")
   bundleId=$(getId $out)
   cmd="curl -i --negotiate -u:anyUser  -b /tmp/cookiejar.txt -c /tmp/cookiejar.txt -sS -X PUT -i -F topologyComponentBundle=@$data ${CATALOG_ROOT_URL}$uri/$bundleId"
   echo "PUT $data"
@@ -138,6 +138,10 @@ CATALOG_ROOT_URL_PROPERTY_KEY=catalogRootUrl
 component_dir=${bootstrap_dir}/components
 service_dir=${bootstrap_dir}/services
 user_role_dir=${bootstrap_dir}/users_roles
+storm_dir=${bootstrap_dir}/engines/storm
+piper_dir=${bootstrap_dir}/engines/piper
+athenax_dir=${bootstrap_dir}/engines/athenax
+
 
 echo "Configuration file: ${CONFIG_FILE_PATH}"
 
@@ -155,16 +159,16 @@ echo "User/Role bundle Root dir: ${user_role_dir}"
 
 function update_bundles {
     # === Source ===
-    put_topology_component_bundle /streams/componentbundles/SOURCE ${component_dir}/storm/sources/kafka-source-topology-component.json KAFKA
+    put_topology_component_bundle /streams/componentbundles/SOURCE ${storm_dir}/components/sources/kafka-source-topology-component.json KAFKA
     # === Processor ===
 
     # === Sink ===
-    put_topology_component_bundle /streams/componentbundles/SINK ${component_dir}/storm/sinks/hdfs-sink-topology-component.json HDFS
-    put_topology_component_bundle /streams/componentbundles/SINK ${component_dir}/storm/sinks/jdbc-sink-topology-component.json JDBC
-    put_topology_component_bundle /streams/componentbundles/SINK ${component_dir}/storm/sinks/hive-sink-topology-component.json HIVE
-    put_topology_component_bundle /streams/componentbundles/SINK ${component_dir}/storm/sinks/druid-sink-topology-component.json DRUID
+    put_topology_component_bundle /streams/componentbundles/SINK ${storm_dir}/components/sinks/hdfs-sink-topology-component.json HDFS
+    put_topology_component_bundle /streams/componentbundles/SINK ${storm_dir}/components/sinks/jdbc-sink-topology-component.json JDBC
+    put_topology_component_bundle /streams/componentbundles/SINK ${storm_dir}/components/sinks/hive-sink-topology-component.json HIVE
+    put_topology_component_bundle /streams/componentbundles/SINK ${storm_dir}/components/sinks/druid-sink-topology-component.json DRUID
     # === Topology ===
-    put_topology_component_bundle /streams/componentbundles/TOPOLOGY ${component_dir}/storm/topology/storm-topology-component.json TOPOLOGY
+    put_topology_component_bundle /streams/componentbundles/TOPOLOGY ${storm_dir}/topology/storm-topology-component.json TOPOLOGY
     # === Service Bundle ===
     put_service_bundle /servicebundles/KAFKA ${service_dir}/kafka-bundle.json
     put_service_bundle /servicebundles/STORM ${service_dir}/storm-bundle.json

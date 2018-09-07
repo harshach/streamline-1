@@ -28,7 +28,7 @@ public enum MappedTimeSeriesQuerierImpl {
         return className;
     }
 
-    public static String getName(String streamingEngine, String timeSeriesDB) {
-        return streamingEngine + "_" + timeSeriesDB;
+    public static String getName(String engine, String timeSeriesDB) {
+        return engine + "_" + timeSeriesDB;
     }
 }

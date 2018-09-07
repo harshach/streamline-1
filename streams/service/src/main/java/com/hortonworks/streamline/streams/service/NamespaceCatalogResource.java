@@ -256,22 +256,22 @@ public class NamespaceCatalogResource {
       throw EntityNotFoundException.byId(namespaceId.toString());
     }
 
-    String streamingEngine = namespace.getStreamingEngine();
+    String engine = namespace.getEngine();
     String timeSeriesDB = namespace.getTimeSeriesDB();
 
     Collection<NamespaceServiceClusterMap> existing = environmentService.listServiceClusterMapping(namespaceId);
-    Optional<NamespaceServiceClusterMap> existingStreamingEngine = existing.stream()
-            .filter(m -> m.getServiceName().equals(streamingEngine))
+    Optional<NamespaceServiceClusterMap> existingEngine = existing.stream()
+            .filter(m -> m.getServiceName().equals(engine))
             // this should be only one
             .findFirst();
 
-    // indicates that mapping of streaming engine has been changed or removed
-    if (existingStreamingEngine.isPresent() && !mappings.contains(existingStreamingEngine.get())) {
+    // indicates that mapping of engine has been changed or removed
+    if (existingEngine.isPresent() && !mappings.contains(existingEngine.get())) {
       assertNoTopologyReferringNamespaceIsRunning(namespaceId, WSUtils.getUserFromSecurityContext(securityContext));
     }
 
     // we're OK to just check with new mappings since we will remove existing mappings
-    assertServiceIsUnique(mappings, streamingEngine);
+    assertServiceIsUnique(mappings, engine);
     assertServiceIsUnique(mappings, timeSeriesDB);
 
     // remove any existing mapping for (namespace, service name) pairs
@@ -304,10 +304,10 @@ public class NamespaceCatalogResource {
       existingMappings.add(mapping);
     }
 
-    String streamingEngine = namespace.getStreamingEngine();
+    String engine = namespace.getEngine();
     String timeSeriesDB = namespace.getTimeSeriesDB();
 
-    assertServiceIsUnique(existingMappings, streamingEngine);
+    assertServiceIsUnique(existingMappings, engine);
     assertServiceIsUnique(existingMappings, timeSeriesDB);
 
     NamespaceServiceClusterMap newMapping = environmentService.addOrUpdateServiceClusterMapping(mapping);
@@ -328,12 +328,12 @@ public class NamespaceCatalogResource {
       throw EntityNotFoundException.byId(namespaceId.toString());
     }
 
-    String streamingEngine = namespace.getStreamingEngine();
+    String engine = namespace.getEngine();
     Collection<NamespaceServiceClusterMap> mappings = environmentService.listServiceClusterMapping(namespaceId);
-    boolean containsStreamingEngine = mappings.stream()
-            .anyMatch(m -> m.getServiceName().equals(streamingEngine));
-    // check topology running only streaming engine exists
-    if (serviceName.equals(streamingEngine) && containsStreamingEngine) {
+    boolean containsEngine = mappings.stream()
+            .anyMatch(m -> m.getServiceName().equals(engine));
+    // check topology running only engine exists
+    if (serviceName.equals(engine) && containsEngine) {
       assertNoTopologyReferringNamespaceIsRunning(namespaceId, WSUtils.getUserFromSecurityContext(securityContext));
     }
 
@@ -357,11 +357,11 @@ public class NamespaceCatalogResource {
       throw EntityNotFoundException.byId(namespaceId.toString());
     }
 
-    String streamingEngine = namespace.getStreamingEngine();
+    String engine = namespace.getEngine();
     Collection<NamespaceServiceClusterMap> mappings = environmentService.listServiceClusterMapping(namespaceId);
-    boolean containsStreamingEngine = mappings.stream()
-            .anyMatch(m -> m.getServiceName().equals(streamingEngine));
-    if (containsStreamingEngine) {
+    boolean containsEngine = mappings.stream()
+            .anyMatch(m -> m.getServiceName().equals(engine));
+    if (containsEngine) {
       assertNoTopologyReferringNamespaceIsRunning(namespaceId, WSUtils.getUserFromSecurityContext(securityContext));
     }
 
@@ -391,21 +391,21 @@ public class NamespaceCatalogResource {
                 topologyActionsService.getRuntimeTopologyId(t, asUser);
                 return true;
               } catch (TopologyNotAliveException | IOException e) {
-                // if streaming engine is not accessible, we just treat it as not running
+                // if engine is not accessible, we just treat it as not running
                 return false;
               }
             })
             .collect(toList());
 
     if (!runningTopologiesInNamespace.isEmpty()) {
-      throw BadRequestException.message("Trying to modify mapping of streaming engine while Topology is running - namespace id: " + namespaceId);
+      throw BadRequestException.message("Trying to modify mapping of engine while Topology is running - namespace id: " + namespaceId);
     }
   }
 
   private void assertServiceIsUnique(Collection<NamespaceServiceClusterMap> mappings, String service) {
     if (StringUtils.isNotEmpty(service)) {
-      long streamingEngineMappingCount = mappings.stream().filter(m -> m.getServiceName().equals(service)).count();
-      if (streamingEngineMappingCount > 1) {
+      long engineMappingCount = mappings.stream().filter(m -> m.getServiceName().equals(service)).count();
+      if (engineMappingCount > 1) {
         throw BadRequestException.message("Mappings contain more than 1 " + service);
       }
     }

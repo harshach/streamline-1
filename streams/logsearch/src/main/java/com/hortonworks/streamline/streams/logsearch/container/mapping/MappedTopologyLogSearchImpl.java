@@ -28,7 +28,7 @@ public enum MappedTopologyLogSearchImpl {
         return className;
     }
 
-    public static String getName(String streamingEngine, String logSearchService) {
-        return streamingEngine + "_" + logSearchService;
+    public static String getName(String engine, String logSearchService) {
+        return engine + "_" + logSearchService;
     }
 }

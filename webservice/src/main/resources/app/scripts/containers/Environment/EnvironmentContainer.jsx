@@ -382,7 +382,7 @@ class EnvironmentContainer extends Component {
                 refIdArr: tempDataArray
               }, () => {
                 let errorMsg = mapping.responseMessage;
-                errorMsg = mapping.responseMessage.indexOf('Trying to modify mapping of streaming engine') !== -1
+                errorMsg = mapping.responseMessage.indexOf('Trying to modify mapping of engine') !== -1
                   ? "Cannot change the stream engine while a topology is deployed in the same environment"
                   : mapping.responseMessage;
                 FSReactToastr.error(

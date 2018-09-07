@@ -54,10 +54,10 @@ public class TopologyLogSearchContainer extends NamespaceAwareContainer<Topology
         String className;
         Map<String, Object> confLogSearch;
 
-        String streamingEngine = namespace.getStreamingEngine();
+        String engine = namespace.getEngine();
         String logSearchService = namespace.getLogSearchService();
         if (logSearchService != null && !logSearchService.isEmpty()) {
-            String key = MappedTopologyLogSearchImpl.getName(streamingEngine, logSearchService);
+            String key = MappedTopologyLogSearchImpl.getName(engine, logSearchService);
             try {
                 topologyLogSearchImpl = MappedTopologyLogSearchImpl.valueOf(key);
             } catch (IllegalArgumentException e) {

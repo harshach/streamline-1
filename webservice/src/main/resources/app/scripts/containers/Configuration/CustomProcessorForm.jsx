@@ -61,7 +61,7 @@ CodeMirror.registerHelper("lint", "json", function(text) {
 class CustomProcessorForm extends Component {
 
   defaultObj = {
-    streamingEngine: 'STORM',
+    engine: 'STORM',
     name: '',
     description: '',
     customProcessorImpl: '',
@@ -118,7 +118,7 @@ class CustomProcessorForm extends Component {
       } else {
         let jarFileName = 'CustomProcessor.jar';
         let {
-          streamingEngine,
+          engine,
           name,
           description,
           customProcessorImpl,
@@ -134,7 +134,7 @@ class CustomProcessorForm extends Component {
           });
         }
         let obj = {
-          streamingEngine,
+          engine,
           name,
           description,
           customProcessorImpl,
@@ -309,7 +309,7 @@ class CustomProcessorForm extends Component {
   validateData() {
     let validDataFlag = true;
     let {
-      streamingEngine,
+      engine,
       name,
       description,
       customProcessorImpl,
@@ -327,7 +327,7 @@ class CustomProcessorForm extends Component {
       }
     }
 
-    if (streamingEngine === '' || name === '' || description === '' || customProcessorImpl === '' || jarFileName === '' || Utils.checkWhiteSpace(name)) {
+    if (engine === '' || name === '' || description === '' || customProcessorImpl === '' || jarFileName === '' || Utils.checkWhiteSpace(name)) {
       name === '' ? fieldsError.pName = true : ''  ;
       description === '' ? fieldsError.desc = true :  '';
       customProcessorImpl === '' ? fieldsError.classNameType = true : '' ;
@@ -346,7 +346,7 @@ class CustomProcessorForm extends Component {
 
   checkForData() {
     let {
-      streamingEngine,
+      engine,
       name,
       description,
       customProcessorImpl,
@@ -362,7 +362,7 @@ class CustomProcessorForm extends Component {
       jarFileName,
       inputSchema
     ];
-    if (streamingEngine === '' || name === '' || description === '' || customProcessorImpl === '' || jarFileName === '') {
+    if (engine === '' || name === '' || description === '' || customProcessorImpl === '' || jarFileName === '') {
       if (fieldsChk) {
         let filterVal = emptyVal.filter(val => {
           return val.length !== 0;
@@ -383,7 +383,7 @@ class CustomProcessorForm extends Component {
   handleSave() {
     if (this.validateData()) {
       let {
-        streamingEngine,
+        engine,
         name,
         description,
         customProcessorImpl,
@@ -419,7 +419,7 @@ class CustomProcessorForm extends Component {
       });
 
       let customProcessorInfo = {
-        streamingEngine,
+        engine,
         name,
         description,
         customProcessorImpl
@@ -560,13 +560,13 @@ class CustomProcessorForm extends Component {
               <div className="box-body">
                 <form className="form-horizontal">
                   <div className="form-group">
-                    <label className="col-sm-2 control-label" data-stest="streamEngineLabel">Streaming Engine
+                    <label className="col-sm-2 control-label" data-stest="engineLabel">Engine
                       <span className="text-danger">*</span>
                     </label>
                     <div className="col-sm-5">
-                      <input name="streamingEngine" placeholder="Streaming Engine" onChange={this.handleValueChange.bind(this,null)} type="text" className={this.state.streamingEngine.trim() == ""
+                      <input name="engine" placeholder="Engine" onChange={this.handleValueChange.bind(this,null)} type="text" className={this.state.engine.trim() == ""
                         ? "form-control invalidInput"
-                        : "form-control"} value={this.state.streamingEngine} disabled={true} required={true}/>
+                        : "form-control"} value={this.state.engine} disabled={true} required={true}/>
                     </div>
                   </div>
                   <div className="form-group">

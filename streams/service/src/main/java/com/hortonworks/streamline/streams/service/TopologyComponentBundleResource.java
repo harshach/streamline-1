@@ -16,9 +16,14 @@
 
 package com.hortonworks.streamline.streams.service;
 
+import static javax.ws.rs.core.Response.Status.CONFLICT;
+import static javax.ws.rs.core.Response.Status.CREATED;
+import static javax.ws.rs.core.Response.Status.OK;
+
 import com.codahale.metrics.annotation.Timed;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.hortonworks.streamline.common.QueryParam;
+import com.hortonworks.streamline.common.exception.ComponentConfigException;
 import com.hortonworks.streamline.common.exception.service.exception.request.BadRequestException;
 import com.hortonworks.streamline.common.exception.service.exception.request.CustomProcessorOnlyException;
 import com.hortonworks.streamline.common.exception.service.exception.request.EntityNotFoundException;
@@ -29,22 +34,25 @@ import com.hortonworks.streamline.storage.search.OrderBy;
 import com.hortonworks.streamline.storage.search.SearchQuery;
 import com.hortonworks.streamline.storage.search.WhereClause;
 import com.hortonworks.streamline.storage.search.WhereClauseCombiner;
-import com.hortonworks.streamline.streams.cluster.catalog.Namespace;
 import com.hortonworks.streamline.streams.catalog.processor.CustomProcessorInfo;
 import com.hortonworks.streamline.streams.catalog.service.StreamCatalogService;
 import com.hortonworks.streamline.streams.catalog.topology.TopologyComponentBundle;
 import com.hortonworks.streamline.streams.cluster.bundle.ComponentBundleHintProvider;
+import com.hortonworks.streamline.streams.cluster.catalog.Namespace;
 import com.hortonworks.streamline.streams.cluster.service.EnvironmentService;
-import com.hortonworks.streamline.common.exception.ComponentConfigException;
 import com.hortonworks.streamline.streams.security.Roles;
 import com.hortonworks.streamline.streams.security.SecurityUtil;
 import com.hortonworks.streamline.streams.security.StreamlineAuthorizer;
-import org.apache.commons.lang3.StringUtils;
-import org.glassfish.jersey.media.multipart.FormDataBodyPart;
-import org.glassfish.jersey.media.multipart.FormDataMultiPart;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.stream.Collectors;
 import javax.security.auth.Subject;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
@@ -61,19 +69,11 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.SecurityContext;
 import javax.ws.rs.core.StreamingOutput;
 import javax.ws.rs.core.UriInfo;
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-
-import static javax.ws.rs.core.Response.Status.CONFLICT;
-import static javax.ws.rs.core.Response.Status.CREATED;
-import static javax.ws.rs.core.Response.Status.OK;
+import org.apache.commons.lang3.StringUtils;
+import org.glassfish.jersey.media.multipart.FormDataBodyPart;
+import org.glassfish.jersey.media.multipart.FormDataMultiPart;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @Path("/v1/catalog/streams")
 @Produces(MediaType.APPLICATION_JSON)
@@ -167,6 +167,31 @@ public class TopologyComponentBundleResource {
         }
 
         throw EntityNotFoundException.byId(id.toString());
+    }
+
+    /**
+     * List tasks(sub-type) for the specified component type(SOURCE, SINK, etc)
+     * <p>
+     * GET api/v1/catalog/streams/componentbundles/PROCESSOR/task
+     * </p>
+     */
+    @GET
+    @Path("/componentbundles/{component}/task")
+    @Timed
+    public Response listTaskForComponentBundle(
+        @PathParam("component") TopologyComponentBundle.TopologyComponentType componentType,
+        @Context SecurityContext securityContext) {
+        SecurityUtil
+            .checkRole(authorizer, securityContext, Roles.ROLE_TOPOLOGY_COMPONENT_BUNDLE_USER);
+        Collection<TopologyComponentBundle> topologyComponentBundles = catalogService
+            .listTopologyComponentBundlesForTypeWithFilter(componentType, null);
+        if (topologyComponentBundles != null) {
+            return WSUtils.respondEntities(topologyComponentBundles.stream()
+                .map(topologyComponentBundle -> topologyComponentBundle.getSubType()).distinct()
+                .collect(Collectors.toList()), OK);
+        }
+
+        throw EntityNotFoundException.byId(componentType.name());
     }
 
     /**

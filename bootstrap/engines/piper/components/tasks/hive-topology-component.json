@@ -1,0 +1,33 @@
+{
+    "type": "TASK",
+    "name": "Multilang Processor",
+    "subType": "HIVE",
+    "engine": "PIPER",
+    "template": ["Blank"],
+    "builtin": true,
+    "transformationClass": "com.hortonworks.streamline.streams.layout.storm.StreamsShellBoltFluxComponent",
+    "topologyComponentUISpecification": {
+        "fields": [
+            {
+                "uiName": "Hive Query",
+                "fieldName": "hiveQuery",
+                "tooltip": "Query to Run",
+                "isOptional": false,
+                "type": "string"
+            },
+            {
+                "uiName": "Hive Connection ID",
+                "fieldName": "hiveConnectionID",
+                "tooltip": "Hive Connection",
+                "isOptional": false,
+                "type": "string"
+            },
+            {
+                "uiName": "Database",
+                "fieldName": "database",
+                "tooltip": "Default database to use",
+                "isOptional": true,
+                "type": "string"
+            }]
+    }
+}

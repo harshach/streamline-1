@@ -1,5 +1,5 @@
 {
-  "type": "PROCESSOR",
+  "type": "TASK",
   "name": "Multilang Processor",
   "subType": "MULTILANG",
   "engine": "PIPER",

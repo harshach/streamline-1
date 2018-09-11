@@ -67,22 +67,22 @@ fileStorageConfiguration:
 # --
 # In-memory storage provider configuration:
 # --
-storageProviderConfiguration:
-  providerClass: "com.hortonworks.streamline.storage.impl.memory.InMemoryStorageManager"
+#storageProviderConfiguration:
+#  providerClass: "com.hortonworks.streamline.storage.impl.memory.InMemoryStorageManager"
 
 # --
 # MySQL based storage provider configuration:
 # --
-#storageProviderConfiguration:
-# providerClass: "com.hortonworks.streamline.storage.impl.jdbc.JdbcStorageManager"
-# properties:
-#  db.type: "mysql"
-#  queryTimeoutInSecs: 30
-#  db.properties:
-#    dataSourceClassName: "com.mysql.jdbc.jdbc2.optional.MysqlDataSource"
-#    dataSource.url: "jdbc:mysql://localhost/streamline_db"
-#    dataSource.user: "streamline_user"
-#    dataSource.password: "streamline_password"
+storageProviderConfiguration:
+ providerClass: "com.hortonworks.streamline.storage.impl.jdbc.JdbcStorageManager"
+ properties:
+  db.type: "mysql"
+  queryTimeoutInSecs: 30
+  db.properties:
+    dataSourceClassName: "com.mysql.jdbc.jdbc2.optional.MysqlDataSource"
+    dataSource.url: "jdbc:mysql://localhost/streamline_db"
+    dataSource.user: "streamline_user"
+    dataSource.password: "streamline_password"
 
 # --
 # PostgreSQL based storage provider configuration

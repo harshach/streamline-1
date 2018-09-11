@@ -272,6 +272,9 @@ const getNodeType = function(parentType) {
   case 'SINK':
     return 'sinks';
     break;
+  case 'TASK':
+    return 'tasks';
+    break;
   }
 };
 
@@ -1064,6 +1067,8 @@ const getNodeRectClass = function(data,str) {
     return uniqRect === '' ? 'processor' : uniqRect+' processor';
   } else if (data.parentType === 'SINK') {
     return uniqRect === '' ? 'datasink' : uniqRect+' datasink';
+  } else if (data.parentType === 'TASK') {
+    return uniqRect === '' ? 'task' : uniqRect+' task';
   }
 };
 

@@ -140,7 +140,7 @@ function add_all_bundles {
     post /system/engines/2/templates ${piper_dir}/templates/blank.json
     post /system/engines/3/templates ${athenax_dir}/templates/blank.json
 
-    add_topology_component_bundle /streams/componentbundles/PROCESSOR ${piper_dir}/components/processors/multilang-topology-component.json
+
     # === Source ===
     add_topology_component_bundle /streams/componentbundles/SOURCE ${storm_dir}/components/sources/kafka-source-topology-component.json
     add_topology_component_bundle /streams/componentbundles/SOURCE ${storm_dir}/components/sources/hdfs-source-topology-component.json
@@ -152,6 +152,9 @@ function add_all_bundles {
     add_topology_component_bundle /streams/componentbundles/PROCESSOR ${storm_dir}/components/processors/join-bolt-topology-component.json
     add_topology_component_bundle /streams/componentbundles/PROCESSOR ${storm_dir}/components/processors/model-topology-component.json
     add_topology_component_bundle /streams/componentbundles/PROCESSOR ${storm_dir}/components/processors/projection-topology-component.json
+    # === Task ===
+    add_topology_component_bundle /streams/componentbundles/TASK ${piper_dir}/components/tasks/multilang-topology-component.json
+    add_topology_component_bundle /streams/componentbundles/TASK ${piper_dir}/components/tasks/hive-topology-component.json
     # === Sink ===
     add_topology_component_bundle /streams/componentbundles/SINK ${storm_dir}/components/sinks/hdfs-sink-topology-component.json
     add_topology_component_bundle /streams/componentbundles/SINK ${storm_dir}/components/sinks/hbase-sink-topology-component.json

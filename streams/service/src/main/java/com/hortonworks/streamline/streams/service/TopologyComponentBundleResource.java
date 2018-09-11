@@ -34,6 +34,8 @@ import com.hortonworks.streamline.storage.search.OrderBy;
 import com.hortonworks.streamline.storage.search.SearchQuery;
 import com.hortonworks.streamline.storage.search.WhereClause;
 import com.hortonworks.streamline.storage.search.WhereClauseCombiner;
+import com.hortonworks.streamline.streams.catalog.Engine;
+import com.hortonworks.streamline.streams.catalog.Template;
 import com.hortonworks.streamline.streams.catalog.processor.CustomProcessorInfo;
 import com.hortonworks.streamline.streams.catalog.service.StreamCatalogService;
 import com.hortonworks.streamline.streams.catalog.topology.TopologyComponentBundle;
@@ -616,6 +618,14 @@ public class TopologyComponentBundleResource {
             currentParamCount++;
 
             switch (name) {
+                case "templateId":
+                    Collection<Template> templates = catalogService
+                        .listTemplates(QueryParam.params(Template.ID, value));
+                    if (templates == null || templates.isEmpty() || templates.size() > 1) {
+                        throw EntityNotFoundException.byId("Invalid templateId=" + value);
+                    }
+                    name = TopologyComponentBundle.TEMPLATE;
+                    value = templates.stream().findFirst().get().getName();
                 case TopologyComponentBundle.TEMPLATE:
                     if (currentParamCount == totalParamCount) {
                         whereClauseCombiner = whereClauseBuilder.contains(name, value);
@@ -624,6 +634,13 @@ public class TopologyComponentBundleResource {
                     }
                     break;
 
+                case "engineId":
+                    Engine engine = catalogService.getEngine(Long.valueOf(value));
+                    if (engine == null) {
+                        throw EntityNotFoundException.byId("Invalid engineId=" + value);
+                    }
+                    name = TopologyComponentBundle.ENGINE;
+                    value = engine.getName();
                 case TopologyComponentBundle.ENGINE:
                 case TopologyComponentBundle.TYPE:
                 case TopologyComponentBundle.SUB_TYPE:

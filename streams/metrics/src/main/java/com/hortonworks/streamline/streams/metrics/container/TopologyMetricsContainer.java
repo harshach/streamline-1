@@ -48,31 +48,31 @@ public class TopologyMetricsContainer extends NamespaceAwareContainer<TopologyMe
 
     @Override
     protected TopologyMetrics initializeInstance(Namespace namespace) {
-        String streamingEngine = namespace.getStreamingEngine();
+        String engine = namespace.getEngine();
 
         MappedTopologyMetricsImpl metricsImpl;
-        // Only Storm is supported as streaming engine
+        // Only Storm is supported as engine
         try {
-            metricsImpl = MappedTopologyMetricsImpl.valueOf(streamingEngine);
+            metricsImpl = MappedTopologyMetricsImpl.valueOf(engine);
         } catch (IllegalArgumentException e) {
-            throw new RuntimeException("Unsupported streaming engine: " + streamingEngine, e);
+            throw new RuntimeException("Unsupported engine: " + engine, e);
         }
 
         // FIXME: "how to initialize" is up to implementation detail - now we just only consider about Storm implementation
-        Map<String, Object> conf = buildStormTopologyMetricsConfigMap(namespace, streamingEngine, subject);
+        Map<String, Object> conf = buildStormTopologyMetricsConfigMap(namespace, engine, subject);
 
         String className = metricsImpl.getClassName();
         TopologyMetrics topologyMetrics = initTopologyMetrics(conf, className);
 
         String timeSeriesDB = namespace.getTimeSeriesDB();
         if (timeSeriesDB != null && !timeSeriesDB.isEmpty()) {
-            String querierKey = MappedTimeSeriesQuerierImpl.getName(streamingEngine, timeSeriesDB);
+            String querierKey = MappedTimeSeriesQuerierImpl.getName(engine, timeSeriesDB);
 
             MappedTimeSeriesQuerierImpl timeSeriesQuerierImpl;
             try {
                 timeSeriesQuerierImpl = MappedTimeSeriesQuerierImpl.valueOf(querierKey);
             } catch (IllegalArgumentException e) {
-                throw new RuntimeException("Unsupported streaming engine and time-series DB combination: " + streamingEngine +
+                throw new RuntimeException("Unsupported engine and time-series DB combination: " + engine +
                         " & " + timeSeriesDB, e);
             }
 
@@ -109,9 +109,9 @@ public class TopologyMetricsContainer extends NamespaceAwareContainer<TopologyMe
         }
     }
 
-    private Map<String, Object> buildStormTopologyMetricsConfigMap(Namespace namespace, String streamingEngine, Subject subject) {
+    private Map<String, Object> buildStormTopologyMetricsConfigMap(Namespace namespace, String engine, Subject subject) {
         Map<String, Object> conf = new HashMap<>();
-        conf.put(TopologyLayoutConstants.STORM_API_ROOT_URL_KEY, buildStormRestApiRootUrl(namespace, streamingEngine));
+        conf.put(TopologyLayoutConstants.STORM_API_ROOT_URL_KEY, buildStormRestApiRootUrl(namespace, engine));
         conf.put(TopologyLayoutConstants.SUBJECT_OBJECT, subject);
         return conf;
     }

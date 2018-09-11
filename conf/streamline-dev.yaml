@@ -1,4 +1,4 @@
-Modules:
+modules:
   - name: tag-registry
     className: com.hortonworks.streamline.registries.tag.service.TagRegistryModule
   - name: dashboard-registry

@@ -144,18 +144,18 @@ public abstract class NamespaceAwareContainer<T> {
         }
     }
 
-    protected String buildStormRestApiRootUrl(Namespace namespace, String streamingEngine) {
-        // Assuming that a namespace has one mapping of streaming engine
-        Service streamingEngineService = getFirstOccurenceServiceForNamespace(namespace, streamingEngine);
-        if (streamingEngineService == null) {
-            throw new RuntimeException("Streaming Engine " + streamingEngine + " is not associated to the namespace " +
+    protected String buildStormRestApiRootUrl(Namespace namespace, String engine) {
+        // Assuming that a namespace has one mapping of engine
+        Service engineService = getFirstOccurenceServiceForNamespace(namespace, engine);
+        if (engineService == null) {
+            throw new RuntimeException("Engine " + engine + " is not associated to the namespace " +
                     namespace.getName() + "(" + namespace.getId() + ")");
         }
-        Component uiServer = getComponent(streamingEngineService, COMPONENT_NAME_STORM_UI_SERVER)
-                .orElseThrow(() -> new RuntimeException(streamingEngine + " doesn't have " + COMPONENT_NAME_STORM_UI_SERVER + " as component"));
+        Component uiServer = getComponent(engineService, COMPONENT_NAME_STORM_UI_SERVER)
+                .orElseThrow(() -> new RuntimeException(engine + " doesn't have " + COMPONENT_NAME_STORM_UI_SERVER + " as component"));
         Collection<ComponentProcess> uiServerProcesses = environmentService.listComponentProcesses(uiServer.getId());
         if (uiServerProcesses.isEmpty()) {
-            throw new RuntimeException(streamingEngine + " doesn't have any process for " + COMPONENT_NAME_STORM_UI_SERVER + " as component");
+            throw new RuntimeException(engine + " doesn't have any process for " + COMPONENT_NAME_STORM_UI_SERVER + " as component");
         }
         ComponentProcess uiServerProcess = uiServerProcesses.iterator().next();
         String uiHost = uiServerProcess.getHost();

@@ -20,13 +20,13 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.hortonworks.registries.common.Schema;
 import com.hortonworks.streamline.common.ComponentUISpecification;
-import com.hortonworks.streamline.storage.annotation.StorableEntity;
 import com.hortonworks.streamline.storage.PrimaryKey;
 import com.hortonworks.streamline.storage.Storable;
 import com.hortonworks.streamline.storage.StorableKey;
+import com.hortonworks.streamline.storage.annotation.StorableEntity;
 import com.hortonworks.streamline.streams.layout.storm.FluxComponent;
-
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -38,7 +38,8 @@ public class TopologyComponentBundle implements Storable {
     public static final String NAME = "name";
     public static final String TYPE = "type";
     public static final String TIMESTAMP = "timestamp";
-    public static final String STREAMING_ENGINE = "streamingEngine";
+    public static final String ENGINE = "engine";
+    public static final String TEMPLATE = "template";
     public static final String SUB_TYPE = "subType";
     public static final String UI_SPEC = "topologyComponentUISpec";
     public static final String BUNDLE_JAR = "bundleJar";
@@ -78,11 +79,16 @@ public class TopologyComponentBundle implements Storable {
     private Long timestamp;
 
     /**
-     * Underlying streaming engine. For e.g. STORM. This is not an enum
+     * Underlying engine. For e.g. STORM. This is not an enum
      * because we want the user to be able to add new components without
      * changing code
      */
-    private String streamingEngine;
+    private String engine;
+
+    /**
+     * Underlying template. For e.g. BLANK.
+     */
+    private String[] template;
 
     /**
      * Subtype for this component. For e.g. KAFKA for a source/sink, HBASE
@@ -110,7 +116,7 @@ public class TopologyComponentBundle implements Storable {
 
     /**
      * A fully qualified class name that can handle transformation of
-     * this component to underlying streaming engine equivalent
+     * this component to underlying engine equivalent
      */
     private String transformationClass;
 
@@ -140,7 +146,8 @@ public class TopologyComponentBundle implements Storable {
                 new Schema.Field(NAME, Schema.Type.STRING),
                 new Schema.Field(TYPE, Schema.Type.STRING),
                 new Schema.Field(TIMESTAMP, Schema.Type.LONG),
-                new Schema.Field(STREAMING_ENGINE, Schema.Type.STRING),
+                new Schema.Field(ENGINE, Schema.Type.STRING),
+                new Schema.Field(TEMPLATE, Schema.Type.ARRAY),
                 new Schema.Field(SUB_TYPE, Schema.Type.STRING),
                 new Schema.Field(BUNDLE_JAR, Schema.Type.STRING),
                 new Schema.Field(UI_SPEC, Schema.Type.STRING),
@@ -180,7 +187,8 @@ public class TopologyComponentBundle implements Storable {
         map.put(NAME, name);
         map.put(TYPE, type.name());
         map.put(TIMESTAMP, timestamp);
-        map.put(STREAMING_ENGINE, streamingEngine);
+        map.put(ENGINE, engine);
+        map.put(TEMPLATE, String.join(",", template));
         map.put(SUB_TYPE, subType);
         map.put(BUNDLE_JAR, bundleJar);
         map.put(UI_SPEC, uiSpecification);
@@ -197,7 +205,8 @@ public class TopologyComponentBundle implements Storable {
         name = (String)  map.get(NAME);
         type = TopologyComponentType.valueOf((String) map.get(TYPE));
         timestamp = (Long) map.get(TIMESTAMP);
-        streamingEngine = (String) map.get(STREAMING_ENGINE);
+        engine = (String) map.get(ENGINE);
+        template = ((String)map.get(TEMPLATE)).split(",");
         subType = (String) map.get(SUB_TYPE);
         bundleJar = (String) map.get(BUNDLE_JAR);
         ObjectMapper mapper = new ObjectMapper();
@@ -247,12 +256,20 @@ public class TopologyComponentBundle implements Storable {
         this.timestamp = timestamp;
     }
 
-    public String getStreamingEngine () {
-        return streamingEngine;
+    public String getEngine() {
+        return engine;
     }
 
-    public void setStreamingEngine (String streamingEngine) {
-        this.streamingEngine = streamingEngine;
+    public void setEngine(String engine) {
+        this.engine = engine;
+    }
+
+    public String[] getTemplate() {
+        return template.clone();
+    }
+
+    public void setTemplate(String[] template) {
+        this.template = template.clone();
     }
 
     public String getSubType () {
@@ -318,7 +335,8 @@ public class TopologyComponentBundle implements Storable {
                 ", name='" + name + '\'' +
                 ", type=" + type +
                 ", timestamp=" + timestamp +
-                ", streamingEngine='" + streamingEngine + '\'' +
+                ", engine='" + engine + '\'' +
+                ", template='" + Arrays.toString(template) + '\'' +
                 ", subType='" + subType + '\'' +
                 ", bundleJar='" + bundleJar + '\'' +
                 ", topologyComponentUISpecification='" + topologyComponentUISpecification + '\'' +
@@ -339,7 +357,9 @@ public class TopologyComponentBundle implements Storable {
         if (name != null ? !name.equals(that.name) : that.name != null)
             return false;
         if (type != that.type) return false;
-        if (streamingEngine != null ? !streamingEngine.equals(that.streamingEngine) : that.streamingEngine != null)
+        if (engine != null ? !engine.equals(that.engine) : that.engine != null)
+            return false;
+        if (template != null ? !Arrays.equals(template, that.template) : that.template != null)
             return false;
         if (subType != null ? !subType.equals(that.subType) : that.subType != null)
             return false;
@@ -362,7 +382,8 @@ public class TopologyComponentBundle implements Storable {
         int result = id != null ? id.hashCode() : 0;
         result = 31 * result + (name != null ? name.hashCode() : 0);
         result = 31 * result + (type != null ? type.hashCode() : 0);
-        result = 31 * result + (streamingEngine != null ? streamingEngine.hashCode() : 0);
+        result = 31 * result + (engine != null ? engine.hashCode() : 0);
+        result = 31 * result + (template != null ? Arrays.hashCode(template) : 0);
         result = 31 * result + (subType != null ? subType.hashCode() : 0);
         result = 31 * result + (bundleJar != null ? bundleJar.hashCode() : 0);
         result = 31 * result + (topologyComponentUISpecification != null ? topologyComponentUISpecification.hashCode() : 0);

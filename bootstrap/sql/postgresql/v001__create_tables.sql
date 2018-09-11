@@ -74,7 +74,7 @@ CREATE TABLE IF NOT EXISTS file (
 CREATE TABLE IF NOT EXISTS namespace (
      "id" SERIAL PRIMARY KEY ,
      "name" VARCHAR(256) NOT NULL,
-     "streamingEngine" VARCHAR(256) NOT NULL,
+     "engine" VARCHAR(256) NOT NULL,
      "timeSeriesDB" VARCHAR(256) NULL,
      "description" VARCHAR(256),
      "timestamp" BIGINT
@@ -110,7 +110,8 @@ CREATE TABLE IF NOT EXISTS topology_component_bundle (
     "name" VARCHAR(256) NOT NULL,
     "type" TEXT NOT NULL,
     "subType" TEXT NOT NULL,
-    "streamingEngine" TEXT NOT NULL,
+    "engine" TEXT NOT NULL,
+    "template" TEXT NOT NULL,
     "topologyComponentUISpecification" TEXT NOT NULL,
     "fieldHintProviderClass" TEXT,
     "transformationClass" TEXT,

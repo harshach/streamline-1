@@ -21,27 +21,27 @@ public class TopologySamplingContainer extends NamespaceAwareContainer<TopologyS
     @Override
     protected TopologySampling initializeInstance(Namespace namespace) {
         try {
-            String streamingEngine = namespace.getStreamingEngine();
+            String engine = namespace.getEngine();
 
             MappedTopologySamplingImpl samplingImpl;
             try {
-                samplingImpl = MappedTopologySamplingImpl.valueOf(streamingEngine);
+                samplingImpl = MappedTopologySamplingImpl.valueOf(engine);
             } catch (IllegalArgumentException e) {
-                throw new RuntimeException("Unsupported streaming engine: " + streamingEngine, e);
+                throw new RuntimeException("Unsupported engine: " + engine, e);
             }
 
             Class<TopologySampling> clazz = (Class<TopologySampling>) Class.forName(samplingImpl.getClassName());
             TopologySampling samplingInstance = clazz.newInstance();
-            samplingInstance.init(buildConfig(namespace, streamingEngine));
+            samplingInstance.init(buildConfig(namespace, engine));
             return samplingInstance;
         } catch (ClassNotFoundException | InstantiationException | IllegalAccessException ex) {
             throw new RuntimeException(ex);
         }
     }
 
-    private Map<String, Object> buildConfig(Namespace namespace, String streamingEngine) {
+    private Map<String, Object> buildConfig(Namespace namespace, String engine) {
         Map<String, Object> conf = new HashMap<>();
-        conf.put(TopologyLayoutConstants.STORM_API_ROOT_URL_KEY, buildStormRestApiRootUrl(namespace, streamingEngine));
+        conf.put(TopologyLayoutConstants.STORM_API_ROOT_URL_KEY, buildStormRestApiRootUrl(namespace, engine));
         conf.put(TopologyLayoutConstants.SUBJECT_OBJECT, subject);
         return conf;
     }

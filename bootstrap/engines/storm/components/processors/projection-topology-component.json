@@ -1,0 +1,21 @@
+{
+  "type": "PROCESSOR",
+  "name": "Projection",
+  "subType": "PROJECTION",
+  "builtin": true,
+  "engine": "STORM",
+  "template": ["Blank"],
+  "transformationClass": "com.hortonworks.streamline.streams.layout.storm.RuleBoltFluxComponent",
+  "topologyComponentUISpecification": {
+      "fields": [
+        {
+          "uiName": "Parallelism",
+          "fieldName": "parallelism",
+          "isOptional": true,
+          "tooltip": "Parallelism hint for pojection processor",
+          "type": "number",
+          "defaultValue": 1
+        }
+      ]
+    }
+}

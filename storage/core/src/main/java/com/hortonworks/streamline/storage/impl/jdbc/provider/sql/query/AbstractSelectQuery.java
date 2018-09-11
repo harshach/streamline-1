@@ -28,9 +28,9 @@ import com.hortonworks.streamline.storage.search.PredicateCombinerPair;
 import com.hortonworks.streamline.storage.search.SearchQuery;
 import com.hortonworks.streamline.storage.search.WhereClause;
 import com.hortonworks.streamline.storage.search.WhereClauseCombiner;
+import java.util.LinkedHashMap;
 import org.apache.commons.lang.StringUtils;
 
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -90,7 +90,7 @@ public abstract class AbstractSelectQuery extends AbstractStorableKeyQuery {
         String sql = "SELECT * FROM " + fieldEncloser() + tableName + fieldEncloser();
 
         WhereClause whereClause = searchQuery.getWhereClause();
-        Map<Schema.Field, Object> fieldsToValues = new HashMap<>();
+        Map<Schema.Field, Object> fieldsToValues = new LinkedHashMap<>();
         if (whereClause != null) {
             sql += " WHERE ";
             StringBuilder clauseString = new StringBuilder();

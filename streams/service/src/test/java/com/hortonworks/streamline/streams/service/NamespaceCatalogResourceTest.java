@@ -67,7 +67,7 @@ public class NamespaceCatalogResourceTest {
     private SecurityContext securityContext;
 
     @Test
-    public void testExcludeStreamingEngineViaSetServicesToClusterInNamespace() throws Exception {
+    public void testExcludeEngineViaSetServicesToClusterInNamespace() throws Exception {
         Long testNamespaceId = 1L;
 
         Namespace testNamespace = createTestNamespace(testNamespaceId, TEST_STREAMING_ENGINE, TEST_TIME_SERIES_DB);
@@ -94,7 +94,7 @@ public class NamespaceCatalogResourceTest {
     }
 
     @Test
-    public void testChangeMappingOfStreamingEngineViaSetServicesToClusterInNamespace() throws Exception {
+    public void testChangeMappingOfEngineViaSetServicesToClusterInNamespace() throws Exception {
         Long testNamespaceId = 1L;
 
         Namespace testNamespace = createTestNamespace(testNamespaceId, TEST_STREAMING_ENGINE, TEST_TIME_SERIES_DB);
@@ -105,7 +105,7 @@ public class NamespaceCatalogResourceTest {
 
         List<NamespaceServiceClusterMap> mappingsToApply = existingMappings.stream()
                 .filter(m -> !m.getServiceName().equals(TEST_STREAMING_ENGINE)).collect(toList());
-        // change the mapping of streaming engine to cluster id 2
+        // change the mapping of engine to cluster id 2
         mappingsToApply.add(new NamespaceServiceClusterMap(testNamespaceId, TEST_STREAMING_ENGINE, 2L));
 
         try {
@@ -123,7 +123,7 @@ public class NamespaceCatalogResourceTest {
     }
 
     @Test
-    public void testOverwriteExistingStreamingEngineMappingViaSetServicesToClusterInNamespace() throws Exception {
+    public void testOverwriteExistingEngineMappingViaSetServicesToClusterInNamespace() throws Exception {
         Long testNamespaceId = 1L;
 
         Namespace testNamespace = createTestNamespace(testNamespaceId, TEST_STREAMING_ENGINE, TEST_TIME_SERIES_DB);
@@ -152,7 +152,7 @@ public class NamespaceCatalogResourceTest {
     }
 
     @Test
-    public void testMappingMultipleStreamingEngineViaSetServicesToClusterInNamespace() throws Exception {
+    public void testMappingMultipleEngineViaSetServicesToClusterInNamespace() throws Exception {
         Long testNamespaceId = 1L;
 
         Namespace testNamespace = createTestNamespace(testNamespaceId, TEST_STREAMING_ENGINE, TEST_TIME_SERIES_DB);
@@ -232,7 +232,7 @@ public class NamespaceCatalogResourceTest {
     }
 
     @Test
-    public void testAddStreamingEngineWhenStreamingEngineAlreadyExistsViaMapServiceToClusterInNamespace() throws Exception {
+    public void testAddEngineWhenEngineAlreadyExistsViaMapServiceToClusterInNamespace() throws Exception {
         Long testNamespaceId = 1L;
 
         Namespace testNamespace = createTestNamespace(testNamespaceId, TEST_STREAMING_ENGINE, TEST_TIME_SERIES_DB);
@@ -292,7 +292,7 @@ public class NamespaceCatalogResourceTest {
     }
 
     @Test
-    public void testOverwriteSameStreamingEngineMappingViaMapServiceToClusterInNamespace() throws Exception {
+    public void testOverwriteSameEngineMappingViaMapServiceToClusterInNamespace() throws Exception {
         Long testNamespaceId = 1L;
 
         Namespace testNamespace = createTestNamespace(testNamespaceId, TEST_STREAMING_ENGINE, TEST_TIME_SERIES_DB);
@@ -306,10 +306,10 @@ public class NamespaceCatalogResourceTest {
             result = existingMappings;
         }};
 
-        NamespaceServiceClusterMap existingStreamingEngineMapping = existingMappings.stream()
+        NamespaceServiceClusterMap existingEngineMapping = existingMappings.stream()
                 .filter(m -> m.getServiceName().equals(TEST_STREAMING_ENGINE)).findAny().get();
 
-        namespaceCatalogResource.mapServiceToClusterInNamespace(testNamespaceId, existingStreamingEngineMapping, securityContext);
+        namespaceCatalogResource.mapServiceToClusterInNamespace(testNamespaceId, existingEngineMapping, securityContext);
 
         new Verifications() {{
             environmentService.addOrUpdateServiceClusterMapping(withAny(new NamespaceServiceClusterMap()));
@@ -344,7 +344,7 @@ public class NamespaceCatalogResourceTest {
     }
 
     @Test
-    public void testUnmapStreamingEngineWhenTopologyIsRunningViaUnmapServiceToClusterInNamespace() throws Exception {
+    public void testUnmapEngineWhenTopologyIsRunningViaUnmapServiceToClusterInNamespace() throws Exception {
         Long testNamespaceId = 1L;
 
         Namespace testNamespace = createTestNamespace(testNamespaceId, TEST_STREAMING_ENGINE, TEST_TIME_SERIES_DB);
@@ -367,7 +367,7 @@ public class NamespaceCatalogResourceTest {
     }
 
     @Test
-    public void testUnmapStreamingEngineWhenTopologyIsRunningViaUnmapAllServiceToClusterInNamespace() throws Exception {
+    public void testUnmapEngineWhenTopologyIsRunningViaUnmapAllServiceToClusterInNamespace() throws Exception {
         Long testNamespaceId = 1L;
 
         Namespace testNamespace = createTestNamespace(testNamespaceId, TEST_STREAMING_ENGINE, TEST_TIME_SERIES_DB);
@@ -405,11 +405,11 @@ public class NamespaceCatalogResourceTest {
         return Lists.newArrayList(topology1, topology2);
     }
 
-    private Namespace createTestNamespace(Long namespaceId, String streamingEngine, String timeSeriesDB) {
+    private Namespace createTestNamespace(Long namespaceId, String engine, String timeSeriesDB) {
         Namespace testNamespace = new Namespace();
         testNamespace.setId(namespaceId);
         testNamespace.setName("test-namespace");
-        testNamespace.setStreamingEngine(streamingEngine);
+        testNamespace.setEngine(engine);
         testNamespace.setTimeSeriesDB(timeSeriesDB);
         return testNamespace;
     }

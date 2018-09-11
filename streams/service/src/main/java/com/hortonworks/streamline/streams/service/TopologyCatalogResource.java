@@ -20,7 +20,7 @@ import com.codahale.metrics.annotation.Timed;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.hortonworks.streamline.common.exception.service.exception.request.BadRequestException;
 import com.hortonworks.streamline.common.exception.service.exception.request.EntityNotFoundException;
-import com.hortonworks.streamline.common.exception.service.exception.server.StreamingEngineNotReachableException;
+import com.hortonworks.streamline.common.exception.service.exception.server.EngineNotReachableException;
 import com.hortonworks.streamline.common.util.WSUtils;
 import com.hortonworks.streamline.streams.actions.topology.service.TopologyActionsService;
 import com.hortonworks.streamline.streams.catalog.*;
@@ -55,11 +55,9 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.EnumSet;
-import java.util.List;
 import java.util.Optional;
 
 import static com.hortonworks.streamline.streams.catalog.Topology.NAMESPACE;
@@ -362,7 +360,7 @@ public class TopologyCatalogResource {
             } catch (StormNotReachableException | IOException e) {
                 // We don't know whether topology is running or not
                 // users need to make a request with force parameter on
-                throw new StreamingEngineNotReachableException(e.getMessage(), e);
+                throw new EngineNotReachableException(e.getMessage(), e);
             }
         }
 

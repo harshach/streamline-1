@@ -28,21 +28,21 @@ public class TopologyContext implements TopologyActionContext {
     private static final Logger LOG = LoggerFactory.getLogger(TopologyContext.class);
 
     private final Topology topology;
+    private final TopologyActions topologyActions;
     private final TopologyActionsService topologyActionsService;
     private String mavenArtifacts;
     private TopologyState state;
     private String asUser;
 
-    public TopologyContext(Topology topology, TopologyActionsService actionsService) {
-        this(topology, actionsService, TopologyStates.TOPOLOGY_STATE_INITIAL, null);
-    }
-
-    public TopologyContext(Topology topology, TopologyActionsService actionsService, TopologyState state, String asUser) {
+    public TopologyContext(Topology topology, TopologyActions topologyActions, TopologyActionsService topologyActionsService,
+                           TopologyState state, String asUser) {
         Objects.requireNonNull(topology, "null topology");
-        Objects.requireNonNull(actionsService, "null actionsService");
+        Objects.requireNonNull(topologyActions, "null topologyActions");
+        Objects.requireNonNull(topologyActionsService, "null topologyActionsService");
         Objects.requireNonNull(state, "null state");
         this.topology = topology;
-        this.topologyActionsService = actionsService;
+        this.topologyActions = topologyActions;
+        this.topologyActionsService = topologyActionsService;
         this.state = state;
         this.asUser = asUser;
     }
@@ -64,7 +64,7 @@ public class TopologyContext implements TopologyActionContext {
     }
 
     public TopologyActions getTopologyActions() {
-        return topologyActionsService.getTopologyActionsInstance(topology);
+        return topologyActions;
     }
 
     public Topology getTopology() {
@@ -84,7 +84,7 @@ public class TopologyContext implements TopologyActionContext {
     }
 
     public void deploy() throws Exception {
-        state.deploy(this);
+        state.deploy(this); 
     }
 
     public void kill() throws Exception {

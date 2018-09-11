@@ -34,7 +34,7 @@ public class Namespace extends AbstractStorable {
 
   public static final String ID = "id";
   public static final String NAME = "name";
-  public static final String STREAMING_ENGINE = "streamingEngine";
+  public static final String ENGINE = "engine";
   public static final String TIME_SERIES_DB = "timeSeriesDB";
   public static final String LOG_SEARCH_SERVICE = "logSearchService";
   public static final String DESCRIPTION = "description";
@@ -45,7 +45,7 @@ public class Namespace extends AbstractStorable {
   @SearchableField
   private String name;
   @SearchableField
-  private String streamingEngine;
+  private String engine;
   private String timeSeriesDB;
   private String logSearchService;
   @SearchableField
@@ -73,7 +73,7 @@ public class Namespace extends AbstractStorable {
     return Schema.of(
             Schema.Field.of(ID, Schema.Type.LONG),
             Schema.Field.of(NAME, Schema.Type.STRING),
-            Schema.Field.of(STREAMING_ENGINE, Schema.Type.STRING),
+            Schema.Field.of(ENGINE, Schema.Type.STRING),
             Schema.Field.of(TIME_SERIES_DB, Schema.Type.STRING),
             Schema.Field.of(LOG_SEARCH_SERVICE, Schema.Type.STRING),
             Schema.Field.of(DESCRIPTION, Schema.Type.STRING),
@@ -107,14 +107,14 @@ public class Namespace extends AbstractStorable {
   }
 
   /**
-   * The selected streaming engine of the namespace
+   * The selected engine of the namespace
    */
-  public String getStreamingEngine() {
-    return streamingEngine;
+  public String getEngine() {
+    return engine;
   }
 
-  public void setStreamingEngine(String streamingEngine) {
-    this.streamingEngine = streamingEngine;
+  public void setEngine(String engine) {
+    this.engine = engine;
   }
 
   /**
@@ -175,7 +175,7 @@ public class Namespace extends AbstractStorable {
 
     if (getId() != null ? !getId().equals(namespace.getId()) : namespace.getId() != null) return false;
     if (getName() != null ? !getName().equals(namespace.getName()) : namespace.getName() != null) return false;
-    if (getStreamingEngine() != null ? !getStreamingEngine().equals(namespace.getStreamingEngine()) : namespace.getStreamingEngine() != null)
+    if (getEngine() != null ? !getEngine().equals(namespace.getEngine()) : namespace.getEngine() != null)
       return false;
     if (getTimeSeriesDB() != null ? !getTimeSeriesDB().equals(namespace.getTimeSeriesDB()) : namespace.getTimeSeriesDB() != null)
       return false;
@@ -192,7 +192,7 @@ public class Namespace extends AbstractStorable {
   public int hashCode() {
     int result = getId() != null ? getId().hashCode() : 0;
     result = 31 * result + (getName() != null ? getName().hashCode() : 0);
-    result = 31 * result + (getStreamingEngine() != null ? getStreamingEngine().hashCode() : 0);
+    result = 31 * result + (getEngine() != null ? getEngine().hashCode() : 0);
     result = 31 * result + (getTimeSeriesDB() != null ? getTimeSeriesDB().hashCode() : 0);
     result = 31 * result + (getLogSearchService() != null ? getLogSearchService().hashCode() : 0);
     result = 31 * result + (getDescription() != null ? getDescription().hashCode() : 0);
@@ -206,7 +206,7 @@ public class Namespace extends AbstractStorable {
     return "Namespace{" +
             "id=" + id +
             ", name='" + name + '\'' +
-            ", streamingEngine='" + streamingEngine + '\'' +
+            ", engine='" + engine + '\'' +
             ", timeSeriesDB='" + timeSeriesDB + '\'' +
             ", logSearchService='" + logSearchService + '\'' +
             ", description='" + description + '\'' +

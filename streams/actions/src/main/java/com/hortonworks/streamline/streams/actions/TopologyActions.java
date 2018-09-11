@@ -15,13 +15,17 @@
  **/
 package com.hortonworks.streamline.streams.actions;
 
+import com.hortonworks.streamline.streams.actions.topology.service.TopologyActionsService;
+import com.hortonworks.streamline.streams.catalog.Topology;
 import com.hortonworks.streamline.streams.catalog.TopologyTestRunHistory;
+import com.hortonworks.streamline.streams.layout.component.TopologyDag;
 import com.hortonworks.streamline.streams.layout.component.TopologyLayout;
 import com.hortonworks.streamline.streams.layout.component.impl.testing.TestRunProcessor;
 import com.hortonworks.streamline.streams.layout.component.impl.testing.TestRunRulesProcessor;
 import com.hortonworks.streamline.streams.layout.component.impl.testing.TestRunSink;
 import com.hortonworks.streamline.streams.layout.component.impl.testing.TestRunSource;
 
+import java.io.IOException;
 import java.nio.file.Path;
 import java.util.Map;
 import java.util.Optional;
@@ -32,13 +36,22 @@ import java.util.Optional;
  */
 public interface TopologyActions {
     // Any one time initialization is done here
-    void init (Map<String, Object> conf);
+    void init (Map<String, Object> conf, TopologyActionsService topologyActionsService);
+
+
+    // Setup extra jars needed for deploying the topology
+    String setUpExtraJars(Topology topology) throws IOException;
+
+
+    void setUpClusterArtifacts(Topology topology) throws IOException;
+
+    void ensureValid(TopologyDag topologyDag);
 
     // Deploy the artifact generated using the underlying streaming
     // engine
     void deploy(TopologyLayout topology, String mavenArtifacts, TopologyActionContext ctx, String asUser) throws Exception;
 
-    // Compose and run parameter topology as test mode using the underlying streaming engine.
+    // Compose and run parameter topology as test mode using the underlying engine.
     // The parameter 'topology' should contain its own topology DAG.
     // Please refer the javadoc of TestRunSource and also TestRunSink to see which information this method requires.
     void runTest(TopologyLayout topology, TopologyTestRunHistory testRunHistory, String mavenArtifacts,
@@ -80,6 +93,8 @@ public interface TopologyActions {
     // get current log level of topology
     LogLevelInformation getLogLevel(TopologyLayout topology, String asUser) throws Exception;
 
+
+
     /**
      * the Path where topology specific artifacts are kept
      */
@@ -91,7 +106,7 @@ public interface TopologyActions {
     Path getExtraJarsLocation(TopologyLayout topology);
 
     /**
-     * the topology id which is running in runtime streaming engine
+     * the topology id which is running in runtime engine
      */
     String getRuntimeTopologyId(TopologyLayout topology, String asUser);
 

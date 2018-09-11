@@ -2,7 +2,7 @@
   "type": "SOURCE",
   "name": "Sample source for UI test",
   "subType": "SAMPLE",
-  "streamingEngine": "STORM",
+  "engine": "STORM",
   "topologyComponentUISpecification": {
     "fields": [
       {

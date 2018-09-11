@@ -111,6 +111,9 @@ CATALOG_ROOT_URL_PROPERTY_KEY=catalogRootUrl
 component_dir=${bootstrap_dir}/components
 service_dir=${bootstrap_dir}/services
 user_role_dir=${bootstrap_dir}/users_roles
+storm_dir=${bootstrap_dir}/engines/storm
+piper_dir=${bootstrap_dir}/engines/piper
+athenax_dir=${bootstrap_dir}/engines/athenax
 
 echo "Configuration file: ${CONFIG_FILE_PATH}"
 
@@ -128,43 +131,48 @@ echo "User/Role bundle Root dir: ${user_role_dir}"
 
 function add_all_bundles {
     # === Engine ===
-    post /system/engines ${component_dir}/engines/piper/piper.json
-    post /system/engines ${component_dir}/engines/athenax/athenax.json
-    # === Templates ===
-    post /system/engines/1/templates ${component_dir}/engines/piper/templates/blank.json
-    post /system/engines/2/templates ${component_dir}/engines/athenax/templates/blank.json
-    # === Source ===
-    add_topology_component_bundle /streams/componentbundles/SOURCE ${component_dir}/storm/sources/kafka-source-topology-component.json
-    add_topology_component_bundle /streams/componentbundles/SOURCE ${component_dir}/storm/sources/hdfs-source-topology-component.json
-    add_topology_component_bundle /streams/componentbundles/SOURCE ${component_dir}/storm/sources/eventhubs-source-topology-component.json
-    # === Processor ===
-    add_topology_component_bundle /streams/componentbundles/PROCESSOR ${component_dir}/storm/processors/rule-topology-component.json
-    add_topology_component_bundle /streams/componentbundles/PROCESSOR ${component_dir}/storm/processors/window-topology-component.json
-    add_topology_component_bundle /streams/componentbundles/PROCESSOR ${component_dir}/storm/processors/branch-topology-component.json
-    add_topology_component_bundle /streams/componentbundles/PROCESSOR ${component_dir}/storm/processors/join-bolt-topology-component.json
-    add_topology_component_bundle /streams/componentbundles/PROCESSOR ${component_dir}/storm/processors/model-topology-component.json
-    add_topology_component_bundle /streams/componentbundles/PROCESSOR ${component_dir}/storm/processors/projection-topology-component.json
-    # === Sink ===
-    add_topology_component_bundle /streams/componentbundles/SINK ${component_dir}/storm/sinks/hdfs-sink-topology-component.json
-    add_topology_component_bundle /streams/componentbundles/SINK ${component_dir}/storm/sinks/hbase-sink-topology-component.json
-    add_topology_component_bundle /streams/componentbundles/SINK ${component_dir}/storm/sinks/notification-sink-topology-component.json
-    add_topology_component_bundle /streams/componentbundles/SINK ${component_dir}/storm/sinks/opentsdb-sink-topology-component.json
-    add_topology_component_bundle /streams/componentbundles/SINK ${component_dir}/storm/sinks/jdbc-sink-topology-component.json
-    add_topology_component_bundle /streams/componentbundles/SINK ${component_dir}/storm/sinks/cassandra-sink-topology-component.json
-    add_topology_component_bundle /streams/componentbundles/SINK ${component_dir}/storm/sinks/druid-sink-topology-component.json
-    add_topology_component_bundle /streams/componentbundles/SINK ${component_dir}/storm/sinks/solr-sink-topology-component.json
-    add_topology_component_bundle /streams/componentbundles/SINK ${component_dir}/storm/sinks/kafka-sink-topology-component.json
-    add_topology_component_bundle /streams/componentbundles/SINK ${component_dir}/storm/sinks/hive-sink-topology-component.json
-    # === Topology ===
-    add_topology_component_bundle /streams/componentbundles/TOPOLOGY ${component_dir}/storm/topology/storm-topology-component.json
+    post /system/engines ${storm_dir}/storm.json
+    post /system/engines ${piper_dir}/piper.json
+    post /system/engines ${athenax_dir}/athenax.json
 
-    #add_topology_component_bundle /streams/componentbundles/PROCESSOR $component_dir/processors/split-topology-component
-    #add_topology_component_bundle /streams/componentbundles/PROCESSOR $component_dir/processors/normalization-processor-topology-component.json
-    #add_topology_component_bundle /streams/componentbundles/PROCESSOR $component_dir/processors/multilang-topology-component.json
-    #post /streams/componentbundles/PROCESSOR $component_dir/sinks/stage-topology-component
-    #post /streams/componentbundles/ACTION $component_dir/sinks/transform-action-topology-component
-    #post /streams/componentbundles/TRANSFORM $component_dir/sinks/projection-transform-topology-component
-    #post /streams/componentbundles/TRANSFORM $component_dir/sinks/enrichment-transform-topology-component
+    # === Templates ===
+    post /system/engines/1/templates ${storm_dir}/templates/blank.json
+    post /system/engines/2/templates ${piper_dir}/templates/blank.json
+    post /system/engines/3/templates ${athenax_dir}/templates/blank.json
+
+    add_topology_component_bundle /streams/componentbundles/PROCESSOR ${piper_dir}/components/processors/multilang-topology-component.json
+    # === Source ===
+    add_topology_component_bundle /streams/componentbundles/SOURCE ${storm_dir}/components/sources/kafka-source-topology-component.json
+    add_topology_component_bundle /streams/componentbundles/SOURCE ${storm_dir}/components/sources/hdfs-source-topology-component.json
+    add_topology_component_bundle /streams/componentbundles/SOURCE ${storm_dir}/components/sources/eventhubs-source-topology-component.json
+    # === Processor ===
+    add_topology_component_bundle /streams/componentbundles/PROCESSOR ${storm_dir}/components/processors/rule-topology-component.json
+    add_topology_component_bundle /streams/componentbundles/PROCESSOR ${storm_dir}/components/processors/window-topology-component.json
+    add_topology_component_bundle /streams/componentbundles/PROCESSOR ${storm_dir}/components/processors/branch-topology-component.json
+    add_topology_component_bundle /streams/componentbundles/PROCESSOR ${storm_dir}/components/processors/join-bolt-topology-component.json
+    add_topology_component_bundle /streams/componentbundles/PROCESSOR ${storm_dir}/components/processors/model-topology-component.json
+    add_topology_component_bundle /streams/componentbundles/PROCESSOR ${storm_dir}/components/processors/projection-topology-component.json
+    # === Sink ===
+    add_topology_component_bundle /streams/componentbundles/SINK ${storm_dir}/components/sinks/hdfs-sink-topology-component.json
+    add_topology_component_bundle /streams/componentbundles/SINK ${storm_dir}/components/sinks/hbase-sink-topology-component.json
+    add_topology_component_bundle /streams/componentbundles/SINK ${storm_dir}/components/sinks/notification-sink-topology-component.json
+    add_topology_component_bundle /streams/componentbundles/SINK ${storm_dir}/components/sinks/opentsdb-sink-topology-component.json
+    add_topology_component_bundle /streams/componentbundles/SINK ${storm_dir}/components/sinks/jdbc-sink-topology-component.json
+    add_topology_component_bundle /streams/componentbundles/SINK ${storm_dir}/components/sinks/cassandra-sink-topology-component.json
+    add_topology_component_bundle /streams/componentbundles/SINK ${storm_dir}/components/sinks/druid-sink-topology-component.json
+    add_topology_component_bundle /streams/componentbundles/SINK ${storm_dir}/components/sinks/solr-sink-topology-component.json
+    add_topology_component_bundle /streams/componentbundles/SINK ${storm_dir}/components/sinks/kafka-sink-topology-component.json
+    add_topology_component_bundle /streams/componentbundles/SINK ${storm_dir}/components/sinks/hive-sink-topology-component.json
+    # === Topology ===
+    add_topology_component_bundle /streams/componentbundles/TOPOLOGY ${storm_dir}/topology/storm-topology-component.json
+
+    #add_topology_component_bundle /streams/componentbundles/PROCESSOR ${storm_dir}/components/processors/split-topology-component
+    #add_topology_component_bundle /streams/componentbundles/PROCESSOR ${storm_dir}/components/processors/normalization-processor-topology-component.json
+    #add_topology_component_bundle /streams/componentbundles/PROCESSOR ${storm_dir}/components/processors/multilang-topology-component.json
+    #post /streams/componentbundles/PROCESSOR ${storm_dir}/components/sinks/stage-topology-component
+    #post /streams/componentbundles/ACTION ${storm_dir}/components/sinks/transform-action-topology-component
+    #post /streams/componentbundles/TRANSFORM ${storm_dir}/components/sinks/projection-transform-topology-component
+    #post /streams/componentbundles/TRANSFORM ${storm_dir}/components/sinks/enrichment-transform-topology-component
     #note that the below is just a sample for ui to work with. Once UI is ready, all above will be replaced with new bundle components
     #add_sample_bundle
 

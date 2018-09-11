@@ -1,5 +1,5 @@
 {
-  "streamingEngine": "STORM",
+  "engine": "STORM",
   "name": "Console Custom Processor",
   "description": "Console Custom Processor",
   "inputSchema": {"fields":[{"name":"childField1","type":"INTEGER"},{"name":"childField2","type":"BOOLEAN"},{"name":"topLevelStringField","type":"STRING"}]},

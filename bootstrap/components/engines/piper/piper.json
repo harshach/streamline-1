@@ -1,7 +1,0 @@
-{
-    "name":"PIPER",
-    "displayName": "Piper",
-    "deploymentModes": "[\"SCHEDULE\"]",
-    "componentTypes": "[\"TASK\"]",
-    "config": "{}"
-}

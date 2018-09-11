@@ -94,7 +94,7 @@ public class TopologyCatalogResource {
         Collection<Engine> engines = catalogService.listEngines();
         boolean topologyUser = SecurityUtil.hasRole(authorizer, securityContext, Roles.ROLE_TOPOLOGY_USER);
         if (topologyUser) {
-            LOG.debug("Returning all projects since user has role: {}", Roles.ROLE_TOPOLOGY_USER);
+            LOG.debug("Returning all engines since user has role: {}", Roles.ROLE_TOPOLOGY_USER);
         } else {
             engines = SecurityUtil.filter(authorizer, securityContext, NAMESPACE, engines, READ);
         }
@@ -134,7 +134,7 @@ public class TopologyCatalogResource {
                 com.hortonworks.streamline.common.QueryParam.params(Template.ENGINEID, engineId.toString()));
         boolean topologyUser = SecurityUtil.hasRole(authorizer, securityContext, Roles.ROLE_TOPOLOGY_USER);
         if (topologyUser) {
-            LOG.debug("Returning all projects since user has role: {}", Roles.ROLE_TOPOLOGY_USER);
+            LOG.debug("Returning all templates since user has role: {}", Roles.ROLE_TOPOLOGY_USER);
         } else {
             templates = SecurityUtil.filter(authorizer, securityContext, NAMESPACE, templates, READ);
         }

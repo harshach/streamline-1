@@ -277,9 +277,9 @@ public class EnvironmentService {
         return addOrUpdateService(clusterId, service.getId(), service);
     }
 
-    public Service addOrUpdateService(Long clusterId, Long componentId, Service service) {
+    public Service addOrUpdateService(Long clusterId, Long serviceId, Service service) {
         service.setClusterId(clusterId);
-        service.setId(componentId);
+        service.setId(serviceId);
         if (service.getTimestamp() == null) {
             service.setTimestamp(System.currentTimeMillis());
         }

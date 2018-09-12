@@ -185,7 +185,7 @@ public class ServiceCatalogResource {
         if (cluster == null) {
             throw EntityNotFoundException.byId("cluster: " + clusterId.toString());
         }
-        Service newService = environmentService.addOrUpdateService(serviceId, service);
+        Service newService = environmentService.addOrUpdateService(clusterId, service);
         return WSUtils.respondEntity(newService, OK);
     }
 

@@ -619,14 +619,16 @@ public class TopologyComponentBundleResource {
 
             switch (name) {
                 case "templateId":
-                    Collection<Template> templates = catalogService
-                        .listTemplates(QueryParam.params(Template.ID, value));
-                    if (templates == null || templates.isEmpty() || templates.size() > 1) {
-                        throw EntityNotFoundException.byId("Invalid templateId=" + value);
-                    }
-                    name = TopologyComponentBundle.TEMPLATE;
-                    value = templates.stream().findFirst().get().getName();
                 case TopologyComponentBundle.TEMPLATE:
+                    if ("templateId".equals(name)) {
+                        Collection<Template> templates = catalogService
+                            .listTemplates(QueryParam.params(Template.ID, value));
+                        if (templates == null || templates.isEmpty() || templates.size() > 1) {
+                            throw EntityNotFoundException.byId("Invalid templateId=" + value);
+                        }
+                        name = TopologyComponentBundle.TEMPLATE;
+                        value = templates.stream().findFirst().get().getName();
+                    }
                     if (currentParamCount == totalParamCount) {
                         whereClauseCombiner = whereClauseBuilder.contains(name, value);
                     } else {
@@ -635,15 +637,17 @@ public class TopologyComponentBundleResource {
                     break;
 
                 case "engineId":
-                    Engine engine = catalogService.getEngine(Long.valueOf(value));
-                    if (engine == null) {
-                        throw EntityNotFoundException.byId("Invalid engineId=" + value);
-                    }
-                    name = TopologyComponentBundle.ENGINE;
-                    value = engine.getName();
                 case TopologyComponentBundle.ENGINE:
                 case TopologyComponentBundle.TYPE:
                 case TopologyComponentBundle.SUB_TYPE:
+                    if("engineId".equals(name)) {
+                        Engine engine = catalogService.getEngine(Long.valueOf(value));
+                        if (engine == null) {
+                            throw EntityNotFoundException.byId("Invalid engineId=" + value);
+                        }
+                        name = TopologyComponentBundle.ENGINE;
+                        value = engine.getName();
+                    }
                     if(currentParamCount == totalParamCount) {
                         whereClauseCombiner = whereClauseBuilder.eq(name, value);
                     } else {

@@ -3,5 +3,6 @@
     "displayName": "Piper",
     "deploymentModes": "[\"SCHEDULE\"]",
     "componentTypes": "[\"PROCESSOR\"]",
+    "schemaAware": "false",
     "config": "{}"
 }

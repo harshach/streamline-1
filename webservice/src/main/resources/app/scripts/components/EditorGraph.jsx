@@ -140,7 +140,8 @@ class EditorGraph extends Component {
       compSelectCallback,
       componentLevelAction,
       contextRouter,
-      engine
+      engine,
+      topologyData
     } = this.props;
     const {boxes, bundleArr, loading} = this.state;
 
@@ -177,7 +178,8 @@ class EditorGraph extends Component {
               isAppRunning={isAppRunning}
               componentLevelAction={componentLevelAction}
               viewModeContextRouter={contextRouter}
-              engine={engine}/>
+              engine={engine}
+              topologyData={topologyData}/>
             {state.showComponentNodeContainer && !viewMode
               ? <ComponentNode
                 testRunningMode={testRunningMode}
@@ -193,7 +195,8 @@ class EditorGraph extends Component {
                 selectedTestObj={selectedTestObj}
                 addTestCase={addTestCase}
                 eventLogData={eventLogData}
-                engine={engine} />
+                engine={engine}
+                topologyData={topologyData} />
               : null
             }
             {state.showSpotlightSearch && !viewMode ? <SpotlightSearch viewMode={viewMode} componentsList={Utils.sortArray(componentsBundle, 'name', true)} addComponentCallback={this.addComponent.bind(this)}/> : ''}
@@ -218,9 +221,10 @@ class SPS_EditorGraph extends EditorGraph{
     graphData.metaInfo.processors = graphData.metaInfo.processors || [];
     graphData.metaInfo.sinks = graphData.metaInfo.sinks || [];
 
-    promiseArr.push(TopologyREST.getSourceComponent());
-    promiseArr.push(TopologyREST.getProcessorComponent());
-    promiseArr.push(TopologyREST.getSinkComponent());
+    const {engineId, templateId} = this.props.topologyData;
+    promiseArr.push(TopologyREST.getSourceComponent(engineId, templateId));
+    promiseArr.push(TopologyREST.getProcessorComponent(engineId, templateId));
+    promiseArr.push(TopologyREST.getSinkComponent(engineId, templateId));
     promiseArr.push(TopologyREST.getLinkComponent());
     promiseArr.push(TopologyREST.getAllNodes(this.props.topologyId, this.props.versionId, 'sources'));
     promiseArr.push(TopologyREST.getAllNodes(this.props.topologyId, this.props.versionId, 'processors'));
@@ -439,18 +443,13 @@ export class PiperEditorGraph extends EditorGraph{
 
     graphData.metaInfo.tasks = graphData.metaInfo.tasks || [];
 
-    promiseArr.push(TopologyREST.getSourceComponent());
-    promiseArr.push(TopologyREST.getAllNodes(this.props.topologyId, this.props.versionId, 'sources'));
+    const {engineId, templateId} = this.props.topologyData;
+    promiseArr.push(TopologyREST.getTaskComponent(engineId, templateId));
+    promiseArr.push(TopologyREST.getAllNodes(this.props.topologyId, this.props.versionId, 'tasks'));
 
     Promise.all(promiseArr).then((resultsArr) => {
 
       this.tasksConfigArr = resultsArr[0].entities;
-
-      _.each(this.tasksConfigArr, (s, i) => {
-        s.type = 'TASK';
-        s.subType = 'Task';
-        s.name = 'Task'+ i;
-      });
 
       let tasksNode = resultsArr[1].entities || [];
 

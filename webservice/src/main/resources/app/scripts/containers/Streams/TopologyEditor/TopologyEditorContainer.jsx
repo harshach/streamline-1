@@ -1247,6 +1247,7 @@ class TopologyEditorContainer extends Component {
       showComponentNodeContainer={state.showComponentNodeContainer}
       testRunActivated={this.state.testRunActivated}
       engine={this.engine}
+      topologyData={topologyData}
       setTopologyConfig={this.setTopologyConfig}
     />;
   }

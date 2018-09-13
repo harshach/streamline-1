@@ -7,6 +7,8 @@
   "inputSchema": {"fields":[{"name":"childField1","type":"INTEGER"},{"name":"childField2","type":"BOOLEAN"},{"name":"topLevelStringField","type":"STRING"}]},
   "outputStream": {"fields":[{"name":"childField1","type":"INTEGER"},{"name":"childField2","type":"BOOLEAN"},{"name":"topLevelStringField","type":"STRING"}]},
   "customProcessorImpl": "com.hortonworks.streamline.streams.runtime.processor.ConsoleCustomProcessorRuntime",
+  "input": true,
+  "output": true,
   "topologyComponentUISpecification": {
     "fields": [
       {

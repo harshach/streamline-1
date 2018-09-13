@@ -89,6 +89,7 @@ CREATE TABLE IF NOT EXISTS engine (
    displayName VARCHAR(256) NOT NULL,
    deploymentModes TEXT NOT NULL,
    componentTypes TEXT NOT NULL,
+   schemaAware BOOLEAN NOT NULL,
    config TEXT NOT NULL,
    PRIMARY KEY (id),
    UNIQUE KEY `engine_UK_name` (name)
@@ -286,6 +287,28 @@ CREATE TABLE IF NOT EXISTS topology_processor_stream_mapping (
     streamId BIGINT NOT NULL,
     PRIMARY KEY (processorId, versionId, streamId),
     FOREIGN KEY (processorId, versionId) REFERENCES topology_processor(id, versionId),
+    FOREIGN KEY (streamId, versionId) REFERENCES topology_stream(id, versionId)
+);
+
+
+CREATE TABLE IF NOT EXISTS topology_task (
+    id BIGINT NOT NULL,
+    versionId BIGINT NOT NULL,
+    topologyId BIGINT NOT NULL,
+    topologyComponentBundleId BIGINT NOT NULL,
+    name VARCHAR(256) NOT NULL,
+    description TEXT,
+    configData TEXT NOT NULL,
+    PRIMARY KEY (id, versionId),
+    FOREIGN KEY (versionId) REFERENCES topology_version(id)
+);
+
+CREATE TABLE IF NOT EXISTS topology_task_stream_mapping (
+    taskId BIGINT NOT NULL,
+    versionId BIGINT NOT NULL,
+    streamId BIGINT NOT NULL,
+    PRIMARY KEY (taskId, versionId, streamId),
+    FOREIGN KEY (taskId, versionId) REFERENCES topology_sink(id, versionId),
     FOREIGN KEY (streamId, versionId) REFERENCES topology_stream(id, versionId)
 );
 

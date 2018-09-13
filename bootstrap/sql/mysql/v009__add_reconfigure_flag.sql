@@ -16,6 +16,7 @@
 ALTER TABLE `topology_source` ADD reconfigure BOOLEAN NOT NULL DEFAULT false;
 ALTER TABLE `topology_processor` ADD reconfigure BOOLEAN NOT NULL DEFAULT false;
 ALTER TABLE `topology_sink` ADD reconfigure BOOLEAN NOT NULL DEFAULT false;
+ALTER TABLE `topology_task` ADD reconfigure BOOLEAN NOT NULL DEFAULT false;
 ALTER TABLE `topology_rule` ADD reconfigure BOOLEAN NOT NULL DEFAULT false;
 ALTER TABLE `topology_branchrule` ADD reconfigure BOOLEAN NOT NULL DEFAULT false;
 ALTER TABLE `topology_window` ADD reconfigure BOOLEAN NOT NULL DEFAULT false;

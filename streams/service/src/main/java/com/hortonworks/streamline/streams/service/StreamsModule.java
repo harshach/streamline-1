@@ -150,6 +150,7 @@ public class StreamsModule implements ModuleRegistration, StorageManagerAware, T
                 new TopologyStreamCatalogResource(authorizer, streamcatalogService),
                 new TopologyEditorMetadataResource(authorizer, streamcatalogService),
                 new TopologySourceCatalogResource(authorizer, streamcatalogService),
+                new TopologyTaskCatalogResource(authorizer, streamcatalogService),
                 new TopologySinkCatalogResource(authorizer, streamcatalogService),
                 new TopologyProcessorCatalogResource(authorizer, streamcatalogService),
                 new TopologyEdgeCatalogResource(authorizer, streamcatalogService),

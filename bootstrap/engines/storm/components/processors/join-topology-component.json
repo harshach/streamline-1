@@ -5,6 +5,8 @@
   "builtin": true,
   "engine": "STORM",
   "template": ["Blank"],
+  "input": true,
+  "output": true,
   "transformationClass": "com.hortonworks.streamline.streams.layout.storm.RuleBoltFluxComponent",
   "topologyComponentUISpecification": {
     "fields": [

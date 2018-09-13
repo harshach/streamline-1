@@ -6,6 +6,8 @@
   "engine": "STORM",
   "template": ["Blank"],
   "transformationClass": "com.hortonworks.streamline.streams.layout.storm.WindowRuleBoltFluxComponent",
+  "input": true,
+  "output": true,
   "topologyComponentUISpecification": {
     "fields": [
       {

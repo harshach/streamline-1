@@ -47,6 +47,8 @@ public class TopologyComponentBundle implements Storable {
     public static final String TRANSFORMATION_CLASS = "transformationClass";
     public static final String BUILTIN = "builtin";
     public static final String MAVEN_DEPS = "mavenDeps";
+    public static final String INPUT = "input";
+    public static final String OUTPUT = "output";
 
     public enum TopologyComponentType {
         SOURCE,
@@ -132,6 +134,11 @@ public class TopologyComponentBundle implements Storable {
      */
     private String mavenDeps;
 
+
+    private boolean input;
+
+    private boolean output;
+
     @Override
     @JsonIgnore
     public String getNameSpace () {
@@ -154,7 +161,9 @@ public class TopologyComponentBundle implements Storable {
                 Schema.Field.optional(FIELD_HINT_PROVIDER_CLASS, Schema.Type.STRING),
                 new Schema.Field(TRANSFORMATION_CLASS, Schema.Type.STRING),
                 new Schema.Field(BUILTIN, Schema.Type.STRING),
-                new Schema.Field(MAVEN_DEPS, Schema.Type.STRING)
+                new Schema.Field(MAVEN_DEPS, Schema.Type.STRING),
+                new Schema.Field(INPUT, Schema.Type.BOOLEAN),
+                new Schema.Field(OUTPUT, Schema.Type.BOOLEAN)
         );
     }
 
@@ -196,6 +205,8 @@ public class TopologyComponentBundle implements Storable {
         map.put(TRANSFORMATION_CLASS, transformationClass);
         map.put(BUILTIN, builtin.toString());
         map.put(MAVEN_DEPS, mavenDeps);
+        map.put(INPUT, input);
+        map.put(OUTPUT, output);
         return map;
     }
 
@@ -221,6 +232,8 @@ public class TopologyComponentBundle implements Storable {
             setBuiltin(Boolean.valueOf(((String) map.get(BUILTIN)).trim()));
         }
         mavenDeps = (String) map.get(MAVEN_DEPS);
+        input = (boolean) map.get(INPUT);
+        output = (boolean) map.get(OUTPUT);
         return this;
     }
 
@@ -328,6 +341,15 @@ public class TopologyComponentBundle implements Storable {
         this.mavenDeps = mavenDeps;
     }
 
+
+    public boolean getOutput() { return output; }
+
+    public void setOutput(boolean output) { this.output = output; }
+
+    public void setIntput(boolean input) {this.input = input; }
+
+    public boolean getInput() { return input; }
+
     @Override
     public String toString () {
         return "TopologyComponentBundle{" +
@@ -343,6 +365,8 @@ public class TopologyComponentBundle implements Storable {
                 ", transformationClass='" + transformationClass + '\'' +
                 ", builtin='" + builtin + '\'' +
                 ", mavenDeps='" + mavenDeps + '\'' +
+                ", input='" + input + '\'' +
+                ", output='" + output + '\'' +
                 '}';
     }
 
@@ -373,6 +397,11 @@ public class TopologyComponentBundle implements Storable {
             return false;
         if (mavenDeps != null ? !mavenDeps.equals(that.mavenDeps) : that.mavenDeps!= null)
             return false;
+        if (input != that.input)
+            return false;
+        if (output != that.output)
+            return false;
+
         return !(transformationClass != null ? !transformationClass.equals(that.transformationClass) : that.transformationClass != null);
 
     }

@@ -593,6 +593,7 @@ CALL rename_table_if_exists('namespace_service_cluster_mapping','namespace_servi
 CALL rename_table_if_exists('tag_storable_mapping','tag_storable_map');
 CALL rename_table_if_exists('topology_source_stream_mapping','topology_source_stream_map');
 CALL rename_table_if_exists('topology_processor_stream_mapping','topology_processor_stream_map');
+CALL rename_table_if_exists('topology_task_stream_mapping','topology_task_stream_map');
 
 -- Rename all columns whose column name is greater than 30 characters
 

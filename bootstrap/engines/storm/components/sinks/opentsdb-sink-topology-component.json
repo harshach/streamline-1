@@ -7,6 +7,8 @@
   "template": ["Blank"],
   "transformationClass": "com.hortonworks.streamline.streams.layout.storm.OpenTsdbBoltFluxComponent",
   "mavenDeps": "org.apache.storm:storm-opentsdb:STORM_VERSION",
+  "input": true,
+  "output": false,
   "topologyComponentUISpecification": {
     "fields": [
       {

@@ -7,6 +7,8 @@
   "template": ["Blank"],
   "transformationClass": "com.hortonworks.streamline.streams.layout.storm.JDBCBoltFluxComponent",
   "mavenDeps": "org.apache.storm:storm-jdbc:STORM_VERSION",
+  "input": true,
+  "output": false,
   "topologyComponentUISpecification": {
     "fields": [
       {

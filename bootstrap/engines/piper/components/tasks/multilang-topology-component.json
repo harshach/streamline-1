@@ -6,6 +6,8 @@
   "template": ["Blank"],
   "builtin": true,
   "transformationClass": "com.hortonworks.streamline.streams.layout.storm.StreamsShellBoltFluxComponent",
+  "input": false,
+  "output": true,
   "topologyComponentUISpecification": {
     "fields": [
       {

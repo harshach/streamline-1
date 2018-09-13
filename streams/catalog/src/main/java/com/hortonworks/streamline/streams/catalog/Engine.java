@@ -20,6 +20,7 @@ public class Engine implements Storable {
     public static final String DISPLAYNAME = "displayName";
     public static final String DEPLOYMENTMODES = "deploymentModes";
     public static final String COMPONENTTYPES = "componentTypes";
+    public static final String SCHEMAAWARE = "schemaAware";
     public static final String CONFIG = "config";
 
     private Long id;
@@ -34,6 +35,8 @@ public class Engine implements Storable {
 
     private String componentTypes;
 
+    private boolean schemaAware;
+
     private String  config;
 
     public Engine() {}
@@ -45,6 +48,7 @@ public class Engine implements Storable {
             setDisplayName(other.getDisplayName());
             setDeploymentModes(other.getDeploymentModes());
             setComponentTypes(other.getComponentTypes());
+            setSchemaAware(other.getSchemaAware());
             setConfig(other.getConfig());
         }
     }
@@ -62,6 +66,7 @@ public class Engine implements Storable {
                 new Schema.Field(DISPLAYNAME, Schema.Type.STRING),
                 new Schema.Field(DEPLOYMENTMODES, Schema.Type.STRING),
                 new Schema.Field(COMPONENTTYPES, Schema.Type.STRING),
+                new Schema.Field(SCHEMAAWARE, Schema.Type.BOOLEAN),
                 new Schema.Field(CONFIG, Schema.Type.STRING)
         );
     }
@@ -85,6 +90,7 @@ public class Engine implements Storable {
         map.put(DISPLAYNAME, this.displayName);
         map.put(DEPLOYMENTMODES, this.deploymentModes);
         map.put(COMPONENTTYPES, this.componentTypes);
+        map.put(SCHEMAAWARE, this.schemaAware);
         map.put(CONFIG, this.config);
         return map;
     }
@@ -95,6 +101,7 @@ public class Engine implements Storable {
         this.displayName = (String) map.get(DISPLAYNAME);
         this.deploymentModes = (String) map.get(DEPLOYMENTMODES);
         this.componentTypes = (String) map.get(COMPONENTTYPES);
+        this.schemaAware = (boolean) map.get(SCHEMAAWARE);
         this.config = (String)  map.get(CONFIG);
         return this;
     }
@@ -118,6 +125,10 @@ public class Engine implements Storable {
     public String getComponentTypes() { return componentTypes; }
 
     public void setComponentTypes(String componentTypes) { this.componentTypes = componentTypes; }
+
+    public boolean getSchemaAware() { return schemaAware; }
+
+    public void setSchemaAware(boolean schemaAware) { this.schemaAware = schemaAware; }
 
     public String getConfig() { return config; }
 

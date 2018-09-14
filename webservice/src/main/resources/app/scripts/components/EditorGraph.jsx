@@ -174,6 +174,7 @@ class EditorGraph extends Component {
               isAppRunning={isAppRunning}
               componentLevelAction={componentLevelAction}
               viewModeContextRouter={contextRouter}
+              componentsBundle={componentsBundle}
               engine={engine}
               topologyData={topologyData}/>
             {state.showComponentNodeContainer && !viewMode

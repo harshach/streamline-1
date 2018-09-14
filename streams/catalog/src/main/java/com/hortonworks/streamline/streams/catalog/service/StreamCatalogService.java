@@ -2097,13 +2097,19 @@ public class StreamCatalogService {
     private TopologyOutputComponent getFrom(TopologyEdge edge) {
         TopologySource source = getTopologySource(edge.getTopologyId(), edge.getFromId(), edge.getVersionId());
         TopologyProcessor processor = getTopologyProcessor(edge.getTopologyId(), edge.getFromId(), edge.getVersionId());
-        return processor != null ? processor : source;
+        TopologyTask task = getTopologyTask(edge.getTopologyId(), edge.getFromId(), edge.getVersionId());
+        if (processor != null) return processor;
+        if (task != null) return task;
+        return source;
     }
 
     private TopologyComponent getTo(TopologyEdge edge) {
         TopologyProcessor processor = getTopologyProcessor(edge.getTopologyId(), edge.getToId(), edge.getVersionId());
         TopologySink sink = getTopologySink(edge.getTopologyId(), edge.getToId(), edge.getVersionId());
-        return processor != null ? processor : sink;
+        TopologyTask task = getTopologyTask(edge.getTopologyId(), edge.getToId(), edge.getVersionId());
+        if (processor != null) return processor;
+        if (task != null) return task;
+        return sink;
     }
 
     private Set<TopologyEdge> getEdgesFrom(TopologyOutputComponent component) {

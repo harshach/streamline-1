@@ -917,7 +917,7 @@ class TopologyEditorContainer extends Component {
       } else {
         TopologyREST.createNode(topologyId, versionId, 'edges', {body: JSON.stringify(edgeData)}).then((edge) => {
           newEdge.edgeId = edge.id;
-          newEdge.streamGrouping = edge.streamGroupings[0];
+          newEdge.streamGrouping = edge.streamGroupings ? edge.streamGroupings[0] : null;
           edges.push(newEdge);
           this.lastUpdatedTime = new Date(edge.timestamp);
           this.setState({

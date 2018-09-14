@@ -446,13 +446,19 @@ export class PiperEditorGraph extends EditorGraph{
 
     const {engineId, templateId} = this.props.topologyData;
     promiseArr.push(TopologyREST.getTaskComponent(engineId, templateId));
+    promiseArr.push(TopologyREST.getLinkComponent());
     promiseArr.push(TopologyREST.getAllNodes(this.props.topologyId, this.props.versionId, 'tasks'));
+    promiseArr.push(TopologyREST.getAllNodes(this.props.topologyId, this.props.versionId, 'edges'));
 
     Promise.all(promiseArr).then((resultsArr) => {
 
       this.tasksConfigArr = resultsArr[0].entities;
+      this.linkConfigArr = resultsArr[1].entities;
 
-      let tasksNode = resultsArr[1].entities || [];
+      graphData.linkShuffleOptions = TopologyUtils.setShuffleOptions(this.linkConfigArr);
+
+      let tasksNode = resultsArr[2].entities || [];
+      let edgesArr = resultsArr[3].entities || [];
 
       graphData.nodes = [];
       TopologyUtils.generateNodeData(tasksNode, this.tasksConfigArr, graphData.metaInfo.tasks, graphData.nodes, {reconfigure: false});
@@ -461,6 +467,8 @@ export class PiperEditorGraph extends EditorGraph{
       graphData.nodes.map(node => {
         graphData.uinamesList.push(node.uiname);
       });
+
+      graphData.edges = TopologyUtils.syncEdgeData(edgesArr, graphData.nodes);
 
       this.setState({
         bundleArr: {

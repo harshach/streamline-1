@@ -1879,7 +1879,7 @@ public class StreamCatalogService {
     private void removeTaskStreamMapping(TopologyTask topologyTask, List<Long> streamIds) {
         if (topologyTask != null) {
             for (Long outputStreamId : streamIds) {
-                TopologyProcessorStreamMap mapping = new TopologyProcessorStreamMap(topologyTask.getId(),
+                TopologyTaskStreamMap mapping = new TopologyTaskStreamMap(topologyTask.getId(),
                         topologyTask.getVersionId(),
                         outputStreamId);
                 dao.<TopologyTaskStreamMap>remove(mapping.getStorableKey());

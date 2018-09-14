@@ -8,6 +8,8 @@
   "fieldHintProviderClass": "com.hortonworks.streamline.streams.cluster.bundle.impl.HDFSSpoutBundleHintProvider",
   "transformationClass": "com.hortonworks.streamline.streams.layout.storm.HdfsSpoutFluxComponent",
   "mavenDeps": "org.apache.storm:storm-hdfs:STORM_VERSION^org.slf4j:slf4j-log4j12",
+  "input": false,
+  "output": true,
   "topologyComponentUISpecification": {
     "fields": [
       {

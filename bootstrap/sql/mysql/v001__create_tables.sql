@@ -171,6 +171,8 @@ CREATE TABLE IF NOT EXISTS topology_component_bundle (
     bundleJar TEXT,
     builtin CHAR(5),
     mavenDeps TEXT,
+    input BOOLEAN,
+    output BOOLEAN,
     PRIMARY KEY (id)
 );
 

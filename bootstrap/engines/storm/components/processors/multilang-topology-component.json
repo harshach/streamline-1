@@ -4,6 +4,8 @@
   "subType": "MULTILANG",
   "engine": "STORM",
   "template": ["Blank"],
+  "input": true,
+  "output": true,
   "builtin": true,
   "transformationClass": "com.hortonworks.streamline.streams.layout.storm.StreamsShellBoltFluxComponent",
   "topologyComponentUISpecification": {

@@ -21,6 +21,7 @@ ALTER TABLE `topology_component` MODIFY `configData` MEDIUMTEXT;
 ALTER TABLE `topology_source` MODIFY `configData` MEDIUMTEXT NOT NULL;
 ALTER TABLE `topology_sink` MODIFY `configData` MEDIUMTEXT NOT NULL;
 ALTER TABLE `topology_processor` MODIFY `configData` MEDIUMTEXT NOT NULL;
+ALTER TABLE `topology_task` MODIFY `configData` MEDIUMTEXT NOT NULL;
 ALTER TABLE `topology_edge` MODIFY `streamGroupingsData` MEDIUMTEXT NOT NULL;
 ALTER TABLE `service_configuration` MODIFY `configuration` MEDIUMTEXT NOT NULL;
 ALTER TABLE `topology_editor_toolbar` MODIFY `data` MEDIUMTEXT NOT NULL;
@@ -63,4 +64,3 @@ MODIFY `groupbykeys` MEDIUMTEXT NULL;
 ALTER TABLE `notifier`
 MODIFY `properties` MEDIUMTEXT,
 MODIFY `fieldValues` MEDIUMTEXT;
-

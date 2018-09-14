@@ -308,7 +308,7 @@ CREATE TABLE IF NOT EXISTS topology_task_stream_mapping (
     versionId BIGINT NOT NULL,
     streamId BIGINT NOT NULL,
     PRIMARY KEY (taskId, versionId, streamId),
-    FOREIGN KEY (taskId, versionId) REFERENCES topology_sink(id, versionId),
+    FOREIGN KEY (taskId, versionId) REFERENCES topology_task(id, versionId),
     FOREIGN KEY (streamId, versionId) REFERENCES topology_stream(id, versionId)
 );
 

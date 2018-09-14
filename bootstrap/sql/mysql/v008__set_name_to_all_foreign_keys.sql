@@ -63,6 +63,8 @@ CALL dropForeignKeysFromTable('topology_source_stream_map');
 CALL dropForeignKeysFromTable('topology_sink');
 CALL dropForeignKeysFromTable('topology_processor');
 CALL dropForeignKeysFromTable('topology_processor_stream_map');
+CALL dropForeignKeysFromTable('topology_task');
+CALL dropForeignKeysFromTable('topology_task_stream_map');
 CALL dropForeignKeysFromTable('topology_edge');
 CALL dropForeignKeysFromTable('topology_rule');
 CALL dropForeignKeysFromTable('topology_branchrule');
@@ -95,6 +97,9 @@ ALTER TABLE topology_sink ADD CONSTRAINT `fk_topology_sink_topology_version` FOR
 ALTER TABLE topology_processor ADD CONSTRAINT `fk_topology_processor_topology_version` FOREIGN KEY (versionId) REFERENCES topology_version(id);
 ALTER TABLE topology_processor_stream_map ADD CONSTRAINT `fk_topology_processor_stream_mapping_topology_processor` FOREIGN KEY (processorId, versionId) REFERENCES topology_processor(id, versionId);
 ALTER TABLE topology_processor_stream_map ADD CONSTRAINT `fk_topology_processor_stream_mapping_topology_stream` FOREIGN KEY (streamId, versionId) REFERENCES topology_stream(id, versionId);
+ALTER TABLE topology_task ADD CONSTRAINT `fk_topology_task_topology_version` FOREIGN KEY (versionId) REFERENCES topology_version(id);
+ALTER TABLE topology_task_stream_map ADD CONSTRAINT `fk_topology_task_stream_mapping_topology_task` FOREIGN KEY (taskId, versionId) REFERENCES topology_task(id, versionId);
+ALTER TABLE topology_task_stream_map ADD CONSTRAINT `fk_topology_task_stream_mapping_topology_stream` FOREIGN KEY (streamId, versionId) REFERENCES topology_stream(id, versionId);
 ALTER TABLE topology_edge ADD CONSTRAINT `fk_topology_edge_topology_version` FOREIGN KEY (versionId) REFERENCES topology_version(id);
 ALTER TABLE topology_rule ADD CONSTRAINT `fk_topology_rule_topology_version` FOREIGN KEY (versionId) REFERENCES topology_version(id);
 ALTER TABLE topology_branchrule ADD CONSTRAINT `fk_topology_branchrule_topology_version` FOREIGN KEY (versionId) REFERENCES topology_version(id);

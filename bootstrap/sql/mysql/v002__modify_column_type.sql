@@ -34,6 +34,7 @@ ALTER TABLE `topology_component` MODIFY `name` VARCHAR(255);
 ALTER TABLE `topology_source` MODIFY `name` VARCHAR(255) NOT NULL;
 ALTER TABLE `topology_sink` MODIFY `name` VARCHAR(255) NOT NULL;
 ALTER TABLE `topology_processor` MODIFY `name` VARCHAR(255) NOT NULL;
+ALTER TABLE `topology_task` MODIFY `name` VARCHAR(255) NOT NULL;
 ALTER TABLE `topology_rule` MODIFY `name` VARCHAR(255) NOT NULL;
 ALTER TABLE `topology_branchrule` MODIFY `name` VARCHAR(255) NOT NULL;
 ALTER TABLE `topology_window` MODIFY `name` VARCHAR(255) NOT NULL;

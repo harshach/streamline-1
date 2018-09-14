@@ -1681,11 +1681,11 @@ public class StreamCatalogService {
     private List<TopologyStream> getOutputStreams(TopologyTask topologyTask) {
         List<TopologyStream> streams = new ArrayList<>();
         if (topologyTask != null) {
-            QueryParam qp1 = new QueryParam(TopologySourceStreamMap.FIELD_SOURCE_ID,
+            QueryParam qp1 = new QueryParam(TopologyTaskStreamMap.FIELD_TASK_ID,
                     String.valueOf(topologyTask.getId()));
-            QueryParam qp2 = new QueryParam(TopologySourceStreamMap.FIELD_VERSION_ID,
+            QueryParam qp2 = new QueryParam(TopologyTaskStreamMap.FIELD_VERSION_ID,
                     String.valueOf(topologyTask.getVersionId()));
-            for (TopologySourceStreamMap mapping : listTopologySourceStreamMapping(ImmutableList.of(qp1, qp2))) {
+            for (TopologyTaskStreamMap mapping : listTopologyTaskStreamMapping(ImmutableList.of(qp1, qp2))) {
                 TopologyStream topologyStream = getStreamInfo(topologyTask.getTopologyId(), mapping.getStreamId(), topologyTask.getVersionId());
                 if (topologyStream != null) {
                     streams.add(topologyStream);

@@ -529,11 +529,11 @@ export default class TopologyGraphComponent extends Component {
       setLastChange
     } = this;
 
-    const {componentsBundle} = this.props;
+    const {componentsBundle, engine} = this.props;
 
     const component = TopologyUtils.findComponentBundleById(componentsBundle, d.topologyComponentBundleId);
 
-    return TopologyUtils.MouseUpAction(topologyId, versionId, d3node, d, metaInfo, internalFlags, constants, dragLine, paths, nodes, edges, linkShuffleOptions, this.updateGraph.bind(this), 'rectangle', getModalScope, setModalContent, rectangles, getEdgeConfigModal, setLastChange, component);
+    return TopologyUtils.MouseUpAction(topologyId, versionId, d3node, d, metaInfo, internalFlags, constants, dragLine, paths, nodes, edges, linkShuffleOptions, this.updateGraph.bind(this), 'rectangle', getModalScope, setModalContent, rectangles, getEdgeConfigModal, setLastChange, component, engine);
   }
 
   // keydown on selected node

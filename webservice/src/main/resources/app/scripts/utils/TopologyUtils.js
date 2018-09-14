@@ -800,7 +800,7 @@ const getConfigContainer = function(node, configData, editMode, topologyId, vers
   }
 };
 
-const MouseUpAction = function(topologyId, versionId, d3node, d, metaInfo, internalFlags, constants, dragLine, paths, allNodes, edges, linkShuffleOptions, updateGraphMethod, elementType, getModalScope, setModalContent, rectangles, getEdgeConfigModal, setLastChange, component) {
+const MouseUpAction = function(topologyId, versionId, d3node, d, metaInfo, internalFlags, constants, dragLine, paths, allNodes, edges, linkShuffleOptions, updateGraphMethod, elementType, getModalScope, setModalContent, rectangles, getEdgeConfigModal, setLastChange, component, engine) {
   // reset the internalFlags
   internalFlags.shiftNodeDrag = false;
   d3node.classed(constants.connectClass, false);
@@ -842,7 +842,7 @@ const MouseUpAction = function(topologyId, versionId, d3node, d, metaInfo, inter
           let hasSource = edges.filter((e) => {
             return e.target.nodeId === d.nodeId;
           });
-          if (!component.input || hasSource.length) {
+          if (!component.input || hasSource.length || !engine.schemaAware) {
             this.showNodeModal(getModalScope, setModalContent, d, updateGraphMethod, allNodes, edges, linkShuffleOptions);
           } else {
             FSReactToastr.warning(

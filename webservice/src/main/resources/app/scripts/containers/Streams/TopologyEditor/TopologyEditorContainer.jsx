@@ -62,7 +62,7 @@ import {
 } from '../../../utils/TestModeUtils/TestModeUtils';
 
 @observer
-class TopologyEditorContainer extends Component {
+export class TopologyEditorContainer extends Component {
   constructor(props) {
     super(props);
     this.projectId = this.props.params.projectId;
@@ -94,6 +94,10 @@ class TopologyEditorContainer extends Component {
   }
 
   componentDidMount() {
+    this.setRouteLeaveHook();
+  }
+
+  setRouteLeaveHook(){
     this.props.router.setRouteLeaveHook(this.props.route, this.routerWillLeave);
   }
 
@@ -172,6 +176,7 @@ class TopologyEditorContainer extends Component {
           ? versionId
           : data.topology.versionId;
 
+        this.nameSpace = data.namespaceName;
         this.namespaceId = data.topology.namespaceId;
         this.lastUpdatedTime = new Date(result.topology.timestamp);
 
@@ -201,7 +206,7 @@ class TopologyEditorContainer extends Component {
 
         let promiseArr = [];
         promiseArr.push(TopologyREST.getAllVersions(this.topologyId));
-        promiseArr.push(TopologyREST.getTopologyConfig());
+        promiseArr.push(TopologyREST.getTopologyConfig(data.topology.engineId));
         promiseArr.push(ProjectREST.getProject(this.projectId));
         promiseArr.push(TopologyREST.getMetaInfo(this.topologyId, this.versionId));
 
@@ -917,7 +922,7 @@ class TopologyEditorContainer extends Component {
       } else {
         TopologyREST.createNode(topologyId, versionId, 'edges', {body: JSON.stringify(edgeData)}).then((edge) => {
           newEdge.edgeId = edge.id;
-          newEdge.streamGrouping = edge.streamGroupings[0];
+          newEdge.streamGrouping = edge.streamGroupings ? edge.streamGroupings[0] : null;
           edges.push(newEdge);
           this.lastUpdatedTime = new Date(edge.timestamp);
           this.setState({
@@ -1255,6 +1260,7 @@ class TopologyEditorContainer extends Component {
       engine={this.engine}
       topologyData={topologyData}
       setTopologyConfig={this.setTopologyConfig}
+      viewModeData={this.state.viewModeData || {}}
     />;
   }
 

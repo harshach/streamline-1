@@ -31,11 +31,11 @@ const TopologyREST = {
         return response.json();
       });
   },
-  getAllTopologyWithoutConfig(sort, options) {
+  getAllTopologyWithoutConfig(projectId, sort, options) {
     options = options || {};
     options.method = options.method || 'GET';
     options.credentials = 'same-origin';
-    return fetch(baseUrl + 'topologies', options)
+    return fetch(baseUrl + 'projects/'+projectId+'/topologies', options)
       .then((response) => {
         return response.json();
       });
@@ -409,11 +409,15 @@ const TopologyREST = {
         return response.json();
       });
   },
-  getTopologyConfig(options) {
+  getTopologyConfig(engineId, options) {
     options = options || {};
     options.method = options.method || 'GET';
     options.credentials = 'same-origin';
-    return fetch(baseUrl + 'streams/componentbundles/TOPOLOGY', options)
+    let url = baseUrl + 'streams/componentbundles/TOPOLOGY';
+    if(engineId){
+      url += '?engineId='+engineId;
+    }
+    return fetch(url, options)
       .then((response) => {
         return response.json();
       });

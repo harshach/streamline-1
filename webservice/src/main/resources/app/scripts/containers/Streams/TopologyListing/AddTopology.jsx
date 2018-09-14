@@ -55,20 +55,28 @@ class AddTopology extends Component {
   }
 
   fetchData = () => {
-    let promiseArr = [TopologyREST.getTopologyConfig(), EnvironmentREST.getAllNameSpaces(), EngineREST.getAllEngines()];
+    let promiseArr = [TopologyREST.getTopologyConfig(), EnvironmentREST.getAllNameSpaces()];
     if(this.props.topologyData){
       promiseArr.push(EngineREST.getAllTemplates(this.props.topologyData.topology.engineId));
     }
     Promise.all(promiseArr).then(result => {
-      var config = result[0];
+      this.allEngineSettings = result[0];
       let stateObj = {};
-      if (config.responseMessage !== undefined) {
+      //setting all the engines from app_state
+      stateObj.engineOptions = app_state.engines;
+
+      if (this.allEngineSettings.responseMessage !== undefined) {
         FSReactToastr.error(
-          <CommonNotification flag="error" content={config.responseMessage}/>, '', toastOpt);
+          <CommonNotification flag="error" content={this.allEngineSettings.responseMessage}/>, '', toastOpt);
       } else {
-        const configFields = config.entities[0].topologyComponentUISpecification;
-        stateObj.formField = configFields;
+        if(this.props.topologyData){
+          const engineData = this.getEngineDataById(this.props.topologyData.topology.engineId);
+          const settings = this.findSettingsByEngineName(engineData.name);
+          stateObj.formField = settings.topologyComponentUISpecification;
+        }
+        stateObj.formField = null;
       }
+
       if (result[1].responseMessage !== undefined) {
         FSReactToastr.error(
           <CommonNotification flag="error" content={result[1].responseMessage}/>, '', toastOpt);
@@ -80,18 +88,12 @@ class AddTopology extends Component {
         });
         this.setState({namespaceOptions: namespaces});
       }
-      if (result[2].responseMessage !== undefined) {
-        FSReactToastr.error(
-          <CommonNotification flag="error" content={result[2].responseMessage}/>, '', toastOpt);
-      } else {
-        stateObj.engineOptions = app_state.engines;
-      }
-      if(result[3]){
-        if(result[3].responseMessage !== undefined) {
+      if(result[2]){
+        if(result[2].responseMessage !== undefined) {
           FSReactToastr.error(
-            <CommonNotification flag="error" content={result[3].responseMessage}/>, '', toastOpt);
+            <CommonNotification flag="error" content={result[2].responseMessage}/>, '', toastOpt);
         } else {
-          stateObj.templateOptions = result[3].entities;
+          stateObj.templateOptions = result[2].entities;
         }
       }
       this.setState(stateObj);
@@ -186,11 +188,37 @@ class AddTopology extends Component {
   handleOnChangeEngine = (obj) => {
     if (obj) {
       EngineREST.getAllTemplates(obj.id).then(templates=>{
-        this.setState({engineId: obj.id, validEngine: true, templateOptions: templates.entities, templateId: templates.entities[0].id, validTemplate: true});
+        const engineData = this.getEngineDataById(obj.id);
+        const settings = this.findSettingsByEngineName(engineData.name);
+        this.setState({
+          engineId: obj.id,
+          validEngine: true,
+          templateOptions: templates.entities,
+          templateId: templates.entities[0].id,
+          validTemplate: true,
+          formField: settings.topologyComponentUISpecification
+        });
       });
     } else {
-      this.setState({engineId: '', validEngine: false, templateOptions: [], templateId: '', validTemplate: false});
+      this.setState({
+        engineId: '',
+        validEngine: false,
+        templateOptions: [],
+        templateId: '',
+        validTemplate: false,
+        formField: null
+      });
     }
+  }
+  getEngineDataById(id){
+    return app_state.engines.find((e)=>{
+      return e.id === id;
+    });
+  }
+  findSettingsByEngineName(name){
+    return this.allEngineSettings.entities.find((e)=>{
+      return e.engine === name;
+    });
   }
   handleOnChangeTemplate = (obj) => {
     if (obj) {
@@ -217,7 +245,7 @@ class AddTopology extends Component {
       validTemplate
     } = this.state;
     const formData = {};
-    let fields = Utils.genFields(formField.fields || [], [], formData);
+    let fields = formField ? Utils.genFields(formField.fields || [], [], formData) : null;
 
     return (
       <div className="modal-form config-modal-form">
@@ -261,9 +289,13 @@ class AddTopology extends Component {
               : ""} required={true} clearable={false} labelKey="name" valueKey="id"/>
           </div>
         </div>
-        <Form ref="Form" FormData={formData} className="hidden">
-          {fields}
-        </Form>
+        {fields ?
+          <Form ref="Form" FormData={formData} className="hidden">
+            {fields}
+          </Form>
+          :
+          null
+        }
       </div>
     );
   }

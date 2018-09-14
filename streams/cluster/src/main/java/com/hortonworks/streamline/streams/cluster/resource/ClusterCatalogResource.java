@@ -24,6 +24,7 @@ import com.hortonworks.streamline.common.exception.service.exception.request.Clu
 import com.hortonworks.streamline.common.exception.service.exception.request.EntityAlreadyExistsException;
 import com.hortonworks.streamline.common.exception.service.exception.request.EntityNotFoundException;
 import com.hortonworks.streamline.common.util.WSUtils;
+import com.hortonworks.streamline.storage.exception.StorageException;
 import com.hortonworks.streamline.streams.cluster.catalog.Cluster;
 import com.hortonworks.streamline.streams.cluster.catalog.Component;
 import com.hortonworks.streamline.streams.cluster.catalog.Namespace;
@@ -164,6 +165,13 @@ public class ClusterCatalogResource {
         Cluster createdCluster = environmentService.addCluster(cluster);
         SecurityUtil.addAcl(authorizer, securityContext, NAMESPACE, createdCluster.getId(),
                 EnumSet.allOf(Permission.class));
+
+        if (environmentService.isEnableShadowNamespaces()) {
+            Namespace createdNamespace = environmentService.addShadowNamespace(createdCluster);
+            SecurityUtil.addAcl(authorizer, securityContext, Namespace.NAMESPACE, createdNamespace.getId(),
+                    EnumSet.allOf(Permission.class));
+        }
+
         return WSUtils.respondEntity(createdCluster, CREATED);
     }
 
@@ -171,24 +179,26 @@ public class ClusterCatalogResource {
     @Path("/clusters/{id}")
     @Timed
     public Response removeCluster(@PathParam("id") Long clusterId, @Context SecurityContext securityContext) {
+
+        if (environmentService.isEnableShadowNamespaces()) {
+            // remove associated namespaceservicecluster maps and namespace
+            try {
+                Namespace removedNamespace = environmentService.removeShadowNamespace(clusterId);
+                if (removedNamespace != null) {
+                    SecurityUtil.removeAcl(authorizer, securityContext, NAMESPACE, removedNamespace.getId());
+                }
+            } catch (StorageException e) {
+                throw BadRequestException.message("Application may exist that uses this Service Pool." + e.getMessage());
+            }
+        }
+
         assertNoNamespaceRefersCluster(clusterId);
         SecurityUtil.checkRoleOrPermissions(authorizer, securityContext, Roles.ROLE_SERVICE_POOL_SUPER_ADMIN, NAMESPACE, clusterId, DELETE);
 
         // remove all services / service configurations / components / component processes in this cluster
         Collection<Service> services = environmentService.listServices(clusterId);
         services.forEach(svc -> {
-            environmentService.listServiceConfigurations(svc.getId())
-                    .forEach(sc -> environmentService.removeServiceConfiguration(sc.getId()));
-
-            Collection<Component> components = environmentService.listComponents(svc.getId());
-            components.forEach(component -> {
-                environmentService.listComponentProcesses(component.getId())
-                        .forEach(componentProcess -> environmentService.removeComponentProcess(componentProcess.getId()));
-
-                environmentService.removeComponent(component.getId());
-            });
-
-            environmentService.removeService(svc.getId());
+            environmentService.removeService(svc, Boolean.TRUE);
         });
 
         Cluster removedCluster = environmentService.removeCluster(clusterId);
@@ -207,7 +217,17 @@ public class ClusterCatalogResource {
                                        Cluster cluster,
                                        @Context SecurityContext securityContext) {
         SecurityUtil.checkRoleOrPermissions(authorizer, securityContext, Roles.ROLE_SERVICE_POOL_SUPER_ADMIN, NAMESPACE, clusterId, WRITE);
+        cluster.setId(clusterId);
+        if (environmentService.isEnableShadowNamespaces()) {
+            try {
+                environmentService.updateShadowNamespace(cluster);
+            } catch (com.hortonworks.streamline.streams.cluster.exception.EntityNotFoundException e) {
+                throw EntityNotFoundException.byMessage(e.getMessage());
+            }
+        }
+
         Cluster newCluster = environmentService.addOrUpdateCluster(clusterId, cluster);
+
         return WSUtils.respondEntity(newCluster, CREATED);
     }
 

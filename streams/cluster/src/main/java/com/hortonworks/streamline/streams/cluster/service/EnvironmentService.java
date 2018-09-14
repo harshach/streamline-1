@@ -22,6 +22,7 @@ import com.hortonworks.streamline.common.QueryParam;
 import com.hortonworks.streamline.common.exception.ComponentConfigException;
 import com.hortonworks.streamline.storage.StorableKey;
 import com.hortonworks.streamline.storage.StorageManager;
+import com.hortonworks.streamline.storage.exception.AlreadyExistsException;
 import com.hortonworks.streamline.streams.cluster.catalog.Cluster;
 import com.hortonworks.streamline.streams.cluster.catalog.Component;
 import com.hortonworks.streamline.streams.cluster.catalog.ComponentProcess;
@@ -64,18 +65,29 @@ public class EnvironmentService {
     private static final String SERVICE_BUNDLE_NAMESPACE = new ServiceBundle().getNameSpace();
     private static final String NAMESPACE_COMPONENT_PROCESS = new ComponentProcess().getNameSpace();
 
+    public static final String BLANK_ENGINE = "BLANK";
     public static final long TEST_ENVIRONMENT_ID = -1L;
 
     private final StorageManager dao;
     private final ClusterImporter clusterImporter;
     private final List<ContainingNamespaceAwareContainer> containers;
     private final ObjectMapper objectMapper;
+    private final Boolean enableShadowNamespaces;
 
     public EnvironmentService(StorageManager storageManager) {
+        this(storageManager, false);
+    }
+
+    public EnvironmentService(StorageManager storageManager, Boolean enableShadowNamespaces) {
         this.dao = storageManager;
         this.clusterImporter = new ClusterImporter(this);
         this.containers = new ArrayList<>();
         this.objectMapper = new ObjectMapper();
+        this.enableShadowNamespaces = enableShadowNamespaces;
+    }
+
+    public Boolean isEnableShadowNamespaces() {
+        return this.enableShadowNamespaces;
     }
 
     public void addNamespaceAwareContainer(ContainingNamespaceAwareContainer container) {
@@ -246,6 +258,23 @@ public class EnvironmentService {
         Service service = new Service();
         service.setId(serviceId);
         return dao.remove(new StorableKey(SERVICE_NAMESPACE, service.getPrimaryKey()));
+    }
+
+    public Service removeService(Service service, Boolean cascade) {
+        if (cascade) {
+            listServiceConfigurations(service.getId())
+                    .forEach(sc -> removeServiceConfiguration(sc.getId()));
+
+            Collection<Component> components = listComponents(service.getId());
+            components.forEach(component -> {
+                listComponentProcesses(component.getId())
+                        .forEach(componentProcess -> removeComponentProcess(componentProcess.getId()));
+
+                removeComponent(component.getId());
+            });
+        }
+
+        return removeService(service.getId());
     }
 
     public Service addOrUpdateService(Long clusterId, Service service) {
@@ -618,6 +647,55 @@ public class EnvironmentService {
         ServiceBundle serviceBundle = new ServiceBundle();
         serviceBundle.setId(id);
         return dao.remove(serviceBundle.getStorableKey());
+    }
+
+    public Namespace addShadowNamespace(Cluster cluster) {
+        String clusterName = cluster.getName();
+        Namespace namespace = getNamespaceByName(clusterName);
+        if (namespace != null) {
+            throw new AlreadyExistsException("Namespace entity already exists with name " + clusterName);
+        }
+        namespace = new Namespace();
+        namespace.setName(clusterName);
+        namespace.setDescription(cluster.getDescription());
+        namespace.setEngine(BLANK_ENGINE);
+        return addNamespace(namespace);
+    }
+
+    public Namespace updateShadowNamespace(Cluster cluster) throws EntityNotFoundException {
+        Cluster originalCluster = getCluster(cluster.getId());
+        if (originalCluster != null) {
+            Namespace namespace = getNamespaceByName(originalCluster.getName());
+            if (namespace != null) {
+                // don't allow add, only update
+                namespace.setName(cluster.getName());
+                namespace.setDescription(cluster.getDescription());
+                return addOrUpdateNamespace(namespace.getId(), namespace);
+            }
+            throw new EntityNotFoundException(String.format("Unable to update Service Pool, Environment not found : \"%s\"", originalCluster.getName()));
+        }
+        throw new EntityNotFoundException(String.format("Cluster not found : \"%s\"", cluster.getId()));
+    }
+
+    public Namespace removeShadowNamespace(Long clusterId) {
+        Cluster cluster = getCluster(clusterId);
+        if (cluster != null) {
+            Namespace shadowNamespace = getNamespaceByName(cluster.getName());
+            if (shadowNamespace != null) {
+                Collection<NamespaceServiceClusterMap> mappings = listServiceClusterMapping(shadowNamespace.getId());
+                if (mappings != null) {
+
+                    for (NamespaceServiceClusterMap mapping : mappings) {
+                        if (clusterId.equals(mapping.getClusterId())) {
+                            removeServiceClusterMapping(shadowNamespace.getId(), mapping.getServiceName(), clusterId);
+                        }
+                    }
+                }
+                // TODO  assertNoTopologyRefersNamespace(namespace.getId()); but Topology packages aren't available
+                return removeNamespace(shadowNamespace.getId());
+            }
+        }
+        return null;
     }
 
     private StorableKey getStorableKeyForNamespaceServiceClusterMapping(Long namespaceId, String serviceName,

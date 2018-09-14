@@ -26,6 +26,8 @@ import com.hortonworks.streamline.common.exception.service.exception.request.Ent
 import com.hortonworks.streamline.common.util.WSUtils;
 import com.hortonworks.streamline.streams.cluster.catalog.Cluster;
 import com.hortonworks.streamline.streams.cluster.catalog.Component;
+import com.hortonworks.streamline.streams.cluster.catalog.Namespace;
+import com.hortonworks.streamline.streams.cluster.catalog.NamespaceServiceClusterMap;
 import com.hortonworks.streamline.streams.cluster.catalog.Service;
 import com.hortonworks.streamline.streams.cluster.catalog.ServiceBundle;
 import com.hortonworks.streamline.streams.cluster.catalog.ServiceConfiguration;
@@ -147,12 +149,24 @@ public class ServiceCatalogResource {
     public Response removeService(@PathParam("clusterId") Long clusterId, @PathParam("id") Long serviceId,
                                   @Context SecurityContext securityContext) {
         SecurityUtil.checkPermissions(authorizer, securityContext, Cluster.NAMESPACE, clusterId, WRITE);
-        Service removedService = environmentService.removeService(serviceId);
-        if (removedService != null) {
-            return WSUtils.respondEntity(removedService, OK);
+        Service service = environmentService.getService(serviceId);
+
+        if (service == null) {
+            throw EntityNotFoundException.byId(serviceId.toString());
         }
 
-        throw EntityNotFoundException.byId(serviceId.toString());
+        if (environmentService.isEnableShadowNamespaces()) {
+            Cluster cluster = environmentService.getCluster(clusterId);
+            Namespace shadowNamespace = environmentService.getNamespaceByName(cluster.getName());
+
+            if (cluster != null && shadowNamespace != null) {
+                environmentService.removeServiceClusterMapping(shadowNamespace.getId(), service.getName(), clusterId);
+            }
+        }
+
+        Service removedService = environmentService.removeService(service, Boolean.TRUE);
+
+        return WSUtils.respondEntity(removedService, OK);
     }
 
     @PUT
@@ -168,7 +182,6 @@ public class ServiceCatalogResource {
         if (cluster == null) {
             throw EntityNotFoundException.byId("cluster: " + clusterId.toString());
         }
-
         Service newService = environmentService.addOrUpdateService(serviceId, service);
         return WSUtils.respondEntity(newService, OK);
     }
@@ -263,6 +276,19 @@ public class ServiceCatalogResource {
 
         try {
             Service registeredService = registrar.register(cluster, config, configFileInfos);
+
+            if (environmentService.isEnableShadowNamespaces()) {
+                Namespace shadowNamespace = environmentService.getNamespaceByName(cluster.getName());
+                if (shadowNamespace == null) {
+                    throw EntityNotFoundException.byName("Namespace " + cluster.getName());
+                }
+                NamespaceServiceClusterMap mapping = new NamespaceServiceClusterMap();
+                mapping.setNamespaceId(shadowNamespace.getId());
+                mapping.setServiceName(serviceName);
+                mapping.setClusterId(clusterId);
+                environmentService.addOrUpdateServiceClusterMapping(mapping);
+            }
+
             return WSUtils.respondEntity(buildManualServiceRegisterResult(registeredService), CREATED);
         } catch (IllegalArgumentException e) {
             throw BadRequestException.message(e.getMessage());

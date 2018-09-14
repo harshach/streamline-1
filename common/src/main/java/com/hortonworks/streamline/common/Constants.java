@@ -34,6 +34,7 @@ public class Constants {
     public static final String CONFIG_HTTP_PROXY_URL = "httpProxyUrl";
     public static final String CONFIG_HTTP_PROXY_USERNAME = "httpProxyUsername";
     public static final String CONFIG_HTTP_PROXY_PASSWORD = "httpProxyPassword";
+    public static final String CONFIG_ENABLE_SHADOW_NAMESPACES = "enableShadowNamespaces";
 
     public static final String JAAS_STREAMLINE_APP_CONFIG_ENTRY_NAME = "StreamlineServer";
 }

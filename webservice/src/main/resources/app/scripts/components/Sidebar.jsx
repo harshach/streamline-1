@@ -163,9 +163,9 @@ export default class Sidebar extends Component {
                     </li>
                     : null
                   }
-                  {hasModuleAccess(menuName.ENVIRONMENT) ?
+                  {hasModuleAccess(menuName.ENVIRONMENT) && config.serviceDiscovery.showEnvironments ?
                     <li onClick={this.handleClick.bind(this, 3)}>
-                      <Link to="/environments">Environments</Link>
+                      <Link to="/environments">Environments Shadow</Link>
                     </li>
                     : null
                   }

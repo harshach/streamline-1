@@ -64,11 +64,18 @@ class App extends Component {
           FSReactToastr.error(<CommonNotification flag="error" content={results[0].responseMessage}/>, '', toastOpt);
           this.setState({showLoading: false});
         } else {
+          let streamModule = results[0].modules.find( module => {
+            return module.name == 'streams';
+          });
+          let serviceDiscovery = {
+            showEnvironments: !(streamModule.config.enableShadowNamespaces)
+          };
           app_state.streamline_config = {
             registry: results[0].registry,
             dashboard: results[0].dashboard,
             secureMode: results[0].authorizer ? true : false,
-            version: results[0].version || ''
+            version: results[0].version || '',
+            serviceDiscovery: serviceDiscovery
           };
           if(app_state.streamline_config.secureMode){
             // let userProfile = {

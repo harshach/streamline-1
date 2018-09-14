@@ -257,6 +257,9 @@ public class StreamlineApplication extends Application<StreamlineConfiguration> 
             authorizer = ((Class<StreamlineAuthorizer>) Class.forName(noopAuthorizerClassName)).newInstance();
         }
 
+        // ServiceDiscovery configuration
+        Boolean enableShadowNamespaces = configuration.isEnableShadowNamespaces();
+
         for (ModuleConfiguration moduleConfiguration: modules) {
             String moduleName = moduleConfiguration.getName();
             String moduleClassName = moduleConfiguration.getClassName();
@@ -267,6 +270,7 @@ public class StreamlineApplication extends Application<StreamlineConfiguration> 
             }
             if (moduleName.equals(Constants.CONFIG_STREAMS_MODULE)) {
                 moduleConfiguration.getConfig().put(Constants.CONFIG_CATALOG_ROOT_URL, catalogRootUrl);
+                moduleConfiguration.getConfig().put(Constants.CONFIG_ENABLE_SHADOW_NAMESPACES, enableShadowNamespaces);
             }
             Map<String, Object> initConfig = new HashMap<>(moduleConfiguration.getConfig());
             initConfig.put(Constants.CONFIG_AUTHORIZER, authorizer);

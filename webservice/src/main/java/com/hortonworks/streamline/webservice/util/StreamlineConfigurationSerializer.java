@@ -89,6 +89,7 @@ public class StreamlineConfigurationSerializer extends JsonSerializer<Streamline
         conf.put(CONFIG_REGISTRY, registryConf);
         conf.put(CONFIG_DASHBOARD, streamlineConfiguration.getDashboardConfiguration());
         conf.put(CONFIG_AUTHORIZER, streamlineConfiguration.getAuthorizerConfiguration());
+
         return conf;
     }
 

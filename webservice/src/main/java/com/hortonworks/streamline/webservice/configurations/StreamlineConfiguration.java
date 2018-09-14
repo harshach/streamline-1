@@ -55,6 +55,9 @@ public class StreamlineConfiguration extends Configuration {
     private boolean enableCors;
 
     @JsonProperty
+    private boolean enableShadowNamespaces;
+
+    @JsonProperty
     private List<String> corsUrlPatterns;
 
     @JsonProperty
@@ -112,6 +115,15 @@ public class StreamlineConfiguration extends Configuration {
     public void setEnableCors(boolean enableCors) {
         this.enableCors = enableCors;
     }
+
+    public boolean isEnableShadowNamespaces() {
+        return enableShadowNamespaces;
+    }
+
+    public void setEnableShadowNamespaces(boolean enableShadowNamespaces) {
+        this.enableShadowNamespaces = enableShadowNamespaces;
+    }
+
 
     public List<String> getCorsUrlPatterns() {
         return corsUrlPatterns;

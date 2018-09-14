@@ -19,6 +19,7 @@ import TopologyREST from '../rest/TopologyREST';
 import FSReactToastr from '../components/FSReactToastr';
 //Sources
 import SourceNodeForm from '../containers/Streams/TopologyEditor/SourceNodeForm';
+import TaskNodeForm from '../containers/Streams/TopologyEditor/TaskNodeForm';
 //Processors
 import ProcessorNodeForm from '../containers/Streams/TopologyEditor/ProcessorNodeForm';
 import RulesNodeForm from '../containers/Streams/TopologyEditor/RulesNodeForm';
@@ -792,10 +793,14 @@ const getConfigContainer = function(node, configData, editMode, topologyId, vers
     return () => {
       return <ProcessorNodeForm ref="ConfigModal" nodeData={node} editMode={editMode} testRunActivated={testRunActivated} nodeType={nodeType} topologyId={topologyId} versionId={versionId} sourceNodes={sourceNodes} getChildElement={childElement}/>;
     };
+  } else if (node.parentType === 'TASK') {
+    return () => {
+      return <TaskNodeForm ref="ConfigModal" nodeData={node} configData={configData} editMode={editMode} testRunActivated={testRunActivated} nodeType={nodeType} topologyId={topologyId} versionId={versionId} namespaceId={namespaceId} targetNodes={targetNodes} linkShuffleOptions={linkShuffleOptions}/>;
+    };
   }
 };
 
-const MouseUpAction = function(topologyId, versionId, d3node, d, metaInfo, internalFlags, constants, dragLine, paths, allNodes, edges, linkShuffleOptions, updateGraphMethod, elementType, getModalScope, setModalContent, rectangles, getEdgeConfigModal, setLastChange) {
+const MouseUpAction = function(topologyId, versionId, d3node, d, metaInfo, internalFlags, constants, dragLine, paths, allNodes, edges, linkShuffleOptions, updateGraphMethod, elementType, getModalScope, setModalContent, rectangles, getEdgeConfigModal, setLastChange, component) {
   // reset the internalFlags
   internalFlags.shiftNodeDrag = false;
   d3node.classed(constants.connectClass, false);
@@ -837,7 +842,7 @@ const MouseUpAction = function(topologyId, versionId, d3node, d, metaInfo, inter
           let hasSource = edges.filter((e) => {
             return e.target.nodeId === d.nodeId;
           });
-          if (d.parentType === 'SOURCE' || hasSource.length) {
+          if (!component.input || hasSource.length) {
             this.showNodeModal(getModalScope, setModalContent, d, updateGraphMethod, allNodes, edges, linkShuffleOptions);
           } else {
             FSReactToastr.warning(
@@ -1152,6 +1157,12 @@ const updateGraphEdges = function(graphEdges, newEdges) {
   });
 };
 
+const findComponentBundleById = (componentsBundle, id) => {
+  return componentsBundle.find((c) => {
+    return c.id == id;
+  });
+};
+
 export default {
   defineMarkers,
   isValidConnection,
@@ -1188,5 +1199,6 @@ export default {
   getEdgeData,
   getNodeStreams,
   updateGraphEdges,
-  spliceDeleteNodeArr
+  spliceDeleteNodeArr,
+  findComponentBundleById
 };

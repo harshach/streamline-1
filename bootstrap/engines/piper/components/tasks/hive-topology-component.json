@@ -1,6 +1,6 @@
 {
     "type": "TASK",
-    "name": "Multilang Processor",
+    "name": "Hive",
     "subType": "HIVE",
     "engine": "PIPER",
     "template": ["Blank"],
@@ -30,6 +30,15 @@
                 "tooltip": "Default database to use",
                 "isOptional": true,
                 "type": "string"
+            },
+            {
+                "uiName": "Pool",
+                "fieldName": "pool",
+                "isUserInput": true,
+                "tooltip": "Piper pool to run task in",
+                "isOptional": false,
+                "type": "string",
+                "options": []
             }]
     }
 }

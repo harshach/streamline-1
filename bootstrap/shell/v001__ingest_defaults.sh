@@ -140,7 +140,7 @@ function add_all_bundles {
     post /system/engines/2/templates ${piper_dir}/templates/blank.json
     post /system/engines/3/templates ${athenax_dir}/templates/blank.json
 
-    add_topology_component_bundle /streams/componentbundles/PROCESSOR ${piper_dir}/components/processors/multilang-topology-component.json
+    add_topology_component_bundle /streams/componentbundles/PROCESSOR ${piper_dir}/components/topology/piper-topology-component.json
     # === Source ===
     add_topology_component_bundle /streams/componentbundles/SOURCE ${storm_dir}/components/sources/kafka-source-topology-component.json
     add_topology_component_bundle /streams/componentbundles/SOURCE ${storm_dir}/components/sources/hdfs-source-topology-component.json

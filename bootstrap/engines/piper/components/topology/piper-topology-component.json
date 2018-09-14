@@ -1,0 +1,171 @@
+{
+  "type": "TOPOLOGY",
+  "name": "Piper topology",
+  "subType": "TOPOLOGY",
+  "engine": "PIPER",
+  "template": ["Blank"],
+  "builtin": true,
+  "transformationClass": "dummy",
+  "topologyComponentUISpecification": {
+    "fields": [
+      {
+        "uiName": "Description",
+        "fieldName": "topology.description",
+        "isOptional": true,
+        "tooltip": "Description for your pipeline",
+        "type": "string"
+      },
+      {
+        "uiName": "Owner",
+        "fieldName": "topology.owner",
+        "isOptional": false,
+        "tooltip": "Owner of pipeline",
+        "type": "string"
+      },
+      {
+        "uiName": "Owner LDAP Groups",
+        "fieldName": "topology.ownerLDAPGroups",
+        "isOptional": true,
+        "tooltip": "Owner LDAP groups",
+        "type": "string"
+      },
+      {
+        "uiName": "Schedule Interval",
+        "fieldName": "topology.scheduleIntervalSelection",
+        "isOptional": false,
+        "tooltip": "Scheduling Interval Selection",
+        "type": "enumobject",
+        "defaultValue": "topology.scheduleIntervalTimeOption",
+        "options": [
+          {
+            "uiName": "Time Based Interval",
+            "fieldName": "topology.scheduleIntervalTimeOption",
+            "tooltip": "Time based interval",
+            "isOptional": false,
+            "type": "array.object",
+            "fields": [
+              {
+                "uiName": "Schedule Interval Multiplier",
+                "fieldName": "topology.timeBasedIntervalMultiplier",
+                "isOptional": false,
+                "tooltip": "Time Based Interval Multiplier",
+                "type": "string"
+              },
+              {
+                "uiName": "Interval",
+                "fieldName": "topology.timeBasedIntervalType",
+                "isOptional": false,
+                "tooltip": "Time Based Interval",
+                "type": "enumstring",
+                "options": [
+                  "Minute",
+                  "Hour",
+                  "Day",
+                  "Week"
+                ]
+              }
+            ]
+          },
+          {
+            "uiName": "Cron Based Interval",
+            "fieldName": "topology.scheduleIntervalCronOption",
+            "tooltip": "Cron Based Interval",
+            "isOptional": false,
+            "type": "object",
+            "fields": [
+              {
+                "uiName": "Cron Statement",
+                "fieldName": "topology.scheduleIntervalCron",
+                "isOptional": false,
+                "tooltip": "Schedule interval in seconds or cron syntax for example '0 20 * * *'",
+                "type": "string"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "uiName": "Alert Emails",
+        "fieldName": "topology.email",
+        "isOptional": true,
+        "tooltip": "Comma separated emails to send alerts",
+        "type": "string"
+      },
+      {
+        "uiName": "Tags",
+        "fieldName": "topology.tags",
+        "isOptional": true,
+        "tooltip": "Tags for this pipeline",
+        "type": "string"
+      },
+      {
+        "uiName": "Start Date",
+        "fieldName": "topology.startDate",
+        "isOptional": false,
+        "tooltip": "Start Date of Pipeline",
+        "type": "string"
+      },
+      {
+        "uiName": "End Date",
+        "fieldName": "topology.endDate",
+        "isOptional": true,
+        "tooltip": "End Date of Pipeline",
+        "type": "string"
+      },
+      {
+        "uiName": "Auto Backfill",
+        "fieldName": "topology.autobackfill",
+        "isOptional": true,
+        "tooltip": "Use Autobackfill for scheduling",
+        "type": "boolean"
+      },
+      {
+        "uiName": "Secure",
+        "fieldName": "topology.isSecure",
+        "isOptional": true,
+        "tooltip": "Deploy on Secure Cluster",
+        "type": "boolean"
+      },
+      {
+        "uiName": "Email On Failure",
+        "fieldName": "topology.emailOnFailure",
+        "isOptional": true,
+        "tooltip": "Email on Failure",
+        "type": "boolean"
+      },
+      {
+        "uiName": "Email On Retry",
+        "fieldName": "topology.emailOnRetry",
+        "isOptional": true,
+        "tooltip": "Email on Failure",
+        "type": "boolean"
+      },
+      {
+        "uiName": "Datacenter Choice Mode",
+        "fieldName": "topology.datacenterChoiceMode",
+        "isOptional": true,
+        "tooltip": "Datacenter Choice Mode",
+        "type": "enumstring",
+        "options": [
+          "run_in_one_datacenter",
+          "run_in_chosen_datacenters",
+          "run_in_all_datacenters"
+        ]
+      },
+      {
+        "uiName": "Selected Datacenter",
+        "fieldName": "topology.selectedDatacenter",
+        "isOptional": true,
+        "tooltip": "Selected Datacenter if RUN_IN_CHOSEN",
+        "type": "enumstring",
+        "options": [
+          "SJC1",
+          "DCA1",
+          "PHX2"
+        ]
+      }
+    ]
+  }
+}
+
+

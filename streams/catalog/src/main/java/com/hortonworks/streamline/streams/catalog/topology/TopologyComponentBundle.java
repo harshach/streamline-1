@@ -51,6 +51,7 @@ public class TopologyComponentBundle implements Storable {
     public enum TopologyComponentType {
         SOURCE,
         PROCESSOR,
+        TASK,
         LINK,
         SINK,
         ACTION,

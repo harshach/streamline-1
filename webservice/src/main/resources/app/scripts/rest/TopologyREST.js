@@ -154,29 +154,54 @@ const TopologyREST = {
         return response.json();
       });
   },
-  getSourceComponent(options) {
+  getSourceComponent(engineId, templateId, options) {
     options = options || {};
     options.method = options.method || 'GET';
     options.credentials = 'same-origin';
-    return fetch(baseUrl + 'streams/componentbundles/SOURCE', options)
+    let url = baseUrl + 'streams/componentbundles/SOURCE';
+    if(engineId && templateId){
+      url += '?engineId='+engineId+'&templateId='+templateId;
+    }
+    return fetch(url, options)
       .then((response) => {
         return response.json();
       });
   },
-  getProcessorComponent(options) {
+  getProcessorComponent(engineId, templateId, options) {
     options = options || {};
     options.method = options.method || 'GET';
     options.credentials = 'same-origin';
-    return fetch(baseUrl + 'streams/componentbundles/PROCESSOR', options)
+    let url = baseUrl + 'streams/componentbundles/PROCESSOR';
+    if(engineId && templateId){
+      url += '?engineId='+engineId+'&templateId='+templateId;
+    }
+    return fetch(url, options)
       .then((response) => {
         return response.json();
       });
   },
-  getSinkComponent(options) {
+  getSinkComponent(engineId, templateId, options) {
     options = options || {};
     options.method = options.method || 'GET';
     options.credentials = 'same-origin';
-    return fetch(baseUrl + 'streams/componentbundles/SINK', options)
+    let url = baseUrl + 'streams/componentbundles/SINK';
+    if(engineId && templateId){
+      url += '?engineId='+engineId+'&templateId='+templateId;
+    }
+    return fetch(url, options)
+      .then((response) => {
+        return response.json();
+      });
+  },
+  getTaskComponent(engineId, templateId, options) {
+    options = options || {};
+    options.method = options.method || 'GET';
+    options.credentials = 'same-origin';
+    let url = baseUrl + 'streams/componentbundles/TASK';
+    if(engineId && templateId){
+      url += '?engineId='+engineId+'&templateId='+templateId;
+    }
+    return fetch(url, options)
       .then((response) => {
         return response.json();
       });

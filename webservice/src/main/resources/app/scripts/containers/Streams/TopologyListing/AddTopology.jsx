@@ -26,6 +26,7 @@ import TopologyUtils from '../../../utils/TopologyUtils';
 import FSReactToastr from '../../../components/FSReactToastr';
 import {toastOpt} from '../../../utils/Constants';
 import Form from '../../../libs/form';
+import app_state from '../../../app_state';
 
 /* component import */
 import BaseContainer from '../../BaseContainer';
@@ -83,7 +84,7 @@ class AddTopology extends Component {
         FSReactToastr.error(
           <CommonNotification flag="error" content={result[2].responseMessage}/>, '', toastOpt);
       } else {
-        stateObj.engineOptions = result[2].entities;
+        stateObj.engineOptions = app_state.engines;
       }
       if(result[3]){
         if(result[3].responseMessage !== undefined) {

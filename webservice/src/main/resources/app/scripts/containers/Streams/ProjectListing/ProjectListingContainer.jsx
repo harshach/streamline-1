@@ -29,7 +29,9 @@ import Modal from '../../../components/FSModal';
 import AddProject from './AddProject';
 import NoData from '../../../components/NoData';
 import ProjectREST from '../../../rest/ProjectREST';
+import TopologyREST from '../../../rest/TopologyREST';
 import CommonLoaderSign from '../../../components/CommonLoaderSign';
+import app_state from '../../../app_state';
 
 class ProjectCard extends Component {
   constructor(props){
@@ -63,10 +65,30 @@ class ProjectCard extends Component {
             </div>
           </div>
           <div className="service-body clearfix">
-            <ul className="service-components ">
-              <li><img src={`styles/img/icon-airflow.png`}/></li>
-              <li><img src={`styles/img/icon-flink.png`}/></li>
-            </ul>
+            {data.applicationEngines.length > 0
+              ?
+              <ul className="service-components ">
+                {data.applicationEngines.map((engineName)=>{
+                  let name = '';
+                  switch(engineName.toLowerCase()){
+                  case 'athenax':
+                    name = 'flink';
+                    break;
+                  case 'piper':
+                    name = 'airflow';
+                    break;
+                  case 'storm':
+                    name = 'storm';
+                    break;
+                  }
+                  return <li><img src={`styles/img/icon-`+name+`.png`}/></li>;
+                })}
+              </ul>
+              :
+              <h3 className="empty-project">
+                No Application Found
+              </h3>
+            }
           </div>
         </div>
       </div>
@@ -93,7 +115,20 @@ class ProjectListingContainer extends Component {
           <CommonNotification flag="error" content={projects.responseMessage}/>, '', toastOpt);
       } else {
         let data = projects.entities;
-        this.setState({entities: data, fetchLoader: false});
+        let promiseArr = [];
+        data.map((p)=>{
+          p.applicationEngines = [];
+          promiseArr.push(TopologyREST.getAllTopologyWithoutConfig(p.id));
+        });
+        Promise.all(promiseArr).then((results)=>{
+          results.map((result, index)=>{
+            result.entities.map((topology)=>{
+              let engineObj = app_state.engines.find((e)=>{return e.id === topology.engineId;});
+              data[index].applicationEngines.push(engineObj.name);
+            });
+          });
+          this.setState({entities: data, fetchLoader: false});
+        });
       }
     }).catch((err) => {
       this.setState({fetchLoader: false});

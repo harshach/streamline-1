@@ -35,8 +35,7 @@
                 "isUserInput": true,
                 "tooltip": "Piper pool to run task in",
                 "isOptional": false,
-                "type": "string",
-                "options": []
+                "type": "string"
             }]
     }
 }

@@ -3,6 +3,6 @@
     "displayName": "Storm",
     "deploymentModes": "[\"DEPLOY\",\"BACKFILL\"]",
     "componentTypes": "[\"SOURCE\",\"PROCESSOR\",\"SINK\"]",
-    "schemaAware": "true"
+    "schemaAware": "true",
     "config": "{}"
 }

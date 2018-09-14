@@ -1119,11 +1119,18 @@ export default class TopologyGraphComponent extends Component {
         : d.parallelismCount;
     });
 
+    const {componentsBundle} = this.props;
+    const findComponentBundleById = (id) => {
+      return componentsBundle.find((c) => {
+        return c.id == id;
+      });
+    };
+
     //RHS Circle
     newGs.append("circle").attr("cx", function(d) {
       return GraphUtils.getSpecificNodeBboxData.call(thisGraph,d).width;
     }).attr("cy", function(d) {
-      if (d.parentType !== 'SINK') {
+      if (findComponentBundleById(d.topologyComponentBundleId).output) {
         const {height} = GraphUtils.getSpecificNodeBboxData.call(thisGraph,d);
         if(!thisGraph.editMode && thisGraph.props.isAppRunning === true && thisGraph.props.viewModeData.selectedMode === 'Overview') {
           return (height / 2) - 8;
@@ -1132,7 +1139,7 @@ export default class TopologyGraphComponent extends Component {
         }
       }
     }).attr("r", function(d) {
-      if (d.parentType !== 'SINK') {
+      if (findComponentBundleById(d.topologyComponentBundleId).output) {
         return '5';
       }
     }).attr("class", function(d) {
@@ -1161,7 +1168,7 @@ export default class TopologyGraphComponent extends Component {
 
     //LHS Circle
     newGs.append("circle").attr("cx", -3.5).attr("cy", function(d) {
-      if (d.parentType !== 'SOURCE') {
+      if (findComponentBundleById(d.topologyComponentBundleId).input) {
         const {height} = GraphUtils.getSpecificNodeBboxData.call(thisGraph,d);
         if(!thisGraph.editMode && thisGraph.props.isAppRunning === true && thisGraph.props.viewModeData.selectedMode === 'Overview') {
           return (height / 2) - 8;
@@ -1170,7 +1177,7 @@ export default class TopologyGraphComponent extends Component {
         }
       }
     }).attr("r", function(d) {
-      if (d.parentType !== 'SOURCE') {
+      if (findComponentBundleById(d.topologyComponentBundleId).input) {
         return '5';
       }
     }).attr("class", function(d) {

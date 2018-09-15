@@ -66,6 +66,12 @@ public class TopologyDag implements Serializable {
         return this;
     }
 
+    public TopologyDag add(Task task) {
+        outputComponents.add(task);
+        inputComponents.add(task);
+        return this;
+    }
+
     public Set<Component> getComponents() {
         return Sets.union(inputComponents, outputComponents);
     }

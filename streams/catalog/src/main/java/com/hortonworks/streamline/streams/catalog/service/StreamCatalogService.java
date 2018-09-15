@@ -1789,9 +1789,9 @@ public class StreamCatalogService {
         return getTopologyTask(topologyId, taskId, getCurrentVersionId(topologyId));
     }
 
-    public TopologyTask getTopologyTask(Long topologyId, Long sourceId, Long versionId) {
+    public TopologyTask getTopologyTask(Long topologyId, Long taskId, Long versionId) {
         TopologyTask topologyTask = new TopologyTask();
-        topologyTask.setId(sourceId);
+        topologyTask.setId(taskId);
         topologyTask.setVersionId(versionId);
         TopologyTask task = dao.get(new StorableKey(TOPOLOGY_TASK_NAMESPACE, topologyTask.getPrimaryKey()));
         if (task == null || !task.getTopologyId().equals(topologyId)) {

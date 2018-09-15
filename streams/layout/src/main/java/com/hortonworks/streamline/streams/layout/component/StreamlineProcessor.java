@@ -88,7 +88,7 @@ public class StreamlineProcessor extends StreamlineComponent implements Processo
 
     @Override
     public String toString() {
-        return "StreamlineTask{" +
+        return "StreamlineProcessor{" +
                 "outputStreams=" + outputStreams +
                 '}'+super.toString();
     }

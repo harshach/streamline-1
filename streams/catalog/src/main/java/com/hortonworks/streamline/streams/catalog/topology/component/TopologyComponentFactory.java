@@ -281,10 +281,16 @@ public class TopologyComponentFactory {
         Provider<StreamlineTask> provider = new Provider<StreamlineTask>() {
             @Override
             public StreamlineTask create(TopologyComponent component) {
-                return new GenericTask();
+                Set<Stream> outputStreams;
+                if (component instanceof TopologyOutputComponent) {
+                    outputStreams = createOutputStreams((TopologyOutputComponent) component);
+                } else {
+                    throw new IllegalArgumentException("Component " + component + " must be an instance of TopologyOutputComponent");
+                }
+                return new GenericTask(outputStreams.iterator().next());
             }
         };
-        return new SimpleImmutableEntry<>(TASK, provider);
+        return new SimpleImmutableEntry<>("HIVE", provider);
     }
 
     private Map.Entry<String, Provider<StreamlineSource>> kafkaSourceProvider() {
@@ -301,6 +307,7 @@ public class TopologyComponentFactory {
         Provider<StreamlineSource> provider = new Provider<StreamlineSource>() {
             @Override
             public StreamlineSource create(TopologyComponent component) {
+
                 return new HdfsSource();
             }
         };

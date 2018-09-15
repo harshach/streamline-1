@@ -24,7 +24,7 @@ public class ComponentTypes {
     public static final String SOURCE = "SOURCE";
     public static final String PROCESSOR = "PROCESSOR";
     public static final String SINK = "SINK";
-    public static final String TASK = "TASK";
+    public static final String TASK = "HIVE";
 
     public static final String KAFKA = "KAFKA";
     public static final String KINESIS = "KINESIS";

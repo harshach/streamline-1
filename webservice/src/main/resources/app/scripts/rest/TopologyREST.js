@@ -318,7 +318,7 @@ const TopologyREST = {
     options = options || {};
     options.method = options.method || 'DELETE';
     options.credentials = 'same-origin';
-    const argStr = 'sources,processors,sinks';
+    const argStr = 'sources,processors,sinks,tasks';
     let removeEdges = argStr.indexOf(nodeType) !== -1 ?
       '?removeEdges=true' :
       '';

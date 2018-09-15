@@ -93,9 +93,11 @@ public class TopologyActionsService implements ContainingNamespaceAwareContainer
     }
 
     public Void deployTopology(Topology topology, String asUser) throws Exception {
-        TopologyContext ctx = managedTransaction.executeFunction(() -> getTopologyContext(topology, asUser));
+        LOG.info("Deploying topology harsha {}", topology);
         topology.setTopologyDag(topologyDagBuilder.getDag(topology));
-        LOG.debug("Deploying topology {}", topology);
+        LOG.info("Deploying topology {}", topology);
+        LOG.info("Depploying topology {}", topology.getTopologyDag());
+        TopologyContext ctx = managedTransaction.executeFunction(() -> getTopologyContext(topology, asUser));
         while (ctx.getState() != stateFactory.deployedState()) {
             managedTransaction.executeConsumer((topologyContext) -> {
                 LOG.debug("Current state {}", topologyContext.getStateName());

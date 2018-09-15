@@ -1,17 +1,17 @@
 /**
-  * Copyright 2017 Hortonworks.
-  *
-  * Licensed under the Apache License, Version 2.0 (the "License");
-  * you may not use this file except in compliance with the License.
-  * You may obtain a copy of the License at
+ * Copyright 2017 Hortonworks.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
 
-  *   http://www.apache.org/licenses/LICENSE-2.0
+ *   http://www.apache.org/licenses/LICENSE-2.0
 
-  * Unless required by applicable law or agreed to in writing, software
-  * distributed under the License is distributed on an "AS IS" BASIS,
-  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-  * See the License for the specific language governing permissions and
-  * limitations under the License.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  **/
 
 package com.hortonworks.streamline.streams.layout.component;
@@ -20,21 +20,18 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
-/**
- * The base implementation of a {@link Processor} that all Streamline processors should extend.
- */
-public class StreamlineProcessor extends StreamlineComponent implements Processor {
+public class StreamlineTask extends StreamlineComponent implements Task {
     private final Set<Stream> outputStreams = new HashSet<>();
 
-    public StreamlineProcessor() {
+    public StreamlineTask() {
         this(Collections.EMPTY_SET);
     }
 
-    public StreamlineProcessor(Set<Stream> outputStreams) {
+    public StreamlineTask(Set<Stream> outputStreams) {
         addOutputStreams(outputStreams);
     }
 
-    public StreamlineProcessor(StreamlineProcessor other) {
+    public StreamlineTask(StreamlineTask other) {
         super(other);
         addOutputStreams(other.getOutputStreams());
     }
@@ -68,9 +65,9 @@ public class StreamlineProcessor extends StreamlineComponent implements Processo
         if (o == null || getClass() != o.getClass()) return false;
         if (!super.equals(o)) return false;
 
-        StreamlineProcessor processor = (StreamlineProcessor) o;
+        StreamlineTask task = (StreamlineTask) o;
 
-        return outputStreams != null ? outputStreams.equals(processor.outputStreams) : processor.outputStreams == null;
+        return outputStreams != null ? outputStreams.equals(task.outputStreams) : task.outputStreams == null;
 
     }
 
@@ -92,4 +89,5 @@ public class StreamlineProcessor extends StreamlineComponent implements Processo
                 "outputStreams=" + outputStreams +
                 '}'+super.toString();
     }
+
 }

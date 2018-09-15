@@ -34,6 +34,10 @@ public abstract class TopologyDagVisitor {
         throw new UnsupportedOperationException("Not Implemented");
     }
 
+    public void visit(StreamlineTask task) {
+        throw new UnsupportedOperationException("Not Implemented");
+    }
+
     public void visit(Edge edge) {
         throw new UnsupportedOperationException("Not Implemented");
     }

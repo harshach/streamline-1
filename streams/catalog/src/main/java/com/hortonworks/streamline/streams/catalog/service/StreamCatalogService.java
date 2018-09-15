@@ -1776,10 +1776,10 @@ public class StreamCatalogService {
     }
 
 
-    public Collection<TopologyTask> listTopologyTasks() { return dao.list(TOPOLOGY_TASK_NAMESPACE); }
+    public Collection<TopologyTask> listTopologyTasks() { return fillTaskStreams(dao.list(TOPOLOGY_TASK_NAMESPACE)); }
 
     public Collection<TopologyTask> listTopologyTasks(List<QueryParam> params)  {
-        return dao.find(TOPOLOGY_TASK_NAMESPACE, params);
+        return fillTaskStreams(dao.find(TOPOLOGY_TASK_NAMESPACE, params));
     }
 
     /**

@@ -201,7 +201,7 @@ class TopologyEditorContainer extends Component {
 
         let promiseArr = [];
         promiseArr.push(TopologyREST.getAllVersions(this.topologyId));
-        promiseArr.push(TopologyREST.getTopologyConfig());
+        promiseArr.push(TopologyREST.getTopologyConfig(data.topology.engineId));
         promiseArr.push(ProjectREST.getProject(this.projectId));
         promiseArr.push(TopologyREST.getMetaInfo(this.topologyId, this.versionId));
 

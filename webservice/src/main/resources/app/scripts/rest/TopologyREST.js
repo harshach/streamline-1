@@ -409,11 +409,15 @@ const TopologyREST = {
         return response.json();
       });
   },
-  getTopologyConfig(options) {
+  getTopologyConfig(engineId, options) {
     options = options || {};
     options.method = options.method || 'GET';
     options.credentials = 'same-origin';
-    return fetch(baseUrl + 'streams/componentbundles/TOPOLOGY', options)
+    let url = baseUrl + 'streams/componentbundles/TOPOLOGY';
+    if(engineId){
+      url += '?engineId='+engineId;
+    }
+    return fetch(url, options)
       .then((response) => {
         return response.json();
       });

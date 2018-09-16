@@ -241,6 +241,9 @@ public class TopologyComponentBundleResource {
         } catch (RuntimeException e) {
             LOG.debug("Error occured while adding topology component bundle", e);
             throw e;
+        } catch (Exception ex) {
+            LOG.info("Failed to read topology component specification", ex);
+            throw ex;
         } finally {
             try {
                 if (bundleJar != null) {

@@ -62,7 +62,7 @@ import {
 } from '../../../utils/TestModeUtils/TestModeUtils';
 
 @observer
-class TopologyEditorContainer extends Component {
+export class TopologyEditorContainer extends Component {
   constructor(props) {
     super(props);
     this.projectId = this.props.params.projectId;
@@ -94,6 +94,10 @@ class TopologyEditorContainer extends Component {
   }
 
   componentDidMount() {
+    this.setRouteLeaveHook();
+  }
+
+  setRouteLeaveHook(){
     this.props.router.setRouteLeaveHook(this.props.route, this.routerWillLeave);
   }
 
@@ -172,6 +176,7 @@ class TopologyEditorContainer extends Component {
           ? versionId
           : data.topology.versionId;
 
+        this.nameSpace = data.namespaceName;
         this.namespaceId = data.topology.namespaceId;
         this.lastUpdatedTime = new Date(result.topology.timestamp);
 
@@ -1249,6 +1254,7 @@ class TopologyEditorContainer extends Component {
       engine={this.engine}
       topologyData={topologyData}
       setTopologyConfig={this.setTopologyConfig}
+      viewModeData={this.state.viewModeData || {}}
     />;
   }
 

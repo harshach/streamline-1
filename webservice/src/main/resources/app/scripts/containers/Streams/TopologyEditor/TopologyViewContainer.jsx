@@ -34,6 +34,7 @@ import Utils from '../../../utils/Utils';
 import TopologyUtils from '../../../utils/TopologyUtils';
 import Modal from '../../../components/FSModal';
 import CommonNotification from '../../../utils/CommonNotification';
+import {TopologyEditorContainer} from './TopologyEditorContainer';
 import TopologyViewMode from './TopologyViewMode';
 import CommonLoaderSign from '../../../components/CommonLoaderSign';
 import ErrorStatus from '../../../components/ErrorStatus';
@@ -45,7 +46,7 @@ import MetricsREST from '../../../rest/MetricsREST';
 import ProjectREST from '../../../rest/ProjectREST';
 
 @observer
-class TopologyViewContainer extends Component {
+class TopologyViewContainer extends TopologyEditorContainer {
   constructor(props) {
     super(props);
     this.topologyId = this.props.params.id;
@@ -54,9 +55,14 @@ class TopologyViewContainer extends Component {
     this.customProcessors = [];
     this.showLogSearch = false;
     this.fetchData();
+    this.fetchTopologyLevelSampling();
     this.checkAuth = true;
     this.sampleInputNotify = false;
   }
+
+  componentDidUpdate(){}
+
+  setRouteLeaveHook(){}
 
   componentWillUnmount() {
     document.getElementsByClassName('loader-overlay')[0].className = "loader-overlay displayNone";
@@ -96,7 +102,7 @@ class TopologyViewContainer extends Component {
     }
   };
 
-  fetchData(versionId) {
+  /*fetchData(versionId) {
     const projectId = this.props.params.projectId;
     let promiseArr = [];
 
@@ -259,7 +265,7 @@ class TopologyViewContainer extends Component {
         }
       }
     };
-  }
+  }*/
 
   fetchTopologyLevelSampling(){
     const {viewModeData} = this.state;
@@ -504,7 +510,7 @@ class TopologyViewContainer extends Component {
       }
     });
   }
-  getModalScope(node) {
+  /*getModalScope(node) {
     let obj = {
         editMode: !this.viewMode,
         topologyId: this.topologyId,
@@ -563,7 +569,7 @@ class TopologyViewContainer extends Component {
       break;
     }
     return obj;
-  }
+  }*/
   killTopology() {
     this.refs.BaseContainer.refs.Confirm.show({title: 'Are you sure you want to stop this Application?'}).then((confirmBox) => {
       this.setState({topologyStatus: 'KILLING...'});
@@ -719,6 +725,7 @@ class TopologyViewContainer extends Component {
                 this.checkAuth
                 ? [<TopologyViewMode
                     allACL={allACL} key={"1"} {...this.state}
+                    runtimeObj={this.runtimeObj}
                     projectId={this.projectData.id}
                     topologyId={this.topologyId}
                     killTopology={this.killTopology.bind(this)}
@@ -738,22 +745,7 @@ class TopologyViewContainer extends Component {
                       <i className="fa fa-search-plus" onClick={this.zoomAction.bind(this, "zoom_in")}></i>
                       <i className="fa fa-search-minus" onClick={this.zoomAction.bind(this, "zoom_out")}></i>
                     </div>
-                    <EditorGraph ref="EditorGraph"
-                      graphData={this.graphData}
-                      viewMode={this.viewMode}
-                      topologyId={this.topologyId}
-                      versionId={this.versionId}
-                      versionsArr={this.state.versionsArr}
-                      getModalScope={this.getModalScope.bind(this)}
-                      setModalContent={this.setModalContent.bind(this)}
-                      viewModeData={viewModeData}
-                      startDate={startDate}
-                      endDate={endDate}
-                      compSelectCallback={this.compSelectCallback}
-                      isAppRunning={this.state.isAppRunning}
-                      componentLevelAction={this.componentLevelAction}
-                      testRunningMode={false}
-                      contextRouter={this.context.router}/>
+                    {this.getEditorGraph()}
                   </div>]
                 : <ErrorStatus imgName={"viewMode"} />
               }

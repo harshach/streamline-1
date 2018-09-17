@@ -992,6 +992,8 @@ export default class TopologyGraphComponent extends Component {
       });
     }
 
+    const {engine} = this.props;
+
     //Outer Rectangle
     newGs.append("rect").attr("width", function(d){
       return GraphUtils.getSpecificNodeBboxData.call(thisGraph,d).width;
@@ -1015,7 +1017,9 @@ export default class TopologyGraphComponent extends Component {
       if (thisGraph.editMode) {
         d3.select(this.parentElement).select('text.fa.fa-times').style('display', thisGraph.testRunActivated ? 'none' : 'block');
       } else {
-        TopologyUtils.getNodeStreams(thisGraph.topologyId, thisGraph.versionId, d.nodeId, d.parentType, thisGraph.edges, GraphUtils.showNodeStreams.bind(thisGraph, d, this));
+        if(engine.schemaAware){
+          TopologyUtils.getNodeStreams(thisGraph.topologyId, thisGraph.versionId, d.nodeId, d.parentType, thisGraph.edges, GraphUtils.showNodeStreams.bind(thisGraph, d, this));
+        }
       }
     }).on("mouseout", function(d) {
       if (thisGraph.editMode) {
@@ -1052,7 +1056,9 @@ export default class TopologyGraphComponent extends Component {
       if (thisGraph.editMode) {
         d3.select(this.parentElement).select('text.fa.fa-times').style('display', thisGraph.testRunActivated ? 'none' : 'block');
       } else {
-        TopologyUtils.getNodeStreams(thisGraph.topologyId, thisGraph.versionId, d.nodeId, d.parentType, thisGraph.edges, GraphUtils.showNodeStreams.bind(thisGraph, d, d3.select(this.parentElement).select('rect').node()));
+        if(engine.schemaAware){
+          TopologyUtils.getNodeStreams(thisGraph.topologyId, thisGraph.versionId, d.nodeId, d.parentType, thisGraph.edges, GraphUtils.showNodeStreams.bind(thisGraph, d, d3.select(this.parentElement).select('rect').node()));
+        }
       }
     }).on("mouseout", function(d) {
       if (thisGraph.editMode) {
@@ -1223,7 +1229,9 @@ export default class TopologyGraphComponent extends Component {
           !thisGraph.testRunActivated && nodeTitle.trim().length > 11 ? GraphUtils.showNodeTypeToolTip.call(thisGraph,d, this) : '';
           d3.select(this.parentElement).select('text.fa.fa-times').style('display', thisGraph.testRunActivated ? 'none' : 'block');
         } else {
-          TopologyUtils.getNodeStreams(thisGraph.topologyId, thisGraph.versionId, d.nodeId, d.parentType, thisGraph.edges, GraphUtils.showNodeStreams.bind(thisGraph, d, d3.select(this.parentElement).select('rect').node()));
+          if(engine.schemaAware){
+            TopologyUtils.getNodeStreams(thisGraph.topologyId, thisGraph.versionId, d.nodeId, d.parentType, thisGraph.edges, GraphUtils.showNodeStreams.bind(thisGraph, d, d3.select(this.parentElement).select('rect').node()));
+          }
         }
       }).on("mouseout", function(d) {
         if (thisGraph.editMode) {
@@ -1271,7 +1279,9 @@ export default class TopologyGraphComponent extends Component {
         if (thisGraph.editMode) {
           d3.select(this.parentElement).select('text.fa.fa-times').style('display', thisGraph.testRunActivated ? 'none' : 'block');
         } else {
-          TopologyUtils.getNodeStreams(thisGraph.topologyId, thisGraph.versionId, d.nodeId, d.parentType, thisGraph.edges, GraphUtils.showNodeStreams.bind(thisGraph, d, d3.select(this.parentElement).select('rect').node()));
+          if(engine.schemaAware){
+            TopologyUtils.getNodeStreams(thisGraph.topologyId, thisGraph.versionId, d.nodeId, d.parentType, thisGraph.edges, GraphUtils.showNodeStreams.bind(thisGraph, d, d3.select(this.parentElement).select('rect').node()));
+          }
         }
       }).on("mouseout", function(d) {
         if (thisGraph.editMode) {

@@ -148,7 +148,7 @@ class EditorGraph extends Component {
     if(loading){
       return <div>Loading...</div>;
     }else{
-      const componentsBundle =  !viewMode ? this.componentsBundle : [];
+      const componentsBundle = this.componentsBundle;
       const ComponentNode = this.ComponentNodeContainer;
 
       return connectDropTarget(
@@ -364,7 +364,7 @@ class SPS_EditorGraph extends EditorGraph{
   getModalScope(node) {
     let obj = {
         testRunActivated : this.state.testRunActivated,
-        editMode: !this.viewMode,
+        editMode: !this.props.viewMode,
         topologyId: this.props.topologyId,
         versionId: this.props.versionId,
         namespaceId: this.props.namespaceId
@@ -491,7 +491,7 @@ export class PiperEditorGraph extends EditorGraph{
     }
     return {
       testRunActivated : this.state.testRunActivated,
-      editMode: !this.viewMode,
+      editMode: !this.props.viewMode,
       topologyId: this.props.topologyId,
       versionId: this.props.versionId,
       namespaceId: this.props.namespaceId,

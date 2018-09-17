@@ -190,7 +190,7 @@ class TopologyViewMode extends Component {
       unknown,
       killTopology,
       setCurrentVersion,
-      topologyMetric,
+      runtimeObj,
       timestamp,
       topologyVersion,
       versionsArr = [],
@@ -198,6 +198,8 @@ class TopologyViewMode extends Component {
       viewModeData,
       disabledTopologyLevelSampling
     } = this.props;
+
+    const topologyMetric = runtimeObj;
 
     const {metric} = topologyMetric || {
       metric: (topologyMetric === '')

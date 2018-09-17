@@ -231,6 +231,10 @@ rect.source {
   fill: #fff;
 }
 
+rect.task {
+  fill: #fff;
+}
+
 rect.datasink-img {
   fill: #fff;
   cursor: auto;
@@ -258,7 +262,7 @@ text.source {
   fill: #a9a9a9;
 }
 
-circle.source, circle.processor, circle.datasink {
+circle.source, circle.processor, circle.datasink, circle.task {
   fill: #3eae49;
 }
 

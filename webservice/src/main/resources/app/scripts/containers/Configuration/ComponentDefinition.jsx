@@ -46,7 +46,8 @@ export default class ComponentDefinition extends Component {
     let promiseArr = [
       TopologyREST.getSourceComponent(),
       TopologyREST.getProcessorComponent(),
-      TopologyREST.getSinkComponent()
+      TopologyREST.getSinkComponent(),
+      TopologyREST.getTaskComponent()
     ];
     Promise.all(promiseArr)
       .then((results) => {

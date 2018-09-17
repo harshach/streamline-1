@@ -19,6 +19,7 @@ import FSReactToastr from './components/FSReactToastr';
 import { toastOpt, unknownAccessCode } from './utils/Constants';
 import MiscREST from './rest/MiscREST';
 import UserRoleREST from './rest/UserRoleREST';
+import EngineREST from './rest/EngineREST';
 import app_state from './app_state';
 import CommonNotification from './utils/CommonNotification';
 import UnKnownAccess  from './components/UnKnownAccess';
@@ -37,6 +38,26 @@ class App extends Component {
     let promiseArr = [
       MiscREST.getAllConfigs()
     ];
+    promiseArr.push(EngineREST.getAllEngines().then((res) => {
+      app_state.engines = res.entities;
+
+      /*app_state.engines.push({
+        "id": 3,
+        "name": "STORM",
+        "displayName": "STORM",
+        "deploymentModes": '["DEPLOY"]',
+        "componentTypes": '["SOURCE","PROCESSOR","SINK"]',
+        "config": "{}"
+      });*/
+
+      _.each(app_state.engines, (e) => {
+        e.deploymentModes = JSON.parse(e.deploymentModes);
+        e.componentTypes = JSON.parse(e.componentTypes);
+        e.config = JSON.parse(e.config);
+      });
+
+      return res;
+    }));
     Promise.all(promiseArr)
       .then((results)=>{
         if(results[0].responseMessage !== undefined){

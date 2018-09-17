@@ -4521,3 +4521,10 @@ div.hint-tooltip{
 .form-datepicker-group .place-holder{
   margin-bottom: 0px;
 }
+h3.empty-project {
+  margin: 24px 0 24px -15px;
+  text-align: center;
+  letter-spacing: 1px;
+  color: #c1c1c1;
+  text-shadow: 3px 2px 1px rgba(0,0,0,0.1);
+}

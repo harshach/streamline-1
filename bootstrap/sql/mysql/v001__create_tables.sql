@@ -89,6 +89,7 @@ CREATE TABLE IF NOT EXISTS engine (
    displayName VARCHAR(256) NOT NULL,
    deploymentModes TEXT NOT NULL,
    componentTypes TEXT NOT NULL,
+   schemaAware BOOLEAN NOT NULL,
    config TEXT NOT NULL,
    PRIMARY KEY (id),
    UNIQUE KEY `engine_UK_name` (name)
@@ -288,6 +289,28 @@ CREATE TABLE IF NOT EXISTS topology_processor_stream_mapping (
     streamId BIGINT NOT NULL,
     PRIMARY KEY (processorId, versionId, streamId),
     FOREIGN KEY (processorId, versionId) REFERENCES topology_processor(id, versionId),
+    FOREIGN KEY (streamId, versionId) REFERENCES topology_stream(id, versionId)
+);
+
+
+CREATE TABLE IF NOT EXISTS topology_task (
+    id BIGINT NOT NULL,
+    versionId BIGINT NOT NULL,
+    topologyId BIGINT NOT NULL,
+    topologyComponentBundleId BIGINT NOT NULL,
+    name VARCHAR(256) NOT NULL,
+    description TEXT,
+    configData TEXT NOT NULL,
+    PRIMARY KEY (id, versionId),
+    FOREIGN KEY (versionId) REFERENCES topology_version(id)
+);
+
+CREATE TABLE IF NOT EXISTS topology_task_stream_mapping (
+    taskId BIGINT NOT NULL,
+    versionId BIGINT NOT NULL,
+    streamId BIGINT NOT NULL,
+    PRIMARY KEY (taskId, versionId, streamId),
+    FOREIGN KEY (taskId, versionId) REFERENCES topology_sink(id, versionId),
     FOREIGN KEY (streamId, versionId) REFERENCES topology_stream(id, versionId)
 );
 
@@ -572,6 +595,7 @@ CALL rename_table_if_exists('namespace_service_cluster_mapping','namespace_servi
 CALL rename_table_if_exists('tag_storable_mapping','tag_storable_map');
 CALL rename_table_if_exists('topology_source_stream_mapping','topology_source_stream_map');
 CALL rename_table_if_exists('topology_processor_stream_mapping','topology_processor_stream_map');
+CALL rename_table_if_exists('topology_task_stream_mapping','topology_task_stream_map');
 
 -- Rename all columns whose column name is greater than 30 characters
 

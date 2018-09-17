@@ -21,9 +21,10 @@ import com.hortonworks.streamline.registries.model.client.MLModelRegistryClient;
 import com.hortonworks.streamline.streams.catalog.Topology;
 import com.hortonworks.streamline.streams.catalog.TopologyComponent;
 import com.hortonworks.streamline.streams.catalog.TopologyEdge;
+import com.hortonworks.streamline.streams.catalog.TopologySource;
 import com.hortonworks.streamline.streams.catalog.TopologyProcessor;
 import com.hortonworks.streamline.streams.catalog.TopologySink;
-import com.hortonworks.streamline.streams.catalog.TopologySource;
+import com.hortonworks.streamline.streams.catalog.TopologyTask;
 import com.hortonworks.streamline.streams.catalog.service.StreamCatalogService;
 import com.hortonworks.streamline.streams.layout.component.TopologyDag;
 
@@ -45,6 +46,7 @@ public class TopologyDagBuilder {
             addSources(dag, topology);
             addProcessors(dag, topology);
             addSinks(dag, topology);
+            addTasks(dag, topology);
             addEdges(dag, topology);
             return dag;
         } catch (Exception ex) {
@@ -73,6 +75,12 @@ public class TopologyDagBuilder {
     private void addEdges(TopologyDag dag, Topology topology) throws Exception {
         for (TopologyEdge topologyEdge: catalogService.listTopologyEdges(queryParam(topology))) {
             dag.addEdge(factory.getStreamlineEdge(topologyEdge));
+        }
+    }
+
+    private void addTasks(TopologyDag dag, Topology topology) throws Exception {
+        for (TopologyTask topologyTask: catalogService.listTopologyTasks(queryParam(topology))) {
+            dag.add(factory.getStreamlineTask(topologyTask));
         }
     }
 

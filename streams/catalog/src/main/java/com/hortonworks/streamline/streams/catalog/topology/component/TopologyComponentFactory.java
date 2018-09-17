@@ -30,6 +30,7 @@ import com.hortonworks.streamline.streams.catalog.TopologySink;
 import com.hortonworks.streamline.streams.catalog.TopologySource;
 import com.hortonworks.streamline.streams.catalog.TopologyStream;
 import com.hortonworks.streamline.streams.catalog.TopologyWindow;
+import com.hortonworks.streamline.streams.catalog.TopologyTask;
 import com.hortonworks.streamline.streams.catalog.service.StreamCatalogService;
 import com.hortonworks.streamline.streams.catalog.topology.TopologyComponentBundle;
 import com.hortonworks.streamline.streams.layout.component.Edge;
@@ -38,9 +39,11 @@ import com.hortonworks.streamline.streams.layout.component.OutputComponent;
 import com.hortonworks.streamline.streams.layout.component.Stream;
 import com.hortonworks.streamline.streams.layout.component.StreamGrouping;
 import com.hortonworks.streamline.streams.layout.component.StreamlineComponent;
+import com.hortonworks.streamline.streams.layout.component.StreamlineTask;
 import com.hortonworks.streamline.streams.layout.component.StreamlineProcessor;
-import com.hortonworks.streamline.streams.layout.component.StreamlineSink;
 import com.hortonworks.streamline.streams.layout.component.StreamlineSource;
+import com.hortonworks.streamline.streams.layout.component.StreamlineSink;
+import com.hortonworks.streamline.streams.layout.component.impl.GenericTask;
 import com.hortonworks.streamline.streams.layout.component.impl.HBaseSink;
 import com.hortonworks.streamline.streams.layout.component.impl.HdfsSink;
 import com.hortonworks.streamline.streams.layout.component.impl.HdfsSource;
@@ -50,10 +53,10 @@ import com.hortonworks.streamline.streams.layout.component.impl.KafkaSource;
 import com.hortonworks.streamline.streams.layout.component.impl.MultiLangProcessor;
 import com.hortonworks.streamline.streams.layout.component.impl.NotificationSink;
 import com.hortonworks.streamline.streams.layout.component.impl.RulesProcessor;
+import com.hortonworks.streamline.streams.layout.component.impl.JoinProcessor;
 import com.hortonworks.streamline.streams.layout.component.impl.model.ModelProcessor;
 import com.hortonworks.streamline.streams.layout.component.impl.normalization.NormalizationConfig;
 import com.hortonworks.streamline.streams.layout.component.impl.normalization.NormalizationProcessor;
-import com.hortonworks.streamline.streams.layout.component.impl.JoinProcessor;
 import com.hortonworks.streamline.streams.layout.component.impl.splitjoin.SplitAction;
 import com.hortonworks.streamline.streams.layout.component.impl.splitjoin.SplitProcessor;
 import com.hortonworks.streamline.streams.layout.component.impl.splitjoin.StageAction;
@@ -84,6 +87,7 @@ import static com.hortonworks.streamline.common.ComponentTypes.RULE;
 import static com.hortonworks.streamline.common.ComponentTypes.SPLIT;
 import static com.hortonworks.streamline.common.ComponentTypes.STAGE;
 import static com.hortonworks.streamline.common.ComponentTypes.WINDOW;
+import static com.hortonworks.streamline.common.ComponentTypes.TASK;
 import static java.util.AbstractMap.SimpleImmutableEntry;
 
 /**
@@ -104,6 +108,7 @@ public class TopologyComponentFactory {
         builder.put(StreamlineSource.class, createSourceProviders());
         builder.put(StreamlineProcessor.class, createProcessorProviders());
         builder.put(StreamlineSink.class, createSinkProviders());
+        builder.put(StreamlineTask.class, createTaskProviders());
         providerMap = builder.build();
     }
 
@@ -123,6 +128,14 @@ public class TopologyComponentFactory {
 
     public StreamlineSink getStreamlineSink(TopologySink topologySink) {
         return getStreamlineComponent(StreamlineSink.class, topologySink);
+    }
+
+    public StreamlineTask getStreamlineTask(TopologyTask topologyTask) {
+        StreamlineTask task = getStreamlineComponent(StreamlineTask.class, topologyTask);
+        if (task.getOutputStreams() == null || task.getOutputStreams().isEmpty()) {
+            task.addOutputStreams(createOutputStreams(topologyTask));
+        }
+        return task;
     }
 
     public Edge getStreamlineEdge(TopologyEdge topologyEdge) {
@@ -170,13 +183,17 @@ public class TopologyComponentFactory {
     private OutputComponent getOutputComponent(TopologyEdge topologyEdge) {
         TopologySource topologySource;
         TopologyProcessor topologyProcessor;
+        TopologyTask topologyTask;
         if ((topologySource = catalogService.getTopologySource(topologyEdge.getTopologyId(), topologyEdge.getFromId(),
                 topologyEdge.getVersionId())) != null) {
             return getStreamlineSource(topologySource);
         } else if ((topologyProcessor = catalogService.getTopologyProcessor(topologyEdge.getTopologyId(), topologyEdge.getFromId(),
                 topologyEdge.getVersionId())) != null) {
             return getStreamlineProcessor(topologyProcessor);
-        } else {
+        } else if ((topologyTask = catalogService.getTopologyTask(topologyEdge.getTopologyId(), topologyEdge.getFromId(),
+                topologyEdge.getVersionId())) != null) {
+            return getStreamlineTask(topologyTask);
+        }else {
             throw new IllegalArgumentException("Invalid from id for edge " + topologyEdge);
         }
     }
@@ -184,12 +201,16 @@ public class TopologyComponentFactory {
     private InputComponent getInputComponent(TopologyEdge topologyEdge) {
         TopologySink topologySink;
         TopologyProcessor topologyProcessor;
+        TopologyTask topologyTask;
         if ((topologySink = catalogService.getTopologySink(topologyEdge.getTopologyId(), topologyEdge.getToId(),
                 topologyEdge.getVersionId())) != null) {
             return getStreamlineSink(topologySink);
         } else if ((topologyProcessor = catalogService.getTopologyProcessor(topologyEdge.getTopologyId(), topologyEdge.getToId(),
                 topologyEdge.getVersionId())) != null) {
             return getStreamlineProcessor(topologyProcessor);
+        } else if ((topologyTask = catalogService.getTopologyTask(topologyEdge.getTopologyId(), topologyEdge.getToId(),
+                topologyEdge.getVersionId())) != null) {
+            return getStreamlineTask(topologyTask);
         } else {
             throw new IllegalArgumentException("Invalid to id for edge " + topologyEdge);
         }
@@ -247,8 +268,15 @@ public class TopologyComponentFactory {
         return builder.build();
     }
 
+    private Map<String, Provider<StreamlineTask>> createTaskProviders() {
+        ImmutableMap.Builder<String, Provider<StreamlineTask>> builder = ImmutableMap.builder();
+        builder.put(genericTaskProvider());
+        return builder.build();
+    }
+
     private Set<Stream> createOutputStreams(TopologyOutputComponent outputComponent) {
         Set<Stream> outputStreams = new HashSet<>();
+        if (outputComponent.getOutputStreamIds() == null) return outputStreams;
         for (Long id : outputComponent.getOutputStreamIds()) {
             outputStreams.add(getStream(catalogService.getStreamInfo(outputComponent.getTopologyId(), id, outputComponent.getVersionId())));
         }
@@ -278,6 +306,22 @@ public class TopologyComponentFactory {
         T create(TopologyComponent component);
     }
 
+    private Map.Entry<String, Provider<StreamlineTask>> genericTaskProvider() {
+        Provider<StreamlineTask> provider = new Provider<StreamlineTask>() {
+            @Override
+            public StreamlineTask create(TopologyComponent component) {
+                Set<Stream> outputStreams;
+                if (component instanceof TopologyOutputComponent) {
+                    outputStreams = createOutputStreams((TopologyOutputComponent) component);
+                } else {
+                    throw new IllegalArgumentException("Component " + component + " must be an instance of TopologyOutputComponent");
+                }
+                return new GenericTask(outputStreams.iterator().next());
+            }
+        };
+        return new SimpleImmutableEntry<>("HIVE", provider);
+    }
+
     private Map.Entry<String, Provider<StreamlineSource>> kafkaSourceProvider() {
         Provider<StreamlineSource> provider = new Provider<StreamlineSource>() {
             @Override
@@ -292,6 +336,7 @@ public class TopologyComponentFactory {
         Provider<StreamlineSource> provider = new Provider<StreamlineSource>() {
             @Override
             public StreamlineSource create(TopologyComponent component) {
+
                 return new HdfsSource();
             }
         };

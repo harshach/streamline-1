@@ -54,34 +54,40 @@ import com.hortonworks.streamline.storage.exception.StorageException;
 import com.hortonworks.streamline.storage.search.SearchQuery;
 import com.hortonworks.streamline.storage.util.StorageUtils;
 import com.hortonworks.streamline.streams.StreamlineEvent;
-import com.hortonworks.streamline.streams.catalog.BaseTopologyRule;
 import com.hortonworks.streamline.streams.catalog.Engine;
-import com.hortonworks.streamline.streams.catalog.File;
-import com.hortonworks.streamline.streams.catalog.Notifier;
-import com.hortonworks.streamline.streams.catalog.Project;
-import com.hortonworks.streamline.streams.catalog.Projection;
 import com.hortonworks.streamline.streams.catalog.Template;
+import com.hortonworks.streamline.streams.catalog.Project;
 import com.hortonworks.streamline.streams.catalog.Topology;
-import com.hortonworks.streamline.streams.catalog.TopologyBranchRule;
+import com.hortonworks.streamline.streams.catalog.TopologyVersion;
 import com.hortonworks.streamline.streams.catalog.TopologyComponent;
+import com.hortonworks.streamline.streams.catalog.TopologyStream;
+import com.hortonworks.streamline.streams.catalog.TopologySource;
+import com.hortonworks.streamline.streams.catalog.TopologyProcessor;
+import com.hortonworks.streamline.streams.catalog.TopologyTask;
+import com.hortonworks.streamline.streams.catalog.TopologySink;
 import com.hortonworks.streamline.streams.catalog.TopologyEdge;
+import com.hortonworks.streamline.streams.catalog.TopologySourceStreamMap;
+import com.hortonworks.streamline.streams.catalog.TopologyProcessorStreamMap;
+import com.hortonworks.streamline.streams.catalog.TopologyTaskStreamMap;
+import com.hortonworks.streamline.streams.catalog.TopologyRule;
+import com.hortonworks.streamline.streams.catalog.TopologyBranchRule;
+import com.hortonworks.streamline.streams.catalog.TopologyWindow;
+import com.hortonworks.streamline.streams.catalog.UDF;
+import com.hortonworks.streamline.streams.catalog.Projection;
+import com.hortonworks.streamline.streams.catalog.File;
+import com.hortonworks.streamline.streams.catalog.BaseTopologyRule;
+import com.hortonworks.streamline.streams.catalog.TopologyTestRunCase;
+import com.hortonworks.streamline.streams.catalog.TopologyTestRunHistory;
+import com.hortonworks.streamline.streams.catalog.TopologyTestRunCaseSink;
+import com.hortonworks.streamline.streams.catalog.TopologyTestRunCaseSource;
 import com.hortonworks.streamline.streams.catalog.TopologyEditorMetadata;
 import com.hortonworks.streamline.streams.catalog.TopologyEditorToolbar;
 import com.hortonworks.streamline.streams.catalog.TopologyOutputComponent;
-import com.hortonworks.streamline.streams.catalog.TopologyProcessor;
-import com.hortonworks.streamline.streams.catalog.TopologyProcessorStreamMap;
-import com.hortonworks.streamline.streams.catalog.TopologyRule;
-import com.hortonworks.streamline.streams.catalog.TopologySink;
-import com.hortonworks.streamline.streams.catalog.TopologySource;
-import com.hortonworks.streamline.streams.catalog.TopologySourceStreamMap;
-import com.hortonworks.streamline.streams.catalog.TopologyStream;
-import com.hortonworks.streamline.streams.catalog.TopologyTestRunCase;
-import com.hortonworks.streamline.streams.catalog.TopologyTestRunCaseSink;
-import com.hortonworks.streamline.streams.catalog.TopologyTestRunCaseSource;
-import com.hortonworks.streamline.streams.catalog.TopologyTestRunHistory;
-import com.hortonworks.streamline.streams.catalog.TopologyVersion;
-import com.hortonworks.streamline.streams.catalog.TopologyWindow;
-import com.hortonworks.streamline.streams.catalog.UDF;
+
+
+import com.hortonworks.streamline.streams.catalog.Notifier;
+
+
 import com.hortonworks.streamline.streams.catalog.processor.CustomProcessorInfo;
 import com.hortonworks.streamline.streams.catalog.rule.RuleParser;
 import com.hortonworks.streamline.streams.catalog.topology.TopologyComponentBundle;
@@ -156,6 +162,8 @@ public class StreamCatalogService {
     private static final String TOPOLOGY_SOURCE_NAMESPACE = new TopologySource().getNameSpace();
     private static final String TOPOLOGY_SOURCE_STREAM_MAPPING_NAMESPACE = new TopologySourceStreamMap().getNameSpace();
     private static final String TOPOLOGY_SINK_NAMESPACE = new TopologySink().getNameSpace();
+    private static final String TOPOLOGY_TASK_NAMESPACE = new TopologyTask().getNameSpace();
+    private static final String TOPOLOGY_TASK_STREAM_MAPPING_NAMESPACE = new TopologyTaskStreamMap().getNameSpace();
     private static final String TOPOLOGY_PROCESSOR_NAMESPACE = new TopologyProcessor().getNameSpace();
     private static final String TOPOLOGY_PROCESSOR_STREAM_MAPPING_NAMESPACE = new TopologyProcessorStreamMap().getNameSpace();
     private static final String TOPOLOGY_EDGE_NAMESPACE = new TopologyEdge().getNameSpace();
@@ -1360,6 +1368,13 @@ public class StreamCatalogService {
                         TopologySource.NAME, topologySource.getName()));
     }
 
+    private void validateTopologyTask(TopologyTask topologyTask) {
+        StorageUtils.ensureUnique(topologyTask, this::listTopologyTasks,
+                QueryParam.params(TopologyTask.TOPOLOGYID, topologyTask.getTopologyId().toString(),
+                        TopologyProcessor.VERSIONID, topologyTask.getVersionId().toString(),
+                        TopologyProcessor.NAME, topologyTask.getName()));
+    }
+
     private void validateTopologySink(TopologySink topologySink) {
         StorageUtils.ensureUnique(topologySink, this::listTopologySinks,
                 QueryParam.params(TopologySink.TOPOLOGYID, topologySink.getTopologyId().toString(),
@@ -1585,11 +1600,7 @@ public class StreamCatalogService {
     }
 
     private Collection<TopologySourceStreamMap> listTopologySourceStreamMapping(List<QueryParam> params) {
-        try {
-            return dao.find(TOPOLOGY_SOURCE_STREAM_MAPPING_NAMESPACE, params);
-        } catch (Exception ex) {
-            throw new RuntimeException(ex);
-        }
+        return dao.find(TOPOLOGY_SOURCE_STREAM_MAPPING_NAMESPACE, params);
     }
 
     private void fillProcessorStreams(TopologyProcessor processor) {
@@ -1603,13 +1614,7 @@ public class StreamCatalogService {
             for (TopologyProcessor processor : processors) {
                 List<TopologyStream> topologyStreams = getOutputStreams(processor);
                 processor.setOutputStreams(topologyStreams);
-                processor.setOutputStreamIds(new ArrayList<>(Collections2.transform(topologyStreams, new Function<TopologyStream, Long>() {
-                    @Nullable
-                    @Override
-                    public Long apply(@Nullable TopologyStream input) {
-                        return input.getId();
-                    }
-                })));
+                processor.setOutputStreamIds(topologyStreams.stream().map(TopologyStream::getId).collect(Collectors.toList()));
             }
         }
         return processors;
@@ -1643,16 +1648,28 @@ public class StreamCatalogService {
             for (TopologySource source : sources) {
                 List<TopologyStream> topologyStreams = getOutputStreams(source);
                 source.setOutputStreams(topologyStreams);
-                source.setOutputStreamIds(new ArrayList<>(Collections2.transform(topologyStreams, new Function<TopologyStream, Long>() {
-                    @Nullable
-                    @Override
-                    public Long apply(@Nullable TopologyStream input) {
-                        return input.getId();
-                    }
-                })));
+                source.setOutputStreamIds(topologyStreams.stream().map(TopologyStream::getId).collect(Collectors.toList()));
             }
         }
         return sources;
+    }
+
+
+    private void fillTaskStreams(TopologyTask task) {
+        if (task != null) {
+            fillTaskStreams(Collections.singletonList(task));
+        }
+    }
+
+    private Collection<TopologyTask> fillTaskStreams(Collection<TopologyTask> tasks) {
+        if (tasks != null) {
+            for (TopologyTask task : tasks) {
+                List<TopologyStream> topologyStreams = getOutputStreams(task);
+                task.setOutputStreams(topologyStreams);
+                task.setOutputStreamIds(topologyStreams.stream().map(TopologyStream::getId).collect(Collectors.toList()));
+            }
+        }
+        return tasks;
     }
 
     private List<TopologyStream> getOutputStreams(TopologySource topologySource) {
@@ -1664,6 +1681,23 @@ public class StreamCatalogService {
                     String.valueOf(topologySource.getVersionId()));
             for (TopologySourceStreamMap mapping : listTopologySourceStreamMapping(ImmutableList.of(qp1, qp2))) {
                 TopologyStream topologyStream = getStreamInfo(topologySource.getTopologyId(), mapping.getStreamId(), topologySource.getVersionId());
+                if (topologyStream != null) {
+                    streams.add(topologyStream);
+                }
+            }
+        }
+        return streams;
+    }
+
+    private List<TopologyStream> getOutputStreams(TopologyTask topologyTask) {
+        List<TopologyStream> streams = new ArrayList<>();
+        if (topologyTask != null) {
+            QueryParam qp1 = new QueryParam(TopologyTaskStreamMap.FIELD_TASK_ID,
+                    String.valueOf(topologyTask.getId()));
+            QueryParam qp2 = new QueryParam(TopologyTaskStreamMap.FIELD_VERSION_ID,
+                    String.valueOf(topologyTask.getVersionId()));
+            for (TopologyTaskStreamMap mapping : listTopologyTaskStreamMapping(ImmutableList.of(qp1, qp2))) {
+                TopologyStream topologyStream = getStreamInfo(topologyTask.getTopologyId(), mapping.getStreamId(), topologyTask.getVersionId());
                 if (topologyStream != null) {
                     streams.add(topologyStream);
                 }
@@ -1743,12 +1777,143 @@ public class StreamCatalogService {
         }
     }
 
+
     public Collection<TopologySink> listTopologySinks() {
         return dao.list(TOPOLOGY_SINK_NAMESPACE);
     }
 
     public Collection<TopologySink> listTopologySinks(List<QueryParam> params) {
         return dao.find(TOPOLOGY_SINK_NAMESPACE, params);
+    }
+
+
+    public Collection<TopologyTask> listTopologyTasks() { return fillTaskStreams(dao.list(TOPOLOGY_TASK_NAMESPACE)); }
+
+    public Collection<TopologyTask> listTopologyTasks(List<QueryParam> params)  {
+        return fillTaskStreams(dao.find(TOPOLOGY_TASK_NAMESPACE, params));
+    }
+
+    /**
+     * returns the 'CURRENT' version of the source with given source Id
+     */
+    public TopologyTask getTopologyTask(Long topologyId, Long taskId) {
+        return getTopologyTask(topologyId, taskId, getCurrentVersionId(topologyId));
+    }
+
+    public TopologyTask getTopologyTask(Long topologyId, Long taskId, Long versionId) {
+        TopologyTask topologyTask = new TopologyTask();
+        topologyTask.setId(taskId);
+        topologyTask.setVersionId(versionId);
+        TopologyTask task = dao.get(new StorableKey(TOPOLOGY_TASK_NAMESPACE, topologyTask.getPrimaryKey()));
+        if (task == null || !task.getTopologyId().equals(topologyId)) {
+            return null;
+        }
+        fillTaskStreams(task);
+        return task;
+    }
+
+    public TopologyTask addTopologyTask(Long topologyId, TopologyTask topologyTask) {
+        return addTopologyTask(topologyId, getCurrentVersionId(topologyId), topologyTask);
+    }
+
+    public TopologyTask addTopologyTask(Long topologyId,
+                                                  Long versionId,
+                                                  TopologyTask topologyTask) {
+        if (topologyTask.getId() == null) {
+            topologyTask.setId(getNextTopologyComponentId());
+        }
+        topologyTask.setVersionId(versionId);
+        topologyTask.setTopologyId(topologyId);
+        validateTopologyTask(topologyTask);
+        List<TopologyStream> topologyStreams = addTopologyOutputComponent(topologyTask);
+        topologyTask.setOutputStreams(topologyStreams);
+        topologyTask.setVersionTimestamp(updateVersionTimestamp(versionId).getTimestamp());
+        return topologyTask;
+    }
+
+    public TopologyTask addOrUpdateTopologyTask(Long topologyId, Long id, TopologyTask topologyTask) {
+        Long currentTopologyVersionId = getCurrentVersionId(topologyId);
+        topologyTask.setId(id);
+        topologyTask.setVersionId(currentTopologyVersionId);
+        topologyTask.setTopologyId(topologyId);
+        validateTopologyTask(topologyTask);
+        topologyTask.setReconfigure(false);
+        dao.addOrUpdate(topologyTask);
+        List<Long> newList = Collections.emptyList();
+        if (topologyTask.getOutputStreamIds() != null) {
+            newList = topologyTask.getOutputStreamIds();
+        } else if (topologyTask.getOutputStreams() != null) {
+            newList = updateOutputStreams(topologyTask);
+        }
+        List<Long> existing = getOutputStreamIds(topologyTask);
+        Sets.SetView<Long> streamIdsToRemove = Sets.difference(ImmutableSet.copyOf(existing), ImmutableSet.copyOf(newList));
+        Sets.SetView<Long> streamIdsToAdd = Sets.difference(ImmutableSet.copyOf(newList), ImmutableSet.copyOf(existing));
+        removeTaskStreamMapping(topologyTask, Lists.newArrayList(streamIdsToRemove));
+        addTaskStreamMapping(topologyTask, Lists.newArrayList(streamIdsToAdd));
+        TopologyTask updatedTask = getTopologyTask(topologyId, id, currentTopologyVersionId);
+        updatedTask.setVersionTimestamp(updateVersionTimestamp(currentTopologyVersionId).getTimestamp());
+        return topologyTask;
+    }
+
+    public TopologyTask removeTopologyTask(Long topologyId, Long taskId, boolean removeEdges) {
+        return removeTopologyTask(topologyId, taskId, getCurrentVersionId(topologyId), removeEdges);
+    }
+
+    public TopologyTask removeTopologyTask(Long topologyId, Long taskId, Long versionId, boolean removeEdges) {
+        TopologyTask topologyTask = getTopologyTask(topologyId, taskId, versionId);
+        if (topologyTask != null) {
+            if (removeEdges) {
+                removeAllEdges(topologyTask);
+            }
+            removeTaskStreamMapping(topologyTask);
+            topologyTask = dao.<TopologyTask>remove(new StorableKey(TOPOLOGY_TASK_NAMESPACE, topologyTask.getPrimaryKey()));
+            topologyTask.setVersionTimestamp(updateVersionTimestamp(versionId).getTimestamp());
+        }
+        return topologyTask;
+    }
+
+
+    private void addTaskStreamMapping(TopologyTask topologyTask, List<Long> streamIds) {
+        for (Long outputStreamId : streamIds) {
+            dao.<TopologyTaskStreamMap>add(new TopologyTaskStreamMap(topologyTask.getId(),
+                    topologyTask.getVersionId(),
+                    outputStreamId));
+        }
+    }
+
+    private void removeTaskStreamMapping(TopologyTask topologyTask) {
+        if (topologyTask != null) {
+            removeTaskStreamMapping(topologyTask, topologyTask.getOutputStreamIds());
+        }
+    }
+
+    private void removeTaskStreamMapping(TopologyTask topologyTask, List<Long> streamIds) {
+        if (topologyTask != null) {
+            for (Long outputStreamId : streamIds) {
+                TopologyTaskStreamMap mapping = new TopologyTaskStreamMap(topologyTask.getId(),
+                        topologyTask.getVersionId(),
+                        outputStreamId);
+                dao.<TopologyTaskStreamMap>remove(mapping.getStorableKey());
+            }
+        }
+    }
+
+    private List<Long> getOutputStreamIds(TopologyTask topologyTask) {
+        List<Long> streamIds = new ArrayList<>();
+        if (topologyTask != null) {
+            QueryParam qp1 = new QueryParam(TopologyTaskStreamMap.FIELD_TASK_ID,
+                    String.valueOf(topologyTask.getId()));
+            QueryParam qp2 = new QueryParam(TopologyProcessorStreamMap.FIELD_VERSION_ID,
+                    String.valueOf(topologyTask.getVersionId()));
+            for (TopologyTaskStreamMap mapping : listTopologyTaskStreamMapping(ImmutableList.of(qp1, qp2))) {
+                streamIds.add(mapping.getStreamId());
+            }
+        }
+        return streamIds;
+    }
+
+    private Collection<TopologyTaskStreamMap> listTopologyTaskStreamMapping(List<QueryParam> params) {
+        return dao.find(TOPOLOGY_TASK_STREAM_MAPPING_NAMESPACE, params);
     }
 
     public TopologyProcessor getTopologyProcessor(Long topologyId, Long processorId) {
@@ -1937,15 +2102,28 @@ public class StreamCatalogService {
     }
 
     private TopologyOutputComponent getFrom(TopologyEdge edge) {
-        TopologySource source = getTopologySource(edge.getTopologyId(), edge.getFromId(), edge.getVersionId());
-        TopologyProcessor processor = getTopologyProcessor(edge.getTopologyId(), edge.getFromId(), edge.getVersionId());
-        return processor != null ? processor : source;
+        TopologyProcessor processor;
+        TopologyTask task;
+        TopologySource source;
+        if ((processor = getTopologyProcessor(edge.getTopologyId(), edge.getFromId(), edge.getVersionId())) != null)
+            return processor;
+        if ((task = getTopologyTask(edge.getTopologyId(), edge.getFromId(), edge.getVersionId())) != null)
+            return task;
+        source = getTopologySource(edge.getTopologyId(), edge.getFromId(), edge.getVersionId());
+        return source;
     }
 
     private TopologyComponent getTo(TopologyEdge edge) {
-        TopologyProcessor processor = getTopologyProcessor(edge.getTopologyId(), edge.getToId(), edge.getVersionId());
-        TopologySink sink = getTopologySink(edge.getTopologyId(), edge.getToId(), edge.getVersionId());
-        return processor != null ? processor : sink;
+        TopologyProcessor processor;
+        TopologyTask task;
+        TopologySink sink;
+
+        if ((processor = getTopologyProcessor(edge.getTopologyId(), edge.getToId(), edge.getVersionId())) != null)
+            return processor;
+         if ((task = getTopologyTask(edge.getTopologyId(), edge.getToId(), edge.getVersionId())) != null)
+            return task;
+        sink = getTopologySink(edge.getTopologyId(), edge.getToId(), edge.getVersionId());
+        return sink;
     }
 
     private Set<TopologyEdge> getEdgesFrom(TopologyOutputComponent component) {

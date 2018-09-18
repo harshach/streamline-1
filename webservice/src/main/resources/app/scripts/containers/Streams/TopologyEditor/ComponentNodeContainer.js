@@ -38,8 +38,6 @@ function collect(connect, monitor) {
   return {connectDragSource: connect.dragSource(), isDragging: monitor.isDragging()};
 }
 
-@DragSource(ItemTypes.ComponentNodes, nodeSource, collect)
-@observer
 export default class ComponentNodeContainer extends Component {
   static propTypes = {
     connectDragSource: PropTypes.func.isRequired,
@@ -52,31 +50,12 @@ export default class ComponentNodeContainer extends Component {
 
   constructor(props) {
     super(props);
-    let {bundleArr} = this.props;
-    if (!bundleArr) {
-      bundleArr = {
-        sourceBundle: [],
-        processorsBundle: [],
-        sinksBundle: []
-      };
-    }
-    //Sorting the components by name
-    var sortedDS = Utils.sortArray(bundleArr.sourceBundle, 'name', true);
-    var sortedProcessors = Utils.sortArray(bundleArr.processorsBundle, 'name', true);
-    var sortedSinks = Utils.sortArray(bundleArr.sinksBundle, 'name', true);
 
     this.state = {
-      datasources: sortedDS,
-      processors: sortedProcessors,
-      sinks: sortedSinks,
       editToolbar: false,
-      toolbar: {
-        sources: sortedDS.map((d) => { return {bundleId: d.id}; }),
-        processors: sortedProcessors.map((d) => { return {bundleId: d.id}; }),
-        sinks: sortedSinks.map((d) => { return {bundleId: d.id}; })
-      },
       invalidName: false,
-      userId: null
+      userId: null,
+      ...this.getInitialState(props)
     };
     this.fetchData();
   }
@@ -94,33 +73,6 @@ export default class ComponentNodeContainer extends Component {
           this.syncComponentToolbarData(JSON.parse(result.data), result.userId);
         }
       });
-  }
-
-  //Get all the component's id and sync up with the ones in the application
-  //Add new components (eg: Custom Processor) if not already present in the
-  //component toolbar data
-  syncComponentToolbarData(data, userId) {
-    let hasNewComponent = false;
-
-    let sourceBundlesId = this.getComponentIdArr(data.sources);
-    let processorsBundlesId = this.getComponentIdArr(data.processors);
-    let sinksBundlesId = this.getComponentIdArr(data.sinks);
-
-    let newSourceAdded = this.isNewComponentAdded(this.state.datasources, sourceBundlesId, data.sources);
-    let sourceDeleted = this.isComponentDeleted(this.state.datasources, sourceBundlesId, data.sources);
-    let newProcessorAdded = this.isNewComponentAdded(this.state.processors, processorsBundlesId, data.processors);
-    let processorDeleted = this.isComponentDeleted(this.state.processors, processorsBundlesId, data.processors);
-    let newSinkAdded = this.isNewComponentAdded(this.state.sinks, sinksBundlesId, data.sinks);
-    let sinkDeleted = this.isComponentDeleted(this.state.sinks, sinksBundlesId, data.sinks);
-
-    if(newSourceAdded || sourceDeleted || newProcessorAdded || processorDeleted || newSinkAdded || sinkDeleted) {
-      TopologyREST.putTopologyEditorToolbar({body: JSON.stringify({data: JSON.stringify(data), userId: userId})})
-      .then((resultData)=>{
-        this.setState({toolbar: JSON.parse(resultData.data), userId: userId});
-      });
-    } else {
-      this.setState({toolbar: data, userId: userId});
-    }
   }
 
   //Utility to get every component's Bundle Id
@@ -261,6 +213,10 @@ export default class ComponentNodeContainer extends Component {
       entityTypeArr = this.state.sinks;
       defaultImagePath = 'styles/img/icon-sink.png';
       break;
+    case 'tasks':
+      entityTypeArr = this.state.tasks;
+      defaultImagePath = 'styles/img/icon-task.png';
+      break;
     }
 
     if(!editToolbar){
@@ -336,6 +292,9 @@ export default class ComponentNodeContainer extends Component {
       ;
     }
   }
+  getComponents(){
+    return null;
+  }
   render() {
     const {hideSourceOnDrag, left, top, isDragging,testRunActivated,testCaseList,selectedTestObj,testRunningMode} = this.props;
     if (isDragging && hideSourceOnDrag) {
@@ -367,24 +326,7 @@ export default class ComponentNodeContainer extends Component {
               }}>
                 <Scrollbars autoHide autoHeightMin={452} renderThumbHorizontal= { props => <div style = { { display: "none" } } />}>
                   <div className="inner-panel">
-                    <h6 className="component-title">
-                      Source
-                    </h6>
-                    <ul className="component-list" key="source-ul">
-                      {this.getNodeContainer("sources")}
-                    </ul>
-                    <h6 className="component-title">
-                      Processor
-                    </h6>
-                    <ul className="component-list" key="processor-ul">
-                      {this.getNodeContainer("processors")}
-                    </ul>
-                    <h6 className="component-title">
-                      Sink
-                    </h6>
-                    <ul className="component-list" key="sink-ul">
-                      {this.getNodeContainer("sinks")}
-                    </ul>
+                    {this.getComponents()}
                   </div>
                 </Scrollbars>
               </div>
@@ -410,4 +352,140 @@ export default class ComponentNodeContainer extends Component {
       </div>
     );
   }
+}
+
+var getSourceProcessorSink = function(){
+  return [<h6 className="component-title">
+      Source
+    </h6>,
+    <ul className="component-list" key="source-ul">
+      {this.getNodeContainer("sources")}
+    </ul>,
+    <h6 className="component-title">
+      Processor
+    </h6>,
+    <ul className="component-list" key="processor-ul">
+      {this.getNodeContainer("processors")}
+    </ul>,
+    <h6 className="component-title">
+      Sink
+    </h6>,
+    <ul className="component-list" key="sink-ul">
+      {this.getNodeContainer("sinks")}
+    </ul>];
+};
+
+class SPSComponentNodeContainer extends ComponentNodeContainer{
+  getComponents(){
+    return getSourceProcessorSink.call(this, arguments);
+  }
+  getInitialState(props){
+    let {bundleArr} = this.props;
+    if (!bundleArr) {
+      bundleArr = {
+        sourceBundle: [],
+        processorsBundle: [],
+        sinksBundle: []
+      };
+    }
+    //Sorting the components by name
+    var sortedDS = Utils.sortArray(bundleArr.sourceBundle, 'name', true);
+    var sortedProcessors = Utils.sortArray(bundleArr.processorsBundle, 'name', true);
+    var sortedSinks = Utils.sortArray(bundleArr.sinksBundle, 'name', true);
+
+    return {
+      datasources: sortedDS,
+      processors: sortedProcessors,
+      sinks: sortedSinks,
+      toolbar: {
+        sources: sortedDS.map((d) => { return {bundleId: d.id}; }),
+        processors: sortedProcessors.map((d) => { return {bundleId: d.id}; }),
+        sinks: sortedSinks.map((d) => { return {bundleId: d.id}; })
+      }
+    };
+  }
+
+  //Get all the component's id and sync up with the ones in the application
+  //Add new components (eg: Custom Processor) if not already present in the
+  //component toolbar data
+  syncComponentToolbarData(data, userId) {
+    let hasNewComponent = false;
+
+    let sourceBundlesId = this.getComponentIdArr(data.sources);
+    let processorsBundlesId = this.getComponentIdArr(data.processors);
+    let sinksBundlesId = this.getComponentIdArr(data.sinks);
+
+    let newSourceAdded = this.isNewComponentAdded(this.state.datasources, sourceBundlesId, data.sources);
+    let sourceDeleted = this.isComponentDeleted(this.state.datasources, sourceBundlesId, data.sources);
+    let newProcessorAdded = this.isNewComponentAdded(this.state.processors, processorsBundlesId, data.processors);
+    let processorDeleted = this.isComponentDeleted(this.state.processors, processorsBundlesId, data.processors);
+    let newSinkAdded = this.isNewComponentAdded(this.state.sinks, sinksBundlesId, data.sinks);
+    let sinkDeleted = this.isComponentDeleted(this.state.sinks, sinksBundlesId, data.sinks);
+
+    if(newSourceAdded || sourceDeleted || newProcessorAdded || processorDeleted || newSinkAdded || sinkDeleted) {
+      TopologyREST.putTopologyEditorToolbar({body: JSON.stringify({data: JSON.stringify(data), userId: userId})})
+      .then((resultData)=>{
+        this.setState({toolbar: JSON.parse(resultData.data), userId: userId});
+      });
+    } else {
+      this.setState({toolbar: data, userId: userId});
+    }
+  }
+}
+
+@DragSource(ItemTypes.ComponentNodes, nodeSource, collect)
+@observer
+export class StormComponentNodeContainer extends SPSComponentNodeContainer{}
+
+@DragSource(ItemTypes.ComponentNodes, nodeSource, collect)
+@observer
+export class PiperComponentNodeContainer extends ComponentNodeContainer{
+  getComponents(){
+    return [<h6 className="component-title">
+        Tasks
+      </h6>,
+      <ul className="component-list" key="source-ul">
+        {this.getNodeContainer("tasks")}
+      </ul>];
+  }
+  getInitialState(props){
+    let {bundleArr} = this.props;
+    var sortedTasks = Utils.sortArray(bundleArr.tasks, 'name', true);
+    return {
+      tasks: sortedTasks,
+      toolbar: {
+        tasks: sortedTasks.map((d) => { return {bundleId: d.id}; })
+      }
+    };
+  }
+
+  //Get all the components id and sync up with the ones in the application
+  //Add new components (eg: Custom Processor) if not already present in the
+  //component toolbar data
+  syncComponentToolbarData(data, userId) {
+    if(data.sources){
+      data = {tasks: []};
+    }
+    let hasNewComponent = false;
+
+    let tasksBundlesId = this.getComponentIdArr(data.tasks || []);
+
+    let newTasksAdded = this.isNewComponentAdded(this.state.tasks, tasksBundlesId, data.tasks);
+    let tasksDeleted = this.isComponentDeleted(this.state.tasks, tasksBundlesId, data.tasks);
+
+    if(newTasksAdded || tasksDeleted) {
+      TopologyREST.putTopologyEditorToolbar({body: JSON.stringify({data: JSON.stringify(data), userId: userId})})
+      .then((resultData)=>{
+        this.setState({toolbar: JSON.parse(resultData.data), userId: userId});
+      });
+    } else {
+      this.setState({toolbar: data, userId: userId});
+    }
+  }
+}
+
+@DragSource(ItemTypes.ComponentNodes, nodeSource, collect)
+@observer
+export class AthenaXComponentNodeContainer extends StormComponentNodeContainer{
+
 }

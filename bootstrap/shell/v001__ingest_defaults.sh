@@ -167,7 +167,7 @@ function add_all_bundles {
     add_topology_component_bundle /streams/componentbundles/SINK ${storm_dir}/components/sinks/hive-sink-topology-component.json
     # === Topology ===
     add_topology_component_bundle /streams/componentbundles/TOPOLOGY ${storm_dir}/topology/storm-topology-component.json
-
+    add_topology_component_bundle /streams/componentbundles/TOPOLOGY ${piper_dir}/topology/piper-topology-component.json
     #add_topology_component_bundle /streams/componentbundles/PROCESSOR ${storm_dir}/components/processors/split-topology-component
     #add_topology_component_bundle /streams/componentbundles/PROCESSOR ${storm_dir}/components/processors/normalization-processor-topology-component.json
     #add_topology_component_bundle /streams/componentbundles/PROCESSOR ${storm_dir}/components/processors/multilang-topology-component.json

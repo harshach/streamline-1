@@ -21,13 +21,14 @@ import com.hortonworks.streamline.common.exception.WrappedWebApplicationExceptio
 
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.client.Entity;
+import javax.ws.rs.client.Invocation;
 import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.MultivaluedMap;
-import javax.ws.rs.core.Response;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 public class JsonClientUtil {
 
@@ -121,5 +122,20 @@ public class JsonClientUtil {
 
     public static <T> T postEntity(WebTarget target, Object entity, MediaType mediaType, Class<T> clazz) {
         return target.request(mediaType).post(Entity.json(entity), clazz);
+    }
+
+    public static <T> T postEntityWithHeaders(WebTarget target, Map<String, String> headers, Object entity, MediaType mediaType, Class<T> clazz) {
+        Invocation.Builder builder = target.request();
+        for ( Map.Entry<String, String> entry : headers.entrySet()) {
+            builder.header(entry.getKey(), entry.getValue());
+        }
+        builder.accept(mediaType);
+
+        return builder.post(Entity.json(entity), clazz);
+    }
+
+    public static Object convertRequestToJson(Object request) throws Exception {
+        ObjectMapper mapper = new ObjectMapper();
+        return mapper.writeValueAsString(request);
     }
 }

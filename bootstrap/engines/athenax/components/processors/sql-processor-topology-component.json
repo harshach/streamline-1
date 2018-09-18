@@ -1,0 +1,30 @@
+{
+  "type": "PROCESSOR",
+  "name": "sql processor",
+  "subType": "SQL",
+  "builtin": true,
+  "engine": "ATHENAX",
+  "template": ["Blank"],
+  "input": true,
+  "output": true,
+  "transformationClass": "dummy",
+  "topologyComponentUISpecification": {
+    "fields": [
+      {
+        "uiName": "Types",
+        "fieldName": "types",
+        "isOptional": false,
+        "tooltip": "sql statement",
+        "type": "SQL"
+      },
+      {
+        "uiName": "Parallelism",
+        "fieldName": "parallelism",
+        "isOptional": true,
+        "tooltip": "Parallelism hint for sql processing",
+        "type": "number",
+        "defaultValue": 1
+      }
+    ]
+  }
+}

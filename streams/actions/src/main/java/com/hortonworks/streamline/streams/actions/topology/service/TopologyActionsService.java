@@ -132,8 +132,9 @@ public class TopologyActionsService implements ContainingNamespaceAwareContainer
     }
 
     public TopologyActions.Status topologyStatus(Topology topology, String asUser) throws Exception {
+        String applicationId =  this.getRuntimeTopologyId(topology, asUser);
         TopologyActions topologyActions = getTopologyActionsInstance(topology);
-        return topologyActions.status(CatalogToLayoutConverter.getTopologyLayout(topology), asUser);
+        return topologyActions.status(CatalogToLayoutConverter.getTopologyLayout(topology), applicationId, asUser);
     }
 
     public String getRuntimeTopologyId(Topology topology, String asUser) throws IOException {

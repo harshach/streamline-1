@@ -141,26 +141,28 @@ public class DefaultTopologyStateMachine implements TopologyStateMachine {
             if (dag == null) {
                 throw new IllegalStateException("Topology dag not set up");
             }
+
+            String applicationId = null;
             try {
                 context.setCurrentAction("Submitting topology to streaming engine");
                 String mavenArtifacts = context.getMavenArtifacts();
-                String applicationId = topologyActions.deploy(layout, mavenArtifacts, context, context.getAsUser());
+                applicationId = topologyActions.deploy(layout, mavenArtifacts, context, context.getAsUser());
                 context.storeRuntimeApplicationId(applicationId);
                 context.setState(deployedState());
                 context.setCurrentAction("Topology deployed");
             } catch (Exception ex) {
                 LOG.error("Error while trying to deploy the topology in the streaming engine", ex);
                 LOG.error("Trying to kill any running instance of topology '{}'", context.getTopology().getName());
-                killTopologyIfRunning(context, layout);
+                killTopologyIfRunning(context, applicationId, layout);
                 context.setState(deploymentFailedState());
                 context.setCurrentAction("Topology submission failed due to: " + ex);
                 throw new IgnoreTransactionRollbackException(ex);
             }
         }
 
-        private void killTopologyIfRunning(TopologyContext context, TopologyLayout layout) {
+        private void killTopologyIfRunning(TopologyContext context, String applicationId, TopologyLayout layout) {
             try {
-                TopologyActions.Status engineStatus = context.getTopologyActions().status(layout, context.getAsUser());
+                TopologyActions.Status engineStatus = context.getTopologyActions().status(layout, applicationId, context.getAsUser());
                 if (!engineStatus.getStatus().equals(TopologyActions.Status.STATUS_UNKNOWN)) {
                     invokeKill(context);
                 }
@@ -265,9 +267,12 @@ public class DefaultTopologyStateMachine implements TopologyStateMachine {
 
     private static void invokeKill(TopologyContext context) throws Exception {
         Topology topology = context.getTopology();
+        String runAsUser = context.getAsUser();
+        String applicationId = context.getTopologyActionsService().getRuntimeTopologyId(topology, runAsUser);
+
         TopologyActions topologyActions = context.getTopologyActions();
-        topologyActions.kill(CatalogToLayoutConverter.getTopologyLayout(topology), context.getAsUser());
-        LOG.debug("Killed topology '{}'", topology.getName());
+        topologyActions.kill(CatalogToLayoutConverter.getTopologyLayout(topology), applicationId, runAsUser);
+        LOG.debug("Killed topology='{}' applicationId='{}'", topology.getName(), applicationId);
     }
 
     @Override

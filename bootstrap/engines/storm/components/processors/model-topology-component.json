@@ -8,7 +8,7 @@
   "input": true,
   "output": true,
 	"transformationClass": "com.hortonworks.streamline.streams.layout.storm.MLModelEvaluationFluxComponent",
-    "mavenDeps": "org.apache.storm:storm-pmml:STORM_VERSION",
+	"mavenDeps": "org.apache.storm:storm-pmml:STORM_VERSION",
 	"topologyComponentUISpecification": {
 		"fields": [
 			{

@@ -143,6 +143,10 @@ function add_all_bundles {
     add_topology_component_bundle /streams/componentbundles/SOURCE ${storm_dir}/components/sources/kafka-source-topology-component.json
     add_topology_component_bundle /streams/componentbundles/SOURCE ${storm_dir}/components/sources/hdfs-source-topology-component.json
     add_topology_component_bundle /streams/componentbundles/SOURCE ${storm_dir}/components/sources/eventhubs-source-topology-component.json
+
+    # Athenax Source
+    add_topology_component_bundle /streams/componentbundles/SOURCE ${athenax_dir}/components/sources/kafka-source-topology-component.json
+
     # === Processor ===
     add_topology_component_bundle /streams/componentbundles/PROCESSOR ${storm_dir}/components/processors/rule-topology-component.json
     add_topology_component_bundle /streams/componentbundles/PROCESSOR ${storm_dir}/components/processors/window-topology-component.json
@@ -150,6 +154,8 @@ function add_all_bundles {
     add_topology_component_bundle /streams/componentbundles/PROCESSOR ${storm_dir}/components/processors/join-bolt-topology-component.json
     add_topology_component_bundle /streams/componentbundles/PROCESSOR ${storm_dir}/components/processors/model-topology-component.json
     add_topology_component_bundle /streams/componentbundles/PROCESSOR ${storm_dir}/components/processors/projection-topology-component.json
+
+    add_topology_component_bundle /streams/componentbundles/PROCESSOR ${athenax_dir}/components/processors/sql-processor-topology-component.json
     # === Task ===
     add_topology_component_bundle /streams/componentbundles/TASK ${piper_dir}/components/tasks/hive-topology-component.json
     add_topology_component_bundle /streams/componentbundles/TASK ${piper_dir}/components/tasks/spark-topology-component.json
@@ -164,9 +170,13 @@ function add_all_bundles {
     add_topology_component_bundle /streams/componentbundles/SINK ${storm_dir}/components/sinks/solr-sink-topology-component.json
     add_topology_component_bundle /streams/componentbundles/SINK ${storm_dir}/components/sinks/kafka-sink-topology-component.json
     add_topology_component_bundle /streams/componentbundles/SINK ${storm_dir}/components/sinks/hive-sink-topology-component.json
+
+    add_topology_component_bundle /streams/componentbundles/SINK ${athenax_dir}/components/sinks/kafka-sink-topology-component.json
     # === Topology ===
     add_topology_component_bundle /streams/componentbundles/TOPOLOGY ${storm_dir}/topology/storm-topology-component.json
     add_topology_component_bundle /streams/componentbundles/TOPOLOGY ${piper_dir}/topology/piper-topology-component.json
+    add_topology_component_bundle /streams/componentbundles/TOPOLOGY ${athenax_dir}/topology/athenax-topology-component.json
+
     #add_topology_component_bundle /streams/componentbundles/PROCESSOR ${storm_dir}/components/processors/split-topology-component
     #add_topology_component_bundle /streams/componentbundles/PROCESSOR ${storm_dir}/components/processors/normalization-processor-topology-component.json
     #add_topology_component_bundle /streams/componentbundles/PROCESSOR ${storm_dir}/components/processors/multilang-topology-component.json

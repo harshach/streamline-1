@@ -12,9 +12,9 @@
     <artifactId>streamline-runners</artifactId>
     <packaging>pom</packaging>
     <modules>
-        <module>storm</module>
+        <module>athenax</module>
         <module>piper</module>
+        <module>storm</module>
     </modules>
-
 
 </project>

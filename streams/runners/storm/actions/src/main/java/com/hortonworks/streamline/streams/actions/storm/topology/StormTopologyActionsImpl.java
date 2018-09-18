@@ -166,7 +166,7 @@ public class StormTopologyActionsImpl implements TopologyActions {
     }
 
     @Override
-    public void init (Map<String, Object> conf, TopologyActionsService topologyActionsService) {
+    public void init(Map<String, Object> conf, TopologyActionsService topologyActionsService) {
         this.topologyActionsService = topologyActionsService;
         this.conf = conf;
         if (conf != null) {
@@ -452,7 +452,7 @@ public class StormTopologyActionsImpl implements TopologyActions {
     }
 
     @Override
-    public void kill (TopologyLayout topology, String asUser) throws Exception {
+    public void kill(TopologyLayout topology, String applicationId, String asUser) throws Exception {
         String stormTopologyId = getRuntimeTopologyId(topology, asUser);
 
         boolean killed = client.killTopology(stormTopologyId, asUser, DEFAULT_WAIT_TIME_SEC);
@@ -502,7 +502,7 @@ public class StormTopologyActionsImpl implements TopologyActions {
     }
 
     @Override
-    public Status status(TopologyLayout topology, String asUser) {
+    public Status status(TopologyLayout topology, String applicationId, String asUser) {
         String stormTopologyId = getRuntimeTopologyId(topology, asUser);
 
         Map topologyStatus = client.getTopology(stormTopologyId, asUser);

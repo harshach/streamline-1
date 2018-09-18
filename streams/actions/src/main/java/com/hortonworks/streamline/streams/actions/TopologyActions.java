@@ -18,7 +18,6 @@ package com.hortonworks.streamline.streams.actions;
 import com.hortonworks.streamline.streams.actions.topology.service.TopologyActionsService;
 import com.hortonworks.streamline.streams.catalog.Topology;
 import com.hortonworks.streamline.streams.catalog.TopologyTestRunHistory;
-import com.hortonworks.streamline.streams.cluster.catalog.Namespace;
 import com.hortonworks.streamline.streams.layout.component.TopologyDag;
 import com.hortonworks.streamline.streams.layout.component.TopologyLayout;
 import com.hortonworks.streamline.streams.layout.component.impl.testing.TestRunProcessor;
@@ -71,7 +70,7 @@ public interface TopologyActions {
     boolean killTest(TopologyTestRunHistory testRunHistory);
 
     //Kill the artifact that was deployed using deploy
-    void kill (TopologyLayout topology, String asUser) throws Exception;
+    void kill (TopologyLayout topology, String applicationId, String asUser) throws Exception;
 
     //Validate the json representing the Streamline based on underlying streaming
     // engine
@@ -86,7 +85,7 @@ public interface TopologyActions {
     void resume (TopologyLayout topology, String asUser) throws Exception;
 
     // return topology status
-    Status status(TopologyLayout topology, String asUser) throws Exception;
+    Status status(TopologyLayout topology, String applicationId, String asUser) throws Exception;
 
     // change log level of topology with duration
     LogLevelInformation configureLogLevel(TopologyLayout topology, LogLevel targetLogLevel, int durationSecs, String asUser) throws Exception;

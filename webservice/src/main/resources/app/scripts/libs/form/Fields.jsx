@@ -36,6 +36,8 @@ import ProcessorUtils from '../../utils/ProcessorUtils';
 import DatetimeRangePicker from 'react-bootstrap-datetimerangepicker';
 import moment from 'moment';
 
+import CommonCodeMirror from '../../components/CommonCodeMirror';
+
 export class BaseField extends Component {
   type = 'FormField';
   getField = () => {}
@@ -398,6 +400,28 @@ export class datetime extends date {
       timePicker24Hour:true,
       timePickerSeconds: true
     };
+  }
+}
+
+export class sql extends BaseField {
+  handleChange = (value) => {
+    const {Form} = this.context;
+    this.props.data[this.props.value] = value;
+    Form.setState(Form.state);
+    this.validate();
+  }
+  validate() {
+    return super.validate(this.props.data[this.props.value]);
+  }
+  getField = () => {
+    return <div style={{position: 'relative'}}><CommonCodeMirror
+      ref="codemirror"
+      modeType="sql"
+      value={this.props.data[this.props.value]}
+      callBack={this.handleChange}
+      placeHolder=" "
+      editMode={true}
+    /></div>;
   }
 }
 

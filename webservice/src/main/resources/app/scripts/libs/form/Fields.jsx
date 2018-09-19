@@ -421,6 +421,7 @@ export class sql extends BaseField {
       callBack={this.handleChange}
       placeHolder=" "
       editMode={true}
+      modeOptions={{readOnly: this.context.Form.props.readOnly}}
     /></div>;
   }
 }

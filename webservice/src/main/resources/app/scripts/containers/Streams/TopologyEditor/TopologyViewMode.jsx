@@ -276,7 +276,7 @@ class TopologyViewMode extends Component {
               />
             </DropdownButton>
           </div>
-          {/*<div className="col-sm-3">
+          <div className="col-sm-3">
             <div className="filter-label">
               <span className="text-muted">Version:</span>
               <DropdownButton bsStyle="link" title={versionName || ''} pullRight id="version-dropdown" onSelect={this.handleSelectVersion.bind(this)} >
@@ -286,8 +286,8 @@ class TopologyViewMode extends Component {
               }
               </DropdownButton>
             </div>
-          </div>*/}
-          <div className="col-sm-4 text-right">
+          </div>
+          <div className="col-sm-3 text-right">
             <div>
               <span className="text-muted">Mode: </span>
                 <ToggleButtonGroup type="radio" name="mode-select-options" defaultValue={viewModeData.selectedMode} onChange={this.changeMode}>

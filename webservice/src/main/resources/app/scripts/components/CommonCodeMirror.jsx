@@ -71,13 +71,14 @@ export default class CommonCodeMirror extends Component{
       }
     };
     this.escapeHintChar = /[`~!@#$%^&0-9()_|\¿?;:'",\{\}\[\]\\]/gi;
-    this.state = {textValue : ''};
+    this.state = {textValue : props.value || ''};
     this.initialFlag= true;
   }
 
   componentWillReceiveProps(newProps) {
     if (newProps.editMode && this.initialFlag) {
       this.setState({textValue : newProps.value}, () => {
+        this.codeWrapper.refresh();
         this.codeWrapper.setValue(newProps.value);
         this.initialFlag= false;
       });

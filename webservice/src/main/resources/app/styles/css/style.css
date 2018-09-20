@@ -4518,6 +4518,11 @@ div.hint-tooltip{
 .form-datepicker-group .btn{
   border-radius: 4px;
 }
+.form-datepicker-group .btn[disabled]{
+  background-color: #eee;
+  opacity: 1;
+}
+
 .form-datepicker-group .place-holder{
   margin-bottom: 0px;
 }

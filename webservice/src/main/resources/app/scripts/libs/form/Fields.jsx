@@ -357,34 +357,42 @@ export class date extends BaseField {
 
     const errorClass = this.context.Form.state.Errors[this.props.valuePath] ? 'invalidInput' : '';
 
+    const readOnly = this.context.Form.props.readOnly;
+
+    const inputGroup = <InputGroup className="selected-date-range-btn form-datepicker-group">
+      <Button className={`${errorClass}`}
+        disabled={readOnly ? true : false}
+      >
+        <div className="pull-right">
+          <i className="fa fa-calendar"/>
+        </div>
+        {form_value ?
+          <span className="pull-left">{value.format(this.dateFormat)}</span>
+          :
+          <label className="place-holder">Select Date</label>}
+        &nbsp;
+      </Button>
+    </InputGroup>;
+
+    const datePicker = <DatetimeRangePicker
+      singleDatePicker
+      autoUpdateInput={true}
+      showDropdowns
+      startDate={value}
+      endDate={value}
+      onApply={this.handleChange}
+      parentEl={this.parentEl}
+      {...this.datePickerOptions}
+    >
+      {inputGroup}
+    </DatetimeRangePicker>;
+
     return (<div
       ref={(ref) => this.datePickerRef = ref}
       style={{position: 'relative'}}
     >
     {this.parentEl ?
-      <DatetimeRangePicker
-        singleDatePicker
-        autoUpdateInput={true}
-        showDropdowns
-        startDate={value}
-        endDate={value}
-        onApply={this.handleChange}
-        parentEl={this.parentEl}
-        {...this.datePickerOptions}
-      >
-        <InputGroup className="selected-date-range-btn form-datepicker-group">
-          <Button className={`${errorClass}`}>
-            <div className="pull-right">
-              <i className="fa fa-calendar"/>
-            </div>
-            {form_value ?
-              <span className="pull-left">{value.format(this.dateFormat)}</span>
-              :
-              <label className="place-holder">Select Date</label>}
-            &nbsp;
-          </Button>
-        </InputGroup>
-      </DatetimeRangePicker>
+      readOnly ? inputGroup : datePicker
     : null}
     </div>);
   }

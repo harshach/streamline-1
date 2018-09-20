@@ -46,6 +46,18 @@
         </dependency>
         <dependency>
             <groupId>com.hortonworks.streamline</groupId>
+            <artifactId>streamline-actions-piper</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.hortonworks.streamline</groupId>
+            <artifactId>streamline-layout-piper</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.hortonworks.streamline</groupId>
+            <artifactId>streamline-metrics-piper</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.hortonworks.streamline</groupId>
             <artifactId>streamline-notification</artifactId>
         </dependency>
         <dependency>
@@ -71,6 +83,10 @@
         <dependency>
             <groupId>com.hortonworks.streamline</groupId>
             <artifactId>streamline-sampling-storm</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.hortonworks.streamline</groupId>
+            <artifactId>streamline-sampling-piper</artifactId>
         </dependency>
         <!-- test dependency -->
         <dependency>

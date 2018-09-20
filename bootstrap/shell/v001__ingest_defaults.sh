@@ -139,8 +139,6 @@ function add_all_bundles {
     post /system/engines/1/templates ${storm_dir}/templates/blank.json
     post /system/engines/2/templates ${piper_dir}/templates/blank.json
     post /system/engines/3/templates ${athenax_dir}/templates/blank.json
-
-    add_topology_component_bundle /streams/componentbundles/PROCESSOR ${piper_dir}/components/topology/piper-topology-component.json
     # === Source ===
     add_topology_component_bundle /streams/componentbundles/SOURCE ${storm_dir}/components/sources/kafka-source-topology-component.json
     add_topology_component_bundle /streams/componentbundles/SOURCE ${storm_dir}/components/sources/hdfs-source-topology-component.json
@@ -154,6 +152,7 @@ function add_all_bundles {
     add_topology_component_bundle /streams/componentbundles/PROCESSOR ${storm_dir}/components/processors/projection-topology-component.json
     # === Task ===
     add_topology_component_bundle /streams/componentbundles/TASK ${piper_dir}/components/tasks/hive-topology-component.json
+    add_topology_component_bundle /streams/componentbundles/TASK ${piper_dir}/components/tasks/spark-topology-component.json
     # === Sink ===
     add_topology_component_bundle /streams/componentbundles/SINK ${storm_dir}/components/sinks/hdfs-sink-topology-component.json
     add_topology_component_bundle /streams/componentbundles/SINK ${storm_dir}/components/sinks/hbase-sink-topology-component.json
@@ -186,6 +185,7 @@ function add_all_bundles {
     post /servicebundles ${service_dir}/hbase-bundle.json
     post /servicebundles ${service_dir}/hive-bundle.json
     post /servicebundles ${service_dir}/email-bundle.json
+    post /servicebundles ${service_dir}/piper-bundle.json
 }
 
 function add_roles_and_users {

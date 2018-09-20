@@ -3,18 +3,20 @@
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
-        <artifactId>streams</artifactId>
+        <artifactId>streamline-runners</artifactId>
         <groupId>com.hortonworks.streamline</groupId>
         <version>0.6.0-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>streamline-runners</artifactId>
+    <artifactId>streamline-runners-piper</artifactId>
     <packaging>pom</packaging>
     <modules>
-        <module>storm</module>
-        <module>piper</module>
+        <module>common</module>
+        <module>layout</module>
+        <module>actions</module>
+        <module>metrics</module>
+        <module>sampling</module>
     </modules>
-
-
 </project>
+

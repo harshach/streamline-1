@@ -3,7 +3,8 @@ package com.hortonworks.streamline.streams.actions.builder.mapping;
 import com.hortonworks.streamline.streams.actions.builder.TopologyActionsBuilder;
 
 public enum MappedTopologyActionsBuilder {
-    STORM("com.hortonworks.streamline.streams.actions.storm.topology.StormTopologyActionsBuilder");
+    STORM("com.hortonworks.streamline.streams.actions.storm.topology.StormTopologyActionsBuilder"),
+    PIPER("com.hortonworks.streamline.streams.actions.piper.topology.PiperTopologyActionsBuilder");
 
     private final String className;
 

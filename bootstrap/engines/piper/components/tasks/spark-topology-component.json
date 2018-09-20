@@ -1,0 +1,65 @@
+{
+  "type": "TASK",
+  "name": "Spark",
+  "subType": "HDFS",
+  "engine": "PIPER",
+  "template": ["Blank"],
+  "builtin": true,
+  "transformationClass": "com.hortonworks.streamline.streams.layout.storm.StreamsShellBoltFluxComponent",
+  "input": true,
+  "output": true,
+  "topologyComponentUISpecification": {
+    "fields": [
+      {
+        "uiName": "Spark JAR filename",
+        "fieldName": "taskArgs.jar",
+        "tooltip": "Spark Jar file, for example hdfs:///user/my_user/my_file.jar",
+        "isOptional": false,
+        "type": "string"
+      },
+      {
+        "uiName": "Spark class name",
+        "fieldName": "taskArgs.klass",
+        "tooltip": "Spark Class to run, for example: com.uber.myteam.myapp.SparkApp",
+        "isOptional": false,
+        "type": "string"
+      },
+      {
+        "uiName": "Spark JAR arguments",
+        "fieldName": "taskArgs.spark_args",
+        "tooltip": "Spark Args, for example --nPartitions,15",
+        "isOptional": true,
+        "type": "array.string"
+      },
+      {
+        "uiName": "Spark Opts",
+        "fieldName": "taskArgs.spark_opts",
+        "tooltip": "Spark Opts --executor-memory:12g",
+        "isOptional": true,
+        "type": "array.string"
+      },
+      {
+        "uiName": "Spark ENV additions",
+        "fieldName": "taskArgs.env_additions",
+        "tooltip": "Spark environment additions. For example, ENV1:foo",
+        "isOptional": true,
+        "type": "array.string"
+      },
+      {
+        "uiName": "Spark Connection ID",
+        "fieldName": "spark_conn_id",
+        "tooltip": "Spark Connection ID",
+        "isOptional": false,
+        "type": "string"
+      },
+      {
+        "uiName": "Pool",
+        "fieldName": "pool",
+        "isUserInput": true,
+        "tooltip": "Piper pool to run task in",
+        "isOptional": false,
+        "type": "string"
+      }
+    ]
+  }
+}

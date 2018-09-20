@@ -1,0 +1,22 @@
+{
+  "name": "PIPER",
+  "registerClass": "com.hortonworks.streamline.streams.cluster.register.impl.PiperServiceRegistrar",
+  "serviceUISpecification": {
+    "fields": [
+      {
+        "uiName": "Piper REST API Host",
+        "fieldName": "piper.service.host",
+        "isOptional": false,
+        "tooltip": "A Piper Host for REST API",
+        "type": "string"
+      },
+      {
+        "uiName": "Piper REST API Port",
+        "fieldName": "piper.service.port",
+        "isOptional": false,
+        "tooltip": "A Port for REST API",
+        "type": "number"
+      }
+    ]
+  }
+}

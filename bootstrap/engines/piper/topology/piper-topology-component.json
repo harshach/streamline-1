@@ -45,13 +45,6 @@
             "type": "object",
             "fields": [
               {
-                "uiName": "Schedule Interval Multiplier",
-                "fieldName": "topology.timeBasedIntervalMultiplier",
-                "isOptional": false,
-                "tooltip": "Time Based Interval Multiplier",
-                "type": "string"
-              },
-              {
                 "uiName": "Interval",
                 "fieldName": "topology.timeBasedIntervalType",
                 "isOptional": false,
@@ -63,6 +56,13 @@
                   "Day",
                   "Week"
                 ]
+              },
+              {
+                "uiName": "Schedule Interval Multiplier",
+                "fieldName": "topology.timeBasedIntervalMultiplier",
+                "isOptional": false,
+                "tooltip": "Time Based Interval Multiplier",
+                "type": "string"
               }
             ]
           },

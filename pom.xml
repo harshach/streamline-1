@@ -741,6 +741,11 @@
             </dependency>
             <dependency>
                 <groupId>com.hortonworks.streamline</groupId>
+                <artifactId>streamline-layout-piper</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.hortonworks.streamline</groupId>
                 <artifactId>streamline-authorizer</artifactId>
                 <version>${project.version}</version>
             </dependency>
@@ -756,6 +761,11 @@
             </dependency>
             <dependency>
                 <groupId>com.hortonworks.streamline</groupId>
+                <artifactId>streamline-actions-piper</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.hortonworks.streamline</groupId>
                 <artifactId>streamline-metrics</artifactId>
                 <version>${project.version}</version>
             </dependency>
@@ -766,7 +776,17 @@
             </dependency>
             <dependency>
                 <groupId>com.hortonworks.streamline</groupId>
+                <artifactId>streamline-metrics-piper</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.hortonworks.streamline</groupId>
                 <artifactId>streamline-common-storm</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.hortonworks.streamline</groupId>
+                <artifactId>streamline-common-piper</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
@@ -792,6 +812,11 @@
             </dependency>
             <dependency>
                 <groupId>com.hortonworks.streamline</groupId>
+                <artifactId>streamline-sampling-piper</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.hortonworks.streamline</groupId>
                 <artifactId>streamline-notifier</artifactId>
                 <version>${project.version}</version>
                 <exclusions>
@@ -809,6 +834,11 @@
             <dependency>
                 <groupId>com.hortonworks.streamline</groupId>
                 <artifactId>streamline-runners-storm</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.hortonworks.streamline</groupId>
+                <artifactId>streamline-runners-piper</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>

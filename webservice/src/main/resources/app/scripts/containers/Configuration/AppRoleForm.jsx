@@ -233,7 +233,7 @@ export default class AppRoleForm extends Component {
             <hr/>
             <div className="row">
             <div className="col-md-12">
-              <div className="acl-item">Applications<span className="pull-right">{appPermission}</span></div><hr/>
+              <div className="acl-item">Workflows<span className="pull-right">{appPermission}</span></div><hr/>
               <div className="acl-item">Service Pools<span className="pull-right">{servicePermission}</span></div><hr/>
               <div className="acl-item">Environments<span className="pull-right">{envPermission}</span></div><hr/>
               <div className="acl-item">Users<span className="pull-right">{userPermission}</span></div><hr/>

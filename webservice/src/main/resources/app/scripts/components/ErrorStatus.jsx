@@ -34,7 +34,7 @@ export default class ErrorStatus extends Component{
               <h4>Please contact admin
               </h4>
               <div>
-                To get appropriate access for<br/> Applications, Environments, and Services.
+                To get appropriate access for<br/> Workflow, Environments, and Services.
               </div>
             </div>
           </div>

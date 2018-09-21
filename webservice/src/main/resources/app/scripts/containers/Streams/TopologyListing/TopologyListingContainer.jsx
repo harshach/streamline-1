@@ -818,7 +818,7 @@ class TopologyListingContainer extends Component {
           <span className="title-separator">/</span>
           {projectData.name}
           <span className="title-separator">/</span>
-          My Applications
+          My Workflows
         </span>
       );
     } else {

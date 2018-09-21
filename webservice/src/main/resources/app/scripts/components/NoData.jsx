@@ -181,7 +181,7 @@ export default class NoData extends Component {
                         <h4>
                           <span className="hb xs success">3</span>
                           &nbsp;Go to&nbsp;
-                          <Link to="/">My Applications</Link>
+                          <Link to="/">My Workflows</Link>
                         </h4>
                         <div className="intro-content">
                           Add your first Application

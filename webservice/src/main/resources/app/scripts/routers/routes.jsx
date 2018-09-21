@@ -37,7 +37,7 @@ import SamplingsComponent from '../containers/Samplings/SamplingsComponent';
 const onEnter = (nextState, replace, callback) => {
   var sidebarRoute = nextState.routes[1];
   if (sidebarRoute) {
-    if (sidebarRoute.name === 'My Projects' || sidebarRoute.name === 'My Applications' || sidebarRoute.name === 'Log Search' || sidebarRoute.name === 'Samplings') {
+    if (sidebarRoute.name === 'My Projects' || sidebarRoute.name === 'My Workflows' || sidebarRoute.name === 'Log Search' || sidebarRoute.name === 'Samplings') {
       state.sidebar_activeKey = 1;
       state.sidebar_toggleFlag = false;
     } else if (sidebarRoute.name === 'Model Registry') {
@@ -68,8 +68,8 @@ export default (
     <IndexRoute name="My Projects" accessMenuName={menuName.PROJECT} component={ProjectListContainer} onEnter={onEnter} />
     <Route path="projects" name="My Projects" onEnter={onEnter}>
       <IndexRoute name="My Projects" component={ProjectListContainer} onEnter={onEnter} />
-    <Route path=":projectId/applications" name="My Applications" onEnter={onEnter}>
-        <IndexRoute name="My Applications" component={TopologyListContainer} onEnter={onEnter} />
+    <Route path=":projectId/applications" name="My Workflows" onEnter={onEnter}>
+        <IndexRoute name="My Workflows" component={TopologyListContainer} onEnter={onEnter} />
         <Route path=":id/view" name="Application Editor" accessMenuName={menuName.APPLICATION} accessAction="VIEW" component={TopologyViewContainer} onEnter={onEnter}/>
         <Route path=":id/edit" name="Application Editor" accessMenuName={menuName.APPLICATION} accessAction="EDIT" component={TopologyEditorContainer} onEnter={onEnter}/>
       </Route>

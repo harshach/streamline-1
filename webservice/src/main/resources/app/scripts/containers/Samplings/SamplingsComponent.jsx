@@ -184,7 +184,7 @@ export default class ComponentSamplings extends Component{
     const headerText = <span>View: <Link to={`/applications/${topologyId}/view`}>{topologyName}</Link> / Sampling</span>;
     return (
       <span>
-        <Link to="/">My Applications</Link>
+        <Link to="/">My Workflow</Link>
         <span className="title-separator">/</span>
         {headerText}
       </span>

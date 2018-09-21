@@ -128,10 +128,10 @@ class ImportTopology extends Component {
           </div>
         </div>
         <div className="form-group">
-          <label data-stest="topologyNameLabel">Application Name
+          <label data-stest="topologyNameLabel">Workflow Name
           </label>
           <div>
-            <input type="text" className={nameError ? "form-control" : "form-control invalidInput" } name="name" title="Application Name" ref="topologyName" onChange={this.topologyNameChange.bind(this)}/>
+            <input type="text" className={nameError ? "form-control" : "form-control invalidInput" } name="name" title="Workflow Name" ref="topologyName" onChange={this.topologyNameChange.bind(this)}/>
           </div>
         </div>
         <div className="form-group">

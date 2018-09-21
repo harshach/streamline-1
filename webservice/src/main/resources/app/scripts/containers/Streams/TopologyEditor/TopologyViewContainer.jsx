@@ -571,7 +571,7 @@ class TopologyViewContainer extends TopologyEditorContainer {
     return obj;
   }*/
   killTopology() {
-    this.refs.BaseContainer.refs.Confirm.show({title: 'Are you sure you want to stop this Application?'}).then((confirmBox) => {
+    this.refs.BaseContainer.refs.Confirm.show({title: 'Are you sure you want to stop this Workflow?'}).then((confirmBox) => {
       this.setState({topologyStatus: 'KILLING...'});
       TopologyREST.killTopology(this.topologyId).then(topology => {
         if (topology.responseMessage !== undefined) {
@@ -581,7 +581,7 @@ class TopologyViewContainer extends TopologyEditorContainer {
           this.setState({topologyStatus: status});
         } else {
           FSReactToastr.success(
-            <strong>Application Stopped Successfully</strong>
+            <strong>Workflow Stopped Successfully</strong>
           );
           TopologyREST.getTopology(this.topologyId, this.versionId).then((result) => {
             let data = result;
@@ -626,7 +626,7 @@ class TopologyViewContainer extends TopologyEditorContainer {
           <span className="title-separator">/</span>
           {projectData.name}
           <span className="title-separator">/</span>
-          <Link to={"/projects/"+projectData.id+"/applications"}>My Application</Link>
+          <Link to={"/projects/"+projectData.id+"/applications"}>My Workflow</Link>
           <span className="title-separator">/</span>
           View: {topologyName}
         </span>

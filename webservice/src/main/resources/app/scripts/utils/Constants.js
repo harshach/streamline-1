@@ -30,12 +30,12 @@ const PieChartColor = ["#006ea0", "#77b0bd", "#b7cfdb", "#9dd1e9"];
 let deleteNodeIdArr = [];
 
 const deployStatusText = {
-  DEPLOYING_TOPOLOGY : 'Deploying Application',
-  TOPOLOGY_STATE_EXTRA_JARS_SETUP : 'Building Application Jars',
+  DEPLOYING_TOPOLOGY : 'Deploying Workflow',
+  TOPOLOGY_STATE_EXTRA_JARS_SETUP : 'Building Workflow Jars',
   TOPOLOGY_STATE_CLUSTER_ARTIFACTS_SETUP : 'Setting Up Applcation Artifacts',
-  TOPOLOGY_STATE_DEPLOYED : 'Application Deployed',
-  TOPOLOGY_STATE_SUSPENDED : 'Application Suspended',
-  TOPOLOGY_STATE_DEPLOYMENT_FAILED : 'Application Deployment Failed'
+  TOPOLOGY_STATE_DEPLOYED : 'Workflow Deployed',
+  TOPOLOGY_STATE_SUSPENDED : 'Workflow Suspended',
+  TOPOLOGY_STATE_DEPLOYMENT_FAILED : 'Workflow Deployment Failed'
 };
 
 const colorOptions = [

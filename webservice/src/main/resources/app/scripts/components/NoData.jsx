@@ -61,7 +61,7 @@ export default class NoData extends Component {
         <span className="hb xs success">1</span>
         &nbsp;Click Add</h4>
       <div className="intro-content">
-        Select New Application
+        Select New Workflow
         <br/>
         from dropdown menu
       </div>
@@ -69,7 +69,7 @@ export default class NoData extends Component {
     const applicationStep_2 = <div className="list">
       <h4>
         <span className="hb xs success">2</span>
-        &nbsp;Add Application Name</h4>
+        &nbsp;Add Workflow Name</h4>
       <div className="intro-content">
         Select Environment
         <br/>
@@ -184,7 +184,7 @@ export default class NoData extends Component {
                           <Link to="/">My Workflows</Link>
                         </h4>
                         <div className="intro-content">
-                          Add your first Application
+                          Add your first Workflow
                         </div>
                       </div>
 }

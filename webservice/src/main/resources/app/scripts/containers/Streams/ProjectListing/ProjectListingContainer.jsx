@@ -86,7 +86,7 @@ class ProjectCard extends Component {
               </ul>
               :
               <h3 className="empty-project">
-                No Application Found
+                No Workflow Found
               </h3>
             }
           </div>

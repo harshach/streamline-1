@@ -70,8 +70,8 @@ export default (
       <IndexRoute name="My Projects" component={ProjectListContainer} onEnter={onEnter} />
     <Route path=":projectId/applications" name="My Workflows" onEnter={onEnter}>
         <IndexRoute name="My Workflows" component={TopologyListContainer} onEnter={onEnter} />
-        <Route path=":id/view" name="Application Editor" accessMenuName={menuName.APPLICATION} accessAction="VIEW" component={TopologyViewContainer} onEnter={onEnter}/>
-        <Route path=":id/edit" name="Application Editor" accessMenuName={menuName.APPLICATION} accessAction="EDIT" component={TopologyEditorContainer} onEnter={onEnter}/>
+        <Route path=":id/view" name="Workflow Editor" accessMenuName={menuName.APPLICATION} accessAction="VIEW" component={TopologyViewContainer} onEnter={onEnter}/>
+        <Route path=":id/edit" name="Workflow Editor" accessMenuName={menuName.APPLICATION} accessAction="EDIT" component={TopologyEditorContainer} onEnter={onEnter}/>
       </Route>
     </Route>
   {/* <Route path="custom-processor" name="Custom Processor" component={CustomProcessorContainer} onEnter={onEnter}/> */}

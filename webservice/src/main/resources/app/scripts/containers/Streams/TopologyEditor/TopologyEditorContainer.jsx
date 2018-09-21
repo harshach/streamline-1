@@ -447,13 +447,13 @@ export class TopologyEditorContainer extends Component {
       TopologyREST.putTopology(this.topologyId, this.versionId, {body: JSON.stringify(data)}).then(topology => {
         if (topology.responseMessage !== undefined) {
           let errorMag = topology.responseMessage.indexOf('already exists') !== -1
-            ? "Application with same name already exists. Please choose a unique Application Name"
+            ? "Workflow with same name already exists. Please choose a unique Workflow Name"
             : topology.responseMessage;
           FSReactToastr.error(
             <CommonNotification flag="error" content={errorMag}/>, '', toastOpt);
         } else {
           FSReactToastr.success(
-            <strong>Application name updated successfully</strong>
+            <strong>Workflow name updated successfully</strong>
           );
           this.topologyName = topology.name;
           this.topologyConfig = JSON.parse(topology.config);
@@ -515,7 +515,7 @@ export class TopologyEditorContainer extends Component {
     return this.refs.EditorGraph.child.decoratedComponentInstance.getModalScope(node);
   }
   deployTopology() {
-    // this.refs.BaseContainer.refs.Confirm.show({title: 'Are you sure you want to deploy this Application?'}).then((confirmBox) => {
+    // this.refs.BaseContainer.refs.Confirm.show({title: 'Are you sure you want to deploy this Workflow?'}).then((confirmBox) => {
     this.refs.deployLoadingModal.show();
     this.setState({topologyStatus: 'DEPLOYING...', progressCount: 12,deployFlag : false});
     TopologyREST.validateTopology(this.topologyId, this.versionId).then(result => {
@@ -544,7 +544,7 @@ export class TopologyEditorContainer extends Component {
   }
   saveTopologyVersion(timestamp){
     FSReactToastr.success(
-      <strong>Application Deployed Successfully</strong>
+      <strong>Workflow Deployed Successfully</strong>
     );
     this.lastUpdatedTime = new Date(timestamp);
     this.setState({
@@ -579,7 +579,7 @@ export class TopologyEditorContainer extends Component {
     });
   }
   killTopology() {
-    this.refs.BaseContainer.refs.Confirm.show({title: 'Are you sure you want to stop this Application?'}).then((confirmBox) => {
+    this.refs.BaseContainer.refs.Confirm.show({title: 'Are you sure you want to stop this Workflow?'}).then((confirmBox) => {
       document.getElementsByClassName('loader-overlay')[0].className = "loader-overlay";
       this.setState({topologyStatus: 'KILLING...'});
       TopologyREST.killTopology(this.topologyId).then(topology => {
@@ -592,7 +592,7 @@ export class TopologyEditorContainer extends Component {
         } else {
           this.lastUpdatedTime = new Date(topology.timestamp);
           FSReactToastr.success(
-            <strong>Application Stopped Successfully</strong>
+            <strong>Workflow Stopped Successfully</strong>
           );
           TopologyREST.getTopology(this.topologyId, this.versionId).then((result) => {
             let data = result;
@@ -963,7 +963,7 @@ export class TopologyEditorContainer extends Component {
           <span className="title-separator">/</span>
           {projectData.name}
           <span className="title-separator">/</span>
-          <Link to={"/projects/"+projectData.id+"/applications"}>My Application</Link>
+          <Link to={"/projects/"+projectData.id+"/applications"}>My Workflow</Link>
           &nbsp;/&nbsp;
           <Editable id="applicationName" ref="topologyNameEditable" inline={true} resolve={this.saveTopologyName.bind(this)} reject={this.handleRejectTopologyName.bind(this)}>
             <input ref={this.focusInput} defaultValue={this.state.topologyName} onKeyPress={this.handleKeyPress.bind(this)} onChange={this.handleNameChange.bind(this)}/>
@@ -1343,7 +1343,7 @@ export class TopologyEditorContainer extends Component {
 }
           </div>
         </div>
-        <Modal ref="TopologyConfigModal" data-title={deployFlag ? "Are you sure want to continue with this configuration?" : "Application Configuration"}  onKeyPress={this.handleKeyPress.bind(this)} data-resolve={this.handleSaveConfig.bind(this)} data-reject={this.handleCancelConfig.bind(this)}>
+        <Modal ref="TopologyConfigModal" data-title={deployFlag ? "Are you sure want to continue with this configuration?" : "Workflow Configuration"}  onKeyPress={this.handleKeyPress.bind(this)} data-resolve={this.handleSaveConfig.bind(this)} data-reject={this.handleCancelConfig.bind(this)}>
           <TopologyConfig ref="topologyConfig" topologyData={topologyData} projectId={this.projectId} topologyId={this.topologyId} versionId={this.versionId} data={mapTopologyConfig} topologyName={this.state.topologyName} uiConfigFields={this.topologyConfigData} testRunActivated={this.state.testRunActivated} topologyNodes={this.graphData.nodes}/>
         </Modal>
         {/* NodeModal for Development Mode for source*/}
@@ -1400,11 +1400,11 @@ export class TopologyEditorContainer extends Component {
         >
             <div className="config-modal-form">
               <div className="form-group">
-                <label>Application Name: <span className="text-danger">*</span></label>
+                <label>Workflow Name: <span className="text-danger">*</span></label>
                 <div>
                   <input
                     type="text"
-                    placeholder="Application name"
+                    placeholder="Workflow name"
                     required
                     className={this.state.topologyNameValid ? "form-control" : "form-control invalidInput"}
                     value={this.state.topologyName}

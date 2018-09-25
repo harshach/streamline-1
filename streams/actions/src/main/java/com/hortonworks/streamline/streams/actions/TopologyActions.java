@@ -18,6 +18,7 @@ package com.hortonworks.streamline.streams.actions;
 import com.hortonworks.streamline.streams.actions.topology.service.TopologyActionsService;
 import com.hortonworks.streamline.streams.catalog.Topology;
 import com.hortonworks.streamline.streams.catalog.TopologyTestRunHistory;
+import com.hortonworks.streamline.streams.cluster.catalog.Namespace;
 import com.hortonworks.streamline.streams.layout.component.TopologyDag;
 import com.hortonworks.streamline.streams.layout.component.TopologyLayout;
 import com.hortonworks.streamline.streams.layout.component.impl.testing.TestRunProcessor;
@@ -49,7 +50,7 @@ public interface TopologyActions {
 
     // Deploy the artifact generated using the underlying streaming
     // engine
-    void deploy(TopologyLayout topology, String mavenArtifacts, TopologyActionContext ctx, String asUser) throws Exception;
+    String deploy(TopologyLayout topology, String mavenArtifacts, TopologyActionContext ctx, String asUser) throws Exception;
 
     // Compose and run parameter topology as test mode using the underlying engine.
     // The parameter 'topology' should contain its own topology DAG.
@@ -109,6 +110,7 @@ public interface TopologyActions {
      * the topology id which is running in runtime engine
      */
     String getRuntimeTopologyId(TopologyLayout topology, String asUser);
+
 
     interface Status {
         String STATUS_UNKNOWN = "Unknown";

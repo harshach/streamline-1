@@ -54,7 +54,7 @@ import com.hortonworks.streamline.storage.exception.StorageException;
 import com.hortonworks.streamline.storage.search.SearchQuery;
 import com.hortonworks.streamline.storage.util.StorageUtils;
 import com.hortonworks.streamline.streams.StreamlineEvent;
-import com.hortonworks.streamline.streams.catalog.Engine;
+import com.hortonworks.streamline.streams.catalog.*;
 import com.hortonworks.streamline.streams.catalog.Template;
 import com.hortonworks.streamline.streams.catalog.Project;
 import com.hortonworks.streamline.streams.catalog.Topology;
@@ -172,6 +172,7 @@ public class StreamCatalogService {
     private static final String TOPOLOGY_WINDOWINFO_NAMESPACE = new TopologyWindow().getNameSpace();
     private static final String UDF_NAMESPACE = new UDF().getNameSpace();
     private static final String TOPOLOGY_STATE_NAMESPACE = new TopologyState().getNameSpace();
+    private static final String TOPOLOGY_RUNTIME_ID_NAMESPACE = new TopologyRuntimeIdMap().getNameSpace();
 
     private static final ArrayList<Class<?>> UDF_CLASSES = Lists.newArrayList(UDAF.class, UDAF2.class, com.hortonworks.streamline.streams.rule.UDF.class, UDF2.class,
                                                                               UDF3.class, UDF4.class, UDF5.class, UDF6.class, UDF7.class);
@@ -1310,6 +1311,32 @@ public class StreamCatalogService {
             topologyEditorMetadata.setTimestamp(updateVersionTimestamp(versionId).getTimestamp());
         }
         return topologyEditorMetadata;
+    }
+
+    public TopologyRuntimeIdMap addOrUpdateTopologyRuntimeIdMap(Topology topology, String applicationId) {
+        TopologyRuntimeIdMap topologyRuntimeIdMap = new TopologyRuntimeIdMap(topology.getId(), topology.getNamespaceId(),
+                applicationId);
+        this.dao.addOrUpdate(topologyRuntimeIdMap);
+        return topologyRuntimeIdMap;
+    }
+
+    public TopologyRuntimeIdMap removeTopologyRuntimeIdMap(Long topologyId, Long namespaceId) {
+        TopologyRuntimeIdMap topologyRuntimeIdMap = getTopologyRuntimeIdMap(topologyId, namespaceId);
+        if (topologyRuntimeIdMap != null) {
+            topologyRuntimeIdMap = dao.remove(topologyRuntimeIdMap.getStorableKey());
+        }
+        return topologyRuntimeIdMap;
+    }
+
+    public TopologyRuntimeIdMap getTopologyRuntimeIdMap(Long topologyId, Long namespaceId) {
+        TopologyRuntimeIdMap topologyRuntimeIdMap = new TopologyRuntimeIdMap();
+        topologyRuntimeIdMap.setTopologyId(topologyId);
+        topologyRuntimeIdMap.setNamespaceId(namespaceId);
+        TopologyRuntimeIdMap topologyRuntimeIdMapRet = dao.get(new StorableKey(TOPOLOGY_RUNTIME_ID_NAMESPACE, topologyRuntimeIdMap.getPrimaryKey()));
+        if (topologyRuntimeIdMapRet == null || !topologyRuntimeIdMapRet.getTopologyId().equals(topologyId)) {
+            return null;
+        }
+        return topologyRuntimeIdMapRet;
     }
 
     /**

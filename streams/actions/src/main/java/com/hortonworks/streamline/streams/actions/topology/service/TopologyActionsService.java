@@ -137,8 +137,8 @@ public class TopologyActionsService implements ContainingNamespaceAwareContainer
     }
 
     public String getRuntimeTopologyId(Topology topology, String asUser) throws IOException {
-        TopologyActions topologyActions = getTopologyActionsInstance(topology);
-        return topologyActions.getRuntimeTopologyId(CatalogToLayoutConverter.getTopologyLayout(topology), asUser);
+        TopologyRuntimeIdMap topologyRuntimeIdMap = catalogService.getTopologyRuntimeIdMap(topology.getId(), topology.getNamespaceId());
+        return topologyRuntimeIdMap != null ? topologyRuntimeIdMap.getApplicationId() : null;
     }
 
     public TopologyActions.LogLevelInformation configureLogLevel(Topology topology, TopologyActions.LogLevel targetLogLevel, int durationSecs,
@@ -151,6 +151,10 @@ public class TopologyActionsService implements ContainingNamespaceAwareContainer
     public TopologyActions.LogLevelInformation getLogLevel(Topology topology, String asUser) throws Exception {
         TopologyActions topologyActions = getTopologyActionsInstance(topology);
         return topologyActions.getLogLevel(CatalogToLayoutConverter.getTopologyLayout(topology), asUser);
+    }
+
+    public void storeRuntimeApplicationId(Topology topology, String applicationId) throws Exception {
+        catalogService.addOrUpdateTopologyRuntimeIdMap(topology, applicationId);
     }
 
     public StreamCatalogService getCatalogService() {

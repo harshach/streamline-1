@@ -19,6 +19,7 @@ import com.hortonworks.streamline.streams.actions.TopologyActionContext;
 import com.hortonworks.streamline.streams.actions.TopologyActions;
 import com.hortonworks.streamline.streams.actions.topology.service.TopologyActionsService;
 import com.hortonworks.streamline.streams.catalog.Topology;
+import com.hortonworks.streamline.streams.cluster.catalog.Namespace;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -97,6 +98,10 @@ public class TopologyContext implements TopologyActionContext {
 
     public void resume() throws Exception {
         state.resume(this);
+    }
+
+    public void storeRuntimeApplicationId(String applicationId) throws Exception {
+        topologyActionsService.storeRuntimeApplicationId(topology, applicationId);
     }
 
     @Override

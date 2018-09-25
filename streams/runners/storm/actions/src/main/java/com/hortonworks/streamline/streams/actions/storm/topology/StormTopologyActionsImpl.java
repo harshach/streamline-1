@@ -159,6 +159,7 @@ public class StormTopologyActionsImpl implements TopologyActions {
     private final ConcurrentHashMap<Long, Boolean> forceKillRequests = new ConcurrentHashMap<>();
     private Set<String> environmentServiceNames;
 
+
     private TopologyActionsService topologyActionsService;
 
     public StormTopologyActionsImpl() {
@@ -352,7 +353,7 @@ public class StormTopologyActionsImpl implements TopologyActions {
 
 
     @Override
-    public void deploy(TopologyLayout topology, String mavenArtifacts, TopologyActionContext ctx, String asUser) throws Exception {
+    public String deploy(TopologyLayout topology, String mavenArtifacts, TopologyActionContext ctx, String asUser) throws Exception {
         ctx.setCurrentAction("Adding artifacts to jar");
         Path jarToDeploy = addArtifactsToJar(getArtifactsLocation(topology));
         ctx.setCurrentAction("Creating Storm topology YAML file");
@@ -389,6 +390,7 @@ public class StormTopologyActionsImpl implements TopologyActions {
                 throw new Exception("Topology could not be deployed successfully: storm deploy command failed with " + errors);
             }
         }
+        return getRuntimeTopologyId(topology, asUser);
     }
 
     @Override
@@ -555,6 +557,7 @@ public class StormTopologyActionsImpl implements TopologyActions {
         }
         return stormTopologyId;
     }
+
 
     private TopologyLayout copyTopologyLayout(TopologyLayout topology, TopologyDag replacedTopologyDag) {
         return new TopologyLayout(topology.getId(), topology.getName(), topology.getConfig(), replacedTopologyDag);

@@ -144,7 +144,8 @@ public class DefaultTopologyStateMachine implements TopologyStateMachine {
             try {
                 context.setCurrentAction("Submitting topology to streaming engine");
                 String mavenArtifacts = context.getMavenArtifacts();
-                topologyActions.deploy(layout, mavenArtifacts, context, context.getAsUser());
+                String applicationId = topologyActions.deploy(layout, mavenArtifacts, context, context.getAsUser());
+                context.storeRuntimeApplicationId(applicationId);
                 context.setState(deployedState());
                 context.setCurrentAction("Topology deployed");
             } catch (Exception ex) {

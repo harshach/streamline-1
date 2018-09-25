@@ -65,7 +65,7 @@ public class PiperTopologyActionsImpl implements TopologyActions {
     }
 
     @Override
-    public void deploy(TopologyLayout topology, String mavenArtifacts, TopologyActionContext ctx, String asUser) throws Exception {
+    public String deploy(TopologyLayout topology, String mavenArtifacts, TopologyActionContext ctx, String asUser) throws Exception {
         LOG.info("XXXXXXXXXXXXXX deploy() XXXXXXXXXXXXXXXXXXX");
 
         ManagedPipelineGenerator dagVisitor = new ManagedPipelineGenerator(topology);
@@ -73,7 +73,8 @@ public class PiperTopologyActionsImpl implements TopologyActions {
 
         Pipeline pipeline = dagVisitor.generatePipeline();
         PiperRestAPIClient client = new PiperRestAPIClient("http://localhost:4310", null);
-        LOG.info(client.deployPipeline(pipeline));
+        String piperApplicationId = client.deployPipeline(pipeline);
+        return piperApplicationId;
     }
 
     @Override

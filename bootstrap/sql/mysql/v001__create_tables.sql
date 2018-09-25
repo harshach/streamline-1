@@ -202,6 +202,15 @@ CREATE TABLE IF NOT EXISTS tag_storable_mapping (
     PRIMARY KEY (tagId, storableNamespace, storableId)
 );
 
+CREATE TABLE IF NOT EXISTS topology_runtime_id_map (
+    topologyId BIGINT NOT NULL,
+    namespaceId  BIGINT NOT NULL,
+    applicationId VARCHAR(1096) NOT NULL,
+    PRIMARY KEY (topologyId, namespaceId),
+    FOREIGN KEY (topologyId) REFERENCES topology(id),
+    FOREIGN KEY (namespaceId) REFERENCES namespace(id)
+);
+
 CREATE TABLE IF NOT EXISTS topology_stream (
     id BIGINT AUTO_INCREMENT NOT NULL,
     versionId BIGINT NOT NULL,

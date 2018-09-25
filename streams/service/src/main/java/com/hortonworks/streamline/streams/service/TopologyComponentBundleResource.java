@@ -238,7 +238,7 @@ public class TopologyComponentBundleResource {
             topologyComponentBundle.setType(componentType);
             TopologyComponentBundle createdBundle = catalogService.addTopologyComponentBundle(topologyComponentBundle, tmpFile);
             return WSUtils.respondEntity(createdBundle, CREATED);
-        } catch (Exception e) {
+        } catch (RuntimeException e) {
             LOG.debug("Error occured while adding topology component bundle", e);
             throw e;
         }  finally {

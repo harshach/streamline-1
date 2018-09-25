@@ -27,7 +27,6 @@ public class Connections {
         if ((other instanceof Connections) == false) {
             return false;
         }
-        Connections rhs = ((Connections) other);
         return new EqualsBuilder().isEquals();
     }
 

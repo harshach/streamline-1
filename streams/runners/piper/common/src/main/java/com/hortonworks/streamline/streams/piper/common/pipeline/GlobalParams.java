@@ -27,7 +27,6 @@ public class GlobalParams {
         if ((other instanceof GlobalParams) == false) {
             return false;
         }
-        GlobalParams rhs = ((GlobalParams) other);
         return new EqualsBuilder().isEquals();
     }
 

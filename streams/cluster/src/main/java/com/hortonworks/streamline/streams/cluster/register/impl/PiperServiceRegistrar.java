@@ -21,8 +21,6 @@ import com.hortonworks.streamline.common.Config;
 import com.hortonworks.streamline.streams.cluster.catalog.Component;
 import com.hortonworks.streamline.streams.cluster.catalog.ComponentProcess;
 import com.hortonworks.streamline.streams.cluster.catalog.ServiceConfiguration;
-import com.hortonworks.streamline.streams.cluster.Constants;
-import com.hortonworks.streamline.streams.cluster.discovery.ambari.ServiceConfigurations;
 
 import java.util.Collections;
 import java.util.HashMap;
@@ -35,8 +33,6 @@ public class PiperServiceRegistrar extends AbstractServiceRegistrar {
     public static final String PARAM_PIPER_UI_PORT= "piper.service.port";
     public static final String SERVICE_NAME = "piper";
     public static final String CONF_TYPE_PROPERTIES = "properties";
-
-    private final ObjectMapper objectMapper = new ObjectMapper();
 
     @Override
     protected String getServiceName() {

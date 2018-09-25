@@ -27,7 +27,6 @@ public class ExtraPayload {
         if ((other instanceof ExtraPayload) == false) {
             return false;
         }
-        ExtraPayload rhs = ((ExtraPayload) other);
         return new EqualsBuilder().isEquals();
     }
 

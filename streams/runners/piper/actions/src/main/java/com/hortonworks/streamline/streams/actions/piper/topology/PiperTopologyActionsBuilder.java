@@ -14,16 +14,12 @@ import java.util.Map;
  */
 public class PiperTopologyActionsBuilder implements TopologyActionsBuilder<Map<String, Object>> {
 
-    private Map<String, String> streamlineConf;
-    private TopologyActionsService topologyActionsService;
     private TopologyActions piperTopologyActions;
     private Map<String, Object> conf;
 
     @Override
     public void init(Map<String, String> streamlineConf, TopologyActionsService topologyActionsService, Namespace namespace, Subject subject) {
         this.conf = new HashMap<>();
-        this.topologyActionsService = topologyActionsService;
-        this.streamlineConf = streamlineConf;
         buildPiperTopologyActionsConfigMap(namespace, subject);
         piperTopologyActions = new PiperTopologyActionsImpl();
         piperTopologyActions.init(this.conf, topologyActionsService);

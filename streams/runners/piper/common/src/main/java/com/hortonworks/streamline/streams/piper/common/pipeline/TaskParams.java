@@ -45,7 +45,6 @@ public class TaskParams {
         if ((other instanceof TaskParams) == false) {
             return false;
         }
-        TaskParams rhs = ((TaskParams) other);
         return new EqualsBuilder().isEquals();
     }
 

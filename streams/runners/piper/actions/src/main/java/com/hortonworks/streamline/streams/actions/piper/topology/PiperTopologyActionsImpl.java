@@ -1,16 +1,12 @@
 package com.hortonworks.streamline.streams.actions.piper.topology;
 
-import com.hortonworks.streamline.common.Config;
 import com.hortonworks.streamline.streams.actions.TopologyActionContext;
 import com.hortonworks.streamline.streams.actions.TopologyActions;
 import com.hortonworks.streamline.streams.piper.common.pipeline.Pipeline;
-import com.hortonworks.streamline.streams.piper.common.pipeline.Task;
-import com.hortonworks.streamline.streams.piper.common.pipeline.TaskParams;
 import com.hortonworks.streamline.streams.actions.topology.service.TopologyActionsService;
 import com.hortonworks.streamline.streams.catalog.Topology;
 import com.hortonworks.streamline.streams.catalog.TopologyTestRunHistory;
 import com.hortonworks.streamline.streams.exception.TopologyNotAliveException;
-import com.hortonworks.streamline.streams.layout.component.InputComponent;
 import com.hortonworks.streamline.streams.layout.component.TopologyDag;
 import com.hortonworks.streamline.streams.layout.component.TopologyLayout;
 import com.hortonworks.streamline.streams.layout.component.impl.testing.TestRunProcessor;
@@ -19,16 +15,11 @@ import com.hortonworks.streamline.streams.layout.component.impl.testing.TestRunS
 import com.hortonworks.streamline.streams.layout.component.impl.testing.TestRunSource;
 
 import com.hortonworks.streamline.streams.piper.common.PiperRestAPIClient;
-import io.dropwizard.lifecycle.Managed;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.security.auth.Subject;
 import java.io.IOException;
 import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 
@@ -44,9 +35,7 @@ public class PiperTopologyActionsImpl implements TopologyActions {
     @Override
     public void init(Map<String, Object> conf, TopologyActionsService topologyActionsService) {
         String piperAPIRootUrl = "http://127.0.0.1:4310";
-        Subject subject = null;
-
-        this.client = new PiperRestAPIClient(piperAPIRootUrl, subject);
+        this.client = new PiperRestAPIClient(piperAPIRootUrl, null);
     }
 
     @Override
@@ -69,11 +58,8 @@ public class PiperTopologyActionsImpl implements TopologyActions {
         LOG.info("XXXXXXXXXXXXXX deploy() XXXXXXXXXXXXXXXXXXX");
 
         ManagedPipelineGenerator dagVisitor = new ManagedPipelineGenerator(topology);
-        //topology.getTopologyDag().traverse(dagVisitor);
-
         Pipeline pipeline = dagVisitor.generatePipeline();
-        PiperRestAPIClient client = new PiperRestAPIClient("http://localhost:4310", null);
-        String piperApplicationId = client.deployPipeline(pipeline);
+        String piperApplicationId = this.client.deployPipeline(pipeline);
         return piperApplicationId;
     }
 

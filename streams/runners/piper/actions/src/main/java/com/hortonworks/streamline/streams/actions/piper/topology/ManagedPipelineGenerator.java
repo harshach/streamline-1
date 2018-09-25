@@ -106,13 +106,6 @@ public class ManagedPipelineGenerator extends TopologyDagVisitor {
     private void configureTasks(Pipeline pipeline) {
         ArrayList<Task> tasks = new ArrayList<Task>();
 
-        // TODO Move into Component logic
-        Map<String, String> dependenciesMap = new HashMap<String, String>();
-        for (Edge edge: topology.getTopologyDag().getAllEdges()) {
-            edge.getTo();
-            edge.getFrom();
-
-        }
         for (Component component: topology.getTopologyDag().getInputComponents()) {
             Task task = new Task();
             task.setTaskId(taskIdForComponent(component));
@@ -186,7 +179,7 @@ public class ManagedPipelineGenerator extends TopologyDagVisitor {
             if (intervalProp.containsKey(PIPER_TOPOLOGY_CONFIG_SCHEDULE_INTERVAL_TYPE_TIME)) {
                 Map<String,Object> intervalOptions = (Map<String,Object>)intervalProp.get(PIPER_TOPOLOGY_CONFIG_SCHEDULE_INTERVAL_TYPE_TIME);
                 String timeType = (String)intervalOptions.get(PIPER_TOPOLOGY_CONFIG_SCHEDULE_INTERVAL_TIME_TYPE);
-                long multiplier = Long.valueOf((String)intervalOptions.get(PIPER_TOPOLOGY_CONFIG_SCHEDULE_INTERVAL_MULTIPLIER));
+                long multiplier = Long.parseLong((String)intervalOptions.get(PIPER_TOPOLOGY_CONFIG_SCHEDULE_INTERVAL_MULTIPLIER));
                 long intervalTime = 60;
 
                 if (PIPER_TOPOLOGY_CONFIG_TIME_TYPE_MINUTE.equalsIgnoreCase(timeType)) {

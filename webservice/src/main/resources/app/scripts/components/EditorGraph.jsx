@@ -484,7 +484,7 @@ export class PiperEditorGraph extends EditorGraph{
   }
   getModalScope(node){
     let config = this.tasksConfigArr.filter((o) => {
-      return o.subType === node.currentType.toUpperCase();
+      return o.id === node.topologyComponentBundleId;
     });
     if (config.length > 0) {
       config = config[0];

@@ -120,7 +120,6 @@ class EditorGraph extends Component {
       topologyId,
       versionId,
       graphData,
-      getModalScope,
       setModalContent,
       getEdgeConfigModal,
       setLastChange,
@@ -163,7 +162,7 @@ class EditorGraph extends Component {
               versionId={versionId}
               versionsArr={versionsArr}
               viewMode={viewMode}
-              getModalScope={getModalScope}
+              getModalScope={this.getModalScope}
               setModalContent={setModalContent}
               getEdgeConfigModal={getEdgeConfigModal}
               setLastChange={setLastChange}
@@ -361,7 +360,7 @@ class SPS_EditorGraph extends EditorGraph{
     const {bundleArr} = this.state;
     return [...bundleArr.sourceBundle, ...bundleArr.processorsBundle, ...bundleArr.sinksBundle];
   }
-  getModalScope(node) {
+  getModalScope = (node) => {
     let obj = {
         testRunActivated : this.state.testRunActivated,
         editMode: !this.props.viewMode,
@@ -482,7 +481,7 @@ export class PiperEditorGraph extends EditorGraph{
     const {bundleArr} = this.state;
     return [...bundleArr.tasks];
   }
-  getModalScope(node){
+  getModalScope = (node) => {
     let config = this.tasksConfigArr.filter((o) => {
       return o.id === node.topologyComponentBundleId;
     });

@@ -511,9 +511,6 @@ export class TopologyEditorContainer extends Component {
       }
     }
   }
-  getModalScope(node) {
-    return this.refs.EditorGraph.child.decoratedComponentInstance.getModalScope(node);
-  }
   deployTopology() {
     // this.refs.BaseContainer.refs.Confirm.show({title: 'Are you sure you want to deploy this Workflow?'}).then((confirmBox) => {
     this.refs.deployLoadingModal.show();
@@ -1243,7 +1240,6 @@ export class TopologyEditorContainer extends Component {
       topologyConfig={this.topologyConfig}
       topologyTimeSec={this.state.topologyTimeSec}
       versionsArr={this.state.versionsArr}
-      getModalScope={this.getModalScope.bind(this)}
       setModalContent={this.setModalContent.bind(this)}
       customProcessors={this.customProcessors}
       getEdgeConfigModal={this.showEdgeConfigModal.bind(this)}

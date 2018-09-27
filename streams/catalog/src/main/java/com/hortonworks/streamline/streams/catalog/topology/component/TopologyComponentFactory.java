@@ -33,6 +33,7 @@ import com.hortonworks.streamline.streams.catalog.TopologyWindow;
 import com.hortonworks.streamline.streams.catalog.TopologyTask;
 import com.hortonworks.streamline.streams.catalog.service.StreamCatalogService;
 import com.hortonworks.streamline.streams.catalog.topology.TopologyComponentBundle;
+import com.hortonworks.streamline.streams.catalog.topology.TopologyComponentBundle.TopologyComponentType;
 import com.hortonworks.streamline.streams.layout.component.Edge;
 import com.hortonworks.streamline.streams.layout.component.InputComponent;
 import com.hortonworks.streamline.streams.layout.component.OutputComponent;
@@ -170,8 +171,8 @@ public class TopologyComponentFactory {
             throw new IllegalStateException("Topology component " + topologyComponent + " must be reconfigured");
         }
         TopologyComponentBundle topologyComponentBundle = getTopologyComponentBundle(topologyComponent);
-        StreamlineComponent component = getProvider(clazz, topologyComponentBundle.getSubType())
-                .create(topologyComponent);
+        StreamlineComponent component = getProvider(clazz, topologyComponentBundle.getType(),
+                topologyComponentBundle.getSubType()).create(topologyComponent);
         component.setId(topologyComponent.getId().toString());
         component.setName(topologyComponent.getName());
         component.setConfig(topologyComponent.getConfig());
@@ -283,12 +284,17 @@ public class TopologyComponentFactory {
         return outputStreams;
     }
 
-    private <T extends StreamlineComponent> Provider<T> getProvider(final Class<T> clazz, String type) {
-        if (providerMap.get(clazz).containsKey(type)) {
-            return (Provider<T>) providerMap.get(clazz).get(type);
+    private <T extends StreamlineComponent> Provider<T> getProvider(final Class<T> clazz,
+                                                                    TopologyComponentType type, String subType) {
+        Provider<T> provider;
+        if (providerMap.get(clazz).containsKey(subType)) {
+            provider = (Provider<T>) providerMap.get(clazz).get(subType);
+        } else if (type.equals(TopologyComponentType.TASK) && !providerMap.get(clazz).containsKey(subType)) {
+            provider =  (Provider<T>) providerMap.get(clazz).get(TASK);
+
         } else {
             LOG.warn("Type {} not found in provider map, returning an instance of {}", type, clazz.getName());
-            return new Provider<T>() {
+            provider = new Provider<T>() {
                 @Override
                 public T create(TopologyComponent component) {
                     try {
@@ -300,6 +306,7 @@ public class TopologyComponentFactory {
                 }
             };
         }
+        return provider;
     }
 
     private interface Provider<T extends StreamlineComponent> {
@@ -319,7 +326,7 @@ public class TopologyComponentFactory {
                 return new GenericTask(outputStreams.iterator().next());
             }
         };
-        return new SimpleImmutableEntry<>("HIVE", provider);
+        return new SimpleImmutableEntry<>(TASK, provider);
     }
 
     private Map.Entry<String, Provider<StreamlineSource>> kafkaSourceProvider() {

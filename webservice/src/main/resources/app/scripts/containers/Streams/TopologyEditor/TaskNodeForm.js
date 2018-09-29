@@ -119,9 +119,10 @@ export default class TaskNodeForm extends Component {
       stateObj.securityType = stateObj.formData.securityProtocol || '';
       this.setState(stateObj, () => {
         if (stateObj.formData.cluster !== undefined) {
-          this.setState({streamObj: this.state.streamObj});
+          this.updateClusterFields(stateObj.formData.cluster);
         } else if (_.keys(stateObj.clusterArr).length === 1) {
-          // stateObj.formData.cluster = _.keys(stateObj.clusterArr)[0];
+          stateObj.formData.cluster = _.keys(stateObj.clusterArr)[0];
+          this.updateClusterFields(stateObj.formData.cluster);
         }
       });
     });
@@ -130,6 +131,66 @@ export default class TaskNodeForm extends Component {
   fetchFields = (clusterList) => {
     let obj = this.props.configData.topologyComponentUISpecification.fields;
     return obj;
+  }
+
+  populateClusterFields(val) {
+    const {clusterArr} = this.state;
+    const tempObj = Object.assign({}, this.state.formData, {topic: ''});
+    // split the val to find the key by URL
+    let splitValues = val.split('@#$');
+    let keyName;
+    if(!_.isEmpty(splitValues[1])){
+      keyName = Utils.getClusterKey(splitValues[1], false,clusterArr);
+    } else {
+      keyName = Utils.getClusterKey(splitValues[0], true,clusterArr);
+    }
+    this.setState({
+      clusterName: keyName,
+      streamObj: '',
+      formData: tempObj
+    }, () => {
+      this.updateClusterFields();
+    });
+  }
+
+  pushClusterFields = (opt, uiSpecification) => {
+    const obj = uiSpecification.map(x => {
+      if (x.fieldName === 'clusters') {
+        x.options = opt;
+      }
+      return x;
+    });
+    return obj;
+  }
+
+  updateClusterFields(name) {
+    const {clusterArr, clusterName, streamObj, formData,configJSON} = this.state;
+    const {FormData} = this.refs.Form.state;
+
+    const mergeData = Utils.deepmerge(formData,FormData);
+    let tempFormData = _.cloneDeep(mergeData);
+    let stateObj = {};
+    /*
+      Utils.mergeFormDataFields method accept params
+      name =  name of cluster
+      clusterArr = clusterArr array
+      tempFormData = formData is fields of form
+      configJSON = fields shown on ui depends on there options
+
+      This method is responsible for showing default value of form fields
+      and prefetch the value if its already configure
+    */
+    const {obj,tempData} = Utils.mergeFormDataFields(name,clusterArr, clusterName, tempFormData, configJSON);
+    stateObj.configJSON = obj;
+    stateObj.formData = tempData;
+    if(clusterArr.length === 0 && formData.cluster !== ''){
+      let tempObj = this.props.configData.topologyComponentUISpecification.fields;
+      tempObj.unshift(Utils.clusterField());
+      stateObj.configJSON = tempObj;
+      FSReactToastr.error(
+        <CommonNotification flag="error" content={'Cluster is not available'}/>, '', toastOpt);
+    }
+    this.setState(stateObj);
   }
 
   validateData() {
@@ -264,7 +325,16 @@ export default class TaskNodeForm extends Component {
         <Scrollbars autoHide renderThumbHorizontal={props => <div {...props} style={{
           display: "none"
         }}/>}>
-          <Form ref="Form" readOnly={disabledFields} showRequired={this.state.showRequired} showSecurity={this.state.showSecurity} className="customFormClass" FormData={formData} Errors={formErrors} callback={this.showOutputStream.bind(this)}>
+          <Form
+            ref="Form"
+            readOnly={disabledFields}
+            showRequired={this.state.showRequired}
+            showSecurity={this.state.showSecurity}
+            className="customFormClass"
+            FormData={formData}
+            Errors={formErrors}
+            populateClusterFields={this.populateClusterFields.bind(this)}
+            callback={this.showOutputStream.bind(this)}>
             {fields}
           </Form>
         </Scrollbars>

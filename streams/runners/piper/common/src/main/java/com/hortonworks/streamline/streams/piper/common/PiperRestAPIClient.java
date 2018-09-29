@@ -13,6 +13,8 @@ import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.core.MediaType;
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 import java.security.PrivilegedAction;
 import java.util.Map;
 
@@ -20,6 +22,8 @@ public class PiperRestAPIClient {
     private static final Logger LOG = LoggerFactory.getLogger(PiperRestAPIClient.class);
 
     public static final MediaType REST_API_MEDIA_TYPE = MediaType.TEXT_PLAIN_TYPE;
+    public static final Integer DEFAULT_PAGE_SIZE = 2000;
+
     private final String apiRootUrl;
     private final Subject subject;
     private final Client client;
@@ -40,6 +44,19 @@ public class PiperRestAPIClient {
 
     public String deployPipeline(Object pipeline) {
         return doPostRequest(String.format("%s/api/v1/managed_pipelines", this.apiRootUrl), pipeline);
+    }
+
+    public Map getConnections(String type) {
+        return doGetRequest(String.format("%s/api/v1/connections/search?page_size=%d&conn_type=%s",
+                this.apiRootUrl, DEFAULT_PAGE_SIZE, encodeParam(type)));
+    }
+
+    private String encodeParam(String s) {
+        try {
+            return URLEncoder.encode(s, "UTF-8");
+        } catch (UnsupportedEncodingException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     private String doPostRequest(final String requestUrl, final Object bodyObject) {

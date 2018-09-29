@@ -157,10 +157,13 @@ public class ServiceCatalogResource {
 
         if (environmentService.isEnableShadowNamespaces()) {
             Cluster cluster = environmentService.getCluster(clusterId);
-            Namespace shadowNamespace = environmentService.getNamespaceByName(cluster.getName());
 
-            if (cluster != null && shadowNamespace != null) {
-                environmentService.removeServiceClusterMapping(shadowNamespace.getId(), service.getName(), clusterId);
+            if (cluster != null) {
+                Namespace shadowNamespace = environmentService.getNamespaceByName(cluster.getName());
+
+                if (shadowNamespace != null) {
+                    environmentService.removeServiceClusterMapping(shadowNamespace.getId(), service.getName(), clusterId);
+                }
             }
         }
 

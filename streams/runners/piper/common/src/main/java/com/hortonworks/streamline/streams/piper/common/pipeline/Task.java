@@ -23,13 +23,13 @@ public class Task {
     @JsonProperty("task_id")
     private String taskId;
     @JsonProperty("retries")
-    private Double retries;
+    private Integer retries;
     @JsonProperty("retry_delay")
-    private Double retryDelay;
+    private Integer retryDelay;
     @JsonProperty("trigger_rule")
     private Task.TriggerRule triggerRule;
     @JsonProperty("execution_timeout")
-    private Double executionTimeout;
+    private Integer executionTimeout;
     /**
      * 
      * (Required)
@@ -83,22 +83,22 @@ public class Task {
     }
 
     @JsonProperty("retries")
-    public Double getRetries() {
+    public Integer getRetries() {
         return retries;
     }
 
     @JsonProperty("retries")
-    public void setRetries(Double retries) {
+    public void setRetries(Integer retries) {
         this.retries = retries;
     }
 
     @JsonProperty("retry_delay")
-    public Double getRetryDelay() {
+    public Integer getRetryDelay() {
         return retryDelay;
     }
 
     @JsonProperty("retry_delay")
-    public void setRetryDelay(Double retryDelay) {
+    public void setRetryDelay(Integer retryDelay) {
         this.retryDelay = retryDelay;
     }
 
@@ -113,12 +113,12 @@ public class Task {
     }
 
     @JsonProperty("execution_timeout")
-    public Double getExecutionTimeout() {
+    public Integer getExecutionTimeout() {
         return executionTimeout;
     }
 
     @JsonProperty("execution_timeout")
-    public void setExecutionTimeout(Double executionTimeout) {
+    public void setExecutionTimeout(Integer executionTimeout) {
         this.executionTimeout = executionTimeout;
     }
 

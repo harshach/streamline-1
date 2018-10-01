@@ -5,28 +5,37 @@
     "engine": "PIPER",
     "template": ["Blank"],
     "builtin": true,
-    "transformationClass": "com.hortonworks.streamline.streams.layout.storm.StreamsShellBoltFluxComponent",
+    "transformationClass": "com.hortonworks.streamline.streams.layout.piper.GenericPiperTaskComponent",
     "input": true,
     "output": true,
     "topologyComponentUISpecification": {
         "fields": [
             {
+                "uiName": "Piper Task Class",
+                "fieldName": "class_name",
+                "isUserInput": false,
+                "tooltip": "Piper Task Class name",
+                "isOptional": false,
+                "defaultValue": "piper.tasks.hive_task.HiveTask",
+                "type": "string"
+            },
+            {
                 "uiName": "Hive Query",
-                "fieldName": "hiveQuery",
+                "fieldName": "task_params.hql",
                 "tooltip": "Query to Run",
                 "isOptional": false,
                 "type": "string"
             },
             {
                 "uiName": "Hive Connection ID",
-                "fieldName": "hiveConnectionID",
+                "fieldName": "task_params.hive_conn_id",
                 "tooltip": "Hive Connection",
                 "isOptional": false,
                 "type": "string"
             },
             {
                 "uiName": "Database",
-                "fieldName": "database",
+                "fieldName": "task_params.database",
                 "tooltip": "Default database to use",
                 "isOptional": true,
                 "type": "string"
@@ -38,6 +47,40 @@
                 "tooltip": "Piper pool to run task in",
                 "isOptional": false,
                 "type": "string"
-            }]
+            },
+            {
+                "uiName": "Retries",
+                "fieldName": "retries",
+                "isUserInput": true,
+                "tooltip": "Number of Retries",
+                "isOptional": true,
+                "type": "number"
+            },
+            {
+                "uiName": "Retry Delay",
+                "fieldName": "retry_delay",
+                "isUserInput": true,
+                "tooltip": "Retry delay in seconds between retries",
+                "isOptional": true,
+                "type": "number"
+            },
+            {
+                "uiName": "Execution Timeout",
+                "fieldName": "execution_timeout",
+                "isUserInput": true,
+                "tooltip": "Execution timeout in seconds. After this time task will be failed. Must be <= 24 hours.",
+                "isOptional": true,
+                "type": "number"
+            },
+            {
+                "uiName": "Trigger Rule",
+                "fieldName": "trigger_rule",
+                "isUserInput": true,
+                "tooltip": "Trigger Rule for running task looking at task dependencies",
+                "isOptional": true,
+                "type": "enumstring",
+                "options": ["all_success", "all_failed", "all_done", "one_success", "one_failed", "dummy"]
+            }
+        ]
     }
 }

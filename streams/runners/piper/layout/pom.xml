@@ -29,5 +29,13 @@
             <version>4.12</version>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>com.hortonworks.streamline</groupId>
+            <artifactId>streamline-common-piper</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.hortonworks.streamline</groupId>
+            <artifactId>streamline-layout</artifactId>
+        </dependency>
     </dependencies>
 </project>

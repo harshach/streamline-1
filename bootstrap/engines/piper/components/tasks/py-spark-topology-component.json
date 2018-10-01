@@ -1,7 +1,7 @@
 {
   "type": "TASK",
-  "name": "Spark",
-  "subType": "SPARK",
+  "name": "PySpark",
+  "subType": "PYSPARK",
   "engine": "PIPER",
   "template": ["Blank"],
   "builtin": true,
@@ -16,25 +16,18 @@
         "isUserInput": false,
         "tooltip": "Piper Task Class name",
         "isOptional": false,
-        "defaultValue": "piper.tasks.spark_task.SparkTask",
+        "defaultValue": "piper.tasks.spark_task.PySparkTask",
         "type": "string"
       },
       {
-        "uiName": "Spark JAR filename",
-        "fieldName": "task_params.jar",
-        "tooltip": "Spark Jar file, for example hdfs:///user/my_user/my_file.jar",
+        "uiName": "Python filename",
+        "fieldName": "task_params.pyfile",
+        "tooltip": "Python filename, for example hdfs:///app/myapp/pyspark_script.py",
         "isOptional": false,
         "type": "string"
       },
       {
-        "uiName": "Spark class name",
-        "fieldName": "task_params.klass",
-        "tooltip": "Spark Class to run, for example: com.uber.myteam.myapp.SparkApp",
-        "isOptional": false,
-        "type": "string"
-      },
-      {
-        "uiName": "Spark JAR arguments",
+        "uiName": "Python File input arguments",
         "fieldName": "task_params.spark_args",
         "tooltip": "Spark Args, for example --nPartitions,15",
         "isOptional": true,

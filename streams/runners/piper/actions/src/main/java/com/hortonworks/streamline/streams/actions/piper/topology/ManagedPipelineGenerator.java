@@ -9,9 +9,12 @@ import com.hortonworks.streamline.streams.layout.component.StreamlineComponent;
 import com.hortonworks.streamline.streams.layout.component.StreamlineProcessor;
 import com.hortonworks.streamline.streams.layout.component.StreamlineSink;
 import com.hortonworks.streamline.streams.layout.component.StreamlineSource;
+import com.hortonworks.streamline.streams.layout.component.StreamlineTask;
 import com.hortonworks.streamline.streams.layout.component.TopologyDagVisitor;
 import com.hortonworks.streamline.streams.layout.component.TopologyLayout;
 import com.hortonworks.streamline.streams.layout.component.impl.RulesProcessor;
+import com.hortonworks.streamline.streams.layout.piper.PiperTaskComponent;
+import com.hortonworks.streamline.streams.layout.piper.PiperTaskComponentFactory;
 import com.hortonworks.streamline.streams.piper.common.pipeline.Pipeline;
 import com.hortonworks.streamline.streams.piper.common.pipeline.Task;
 import com.hortonworks.streamline.streams.piper.common.pipeline.TaskParams;
@@ -24,6 +27,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -95,7 +99,6 @@ public class ManagedPipelineGenerator extends TopologyDagVisitor {
     }
 
     public Pipeline generatePipeline() {
-
         Config topologyConfig = this.topology.getConfig();
         Pipeline pipeline = new Pipeline();
         configurePipelineSettings(topologyConfig, pipeline);
@@ -106,16 +109,17 @@ public class ManagedPipelineGenerator extends TopologyDagVisitor {
     private void configureTasks(Pipeline pipeline) {
         ArrayList<Task> tasks = new ArrayList<Task>();
 
-        for (Component component: topology.getTopologyDag().getInputComponents()) {
-            Task task = new Task();
+        PiperTaskComponentFactory taskFactory = new PiperTaskComponentFactory();
+        for (Component baseComponent: topology.getTopologyDag().getInputComponents()) {
+            StreamlineTask component = (StreamlineTask)baseComponent;
+
+            PiperTaskComponent piperComponent = taskFactory.getPiperTaskComponent(component);
+            Map<String, Object> props = new LinkedHashMap<>();
+            props.putAll(component.getConfig().getProperties());
+            piperComponent.withConfig(props);
+            Task task = piperComponent.generateTask();
             task.setTaskId(taskIdForComponent(component));
 
-            if (component.getName().startsWith("HIVE")) {
-                configureHiveTask(component, task);
-            } else if (component.getName().startsWith("SPARK")) {
-                configureSparkTask(component, task);
-            }
-            task.setPool(component.getConfig().getString("pool"));
             List<String> dependencies = new ArrayList<String>();
             for (Edge edge: topology.getTopologyDag().getEdgesTo(component)) {
                 dependencies.add(taskIdForComponent(edge.getFrom()));
@@ -205,24 +209,6 @@ public class ManagedPipelineGenerator extends TopologyDagVisitor {
 
     private String taskIdForComponent(Component component) {
         return component.getName();
-    }
-
-    private void configureHiveTask(Component component, Task task) {
-        TaskParams taskParams = new TaskParams();
-        taskParams.setParams("hql", component.getConfig().getString("hiveQuery"));
-        taskParams.setParams("hive_conn_id", component.getConfig().getString("hiveConnectionID"));
-        task.setTaskParams(taskParams);
-        task.setTaskClass("piper.tasks.hive_task.HiveTask");
-    }
-
-    private void configureSparkTask(Component component, Task task) {
-        TaskParams taskParams = new TaskParams();
-        taskParams.setParams("jar", component.getConfig().getString("taskArgs.jar"));
-        taskParams.setParams("klass", component.getConfig().getString("taskArgs.klass"));
-        taskParams.setParams("spark_conn_id", component.getConfig().getString("spark_conn_id"));
-
-        task.setTaskParams(taskParams);
-        task.setTaskClass("piper.tasks.spark_task.SparkTask");
     }
 
     private String convertCalendarToISO(String dateStr) {

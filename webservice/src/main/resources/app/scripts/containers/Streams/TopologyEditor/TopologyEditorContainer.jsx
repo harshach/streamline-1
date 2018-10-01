@@ -1207,7 +1207,13 @@ export class TopologyEditorContainer extends Component {
   }
 
   getEditorGraph(){
-    const {progressCount, progressBarColor, fetchLoader, mapTopologyConfig,deployStatus,testRunActivated,testCaseList,selectedTestObj,testCaseLoader,testRunCurrentEdges,testResult,nodeData,testName,showError,testSinkConfigure,nodeListArr,hideEventLog,eventLogData,testHistory,testCompleted,deployFlag,testRunningMode,abortTestCase,notifyCheck,activePage,activePageList, topologyData} = this.state;
+    const {
+      progressCount, progressBarColor, fetchLoader, mapTopologyConfig,
+      deployStatus, testRunActivated, testCaseList, selectedTestObj, testCaseLoader,
+      testRunCurrentEdges, testResult, nodeData, testName, showError, testSinkConfigure,
+      nodeListArr, hideEventLog, eventLogData, testHistory, testCompleted, deployFlag,
+      testRunningMode, abortTestCase, notifyCheck, activePage, activePageList, topologyData
+    } = this.state;
 
     let EditorComp = null;
 

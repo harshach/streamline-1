@@ -375,7 +375,7 @@ var getSourceProcessorSink = function(){
     </ul>];
 };
 
-class SPS_ComponentNodeContainer extends ComponentNodeContainer{
+class SPSComponentNodeContainer extends ComponentNodeContainer{
   getComponents(){
     return getSourceProcessorSink.call(this, arguments);
   }
@@ -435,7 +435,7 @@ class SPS_ComponentNodeContainer extends ComponentNodeContainer{
 
 @DragSource(ItemTypes.ComponentNodes, nodeSource, collect)
 @observer
-export class StormComponentNodeContainer extends SPS_ComponentNodeContainer{}
+export class StormComponentNodeContainer extends SPSComponentNodeContainer{}
 
 @DragSource(ItemTypes.ComponentNodes, nodeSource, collect)
 @observer

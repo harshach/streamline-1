@@ -50,11 +50,7 @@ class EditorGraph extends Component {
   static propTypes = {
     connectDropTarget: PropTypes.func.isRequired
   };
-  componentWillReceiveProps(newProps) {
-    /*if (newProps.bundleArr !== null) {
-      this.setState({bundleArr: newProps.bundleArr});
-    }*/
-  }
+  componentWillReceiveProps(newProps) {}
   constructor(props) {
     super(props);
     let left = window.innerWidth - 300;
@@ -208,7 +204,7 @@ class EditorGraph extends Component {
   }
 }
 
-class SPS_EditorGraph extends EditorGraph{
+class SPSEditorGraph extends EditorGraph{
   get ComponentNodeContainer(){
     return StormComponentNodeContainer;
   }
@@ -270,14 +266,14 @@ class SPS_EditorGraph extends EditorGraph{
   processorSlideInterval(processors) {
     const {topologyTimeSec, topologyName, topologyVersion} = this.props;
     let tempIntervalArr = [];
-    const p_String = "JOIN,AGGREGATE";
-    const p_index = _.findIndex(processors, function(processor) {
+    const pString = "JOIN,AGGREGATE";
+    const pIndex = _.findIndex(processors, function(processor) {
       const name = processor.name !== undefined
         ? processor.name.split('-')
         : '';
-      return p_String.indexOf(name[0]) !== -1;
+      return pString.indexOf(name[0]) !== -1;
     });
-    if (p_index === -1) {
+    if (pIndex === -1) {
       this.tempIntervalArr = [];
       const {topologyConfig} = this.props;
       topologyConfig["topology.message.timeout.secs"] = topologyTimeSec;
@@ -426,7 +422,7 @@ class SPS_EditorGraph extends EditorGraph{
 @DragDropContext(HTML5Backend)
 @DropTarget(ItemTypes.ComponentNodes, componentTarget, collect)
 @observer
-export class StormEditorGraph extends SPS_EditorGraph{}
+export class StormEditorGraph extends SPSEditorGraph{}
 
 @DragDropContext(HTML5Backend)
 @DropTarget(ItemTypes.ComponentNodes, componentTarget, collect)
@@ -502,7 +498,7 @@ export class PiperEditorGraph extends EditorGraph{
 @DragDropContext(HTML5Backend)
 @DropTarget(ItemTypes.ComponentNodes, componentTarget, collect)
 @observer
-export class AthenaXEditorGraph extends SPS_EditorGraph{
+export class AthenaXEditorGraph extends SPSEditorGraph{
   get ComponentNodeContainer(){
     return AthenaXComponentNodeContainer;
   }

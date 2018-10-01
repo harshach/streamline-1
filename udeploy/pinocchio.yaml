@@ -1,6 +1,5 @@
 schema_version: 2.0.0
 service_name: uworc
-owning_team: uworc
 service_type: java
 env_vars:
   - name: UBER_CONFIG_DIR

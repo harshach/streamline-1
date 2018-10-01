@@ -1,0 +1,24 @@
+schema_version: 2.0.0
+service_name: uworc
+owning_team: uworc
+service_type: java
+env_vars:
+  - name: UBER_CONFIG_DIR
+    value: '/home/udocker/uworc/conf/'
+java:
+  jdk_version: 'oraclejdk_8u65'
+  build_system: 'maven'
+  pre_build_cmds:
+    - 'RUN npm install npm@3 -g &&
+          npm config set prefix /usr/lib/node0.10'
+export_paths:
+  - /home/udocker/uworc
+  - /usr/bin
+  - /usr/local
+  - /var/tmp
+applications:
+  - udeploy_app_id: 'uworc'
+    app_type: command_line
+    command_line:
+      run_cmd: '/home/udocker/uworc/bin/streamline-server-start.sh /home/udocker/conf/streamline.yaml'
+    health_check: http

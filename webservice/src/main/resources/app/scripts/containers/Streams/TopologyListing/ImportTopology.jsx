@@ -20,6 +20,7 @@ import {Select2 as Select} from '../../../utils/SelectUtils';
 /* import common utils*/
 import TopologyREST from '../../../rest/TopologyREST';
 import EnvironmentREST from '../../../rest/EnvironmentREST';
+import ProjectREST from '../../../rest/ProjectREST';
 import Utils from '../../../utils/Utils';
 import TopologyUtils from '../../../utils/TopologyUtils';
 import FSReactToastr from '../../../components/FSReactToastr';
@@ -41,13 +42,20 @@ class ImportTopology extends Component {
       validInput: true,
       validSelect: true,
       showRequired: true,
-      nameError : true
+      nameError : true,
+      projects: [],
+      projectId: props.defaultProjectId
     };
     this.fetchData();
   }
 
   fetchData = () => {
     let promiseArr = [EnvironmentREST.getAllNameSpaces()];
+    promiseArr.push(ProjectREST.getAllProjects().then((res) => {
+      const projects = res.entities;
+      this.setState({projects: projects});
+      return projects;
+    }));
     Promise.all(promiseArr).then(result => {
       if (result[0].responseMessage !== undefined) {
         FSReactToastr.error(
@@ -83,7 +91,7 @@ class ImportTopology extends Component {
     if (!this.validate()) {
       return;
     }
-    const {jsonFile, namespaceId} = this.state;
+    const {jsonFile, namespaceId, projectId} = this.state;
     const topologyName = this.refs.topologyName.value.trim();
     let formData = new FormData();
     topologyName
@@ -91,6 +99,7 @@ class ImportTopology extends Component {
       : '';
     formData.append('file', jsonFile);
     formData.append('namespaceId', namespaceId);
+    formData.append('projectId', projectId);
 
     return TopologyREST.importTopology({body: formData});
   }
@@ -108,12 +117,16 @@ class ImportTopology extends Component {
       this.setState({namespaceId: '', validSelect: false});
     }
   }
+  handleOnChangeProject = (obj) => {
+    this.setState({projectId: obj.id});
+  }
   topologyNameChange = (e) => {
     this.setState({nameError : Utils.noSpecialCharString(e.target.value)});
   }
 
   render() {
-    const {validInput, validSelect, showRequired, namespaceId, namespaceOptions,nameError} = this.state;
+    const {validInput, validSelect, showRequired, namespaceId, namespaceOptions,nameError,
+      projectId, projects} = this.state;
 
     return (
       <div className="modal-form config-modal-form">
@@ -142,6 +155,22 @@ class ImportTopology extends Component {
             <Select value={namespaceId} options={namespaceOptions} onChange={this.handleOnChangeEnvironment} className={!validSelect
               ? 'invalidSelect'
               : ''} placeholder="Select Data Center" required={true} clearable={false} labelKey="name" valueKey="id"/>
+          </div>
+        </div>
+        <div className="form-group">
+          <label>Project
+            <span className="text-danger">*</span>
+          </label>
+          <div>
+            <Select
+              value={projectId}
+              options={projects}
+              onChange={this.handleOnChangeProject}
+              placeholder="Select Project"
+              required={true}
+              clearable={false}
+              labelKey="name"
+              valueKey="id"/>
           </div>
         </div>
       </div>

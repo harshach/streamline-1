@@ -919,7 +919,9 @@ class TopologyListingContainer extends Component {
           <AddTopology ref={(ref) => this.addTopologyRef = ref} topologyData={topologyData} />
         </Modal>
         <Modal ref={(ref) => this.ImportTopologyModelRef = ref} data-title="Import Workflow" onKeyPress={this.handleKeyPress} data-resolve={this.handleImportSave}>
-          <ImportTopology ref={(ref) => this.importTopologyRef = ref}/>
+          <ImportTopology
+            ref={(ref) => this.importTopologyRef = ref}
+            defaultProjectId={this.props.params.projectId}/>
         </Modal>
         <Modal ref={(ref) => this.CloneTopologyModelRef = ref} data-title="Clone Workflow" onKeyPress={this.handleKeyPress} data-resolve={this.handleCloneSave}>
           <CloneTopology

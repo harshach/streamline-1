@@ -922,7 +922,10 @@ class TopologyListingContainer extends Component {
           <ImportTopology ref={(ref) => this.importTopologyRef = ref}/>
         </Modal>
         <Modal ref={(ref) => this.CloneTopologyModelRef = ref} data-title="Clone Workflow" onKeyPress={this.handleKeyPress} data-resolve={this.handleCloneSave}>
-          <CloneTopology topologyId={this.state.cloneFromId} ref={(ref) => this.cloneTopologyRef = ref}/>
+          <CloneTopology
+            topologyId={this.state.cloneFromId}
+            ref={(ref) => this.cloneTopologyRef = ref}
+            defaultProjectId={this.props.params.projectId}/>
         </Modal>
         {/* CommonShareModal */}
         <Modal ref={"CommonShareModalRef"} data-title="Share Workflow"  data-resolve={this.handleShareSave.bind(this)} data-reject={this.handleShareCancel.bind(this)}>

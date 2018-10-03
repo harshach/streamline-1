@@ -68,7 +68,7 @@ export default (
     <IndexRoute name="My Projects" accessMenuName={menuName.PROJECT} component={ProjectListContainer} onEnter={onEnter} />
     <Route path="projects" name="My Projects" onEnter={onEnter}>
       <IndexRoute name="My Projects" component={ProjectListContainer} onEnter={onEnter} />
-    <Route path=":projectId/applications" name="My Workflows" onEnter={onEnter}>
+      <Route path=":projectId/applications" name="My Workflows" onEnter={onEnter}>
         <IndexRoute name="My Workflows" component={TopologyListContainer} onEnter={onEnter} />
         <Route path=":id/view" name="Workflow Editor" accessMenuName={menuName.APPLICATION} accessAction="VIEW" component={TopologyViewContainer} onEnter={onEnter}/>
         <Route path=":id/edit" name="Workflow Editor" accessMenuName={menuName.APPLICATION} accessAction="EDIT" component={TopologyEditorContainer} onEnter={onEnter}/>

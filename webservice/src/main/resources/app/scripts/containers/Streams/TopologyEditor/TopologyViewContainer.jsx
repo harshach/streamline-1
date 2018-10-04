@@ -620,13 +620,14 @@ class TopologyViewContainer extends TopologyEditorContainer {
   getTopologyHeader() {
     const {projectData, topologyName} = this.state;
     if(projectData){
+      const projectsLink = '/projects/'+projectData.id+'/applications';
       return (
         <span>
           <Link to="/">My Projects</Link>
           <span className="title-separator">/</span>
-          {projectData.name}
+          <Link to={projectsLink}>{projectData.name}</Link>
           <span className="title-separator">/</span>
-          <Link to={"/projects/"+projectData.id+"/applications"}>My Workflow</Link>
+          <Link to={projectsLink}>My Workflow</Link>
           <span className="title-separator">/</span>
           View: {topologyName}
         </span>

@@ -954,13 +954,14 @@ export class TopologyEditorContainer extends Component {
   getTopologyHeader() {
     const {projectData, topologyName} = this.state;
     if(projectData){
+      const projectsLink = '/projects/'+projectData.id+'/applications';
       return (
         <span>
           <Link to="/">My Projects</Link>
           <span className="title-separator">/</span>
-          {projectData.name}
+          <Link to={projectsLink}>{projectData.name}</Link>
           <span className="title-separator">/</span>
-          <Link to={"/projects/"+projectData.id+"/applications"}>My Workflow</Link>
+          <Link to={projectsLink}>My Workflow</Link>
           &nbsp;/&nbsp;
           <Editable id="applicationName" ref="topologyNameEditable" inline={true} resolve={this.saveTopologyName.bind(this)} reject={this.handleRejectTopologyName.bind(this)}>
             <input ref={this.focusInput} defaultValue={this.state.topologyName} onKeyPress={this.handleKeyPress.bind(this)} onChange={this.handleNameChange.bind(this)}/>

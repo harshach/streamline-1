@@ -741,7 +741,7 @@ class TopologyListingContainer extends Component {
           FSReactToastr.success(
             <strong>Workflow imported successfully</strong>
           );
-          this.context.router.push('projects/'+projectId+'/applications/' + topology.id + '/edit');
+          this.context.router.push('projects/'+this.importTopologyRef.state.projectId+'/applications/' + topology.id + '/edit');
         }
       });
     }
@@ -763,7 +763,7 @@ class TopologyListingContainer extends Component {
           FSReactToastr.success(
             <strong>Workflow cloned successfully</strong>
           );
-          this.context.router.push('projects/'+projectId+'/applications/' + topology.id + '/edit');
+          this.context.router.push('projects/'+this.cloneTopologyRef.state.projectId+'/applications/' + topology.id + '/edit');
         }
       });
     }

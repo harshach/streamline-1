@@ -169,6 +169,11 @@ class ProjectListingContainer extends Component {
     }
   }
 
+  handleReject = () => {
+    this.setState({editModeData: {}});
+    this.refs.addModal.hide();
+  }
+
   handleDelete(id) {
     let BaseContainer = this.refs.BaseContainer;
     BaseContainer.refs.Confirm.show({title: 'Are you sure you want to delete this project?'}).then((confirmBox) => {
@@ -269,7 +274,7 @@ class ProjectListingContainer extends Component {
         </div>
         <Modal ref="addModal" data-title={`${editModeData.id
           ? "Edit"
-          : "Add"} Project`} onKeyPress={this.handleKeyPress} data-resolve={this.handleSave.bind(this)}>
+          : "Add"} Project`} onKeyPress={this.handleKeyPress} data-resolve={this.handleSave.bind(this)} data-reject={this.handleReject.bind(this)}>
           <AddProject ref="addProject" editData={editModeData}/>
         </Modal>
       </BaseContainer>

@@ -32,6 +32,17 @@ class AddProject extends Component {
       projectDescription: this.props.editData.description || ''
     };
   }
+  componentWillReceiveProps(nextProps){
+    if (this.props.editData.name != nextProps.editData.name) {
+      this.setState({
+        validInput: true,
+        nameValid: true,
+        descriptionValid: true,
+        projectName: nextProps.editData.name || '',
+        projectDescription: nextProps.editData.description || ''
+      });
+    }
+  }
   validate() {
     const {projectName, projectDescription} = this.state;
     let validDataFlag = true;
@@ -55,7 +66,7 @@ class AddProject extends Component {
     const {projectName, projectDescription} = this.state;
     const {editData} = this.props;
     let projectObj = {
-      name: projectName,
+      name: projectName.trim(),
       description: projectDescription
     };
     if(editData && editData.id){
@@ -66,11 +77,7 @@ class AddProject extends Component {
     }
   }
   handleNameChange = (event) => {
-    if (event.target.value.trim() !== '') {
-      this.setState({projectName: event.target.value.trim(), nameValid: true});
-    } else {
-      this.setState({projectName: event.target.value.trim(), nameValid: false});
-    }
+    this.setState({projectName: event.target.value});
   }
   handleDescriptionChange = (event) => {
     if (event.target.value.trim() !== '') {

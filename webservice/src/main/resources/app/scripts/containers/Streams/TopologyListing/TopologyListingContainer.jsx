@@ -544,7 +544,7 @@ class TopologyListingContainer extends Component {
             <CommonNotification flag="error" content={topology.responseMessage}/>, '', toastOpt);
         } else {
           FSReactToastr.success(
-            <strong>Application deleted successfully</strong>
+            <strong>Workflow deleted successfully</strong>
           );
         }
       });
@@ -704,20 +704,20 @@ class TopologyListingContainer extends Component {
       this.addTopologyRef.handleSave(projectId).then((topology) => {
         if (topology.responseMessage !== undefined) {
           let errorMag = topology.responseMessage.indexOf('already exists') !== -1
-            ? "Application with same name already exists. Please choose a unique Application Name"
+            ? "Workflow with same name already exists. Please choose a unique Workflow Name"
             : topology.responseMessage;
           FSReactToastr.error(
             <CommonNotification flag="error" content={errorMag}/>, '', toastOpt);
         } else {
           if(this.state.topologyData) { // Updated namespace
             FSReactToastr.success(
-                <strong>Application's environment updated successfully</strong>
+                <strong>Workflow's environment updated successfully</strong>
               );
             this.context.router.push('projects/'+projectId+'/applications/' + topology.id + '/edit');
           } else {
             this.addTopologyRef.saveMetadata(topology.id).then(() => {
               FSReactToastr.success(
-                <strong>Application added successfully</strong>
+                <strong>Workflow added successfully</strong>
               );
               this.context.router.push('projects/'+projectId+'/applications/' + topology.id + '/edit');
             });
@@ -733,13 +733,13 @@ class TopologyListingContainer extends Component {
       this.importTopologyRef.handleSave().then((topology) => {
         if (topology.responseMessage !== undefined) {
           let errorMag = topology.responseMessage.indexOf('already exists') !== -1
-            ? "Application with same name already exists. Please choose a unique Application Name"
+            ? "Workflow with same name already exists. Please choose a unique Workflow Name"
             : topology.responseMessage;
           FSReactToastr.error(
             <CommonNotification flag="error" content={errorMag}/>, '', toastOpt);
         } else {
           FSReactToastr.success(
-            <strong>Application imported successfully</strong>
+            <strong>Workflow imported successfully</strong>
           );
           this.context.router.push('projects/'+projectId+'/applications/' + topology.id + '/edit');
         }
@@ -755,13 +755,13 @@ class TopologyListingContainer extends Component {
           let errorMag = topology.responseMessage.indexOf('NoSuchElementException') !== -1
             ? "There might be some unconfigure Nodes. so please configure it first."
             : topology.responseMessage.indexOf('already exists') !== -1
-              ? "Application with same name already exists. Please choose a unique Application Name"
+              ? "Workflow with same name already exists. Please choose a unique Workflow Name"
               : topology.responseMessage;
           FSReactToastr.error(
             <CommonNotification flag="error" content={errorMag}/>, '', toastOpt);
         } else {
           FSReactToastr.success(
-            <strong>Application cloned successfully</strong>
+            <strong>Workflow cloned successfully</strong>
           );
           this.context.router.push('projects/'+projectId+'/applications/' + topology.id + '/edit');
         }
@@ -798,7 +798,7 @@ class TopologyListingContainer extends Component {
       if(flag){
         shareTopology.length !== 0
         ? FSReactToastr.success(
-            <strong>Application has been shared successfully</strong>
+            <strong>Workflow has been shared successfully</strong>
           )
         : '';
       }
@@ -818,7 +818,7 @@ class TopologyListingContainer extends Component {
           <span className="title-separator">/</span>
           {projectData.name}
           <span className="title-separator">/</span>
-          My Applications
+          My Workflows
         </span>
       );
     } else {
@@ -857,10 +857,10 @@ class TopologyListingContainer extends Component {
                 <div id="add-environment">
                   <DropdownButton title={btnIcon} id="actionDropdown" className="actionDropdown hb lg success" noCaret>
                     <MenuItem onClick={this.onActionMenuClicked.bind(this, "create")}>
-                      &nbsp;New Application
+                      &nbsp;New Workflow
                     </MenuItem>
                     <MenuItem onClick={this.onActionMenuClicked.bind(this, "import")}>
-                      &nbsp;Import Application
+                      &nbsp;Import Workflow
                     </MenuItem>
                   </DropdownButton>
                 </div>
@@ -915,17 +915,22 @@ class TopologyListingContainer extends Component {
           ? <Paginate len={entities.length} splitData={splitData} pagesize={pageSize} pagePosition={this.pagePosition}/>
           : ''
 }
-        <Modal ref={(ref) => this.AddTopologyModelRef = ref} data-title={topologyData ? "Update Engine" : "Add Application"} onKeyPress={this.handleKeyPress} data-resolve={this.handleSaveClicked} data-reject={()=>{this.setState({topologyData: null});this.AddTopologyModelRef.hide();}}>
+        <Modal ref={(ref) => this.AddTopologyModelRef = ref} data-title={topologyData ? "Update Engine" : "Add Workflow"} onKeyPress={this.handleKeyPress} data-resolve={this.handleSaveClicked} data-reject={()=>{this.setState({topologyData: null});this.AddTopologyModelRef.hide();}}>
           <AddTopology ref={(ref) => this.addTopologyRef = ref} topologyData={topologyData} />
         </Modal>
-        <Modal ref={(ref) => this.ImportTopologyModelRef = ref} data-title="Import Application" onKeyPress={this.handleKeyPress} data-resolve={this.handleImportSave}>
-          <ImportTopology ref={(ref) => this.importTopologyRef = ref}/>
+        <Modal ref={(ref) => this.ImportTopologyModelRef = ref} data-title="Import Workflow" onKeyPress={this.handleKeyPress} data-resolve={this.handleImportSave}>
+          <ImportTopology
+            ref={(ref) => this.importTopologyRef = ref}
+            defaultProjectId={this.props.params.projectId}/>
         </Modal>
-        <Modal ref={(ref) => this.CloneTopologyModelRef = ref} data-title="Clone Application" onKeyPress={this.handleKeyPress} data-resolve={this.handleCloneSave}>
-          <CloneTopology topologyId={this.state.cloneFromId} ref={(ref) => this.cloneTopologyRef = ref}/>
+        <Modal ref={(ref) => this.CloneTopologyModelRef = ref} data-title="Clone Workflow" onKeyPress={this.handleKeyPress} data-resolve={this.handleCloneSave}>
+          <CloneTopology
+            topologyId={this.state.cloneFromId}
+            ref={(ref) => this.cloneTopologyRef = ref}
+            defaultProjectId={this.props.params.projectId}/>
         </Modal>
         {/* CommonShareModal */}
-        <Modal ref={"CommonShareModalRef"} data-title="Share Application"  data-resolve={this.handleShareSave.bind(this)} data-reject={this.handleShareCancel.bind(this)}>
+        <Modal ref={"CommonShareModalRef"} data-title="Share Workflow"  data-resolve={this.handleShareSave.bind(this)} data-reject={this.handleShareCancel.bind(this)}>
           <CommonShareModal ref="CommonShareModal" shareObj={shareObj}/>
         </Modal>
         <a className="btn-download" ref="ExportTopology" hidden download href=""></a>

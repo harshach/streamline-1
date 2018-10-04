@@ -207,6 +207,7 @@ public class TopologyEditorMetadata extends AbstractStorable {
         private List<TopologyComponentUICordinates> sources;
         private List<TopologyComponentUICordinates> sinks;
         private List<TopologyComponentUICordinates> processors;
+        private List<TopologyComponentUICordinates> tasks;
         private GraphTransform graphTransforms;
         private List<Object> customNames;
 
@@ -236,6 +237,14 @@ public class TopologyEditorMetadata extends AbstractStorable {
 
         public void setProcessors(List<TopologyComponentUICordinates> processors) {
             this.processors = processors;
+        }
+
+        public List<TopologyComponentUICordinates> getTasks() {
+            return tasks;
+        }
+
+        public void setTasks(List<TopologyComponentUICordinates> tasks) {
+            this.tasks = tasks;
         }
 
         public GraphTransform getGraphTransforms() {

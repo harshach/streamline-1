@@ -18,22 +18,11 @@ package com.hortonworks.streamline.streams.catalog.topology.component;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableMap;
 import com.hortonworks.streamline.common.ComponentTypes;
-import com.hortonworks.streamline.streams.catalog.TopologyBranchRule;
-import com.hortonworks.streamline.streams.catalog.TopologyRule;
-import com.hortonworks.streamline.streams.catalog.TopologyEdge;
-import com.hortonworks.streamline.streams.catalog.TopologyProcessor;
-import com.hortonworks.streamline.streams.catalog.TopologySink;
-import com.hortonworks.streamline.streams.catalog.TopologySource;
-import com.hortonworks.streamline.streams.catalog.TopologyWindow;
+import com.hortonworks.streamline.streams.catalog.*;
 import com.hortonworks.streamline.streams.catalog.service.StreamCatalogService;
 import com.hortonworks.streamline.streams.catalog.topology.TopologyComponentBundle;
 import com.hortonworks.streamline.streams.catalog.topology.TopologyData;
-import com.hortonworks.streamline.streams.layout.component.Edge;
-import com.hortonworks.streamline.streams.layout.component.StreamlineComponent;
-import com.hortonworks.streamline.streams.layout.component.StreamlineProcessor;
-import com.hortonworks.streamline.streams.layout.component.StreamlineSink;
-import com.hortonworks.streamline.streams.layout.component.StreamlineSource;
-import com.hortonworks.streamline.streams.layout.component.TopologyDagVisitor;
+import com.hortonworks.streamline.streams.layout.component.*;
 import com.hortonworks.streamline.streams.layout.component.impl.RulesProcessor;
 import com.hortonworks.streamline.streams.layout.component.rule.Rule;
 
@@ -138,6 +127,14 @@ public final class TopologyExportVisitor extends TopologyDagVisitor {
                 Long.parseLong(processor.getId()));
         topologyData.addProcessor(topologyProcessor);
         storeBundleIdToType(processor);
+    }
+
+    public void visit(StreamlineTask task) {
+        TopologyTask topologyTask = streamCatalogService.getTopologyTask(
+                topologyId,
+                Long.parseLong(task.getId()));
+        topologyData.addTask(topologyTask);
+        storeBundleIdToType(task);
     }
 
 

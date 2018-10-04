@@ -18,14 +18,7 @@ package com.hortonworks.streamline.streams.catalog.topology;
 import java.util.HashMap;
 import java.util.List;
 import com.google.common.base.Preconditions;
-import com.hortonworks.streamline.streams.catalog.TopologyBranchRule;
-import com.hortonworks.streamline.streams.catalog.TopologyRule;
-import com.hortonworks.streamline.streams.catalog.TopologyEditorMetadata;
-import com.hortonworks.streamline.streams.catalog.TopologySource;
-import com.hortonworks.streamline.streams.catalog.TopologyProcessor;
-import com.hortonworks.streamline.streams.catalog.TopologyEdge;
-import com.hortonworks.streamline.streams.catalog.TopologySink;
-import com.hortonworks.streamline.streams.catalog.TopologyWindow;
+import com.hortonworks.streamline.streams.catalog.*;
 
 import java.util.ArrayList;
 import java.util.Map;
@@ -37,9 +30,12 @@ import java.util.stream.Collectors;
 public final class TopologyData {
     private String topologyName;
     private String config;
+    private Long engineId;
+    private Long templateId;
     private List<TopologySource> sources = new ArrayList<>();
     private List<TopologySink> sinks = new ArrayList<>();
     private List<TopologyProcessor> processors = new ArrayList<>();
+    private List<TopologyTask> tasks = new ArrayList<>();
     private List<TopologyEdge> edges = new ArrayList<>();
     private List<TopologyRule> rules = new ArrayList<>();
     private List<TopologyWindow> windows = new ArrayList<>();
@@ -57,12 +53,15 @@ public final class TopologyData {
         sources = other.sources.stream().map(TopologySource::new).collect(Collectors.toList());
         sinks = other.sinks.stream().map(TopologySink::new).collect(Collectors.toList());
         processors = other.processors.stream().map(TopologyProcessor::new).collect(Collectors.toList());
+        tasks = other.tasks.stream().map(TopologyTask::new).collect(Collectors.toList());
         edges = other.edges.stream().map(TopologyEdge::new).collect(Collectors.toList());
         rules = other.rules.stream().map(TopologyRule::new).collect(Collectors.toList());
         windows = other.windows.stream().map(TopologyWindow::new).collect(Collectors.toList());
         branchRules = other.branchRules.stream().map(TopologyBranchRule::new).collect(Collectors.toList());
         bundleIdToType = new HashMap<>(other.getBundleIdToType());
         topologyEditorMetadata = new TopologyEditorMetadata(other.getTopologyEditorMetadata());
+        engineId = other.getEngineId();
+        templateId = other.getTemplateId();
     }
 
     public String getTopologyName() {
@@ -83,6 +82,24 @@ public final class TopologyData {
         Preconditions.checkNotNull(config);
 
         this.config = config;
+    }
+
+    public Long getEngineId() {
+        return engineId;
+    }
+
+    public void setEngineId(Long engineId) {
+        Preconditions.checkNotNull(engineId);
+        this.engineId = engineId;
+    }
+
+    public Long getTemplateId() {
+        return templateId;
+    }
+
+    public void setTemplateId(Long templateId) {
+        Preconditions.checkNotNull(templateId);
+        this.templateId = templateId;
     }
 
     public List<TopologySource> getSources() {
@@ -150,6 +167,13 @@ public final class TopologyData {
         Preconditions.checkNotNull(topologyBranchRule);
 
         this.branchRules.add(topologyBranchRule);
+    }
+
+    public List<TopologyTask> getTasks() { return tasks; }
+
+    public void addTask(TopologyTask topologyTask) {
+        Preconditions.checkNotNull(topologyTask);
+        this.tasks.add(topologyTask);
     }
 
     public TopologyEditorMetadata getTopologyEditorMetadata() {

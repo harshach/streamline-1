@@ -422,11 +422,11 @@ const TopologyREST = {
         return response.json();
       });
   },
-  cloneTopology(id, namespaceId, options) {
+  cloneTopology(id, namespaceId, projectId, options) {
     options = options || {};
     options.method = options.method || 'POST';
     options.credentials = 'same-origin';
-    return fetch(baseUrl + 'topologies/' + id + '/actions/clone?namespaceId=' + namespaceId, options)
+    return fetch(baseUrl + 'topologies/' + id + '/actions/clone?namespaceId=' + namespaceId +'&projectId='+ projectId, options)
       .then((response) => {
         return response.json();
       });

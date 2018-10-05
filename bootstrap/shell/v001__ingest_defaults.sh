@@ -159,6 +159,7 @@ function add_all_bundles {
     # === Task ===
     add_topology_component_bundle /streams/componentbundles/TASK ${piper_dir}/components/tasks/hive-topology-component.json
     add_topology_component_bundle /streams/componentbundles/TASK ${piper_dir}/components/tasks/spark-topology-component.json
+    add_topology_component_bundle /streams/componentbundles/TASK ${piper_dir}/components/tasks/py-spark-topology-component.json
     # === Sink ===
     add_topology_component_bundle /streams/componentbundles/SINK ${storm_dir}/components/sinks/hdfs-sink-topology-component.json
     add_topology_component_bundle /streams/componentbundles/SINK ${storm_dir}/components/sinks/hbase-sink-topology-component.json

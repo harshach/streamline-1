@@ -2,7 +2,6 @@ package com.hortonworks.streamline.streams.piper.common;
 
 import com.hortonworks.streamline.common.JsonClientUtil;
 import com.hortonworks.streamline.common.exception.WrappedWebApplicationException;
-import com.hortonworks.streamline.streams.piper.common.pipeline.Pipeline;
 import org.glassfish.jersey.client.ClientConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

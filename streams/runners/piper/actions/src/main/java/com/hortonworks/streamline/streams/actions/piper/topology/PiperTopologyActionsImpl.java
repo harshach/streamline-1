@@ -15,6 +15,8 @@ import com.hortonworks.streamline.streams.layout.component.impl.testing.TestRunS
 import com.hortonworks.streamline.streams.layout.component.impl.testing.TestRunSource;
 
 import com.hortonworks.streamline.streams.piper.common.PiperRestAPIClient;
+import org.json.JSONException;
+import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -26,6 +28,8 @@ import java.util.Optional;
 public class PiperTopologyActionsImpl implements TopologyActions {
 
     private static final Logger LOG = LoggerFactory.getLogger(PiperTopologyActionsImpl.class);
+    private static final String PIPER_RESPONSE_DATA = "data";
+    private static final String PIPER_RESPONSE_APPLICATION_ID = "pipeline_id";
 
     private PiperRestAPIClient client;
 
@@ -59,8 +63,8 @@ public class PiperTopologyActionsImpl implements TopologyActions {
 
         ManagedPipelineGenerator dagVisitor = new ManagedPipelineGenerator(topology);
         Pipeline pipeline = dagVisitor.generatePipeline();
-        String piperApplicationId = this.client.deployPipeline(pipeline);
-        return piperApplicationId;
+        String piperResponse = this.client.deployPipeline(pipeline);
+        return parseApplicationId(piperResponse);
     }
 
     @Override
@@ -127,4 +131,11 @@ public class PiperTopologyActionsImpl implements TopologyActions {
         LOG.info("XXXXXXXXXXXXXX getRuntimeTopologyId() XXXXXXXXXXXXXXXXXXX");
         throw new TopologyNotAliveException("Topology not found in Cluster - topology id: " + topology.getId());
     }
+
+    private String parseApplicationId(String jsonResponse) throws JSONException {
+        JSONObject jsonObject = new JSONObject(jsonResponse);
+        JSONObject data = (JSONObject)jsonObject.get(PIPER_RESPONSE_DATA);
+        return (String)data.get(PIPER_RESPONSE_APPLICATION_ID);
+    }
+
 }

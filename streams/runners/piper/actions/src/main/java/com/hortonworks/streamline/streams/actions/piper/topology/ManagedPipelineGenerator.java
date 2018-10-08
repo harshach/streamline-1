@@ -1,11 +1,8 @@
 package com.hortonworks.streamline.streams.actions.piper.topology;
 
 import com.hortonworks.streamline.common.Config;
-import com.hortonworks.streamline.streams.catalog.Topology;
 import com.hortonworks.streamline.streams.layout.component.Component;
 import com.hortonworks.streamline.streams.layout.component.Edge;
-import com.hortonworks.streamline.streams.layout.component.InputComponent;
-import com.hortonworks.streamline.streams.layout.component.StreamlineComponent;
 import com.hortonworks.streamline.streams.layout.component.StreamlineProcessor;
 import com.hortonworks.streamline.streams.layout.component.StreamlineSink;
 import com.hortonworks.streamline.streams.layout.component.StreamlineSource;
@@ -17,16 +14,13 @@ import com.hortonworks.streamline.streams.layout.piper.PiperTaskComponent;
 import com.hortonworks.streamline.streams.layout.piper.PiperTaskComponentFactory;
 import com.hortonworks.streamline.streams.piper.common.pipeline.Pipeline;
 import com.hortonworks.streamline.streams.piper.common.pipeline.Task;
-import com.hortonworks.streamline.streams.piper.common.pipeline.TaskParams;
 
-import java.nio.file.Path;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;

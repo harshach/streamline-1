@@ -1487,6 +1487,7 @@ public class StreamCatalogService {
         components.put(ComponentTypes.RULE, listRules(qps).stream().map(TopologyRule::getId).collect(Collectors.toSet()));
         components.put(ComponentTypes.BRANCH, listBranchRules(qps).stream().map(TopologyBranchRule::getId).collect(Collectors.toSet()));
         components.put(ComponentTypes.WINDOW, listWindows(qps).stream().map(TopologyWindow::getId).collect(Collectors.toSet()));
+        components.put(ComponentTypes.TASK, listTopologyTasks(qps).stream().map(TopologyComponent::getId).collect(Collectors.toSet()));
         return components;
     }
 
@@ -2251,9 +2252,15 @@ public class StreamCatalogService {
 
     private void setReconfigureTarget(TopologyEdge edge, TopologyStream stream) {
         TopologyComponent component = getTo(edge);
-        component.setReconfigure(true);
-        dao.addOrUpdate(component);
+       // reconfigure is introduced to get attention of user when one of previous node changes configuration.
+       // This usually means output schema changed and any downstream nodes from that node onwards needs a reconfiguraiton.
+       // Incase of Tasks we do not have any schema associated with them and an edge only indicates order of execution of
+       // independent tasks hence we can ignore the reconfiguration if the component is a Task.
+        if (component instanceof  TopologyTask)
+            return;
 
+        dao.addOrUpdate(component);
+        component.setReconfigure(true);
         // if component is a processor, update any rules in that processor that uses any of the streams
         if (component instanceof TopologyProcessor) {
             setReconfigureRules(Collections.singletonList((TopologyProcessor) component),

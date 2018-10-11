@@ -30,6 +30,7 @@ public class PiperTopologyActionsImpl implements TopologyActions {
     private static final Logger LOG = LoggerFactory.getLogger(PiperTopologyActionsImpl.class);
     private static final String PIPER_RESPONSE_DATA = "data";
     private static final String PIPER_RESPONSE_APPLICATION_ID = "pipeline_id";
+    private static final String PIPER_ROOT_URL = "piper.root_url";
 
     private PiperRestAPIClient client;
 
@@ -38,7 +39,7 @@ public class PiperTopologyActionsImpl implements TopologyActions {
 
     @Override
     public void init(Map<String, Object> conf, TopologyActionsService topologyActionsService) {
-        String piperAPIRootUrl = "http://127.0.0.1:4310";
+        String piperAPIRootUrl = (String)conf.get(PIPER_ROOT_URL);
         this.client = new PiperRestAPIClient(piperAPIRootUrl, null);
     }
 

@@ -205,7 +205,10 @@ class EditorGraph extends Component {
   }
 }
 
-class SPSEditorGraph extends EditorGraph{
+@DragDropContext(HTML5Backend)
+@DropTarget(ItemTypes.ComponentNodes, componentTarget, collect)
+@observer
+export class StreamEditorGraph extends EditorGraph{
   get ComponentNodeContainer(){
     return StormComponentNodeContainer;
   }
@@ -423,12 +426,7 @@ class SPSEditorGraph extends EditorGraph{
 @DragDropContext(HTML5Backend)
 @DropTarget(ItemTypes.ComponentNodes, componentTarget, collect)
 @observer
-export class StormEditorGraph extends SPSEditorGraph{}
-
-@DragDropContext(HTML5Backend)
-@DropTarget(ItemTypes.ComponentNodes, componentTarget, collect)
-@observer
-export class PiperEditorGraph extends EditorGraph{
+export class BatchEditorGraph extends EditorGraph{
   get ComponentNodeContainer(){
     return PiperComponentNodeContainer;
   }
@@ -495,15 +493,5 @@ export class PiperEditorGraph extends EditorGraph{
     };
   }
 }
-
-@DragDropContext(HTML5Backend)
-@DropTarget(ItemTypes.ComponentNodes, componentTarget, collect)
-@observer
-export class AthenaXEditorGraph extends SPSEditorGraph{
-  get ComponentNodeContainer(){
-    return AthenaXComponentNodeContainer;
-  }
-}
-
 
 export default EditorGraph;

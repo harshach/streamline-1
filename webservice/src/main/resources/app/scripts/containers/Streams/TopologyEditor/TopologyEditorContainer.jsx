@@ -38,10 +38,9 @@ import CommonLoaderSign from '../../../components/CommonLoaderSign';
 import TestSourceNodeModal from '../TestRunComponents/TestSourceNodeModal';
 import TestSinkNodeModal from '../TestRunComponents/TestSinkNodeModel';
 import ZoomPanelComponent from '../../../components/ZoomPanelComponent';
-import EditorGraph, {
-  PiperEditorGraph,
-  AthenaXEditorGraph,
-  StormEditorGraph
+import {
+  StreamEditorGraph,
+  BatchEditorGraph
 } from '../../../components/EditorGraph';
 import TestRunREST from '../../../rest/TestRunREST';
 import ProjectREST from '../../../rest/ProjectREST';
@@ -1220,15 +1219,12 @@ export class TopologyEditorContainer extends Component {
 
     let EditorComp = null;
 
-    switch(this.engine.name){
-    case 'PIPER':
-      EditorComp = PiperEditorGraph;
+    switch(this.engine.type){
+    case 'stream':
+      EditorComp = StreamEditorGraph;
       break;
-    case 'ATHENAX':
-      EditorComp = AthenaXEditorGraph;
-      break;
-    case 'STORM':
-      EditorComp = StormEditorGraph;
+    case 'batch':
+      EditorComp = BatchEditorGraph;
       break;
     }
 

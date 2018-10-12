@@ -1,5 +1,6 @@
 {
     "name":"PIPER",
+    "type":"batch",
     "displayName": "Piper",
     "deploymentModes": "[\"SCHEDULE\"]",
     "componentTypes": "[\"PROCESSOR\"]",

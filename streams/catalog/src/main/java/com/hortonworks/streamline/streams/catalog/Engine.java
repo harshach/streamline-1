@@ -17,6 +17,7 @@ public class Engine implements Storable {
     public static final String NAMESPACE = "engine";
     public static final String ID =  "id";
     public static final String NAME = "name";
+    public static final String TYPE = "type";
     public static final String DISPLAYNAME = "displayName";
     public static final String DEPLOYMENTMODES = "deploymentModes";
     public static final String COMPONENTTYPES = "componentTypes";
@@ -27,6 +28,8 @@ public class Engine implements Storable {
 
     @SearchableField
     private String name;
+
+    private String type;
 
     @SearchableField
     private String displayName;
@@ -45,6 +48,7 @@ public class Engine implements Storable {
         if (other != null) {
             setId(other.getId());
             setName(other.getName());
+            setType(other.getType());
             setDisplayName(other.getDisplayName());
             setDeploymentModes(other.getDeploymentModes());
             setComponentTypes(other.getComponentTypes());
@@ -63,6 +67,7 @@ public class Engine implements Storable {
         return Schema.of(
                 new Schema.Field(ID, Schema.Type.LONG),
                 new Schema.Field(NAME, Schema.Type.STRING),
+                new Schema.Field(TYPE, Schema.Type.STRING),
                 new Schema.Field(DISPLAYNAME, Schema.Type.STRING),
                 new Schema.Field(DEPLOYMENTMODES, Schema.Type.STRING),
                 new Schema.Field(COMPONENTTYPES, Schema.Type.STRING),
@@ -87,6 +92,7 @@ public class Engine implements Storable {
         Map<String, Object> map = new HashMap<>();
         map.put(ID, this.id);
         map.put(NAME, this.name);
+        map.put(TYPE, this.type);
         map.put(DISPLAYNAME, this.displayName);
         map.put(DEPLOYMENTMODES, this.deploymentModes);
         map.put(COMPONENTTYPES, this.componentTypes);
@@ -98,6 +104,7 @@ public class Engine implements Storable {
     public Engine fromMap (Map<String, Object> map) {
         this.id = (Long) map.get(ID);
         this.name = (String) map.get(NAME);
+        this.type = (String) map.get(TYPE);
         this.displayName = (String) map.get(DISPLAYNAME);
         this.deploymentModes = (String) map.get(DEPLOYMENTMODES);
         this.componentTypes = (String) map.get(COMPONENTTYPES);
@@ -113,6 +120,10 @@ public class Engine implements Storable {
     public String getName() {return name;}
 
     public void setName(String name) { this.name = name; }
+
+    public String getType() {return type;}
+
+    public void setType(String type) { this.type = type; }
 
     public String getDisplayName() { return displayName; }
 

@@ -1,5 +1,6 @@
 {
     "name":"ATHENAX",
+    "type":"stream",
     "displayName": "AthenaX",
     "deploymentModes": "[\"DEPLOY\",\"BACKFILL\"]",
     "componentTypes": "[\"SOURCE\",\"PROCESSOR\",\"SINK\"]",

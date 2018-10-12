@@ -20,6 +20,7 @@ import {Select2 as Select} from '../../../utils/SelectUtils';
 /* import common utils*/
 import TopologyREST from '../../../rest/TopologyREST';
 import EnvironmentREST from '../../../rest/EnvironmentREST';
+import ProjectREST from '../../../rest/ProjectREST';
 import Utils from '../../../utils/Utils';
 import TopologyUtils from '../../../utils/TopologyUtils';
 import FSReactToastr from '../../../components/FSReactToastr';
@@ -38,13 +39,20 @@ class CloneTopology extends Component {
       namespaceId: '',
       namespaceOptions: [],
       validSelect: true,
-      showRequired: true
+      showRequired: true,
+      projects: [],
+      projectId: props.defaultProjectId
     };
     this.fetchData();
   }
 
   fetchData = () => {
     let promiseArr = [EnvironmentREST.getAllNameSpaces()];
+    promiseArr.push(ProjectREST.getAllProjects().then((res) => {
+      const projects = res.entities;
+      this.setState({projects: projects});
+      return projects;
+    }));
     Promise.all(promiseArr).then(result => {
       if (result[0].responseMessage !== undefined) {
         FSReactToastr.error(
@@ -77,9 +85,9 @@ class CloneTopology extends Component {
     if (!this.validate()) {
       return;
     }
-    const {namespaceId} = this.state;
+    const {namespaceId, projectId} = this.state;
 
-    return TopologyREST.cloneTopology(this.props.topologyId, namespaceId);
+    return TopologyREST.cloneTopology(this.props.topologyId, namespaceId, projectId);
   }
   handleOnChangeEnvironment = (obj) => {
     if (obj) {
@@ -89,8 +97,12 @@ class CloneTopology extends Component {
     }
   }
 
+  handleOnChangeProject = (obj) => {
+    this.setState({projectId: obj.id});
+  }
+
   render() {
-    const {validSelect, showRequired, namespaceId, namespaceOptions} = this.state;
+    const {validSelect, showRequired, namespaceId, namespaceOptions, projects, projectId} = this.state;
 
     return (
       <div className="modal-form config-modal-form">
@@ -102,6 +114,22 @@ class CloneTopology extends Component {
             <Select value={namespaceId} options={namespaceOptions} onChange={this.handleOnChangeEnvironment} className={!validSelect
               ? 'invalidSelect'
               : ''} placeholder="Select Data Center" required={true} clearable={false} labelKey="name" valueKey="id"/>
+          </div>
+        </div>
+        <div className="form-group">
+          <label>Project
+            <span className="text-danger">*</span>
+          </label>
+          <div>
+            <Select
+              value={projectId}
+              options={projects}
+              onChange={this.handleOnChangeProject}
+              placeholder="Select Project"
+              required={true}
+              clearable={false}
+              labelKey="name"
+              valueKey="id"/>
           </div>
         </div>
       </div>

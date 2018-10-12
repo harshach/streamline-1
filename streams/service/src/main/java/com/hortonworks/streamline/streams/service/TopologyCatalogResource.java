@@ -549,13 +549,14 @@ public class TopologyCatalogResource {
     @Timed
     public Response cloneTopology(@PathParam("topologyId") Long topologyId,
                                   @QueryParam("namespaceId") Long namespaceId,
+                                  @QueryParam("projectId") Long projectId,
                                   @Context SecurityContext securityContext) throws Exception {
         SecurityUtil.checkRole(authorizer, securityContext, Roles.ROLE_TOPOLOGY_ADMIN);
         SecurityUtil.checkRoleOrPermissions(authorizer, securityContext, Roles.ROLE_TOPOLOGY_SUPER_ADMIN,
                 NAMESPACE, topologyId, READ, EXECUTE);
         Topology originalTopology = catalogService.getTopology(topologyId);
         if (originalTopology != null) {
-            Topology clonedTopology = catalogService.cloneTopology(namespaceId, originalTopology);
+            Topology clonedTopology = catalogService.cloneTopology(namespaceId, projectId, originalTopology);
             return WSUtils.respondEntity(clonedTopology, OK);
         }
 
@@ -572,6 +573,7 @@ public class TopologyCatalogResource {
     public Response importTopology(@FormDataParam("file") final InputStream inputStream,
                                    @FormDataParam("namespaceId") final Long namespaceId,
                                    @FormDataParam("topologyName") final String topologyName,
+                                   @FormDataParam("projectId") final Long projectId,
                                    @Context SecurityContext securityContext) throws Exception {
         SecurityUtil.checkRole(authorizer, securityContext, Roles.ROLE_TOPOLOGY_ADMIN);
         if (namespaceId == null) {
@@ -581,7 +583,7 @@ public class TopologyCatalogResource {
         if (topologyName != null && !topologyName.isEmpty()) {
             topologyData.setTopologyName(topologyName);
         }
-        Topology importedTopology = catalogService.importTopology(namespaceId, topologyData);
+        Topology importedTopology = catalogService.importTopology(namespaceId, projectId, topologyData);
         return WSUtils.respondEntity(importedTopology, OK);
     }
 

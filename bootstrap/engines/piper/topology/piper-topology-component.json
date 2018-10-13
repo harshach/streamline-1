@@ -30,7 +30,7 @@
         "type": "string"
       },
       {
-        "uiName": "Schedule Interval",
+        "uiName": "Scheduling Mode",
         "fieldName": "topology.scheduleIntervalSelection",
         "isOptional": false,
         "tooltip": "Scheduling Interval Selection",
@@ -63,6 +63,14 @@
                 "isOptional": false,
                 "tooltip": "Time Based Interval Multiplier",
                 "type": "string"
+              },
+              {
+                "uiName": "Auto Backfill",
+                "fieldName": "topology.autobackfill",
+                "isOptional": true,
+                "tooltip": "Use Autobackfill for scheduling. Start from start_date and backfill each day.",
+                "type": "boolean",
+                "defaultValue": true
               }
             ]
           },
@@ -79,24 +87,27 @@
                 "isOptional": false,
                 "tooltip": "Schedule interval in seconds or cron syntax for example '0 20 * * *'",
                 "type": "string"
+              },
+              {
+                "uiName": "Auto Backfill",
+                "fieldName": "topology.autobackfill",
+                "isOptional": true,
+                "tooltip": "Use Autobackfill for scheduling",
+                "type": "boolean",
+                "defaultValue": true
               }
+            ]
+          },
+          {
+            "uiName": "Externally Triggered",
+            "fieldName": "topology.scheduleIntervalTriggerBasedOption",
+            "tooltip": "Externally Triggered, not regularly scheduled.",
+            "isOptional": false,
+            "type": "object",
+            "fields": [
             ]
           }
         ]
-      },
-      {
-        "uiName": "Alert Emails",
-        "fieldName": "topology.email",
-        "isOptional": true,
-        "tooltip": "Comma separated emails to send alerts",
-        "type": "string"
-      },
-      {
-        "uiName": "Tags",
-        "fieldName": "topology.tags",
-        "isOptional": true,
-        "tooltip": "Tags for this pipeline",
-        "type": "string"
       },
       {
         "uiName": "Start Date",
@@ -113,24 +124,99 @@
         "type": "datetime"
       },
       {
-        "uiName": "Auto Backfill",
-        "fieldName": "topology.autobackfill",
-        "isOptional": true,
-        "tooltip": "Use Autobackfill for scheduling",
-        "type": "boolean"
-      },
-      {
         "uiName": "Secure",
-        "fieldName": "topology.isSecure",
+        "fieldName": "topology.secureSelection",
         "isOptional": true,
         "tooltip": "Deploy on Secure Cluster",
-        "type": "boolean"
+        "type": "enumobject",
+        "defaultValue": "topology.secureFalseOption",
+        "options": [
+          {
+            "uiName": "Non Secure",
+            "fieldName": "topology.secureFalseOption",
+            "tooltip": "Do not deploy on secure cluster",
+            "isOptional": false,
+            "type": "object",
+            "fields": []
+          },
+          {
+            "uiName": "Secure",
+            "fieldName": "topology.secureTrueOption",
+            "tooltip": "Deploy on secure cluster",
+            "isOptional": false,
+            "type": "object",
+            "fields": [
+              {
+                "uiName": "Proxy User",
+                "fieldName": "topology.proxyUser",
+                "isOptional": false,
+                "tooltip": "Proxy User",
+                "type": "string"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "uiName": "Datacenter Choice Mode",
+        "fieldName": "topology.datacenterChoiceMode",
+        "isOptional": true,
+        "tooltip": "Datacenter Choice Mode",
+        "type": "enumobject",
+        "defaultValue": "topology.runAllDatacentersOption",
+        "options": [
+          {
+            "uiName": "Run in All Datacenters",
+            "fieldName": "topology.runAllDatacentersOption",
+            "tooltip": "Run on all datacenters",
+            "isOptional": false,
+            "type": "object",
+            "fields": []
+          },
+          {
+            "uiName": "Run in Master Datacenter",
+            "fieldName": "topology.runOneDatacenterOption",
+            "tooltip": "Run on Master Datacenter",
+            "isOptional": false,
+            "type": "object",
+            "fields": []
+          },
+          {
+            "uiName": "Run in Chosen Datacenter",
+            "fieldName": "topology.runChosenDatacenterOption",
+            "tooltip": "Run in Chosen Datacenter",
+            "isOptional": false,
+            "type": "object",
+            "fields": [
+              {
+                "uiName": "Selected Datacenter",
+                "fieldName": "topology.selectedDatacenter",
+                "isOptional": false,
+                "tooltip": "Selected Datacenter if RUN_IN_CHOSEN",
+                "type": "enumstring",
+                "options": [
+                  "SJC1",
+                  "DCA1",
+                  "PHX2"
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "uiName": "Alert Emails",
+        "fieldName": "topology.email",
+        "isOptional": true,
+        "tooltip": "Comma separated emails to send alerts",
+        "type": "string"
       },
       {
         "uiName": "Email On Failure",
         "fieldName": "topology.emailOnFailure",
         "isOptional": true,
         "tooltip": "Email on Failure",
+        "defaultValue": true,
         "type": "boolean"
       },
       {
@@ -138,31 +224,15 @@
         "fieldName": "topology.emailOnRetry",
         "isOptional": true,
         "tooltip": "Email on Failure",
+        "defaultValue": true,
         "type": "boolean"
       },
       {
-        "uiName": "Datacenter Choice Mode",
-        "fieldName": "topology.datacenterChoiceMode",
+        "uiName": "Tags",
+        "fieldName": "topology.tags",
         "isOptional": true,
-        "tooltip": "Datacenter Choice Mode",
-        "type": "enumstring",
-        "options": [
-          "run_in_one_datacenter",
-          "run_in_chosen_datacenters",
-          "run_in_all_datacenters"
-        ]
-      },
-      {
-        "uiName": "Selected Datacenter",
-        "fieldName": "topology.selectedDatacenter",
-        "isOptional": true,
-        "tooltip": "Selected Datacenter if RUN_IN_CHOSEN",
-        "type": "enumstring",
-        "options": [
-          "SJC1",
-          "DCA1",
-          "PHX2"
-        ]
+        "tooltip": "Tags for this pipeline",
+        "type": "string"
       }
     ]
   }

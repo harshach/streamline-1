@@ -77,8 +77,12 @@ public class Pipeline {
     private Boolean dependsOnPast;
     @JsonProperty("wait_for_downstream")
     private Boolean waitForDownstream;
+    @JsonProperty("trigger_type")
+    private Pipeline.TriggerType triggerType;
     @JsonProperty("secure")
     private Boolean secure;
+    @JsonProperty("proxy_user")
+    private String proxyUser;
     @JsonProperty("datacenter_choice_mode")
     private Pipeline.DatacenterChoiceMode datacenterChoiceMode;
     @JsonProperty("selected_datacenters")
@@ -321,6 +325,16 @@ public class Pipeline {
         this.waitForDownstream = waitForDownstream;
     }
 
+    @JsonProperty("trigger_type")
+    public Pipeline.TriggerType getTriggerType() {
+        return triggerType;
+    }
+
+    @JsonProperty("trigger_type")
+    public void setTriggerType(Pipeline.TriggerType triggerType) {
+        this.triggerType = triggerType;
+    }
+
     @JsonProperty("secure")
     public Boolean getSecure() {
         return secure;
@@ -329,6 +343,16 @@ public class Pipeline {
     @JsonProperty("secure")
     public void setSecure(Boolean secure) {
         this.secure = secure;
+    }
+
+    @JsonProperty("proxy_user")
+    public String proxyUser() {
+        return proxyUser;
+    }
+
+    @JsonProperty("tenant_id")
+    public void setProxyUser(String proxyUser) {
+        this.proxyUser = proxyUser;
     }
 
     @JsonProperty("datacenter_choice_mode")
@@ -448,6 +472,7 @@ public class Pipeline {
         RUN_IN_ONE_DATACENTER("run_in_one_datacenter"),
         RUN_IN_CHOSEN_DATACENTERS("run_in_chosen_datacenters"),
         RUN_IN_ALL_DATACENTERS("run_in_all_datacenters");
+
         private final String value;
         private final static Map<String, Pipeline.DatacenterChoiceMode> CONSTANTS = new HashMap<String, Pipeline.DatacenterChoiceMode>();
 
@@ -483,4 +508,39 @@ public class Pipeline {
 
     }
 
+    public enum TriggerType {
+        EXTERNAL_TRIGGER("external_trigger"),
+        TIME_INTERVAL("time_interval");
+        private final String value;
+        private final static Map<String, Pipeline.TriggerType> CONSTANTS = new HashMap<String, Pipeline.TriggerType>();
+
+        static {
+            for (Pipeline.TriggerType c: values()) {
+                CONSTANTS.put(c.value, c);
+            }
+        }
+        private TriggerType(String value) {
+            this.value = value;
+        }
+
+        @Override
+        public String toString() {
+            return this.value;
+        }
+
+        @JsonValue
+        public String value() {
+            return this.value;
+        }
+
+        @JsonCreator
+        public static Pipeline.TriggerType fromValue(String value) {
+            Pipeline.TriggerType constant = CONSTANTS.get(value);
+            if (constant == null) {
+                throw new IllegalArgumentException(value);
+            } else {
+                return constant;
+            }
+        }
+    }
 }

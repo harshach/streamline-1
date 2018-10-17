@@ -36,6 +36,8 @@ import ProcessorUtils from '../../utils/ProcessorUtils';
 import DatetimeRangePicker from 'react-bootstrap-datetimerangepicker';
 import moment from 'moment';
 
+import CommonCodeMirror from '../../components/CommonCodeMirror';
+
 export class BaseField extends Component {
   type = 'FormField';
   getField = () => {}
@@ -398,6 +400,191 @@ export class datetime extends date {
       timePicker24Hour:true,
       timePickerSeconds: true
     };
+  }
+}
+
+export class sql extends BaseField {
+  handleChange = (value) => {
+    const {Form} = this.context;
+    this.props.data[this.props.value] = value;
+    Form.setState(Form.state);
+    this.validate();
+  }
+  validate() {
+    return super.validate(this.props.data[this.props.value]);
+  }
+  getField = () => {
+    return <div style={{position: 'relative'}}><CommonCodeMirror
+      ref="codemirror"
+      modeType="sql"
+      value={this.props.data[this.props.value]}
+      callBack={this.handleChange}
+      placeHolder=" "
+      editMode={true}
+      width={'100%'}
+      height={'200px'}
+      modeOptions={{readOnly: this.context.Form.props.readOnly}}
+    /></div>;
+  }
+}
+
+export class keyvalue extends BaseField {
+  componentWillMount(){
+    const {fieldJson, valuePath} = this.props;
+    const {Form} = this.context;
+    Form.state.Errors[valuePath] = Form.state.Errors[valuePath] || [];
+  }
+  handleChange = () => {
+    const {Form} = this.context;
+    let value = {};
+    _.each(this.keyValueArr, (keyValue) => {
+      value[keyValue.fieldName] = keyValue.fieldValue || '';
+    });
+    this.props.data[this.props.value] = JSON.stringify(value);
+    Form.setState(Form.state);
+  }
+  validate() {
+    let validate = true;
+
+    _.each(this.keyValueArr, (keyValue, i) => {
+      if(!this.validateKeyField(keyValue.fieldName, i)){
+        validate = false;
+      }
+      if(!this.validateValueField(keyValue.fieldValue, i)){
+        validate = false;
+      }
+    });
+    return validate;
+  }
+  validateKeyField(value, i){
+    const {Form} = this.context;
+
+    const {fieldJson, valuePath} = this.props;
+    let fieldErrors = Form.state.Errors[valuePath];
+    let validate = true;
+    fieldErrors[i] = fieldErrors[i] || {};
+
+    if(!fieldJson.isOptional && !value){
+      validate = false;
+      fieldErrors[i].fieldName = "Required!";
+    }else{
+      fieldErrors[i].fieldName = "";
+    }
+    Form.setState(Form.state);
+    return validate;
+  }
+  validateValueField(value, i){
+    const {Form} = this.context;
+
+    const {fieldJson, valuePath} = this.props;
+    let fieldErrors = Form.state.Errors[valuePath];
+    let validate = true;
+    fieldErrors[i] = fieldErrors[i] || {};
+
+    if(!fieldJson.isOptional && !value){
+      validate = false;
+      fieldErrors[i].fieldValue = "Required!";
+    }else{
+      fieldErrors[i].fieldValue = "";
+    }
+    Form.setState(Form.state);
+    return validate;
+  }
+  onKeyChange(i, e) {
+    const value = e.currentTarget.value;
+    this.keyValueArr[i].fieldName = value;
+    this.validateKeyField(value, i);
+    this.handleChange();
+  }
+  onValueChange(i, e) {
+    const value = e.currentTarget.value;
+    this.keyValueArr[i].fieldValue = value;
+    this.validateValueField(value, i);
+    this.handleChange();
+  }
+  addKeyValue(i) {
+    this.keyValueArr.splice(i+1, 0, {fieldName: '', fieldValue: ''});
+    this.forceUpdate();
+  }
+  removeKeyValue(i){
+    this.keyValueArr.splice(i, 1);
+    this.handleChange();
+    this.forceUpdate();
+  }
+  getField = () => {
+    const {valuePath} = this.props;
+    const value = this.props.data[this.props.value] || JSON.stringify({});
+    let obj;
+
+    obj = JSON.parse(value);
+
+    this.keyValueArr = this.keyValueArr || _.map(obj, (val, key) => {
+      return {
+        fieldName: key,
+        fieldValue: val
+      };
+    });
+
+    if(!this.keyValueArr.length){
+      this.keyValueArr.push({fieldName: '', fieldValue: ''});
+    }
+
+    let disabled = this.context.Form.props.readOnly;
+    const iconCursor = !disabled ? 'pointer' : 'not-allowed';
+
+    const {Form} = this.context;
+    let fieldErrors = Form.state.Errors[valuePath] || [];
+
+    return <div style={{position: 'relative'}}>
+      <div className="row">
+        <div className="col-sm-5">
+          <label>Key</label>
+        </div>
+        <div className="col-sm-5">
+          <label>Value</label>
+        </div>
+        <div className="col-sm-2"></div>
+      </div>
+    {
+      _.map(this.keyValueArr, (keyValue, i) => {
+        const fieldName = keyValue.fieldName || '';
+        const fieldValue = keyValue.fieldValue || '';
+        return <div className="row" key={i}>
+          <div className="col-sm-5">
+            <div className="form-group">
+              <input type="text" value={fieldName} disabled={disabled} key={"fieldName"+i} className="form-control" onChange={this.onKeyChange.bind(this, i)} />
+              <p className="text-danger">{fieldErrors[i] && fieldErrors[i].fieldName}</p>
+            </div>
+          </div>
+          <div className="col-sm-5">
+            <div className="form-group">
+              <input type="text" value={fieldValue} disabled={disabled} key={"fieldValue"+i} className="form-control" onChange={this.onValueChange.bind(this, i)} />
+              <p className="text-danger">{fieldErrors[i] && fieldErrors[i].fieldValue}</p>
+            </div>
+          </div>
+          <div className="col-sm-2 m-t-xs">
+            <i className="fa fa-plus text-secondary m-r-xs" style={{cursor: iconCursor}} onClick={disabled ? null : this.addKeyValue.bind(this, i)}></i>
+            {i != 0 ? 
+              <i className="fa fa-trash text-danger" style={{cursor: iconCursor}} onClick={disabled ? null : this.removeKeyValue.bind(this, i)}></i>
+            : null}
+          </div>
+        </div>;
+      })
+    }
+    </div>;
+  }
+  render() {
+    const {className} = this.props;
+    const labelHint = this.props.fieldJson.hint || null;
+    return (
+      <FormGroup className={className}>
+        {labelHint !== null && labelHint.toLowerCase().indexOf("hidden") !== -1
+          ? ''
+          : this.getLabel()
+}
+        {this.getField()}
+      </FormGroup>
+    );
   }
 }
 

@@ -24,7 +24,7 @@
                 "fieldName": "task_params.hql",
                 "tooltip": "Query to Run",
                 "isOptional": false,
-                "type": "string"
+                "type": "sql"
             },
             {
                 "uiName": "Hive Connection ID",

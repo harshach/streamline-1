@@ -202,7 +202,7 @@ public class ManagedPipelineGenerator extends TopologyDagVisitor {
     }
 
     private String taskIdForComponent(Component component) {
-        return component.getName();
+        return component.getName().replace(' ', '_');
     }
 
     private String convertCalendarToISO(String dateStr) {

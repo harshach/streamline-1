@@ -65,7 +65,7 @@ public class ComponentUISpecification {
         STRING("string"), ENUMSTRING("enumstring"), ARRAYSTRING("array.string"), ARRAYENUMSTRING("array.enumstring"),
         NUMBER("number"), ARRAYNUMBER("array.number"), BOOLEAN("boolean"), ARRAYBOOLEAN("array.boolean"),
         OBJECT("object"), ENUMOBJECT("enumobject"), ARRAYOBJECT("array.object"), ARRAYENUMOBJECT("array.enumobject"),
-        FILE("file"), DATE("date"), DATETIME("datetime");
+        FILE("file"), DATE("date"), DATETIME("datetime"), SQL("sql"), KEYVALUE("keyvalue");
 
         private String uiFieldTypeText;
 
@@ -100,6 +100,8 @@ public class ComponentUISpecification {
         private static final String HINT = "hint";
         private static final String MIN_VALUE = "min";
         private static final String MAX_VALUE = "max";
+        private static final String WIDTH = "width";
+        private static final String HEIGHT = "height";
         private String uiName;
         private String fieldName;
         private boolean isUserInput = true;
@@ -113,6 +115,8 @@ public class ComponentUISpecification {
         private String hint;
         private Integer min;
         private Integer max;
+        private Integer width = 100;
+        private Integer height = 34;
 
         public UIField () {}
 
@@ -226,6 +230,14 @@ public class ComponentUISpecification {
             this.max = max;
         }
 
+        public Integer getWidth() { return width; }
+
+        public void setWidth(Integer width) { this.width = width; }
+
+        public Integer getHeight() { return height; }
+
+        public void setHeight(Integer height) { this.height = height; }
+
         @Override
         public String toString() {
             return "UIField{" +
@@ -239,6 +251,8 @@ public class ComponentUISpecification {
                     ", fields=" + fields +
                     ", options=" + options +
                     ", hint=" + hint +
+                    ", width=" + width +
+                    ", height=" + height +
                     '}';
         }
 
@@ -258,6 +272,7 @@ public class ComponentUISpecification {
             if (defaultValue != null ? !defaultValue.equals(uiField.defaultValue) : uiField.defaultValue != null) return false;
             if (fields != null ? !fields.equals(uiField.fields) : uiField.fields != null) return false;
             if (options != null ? !options.equals(uiField.options) : uiField.options != null) return false;
+
             return !(hint != null ? !hint.equals(uiField.hint) : uiField.hint != null);
 
         }
@@ -326,7 +341,7 @@ public class ComponentUISpecification {
 
         private void validateStringField () throws ComponentConfigException {
             UIFieldType[] stringTypes = {UIFieldType.STRING, UIFieldType.ENUMSTRING, UIFieldType.ARRAYSTRING, UIFieldType.ARRAYENUMSTRING,
-                                         UIFieldType.DATE, UIFieldType.DATETIME};
+                                         UIFieldType.DATE, UIFieldType.DATETIME, UIFieldType.SQL, UIFieldType.KEYVALUE};
             if (!Arrays.asList(stringTypes).contains(this.type)) {
                 return;
             }

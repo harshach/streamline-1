@@ -4355,7 +4355,7 @@ div.actions-list > div > ul > li > span.logsearchLink{
   z-index: 1060;
 }
 .CodeMirror{
-  height: auto !important;
+  height: auto;
   min-height: 60px;
   max-height: 400px;
 }

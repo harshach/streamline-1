@@ -407,6 +407,13 @@ label {
   padding-top: 5px !important;
 }
 
+.form-field.cron-field select{
+  background: white;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  padding: 0 0 2px 2px;
+}
+
 #tsFieldDropdown{
   border: 1px solid #ccc;
   border-radius: 4px;
@@ -3392,6 +3399,9 @@ div#TestSourceForm > ul {
 
 .m-r-xs{
   margin-right: 5px;
+}
+.m-l-xs{
+  margin-left: 5px;
 }
 
 .user-role-form  .outputCaption>label, .form-group label{

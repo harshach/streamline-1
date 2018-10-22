@@ -6,6 +6,7 @@ Dependencies
 
 1. `Docker CE <https://www.docker.com/community-edition#/download>`
 2. jq (brew install jq)
+3. wget (brew install wget)
 
 Deployment
 -------------

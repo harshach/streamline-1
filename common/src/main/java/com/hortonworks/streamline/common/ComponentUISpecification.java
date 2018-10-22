@@ -427,7 +427,7 @@ public class ComponentUISpecification {
                 if (options != null) {
                     logAndThrowException(String.format(NOT_APPLICABLE_PROPERTY, OPTIONS, fieldName, type));
                 }
-                //fields are mandatory for object type to recurse
+                //fields are optional for object type to recurse
                 if (fields != null && !fields.isEmpty()) {
                     Set<String> fieldNames = new HashSet<>();
                     for (UIField uiField : fields) {
@@ -439,8 +439,6 @@ public class ComponentUISpecification {
                         // recursively validate a field of an object. Could be a basic type like string, number, boolean or an object again
                         uiField.validate();
                     }
-                } else {
-                    logAndThrowException(String.format(PROPERTY_REQUIRED, FIELDS, fieldName, type));
                 }
             } else {
                 //for enum objects, fields are not applicable

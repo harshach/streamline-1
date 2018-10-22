@@ -42,7 +42,7 @@ broker_nodes=${broker_nodes:-1}
 streamline_nodes=${streamline_nodes:-1}
 schema_registry_download_url='https://github.com/hortonworks/registry/releases/download/v0.5.1/hortonworks-registry-0.5.1.tar.gz'
 streamline_download_url=''
-flink_download_url='http://mirror.olnevhost.net/pub/apache/flink/flink-1.5.1/flink-1.5.1-bin-scala_2.11.tgz'
+flink_download_url='http://mirror.olnevhost.net/pub/apache/flink/flink-1.5.4/flink-1.5.4-bin-scala_2.11.tgz'
 storm_download_url='http://www-us.apache.org/dist/storm/apache-storm-1.2.2/apache-storm-1.2.2.tar.gz'
 db_type=""
 sasl_secrets_dir=${sasl_secrets_dir:-"$(pwd)/secrets"}
@@ -315,7 +315,7 @@ function stopDocker {
         exit 0
     fi
 
-    ask_yes_no "Do you want to stop all the (u-*) docker containers? [Y/n]: "
+    ask_yes_no "Do you want to stop all the (u-*) docker containers? [y/n]: "
     if [[ "${_return}" -eq 0 ]]; then
       exit 0
     fi
@@ -333,7 +333,7 @@ function cleanDocker {
         exit 0
     fi
 
-    ask_yes_no "Do you want to remove the (u-*) containers? [Y/n]: "
+    ask_yes_no "Do you want to remove the (u-*) containers? [y/n]: "
     if [[ "${_return}" -eq 0 ]]; then
       exit 0
     fi
@@ -348,12 +348,12 @@ function cleanDocker {
     echo "Removing the krb5.conf and keytabs files"
     rm -rvf "${sasl_secrets_dir}"
 
-#    ask_yes_no "Do you want to prune all the stopped containers? [Y/n]: "
+#    ask_yes_no "Do you want to prune all the stopped containers? [y/n]: "
 #    if [[ "${_return}" -eq 1 ]]; then
 #        echo 'y' | docker container prune
 #    fi
 
-    ask_yes_no "Do you want to remove the docker images? [Y/n]: "
+    ask_yes_no "Do you want to remove the docker images? [y/n]: "
     if [[ "${_return}" -eq 0 ]]; then
         exit 0
     fi
@@ -361,7 +361,7 @@ function cleanDocker {
     image_names=("${kdc_image}" "${oracle_image}" "${kafka_image}" "${registry_image}":"$(registryVersion)" "${streamline_image}":"$(streamlineVersion)")
     docker rmi ${image_names[@]}
 
-    ask_yes_no "Do you want to remove the dangling docker images? [Y/n]: "
+    ask_yes_no "Do you want to remove the dangling docker images? [y/n]: "
     if [[ "${_return}" -eq 0 ]]; then
       exit 0
     fi
@@ -373,7 +373,7 @@ function cleanDocker {
         docker rmi ${image_ids}
     fi
 
-    ask_yes_no "Do you want to remove services network? [Y/n]: "
+    ask_yes_no "Do you want to remove services network? [y/n]: "
     if [[ "${_return}" -eq 0 ]]; then
       exit 0
     fi
@@ -759,7 +759,7 @@ function startSchemaRegistry {
     kafka_ip=$(docker exec "${kafka_container_name}0" ifconfig | grep -v 127.0.0.1 | grep inet | awk '{print $2}' | cut -d ":" -f2)
 
     SECONDS=0
-    echo "Starting Schema Registry ${sid}"
+    echo "Starting Schema Registry"
     docker run --name ${container_name} \
         -h ${container_name} \
         -e DB_TYPE=${db_type} \
@@ -1016,7 +1016,7 @@ case "${option}" in
         startMachine
         ;;
     build)
-        buildDocker "$(ask_druid_deployment)"
+        buildDocker
         ;;
     start)
         mkdir -p "${sasl_secrets_dir}"

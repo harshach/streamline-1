@@ -321,7 +321,7 @@ export default class TaskNodeForm extends Component {
             <img src="styles/img/start-loader.gif" alt="loading"/>
           </div>
         </div>
-      : <div className="source-modal-form">
+      : <div className="task-modal-form">
         <Scrollbars autoHide renderThumbHorizontal={props => <div {...props} style={{
           display: "none"
         }}/>}>
@@ -330,7 +330,7 @@ export default class TaskNodeForm extends Component {
             readOnly={disabledFields}
             showRequired={this.state.showRequired}
             showSecurity={this.state.showSecurity}
-            className="customFormClass"
+            className="customFormClass taskFormClass"
             FormData={formData}
             Errors={formErrors}
             populateClusterFields={this.populateClusterFields.bind(this)}
@@ -340,7 +340,7 @@ export default class TaskNodeForm extends Component {
         </Scrollbars>
       </div>;
     return (
-      <Tabs id="SinkForm" activeKey={this.state.activeTabKey} className="modal-tabs" onSelect={this.onSelectTab}>
+      <Tabs id="TaskForm" activeKey={this.state.activeTabKey} className="modal-tabs" onSelect={this.onSelectTab}>
         <Tab eventKey={1} title="REQUIRED">
           {activeTabKey == 1 || activeTabKey == 3 ? form : null}
         </Tab>

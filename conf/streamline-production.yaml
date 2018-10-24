@@ -76,9 +76,9 @@ storageProviderConfiguration:
   queryTimeoutInSecs: 30
   db.properties:
     dataSourceClassName: "com.mysql.jdbc.jdbc2.optional.MysqlDataSource"
-    dataSource.url: "jdbc:mysql://localhost/streamline_db"
-    dataSource.user: "streamline_user"
-    dataSource.password: "streamline_password"
+    dataSource.url: "jdbc:mysql://127.5.4.181:17025/uworc_prod"
+    dataSource.user: xxx
+    dataSource.password: xxx
 
 # --
 # PostgreSQL based storage provider configuration

@@ -13,9 +13,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-if [ $# -lt 1 ];
+if [ $# -ne 2 ];
 then
-        echo "USAGE: $0 [-daemon] streamline.yaml"
+        echo "USAGE: $0 [-daemon] STREAMLINE_CONFIG_YAML STREAMLINE_PORT"
         exit 1
 fi
 
@@ -88,6 +88,7 @@ fi
 STREAMLINE_VERSION_FILE="-Dstreamline.version.file=$base_dir/VERSION"
 
 COMMAND=$1
+
 case $COMMAND in
   -name)
     DAEMON_NAME=$2
@@ -137,9 +138,12 @@ if [ -z "$STREAMLINE_JVM_PERFORMANCE_OPTS" ]; then
   STREAMLINE_JVM_PERFORMANCE_OPTS="-server -XX:+UseParNewGC -XX:+UseConcMarkSweepGC -XX:+CMSClassUnloadingEnabled -XX:+CMSScavengeBeforeRemark -XX:+DisableExplicitGC -Djava.awt.headless=true"
 fi
 
+STREAMLINE_UBER_PORT=$2
+STREAMLINE_CUSTOM_PORT_COMMAND="-Ddw.server.applicationConnectors[0].port=$STREAMLINE_UBER_PORT"
+
 # Launch mode
 if [ "x$DAEMON_MODE" = "xtrue" ]; then
-  nohup $JAVA $STREAMLINE_HEAP_OPTS $STREAMLINE_JVM_PERFORMANCE_OPTS $STREAMLINE_KERBEROS_PARAMS $STREAMLINE_VERSION_FILE -cp $CLASSPATH $STREAMLINE_OPTS "com.hortonworks.streamline.webservice.StreamlineApplication" "server" "$@" > "$CONSOLE_OUTPUT_FILE" 2>&1 < /dev/null &
+  nohup $JAVA $STREAMLINE_HEAP_OPTS "$STREAMLINE_CUSTOM_PORT_COMMAND" $STREAMLINE_JVM_PERFORMANCE_OPTS $STREAMLINE_KERBEROS_PARAMS $STREAMLINE_VERSION_FILE -cp $CLASSPATH $STREAMLINE_OPTS "com.hortonworks.streamline.webservice.StreamlineApplication" "server" "$1" > "$CONSOLE_OUTPUT_FILE" 2>&1 < /dev/null &
 else
-  exec $JAVA $STREAMLINE_HEAP_OPTS $STREAMLINE_JVM_PERFORMANCE_OPTS $STREAMLINE_KERBEROS_PARAMS $STREAMLINE_VERSION_FILE -cp $CLASSPATH $STREAMLINE_OPTS "com.hortonworks.streamline.webservice.StreamlineApplication" "server" "$@"
+  exec $JAVA $STREAMLINE_HEAP_OPTS "$STREAMLINE_CUSTOM_PORT_COMMAND" $STREAMLINE_JVM_PERFORMANCE_OPTS $STREAMLINE_KERBEROS_PARAMS $STREAMLINE_VERSION_FILE -cp $CLASSPATH $STREAMLINE_OPTS "com.hortonworks.streamline.webservice.StreamlineApplication" "server" "$1"
 fi

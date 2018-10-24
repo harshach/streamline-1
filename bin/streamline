@@ -47,9 +47,11 @@ STREAMLINE_LAUNCH_COMMAND=$1
 #App name
 APP_NAME=streamline
 
-STREAMLINE_START_CMD="$STREAMLINE_HOME/bin/streamline-server-start.sh $STREAMLINE_HOME/conf/streamline.yaml"
-STREAMLINE_SETUP_CMD="$STREAMLINE_HOME/bootstrap/bootstrap-storage.sh"
-STREAMLINE_BOOTSTRAP_CMD="$STREAMLINE_HOME/bootstrap/bootstrap.sh"
+STREAMLINE_UBER_PORT=$3
+
+STREAMLINE_START_CMD="$STREAMLINE_HOME/bin/streamline-server-start.sh $STREAMLINE_HOME/conf/streamline-$2.yaml $STREAMLINE_UBER_PORT"
+STREAMLINE_SETUP_CMD="$STREAMLINE_HOME/bootstrap/bootstrap-storage.sh $2"
+STREAMLINE_BOOTSTRAP_CMD="$STREAMLINE_HOME/bootstrap/bootstrap.sh $2"
 
 #Name of PID file
 [ -z $PID_DIR ] && PID_DIR="/var/run/$APP_NAME"
@@ -89,7 +91,7 @@ function main {
           ;;
 
       *)
-         printf "Usage: $0 {start|stop|status|clean|setup|bootstrap|version|git-hash}\n"
+         printf "Usage: $0 {start|stop|status|clean|setup|bootstrap|version|git-hash} {uber-environment} {uber-port} \n "
          ;;
    esac
 }
@@ -106,7 +108,7 @@ function streamlineStart {
    printf "Starting Streamline "
 
    rm -f $PID_FILE
-   su $STREAMLINE_USER -c "nohup $STREAMLINE_START_CMD >>/dev/null 2>>$ERR_FILE & echo \$! > $PID_FILE"
+   nohup $STREAMLINE_START_CMD >>/dev/null 2>>$ERR_FILE & echo $! > $PID_FILE
 
    getPID
    streamlineIsRunning $PID
@@ -174,7 +176,7 @@ function streamlineClean {
 
 function streamlineSetup {
     printf "Running Streamline Setup.\n"
-    su $STREAMLINE_USER -c "$STREAMLINE_SETUP_CMD"
+    $STREAMLINE_SETUP_CMD
 }
 
 function streamlineBootstrap {
@@ -185,7 +187,7 @@ function streamlineBootstrap {
         printf "Please start streamline server before running bootstrap.\n"
         return 0
     fi
-    su $STREAMLINE_USER -c "$STREAMLINE_BOOTSTRAP_CMD"
+    $STREAMLINE_BOOTSTRAP_CMD
 }
 
 function streamlineVersion {
@@ -258,8 +260,8 @@ function createLogFiles {
       printf "Can't find log dir.  Run sudo $0 setup.\n"
       exit 1
    fi
-   if [ ! -f "$OUT_FILE" ]; then su $STREAMLINE_USER -c "touch $OUT_FILE"; fi
-   if [ ! -f "$ERR_FILE" ]; then su $STREAMLINE_USER -c "touch $ERR_FILE"; fi
+   if [ ! -f "$OUT_FILE" ]; then touch $OUT_FILE; fi
+   if [ ! -f "$ERR_FILE" ]; then touch $ERR_FILE; fi
 }
 
 function deleteLogFiles {

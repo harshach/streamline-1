@@ -30,7 +30,7 @@ while [ -h "${PRG}" ]; do
 done
 
 BOOTSTRAP_DIR=`dirname ${PRG}`
-CONFIG_FILE_PATH=${BOOTSTRAP_DIR}/../conf/streamline.yaml
+CONFIG_FILE_PATH=${BOOTSTRAP_DIR}/../conf/streamline-$1.yaml
 MYSQL_JAR_URL_PATH=https://dev.mysql.com/get/Downloads/Connector-J/mysql-connector-java-5.1.40.zip
 
 # Which java to use
@@ -52,7 +52,7 @@ USAGE: $0 admin-jdbc-url admin-username admin-password target-username target-pa
 EOF
 }
 
-if [ $# -lt 6 ]
+if [ $# -lt 7 ]
 then
     printUsage
     exit 1

@@ -31,6 +31,7 @@ import com.hortonworks.streamline.common.Constants;
 import com.hortonworks.streamline.common.ModuleRegistration;
 import com.hortonworks.streamline.common.exception.ConfigException;
 import com.hortonworks.streamline.common.util.ReflectionHelper;
+import com.hortonworks.streamline.streams.cluster.resource.HealthCheckResource;
 import com.hortonworks.streamline.streams.security.StreamlineAuthorizer;
 import com.hortonworks.streamline.streams.security.authentication.StreamlineKerberosRequestFilter;
 import com.hortonworks.streamline.streams.security.impl.DefaultStreamlineAuthorizer;
@@ -41,6 +42,7 @@ import com.hortonworks.streamline.webservice.configurations.LoginConfiguration;
 import com.hortonworks.streamline.webservice.configurations.ModuleConfiguration;
 import com.hortonworks.streamline.webservice.configurations.StorageProviderConfiguration;
 import com.hortonworks.streamline.webservice.configurations.StreamlineConfiguration;
+import com.hortonworks.streamline.webservice.health.DummyHealthCheck;
 import com.hortonworks.streamline.webservice.resources.StreamlineConfigurationResource;
 import io.dropwizard.Application;
 import io.dropwizard.assets.AssetsBundle;
@@ -302,11 +304,13 @@ public class StreamlineApplication extends Application<StreamlineConfiguration> 
 
         }
 
+        environment.healthChecks().register("dummy", new DummyHealthCheck());
         LOG.info("Registering resources to Jersey environment: [{}]", resourcesToRegister);
         for(Object resource : resourcesToRegister) {
             environment.jersey().register(resource);
         }
         environment.jersey().register(MultiPartFeature.class);
+        environment.jersey().register(new HealthCheckResource(environment.healthChecks()));
 
         final ErrorPageErrorHandler errorPageErrorHandler = new ErrorPageErrorHandler();
         errorPageErrorHandler.addErrorPage(Response.Status.UNAUTHORIZED.getStatusCode(), "/401.html");

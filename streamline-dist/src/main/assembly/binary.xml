@@ -134,7 +134,12 @@
         <file>
             <source>${project.basedir}./conf/streamline.yaml</source>
             <outputDirectory>/conf</outputDirectory>
-            <destName>streamline.yaml</destName>
+            <destName>streamline-production.yaml</destName>
+        </file>
+        <file>
+            <source>${project.basedir}./conf/streamline-staging.yaml</source>
+            <outputDirectory>/conf</outputDirectory>
+            <destName>streamline-staging.yaml</destName>
         </file>
         <file>
             <source>${project.basedir}./conf/streamline-env.sh</source>

@@ -18,7 +18,7 @@
 
 # defaults
 bootstrap_dir=$(dirname $0)
-CONFIG_FILE_PATH=${bootstrap_dir}/../conf/streamline.yaml
+CONFIG_FILE_PATH=${bootstrap_dir}/../conf/streamline-$2.yaml
 MIGRATION_SCRIPT_PATH=${bootstrap_dir}/shell
 
 # Which java to use
@@ -41,18 +41,19 @@ function execute {
 
 function printUsage {
     cat <<-EOF
-USAGE: $0 [migrate|info|validate|repair]
+USAGE: $0 [migrate|info|validate|repair] [uber-environment]
    migrate          : Applies all the pending migrations. Use "info" to see the current version and the pending migrations
    info             : Shows the list of migrations applied and the pending migration waiting to be applied on the target database
    validate         : Checks if the all the migrations haven been applied on the target database
    repair           : Repairs the SCRIPT_CHANGE_LOG table which is used to track all the migrations on the target database.
                       This involves removing entries for the failed migrations and update the checksum of migrations already applied on the target databsase.
+   uber-environment : Uber Environment
 EOF
 }
 
-if [ $# -gt 1 ]
+if [ $# -ne 2 ]
 then
-    echo "More than one argument specified, please use only one of the below options"
+    echo "Incorrect number of arguments specified, please use only one of the below options"
     printUsage
     exit 1
 fi

@@ -30,7 +30,7 @@ while [ -h "${PRG}" ]; do
 done
 
 BOOTSTRAP_DIR=`dirname ${PRG}`
-CONFIG_FILE_PATH=${BOOTSTRAP_DIR}/../conf/streamline.yaml
+CONFIG_FILE_PATH=${BOOTSTRAP_DIR}/../conf/streamline-$2.yaml
 MYSQL_JAR_URL_PATH=https://dev.mysql.com/get/Downloads/Connector-J/mysql-connector-java-5.1.40.zip
 SCRIPT_ROOT_DIR="${BOOTSTRAP_DIR}/sql"
 
@@ -54,7 +54,7 @@ function execute {
 
 function printUsage {
     cat <<-EOF
-USAGE: $0 [create|migrate|info|validate|drop|drop-create|repair|check-connection]
+USAGE: $0 [create|migrate|info|validate|drop|drop-create|repair|check-connection] [uber-environment]
    create           : Creates the tables. The target database should be empty
    migrate          : Migrates the database to the latest version or creates the tables if the database is empty. Use "info" to see the current version and the pending migrations
    info             : Shows the list of migrations applied and the pending migration waiting to be applied on the target database
@@ -64,12 +64,13 @@ USAGE: $0 [create|migrate|info|validate|drop|drop-create|repair|check-connection
    repair           : Repairs the DATABASE_CHANGE_LOG table which is used to track all the migrations on the target database.
                       This involves removing entries for the failed migrations and update the checksum of migrations already applied on the target databsase.
    check-connection : Checks if a connection can be sucessfully obtained for the target database
+   uber-environment : Uber Environment
 EOF
 }
 
-if [ $# -gt 1 ]
+if [ $# -ne 2 ]
 then
-    echo "More than one argument specified, please use only one of the below options"
+    echo "Incorrect number of arguments specified, please use only one of the below options"
     printUsage
     exit 1
 fi

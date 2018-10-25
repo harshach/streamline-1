@@ -42,7 +42,7 @@ update_config() {
 run_bootstrap() {
     must_pushd "${REGISTRY_HOME}"/bootstrap
     echo "Bootstrap dir : " $PWD
-    "./bootstrap-storage.sh" migrate
+    "./bootstrap-storage.sh" migrate dev
     if [[ $? -ne 0 ]]; then
         die "Bootstrap script failed!"
     else

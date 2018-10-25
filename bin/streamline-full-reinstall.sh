@@ -35,7 +35,7 @@ cp streamline-dist/target/hortonworks-streamline-0.6.0-SNAPSHOT.zip .
 unzip hortonworks-streamline-0.6.0-SNAPSHOT.zip
 cd hortonworks-streamline-0.6.0-SNAPSHOT
 ./bootstrap/bootstrap-storage.sh migrate dev
-./bin/streamline start
+./bin/streamline start dev 8080
 
 echo 'waiting for UI...'
 until $(curl --output /dev/null --silent --head --fail http://localhost:8080); do

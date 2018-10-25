@@ -136,11 +136,11 @@ Make sure you followed [Create a distribution](#building) steps to create binary
 
 1. unzip hortonworks-streamline-{project.verson}.zip
 3. cd hortonworks-streamline-{project.version}
-4. Edit conf/streamline.yaml and provide the database and credentials under the "storageProviderConfiguration".
+4. Edit conf/streamline-dev.yaml and provide the database and credentials under the "storageProviderConfiguration".
 5. If you don't want to run a DB locally , you can use InMemoryStorageManager. You'll loose any changes if you restart the server
-6. ./bootstrap/bootstrap-storage.sh migrate
-7. ./bin/streamline start
-8. ./bootstrap/bootstrap.sh migrate
+6. ./bootstrap/bootstrap-storage.sh migrate dev
+7. ./bin/streamline start dev 8080
+8. ./bootstrap/bootstrap.sh migrate dev
 9. You should be able to access streamline by visiting http://HOST:8080/
 
 <a name="run-intellij"></a>

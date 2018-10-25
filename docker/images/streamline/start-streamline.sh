@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-STREAMLINE_CONFIG="${STREAMLINE_HOME}"/conf/streamline.yaml
+STREAMLINE_CONFIG="${STREAMLINE_HOME}"/conf/streamline-dev.yaml
 STREAMLINE_BOOTSTRAP_STORAGE_DONE="${STREAMLINE_HOME}/bootstrap_storage.done"
 STREAMLINE_BOOTSTRAP_DONE="${STREAMLINE_HOME}/bootstrap.done"
 
@@ -47,7 +47,7 @@ run_bootstrap_storage() {
     must_pushd "${STREAMLINE_HOME}"/bootstrap
     echo "Bootstrap dir : " $PWD
     if [ ! -f $STREAMLINE_BOOTSTRAP_STORAGE_DONE ]; then
-        "./bootstrap-storage.sh" create
+        "./bootstrap-storage.sh" create dev
         touch $STREAMLINE_BOOTSTRAP_STORAGE_DONE
     fi
 
@@ -64,7 +64,7 @@ run_bootstrap() {
     must_pushd "${STREAMLINE_HOME}"/bootstrap
     echo "Bootstrap dir : " $PWD
     if [ ! -f $STREAMLINE_BOOTSTRAP_DONE ]; then
-        "./bootstrap.sh" migrate
+        "./bootstrap.sh" migrate dev
         touch $STREAMLINE_BOOTSTRAP_DONE
     fi
 

@@ -49,25 +49,7 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ForkJoinPool;
 import java.util.concurrent.TimeUnit;
 
-import static com.hortonworks.streamline.streams.storm.common.StormRestAPIConstant.STATS_JSON_ACKED_TUPLES;
-import static com.hortonworks.streamline.streams.storm.common.StormRestAPIConstant.STATS_JSON_COMPLETE_LATENCY;
-import static com.hortonworks.streamline.streams.storm.common.StormRestAPIConstant.STATS_JSON_EMITTED_TUPLES;
-import static com.hortonworks.streamline.streams.storm.common.StormRestAPIConstant.STATS_JSON_EXECUTED_TUPLES;
-import static com.hortonworks.streamline.streams.storm.common.StormRestAPIConstant.STATS_JSON_FAILED_TUPLES;
-import static com.hortonworks.streamline.streams.storm.common.StormRestAPIConstant.STATS_JSON_PROCESS_LATENCY;
-import static com.hortonworks.streamline.streams.storm.common.StormRestAPIConstant.STATS_JSON_TOPOLOGY_ERROR_COUNT;
-import static com.hortonworks.streamline.streams.storm.common.StormRestAPIConstant.STATS_JSON_TRANSFERRED_TUPLES;
-import static com.hortonworks.streamline.streams.storm.common.StormRestAPIConstant.TOPOLOGY_JSON_BOLTS;
-import static com.hortonworks.streamline.streams.storm.common.StormRestAPIConstant.TOPOLOGY_JSON_BOLT_ID;
-import static com.hortonworks.streamline.streams.storm.common.StormRestAPIConstant.TOPOLOGY_JSON_COMPONENT_ERRORS;
-import static com.hortonworks.streamline.streams.storm.common.StormRestAPIConstant.TOPOLOGY_JSON_EXECUTORS_TOTAL;
-import static com.hortonworks.streamline.streams.storm.common.StormRestAPIConstant.TOPOLOGY_JSON_SPOUTS;
-import static com.hortonworks.streamline.streams.storm.common.StormRestAPIConstant.TOPOLOGY_JSON_SPOUT_ID;
-import static com.hortonworks.streamline.streams.storm.common.StormRestAPIConstant.TOPOLOGY_JSON_STATS;
-import static com.hortonworks.streamline.streams.storm.common.StormRestAPIConstant.TOPOLOGY_JSON_STATUS;
-import static com.hortonworks.streamline.streams.storm.common.StormRestAPIConstant.TOPOLOGY_JSON_UPTIME_SECS;
-import static com.hortonworks.streamline.streams.storm.common.StormRestAPIConstant.TOPOLOGY_JSON_WINDOW;
-import static com.hortonworks.streamline.streams.storm.common.StormRestAPIConstant.TOPOLOGY_JSON_WORKERS_TOTAL;
+import static com.hortonworks.streamline.streams.storm.common.StormRestAPIConstant.*;
 
 /**
  * Storm implementation of the TopologyMetrics interface
@@ -175,19 +157,25 @@ public class StormTopologyMetricsImpl implements TopologyMetrics {
         Double completeLatency = getDoubleValueFromStringOrDefault(topologyStatsMap, STATS_JSON_COMPLETE_LATENCY, 0.0d);
 
         // Storm specific metrics
-        Long emittedTotal = getLongValueOrDefault(topologyStatsMap, STATS_JSON_EMITTED_TUPLES, 0L);
+        Long emittedTotal = getLongValueOrDefault(topologyStatsMap, STATS_JSON_OUTPUT_TUPLES, 0L);
         Long transferred = getLongValueOrDefault(topologyStatsMap, STATS_JSON_TRANSFERRED_TUPLES, 0L);
         Long errorsTotal = getErrorCountFromAllComponents(topologyId, spouts, bolts, asUser);
 
-        Map<String, Number> miscMetrics = new HashMap<>();
-        miscMetrics.put(TOPOLOGY_JSON_WORKERS_TOTAL, workerTotal);
-        miscMetrics.put(TOPOLOGY_JSON_EXECUTORS_TOTAL, executorTotal);
-        miscMetrics.put(STATS_JSON_EMITTED_TUPLES, emittedTotal);
-        miscMetrics.put(STATS_JSON_TRANSFERRED_TUPLES, transferred);
-        miscMetrics.put(STATS_JSON_TOPOLOGY_ERROR_COUNT, errorsTotal);
+        Map<String, Object> metrics = new HashMap<>();
+        metrics.put(TOPOLOGY_JSON_STATUS, status);
+        metrics.put(TOPOLOGY_JSON_WORKERS_TOTAL, workerTotal);
+        metrics.put(TOPOLOGY_JSON_EXECUTORS_TOTAL, executorTotal);
+        metrics.put(STATS_JSON_UPTIME_SECS, uptimeSeconds);
+        metrics.put(STATS_JSON_ACKED_TUPLES, acked);
+        metrics.put(STATS_JSON_WINDOW, window);
+        metrics.put(STATS_JSON_THROUGHPUT, acked * 1.0 / window);
+        metrics.put(STATS_JSON_FAILED_TUPLES, failedRecords);
+        metrics.put(STATS_JSON_COMPLETE_LATENCY, completeLatency);
+        metrics.put(STATS_JSON_OUTPUT_TUPLES, emittedTotal);
+        metrics.put(STATS_JSON_TRANSFERRED_TUPLES, transferred);
+        metrics.put(STATS_JSON_TOPOLOGY_ERROR_COUNT, errorsTotal);
 
-        return new TopologyMetric(FRAMEWORK, topology.getName(), status, uptimeSeconds, window,
-            acked * 1.0 / window, completeLatency, failedRecords, miscMetrics);
+        return new TopologyMetric(FRAMEWORK, topology.getName(), metrics);
     }
 
     /**
@@ -310,13 +298,12 @@ public class StormTopologyMetricsImpl implements TopologyMetrics {
     }
 
     private ComponentMetric extractMetric(String componentName, Map<String, ?> componentMap) {
-        Long inputRecords = getLongValueOrDefault(componentMap, STATS_JSON_EXECUTED_TUPLES, 0L);
-        Long outputRecords = getLongValueOrDefault(componentMap, STATS_JSON_EMITTED_TUPLES, 0L);
-        Long failedRecords = getLongValueOrDefault(componentMap, STATS_JSON_FAILED_TUPLES, 0L);
-        Double processedTime = getDoubleValueFromStringOrDefault(componentMap, STATS_JSON_PROCESS_LATENCY, 0.0d);
-
-        return new ComponentMetric(StormTopologyUtil.extractStreamlineComponentName(componentName), inputRecords,
-                outputRecords, failedRecords, processedTime);
+        Map<String, Object> metrics  = new HashMap<>();
+        metrics.put(STATS_JSON_EXECUTED_TUPLES, getLongValueOrDefault(componentMap, STATS_JSON_EXECUTED_TUPLES, 0L));
+        metrics.put(STATS_JSON_OUTPUT_TUPLES, getLongValueOrDefault(componentMap, STATS_JSON_OUTPUT_TUPLES, 0L));
+        metrics.put(STATS_JSON_FAILED_TUPLES, getLongValueOrDefault(componentMap, STATS_JSON_FAILED_TUPLES, 0L));
+        metrics.put(STATS_JSON_PROCESS_LATENCY, getDoubleValueFromStringOrDefault(componentMap, STATS_JSON_PROCESS_LATENCY, 0.0d));
+        return new ComponentMetric(StormTopologyUtil.extractStreamlineComponentName(componentName), metrics);
     }
 
     private Long convertWindowString(String windowStr, Long uptime) {

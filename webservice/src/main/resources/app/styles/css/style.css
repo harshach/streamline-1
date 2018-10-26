@@ -4044,6 +4044,7 @@ ul.custom-pagination li.active{
   color: #fff;
   margin: 0;
   font-size: 13px;
+  text-transform: uppercase;
 }
 .topology-foot-widget h6 big {
   margin-left: 5px;

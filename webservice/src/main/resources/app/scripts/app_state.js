@@ -32,6 +32,8 @@ class app_state {
   @observable user_profile = {}
   @observable roleInfo = []
   @observable unKnownUser = unknownAccessCode.loggedIn
+  engines = []
+  enginesMetricsTemplates = []
 }
 
 export default new app_state();

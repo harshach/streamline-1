@@ -92,113 +92,6 @@ import DateTimePickerDropdown from '../../../components/DateTimePickerDropdown';
           return y;
         }
       });
-    }} showTooltip={function(d) {
-      const index = this.props.data.indexOf(d);
-      const {inputOutput, ackedTuples, FailedTuples, Latency, ProcessTime, Queue, ExecuteTime, KafkaLagOffset,
-        _inputOutput, _ackedTuples, _FailedTuples, _Latency, _ProcessTime, _Queue, _ExecuteTime, _KafkaLagOffset} = self.refs;
-      if(!graphHeight) {
-        if (inputOutput && inputOutput.props.data[index] !== undefined && self.state.showMetrics) {
-          TimeSeriesChart.defaultProps.showTooltip.call(inputOutput, inputOutput.props.data[index]);
-        }
-        if (ackedTuples && ackedTuples.props.data[index] !== undefined && self.state.showMetrics) {
-          TimeSeriesChart.defaultProps.showTooltip.call(ackedTuples, ackedTuples.props.data[index]);
-        }
-        if (FailedTuples && FailedTuples.props.data[index] !== undefined && self.state.showMetrics) {
-          TimeSeriesChart.defaultProps.showTooltip.call(FailedTuples, FailedTuples.props.data[index]);
-        }
-        if (Latency && Latency.props.data[index] !== undefined && self.state.showMetrics) {
-          TimeSeriesChart.defaultProps.showTooltip.call(Latency, Latency.props.data[index]);
-        }
-        if (ProcessTime && ProcessTime.props.data[index] !== undefined && self.state.showMetrics) {
-          TimeSeriesChart.defaultProps.showTooltip.call(ProcessTime, ProcessTime.props.data[index]);
-        }
-        if (ExecuteTime && ExecuteTime.props.data[index] !== undefined && self.state.showMetrics) {
-          TimeSeriesChart.defaultProps.showTooltip.call(ExecuteTime, ExecuteTime.props.data[index]);
-        }
-        if (Queue && Queue.props.data[index] !== undefined && self.state.showMetrics) {
-          TimeSeriesChart.defaultProps.showTooltip.call(Queue, Queue.props.data[index]);
-        }
-        if (KafkaLagOffset && KafkaLagOffset.props.data[index] !== undefined && self.state.showMetrics) {
-          TimeSeriesChart.defaultProps.showTooltip.call(KafkaLagOffset, KafkaLagOffset.props.data[index]);
-        }
-      } else if(graphHeight !== undefined){
-        if (_inputOutput && _inputOutput.props.data[index] !== undefined && self.state.showMetrics) {
-          TimeSeriesChart.defaultProps.showTooltip.call(_inputOutput, _inputOutput.props.data[index]);
-        }
-        if (_ackedTuples && _ackedTuples.props.data[index] !== undefined && self.state.showMetrics) {
-          TimeSeriesChart.defaultProps.showTooltip.call(_ackedTuples, _ackedTuples.props.data[index]);
-        }
-        if (_FailedTuples && _FailedTuples.props.data[index] !== undefined && self.state.showMetrics) {
-          TimeSeriesChart.defaultProps.showTooltip.call(_FailedTuples, _FailedTuples.props.data[index]);
-        }
-        if (_Latency && _Latency.props.data[index] !== undefined && self.state.showMetrics) {
-          TimeSeriesChart.defaultProps.showTooltip.call(_Latency, _Latency.props.data[index]);
-        }
-        if (_ProcessTime && _ProcessTime.props.data[index] !== undefined && self.state.showMetrics) {
-          TimeSeriesChart.defaultProps.showTooltip.call(_ProcessTime, _ProcessTime.props.data[index]);
-        }
-        if (_ExecuteTime && _ExecuteTime.props.data[index] !== undefined && self.state.showMetrics) {
-          TimeSeriesChart.defaultProps.showTooltip.call(_ExecuteTime, _ExecuteTime.props.data[index]);
-        }
-        if (_Queue && _Queue.props.data[index] !== undefined && self.state.showMetrics) {
-          TimeSeriesChart.defaultProps.showTooltip.call(_Queue, _Queue.props.data[index]);
-        }
-        if (_KafkaLagOffset && _KafkaLagOffset.props.data[index] !== undefined && self.state.showMetrics) {
-          TimeSeriesChart.defaultProps.showTooltip.call(_KafkaLagOffset, _KafkaLagOffset.props.data[index]);
-        }
-      }
-    }} hideTooltip={function() {
-      const {inputOutput, ackedTuples, FailedTuples, Latency, ProcessTime, ExecuteTime, Queue, KafkaLagOffset,
-        _inputOutput, _ackedTuples, _FailedTuples, _Latency, _ProcessTime, _Queue, _ExecuteTime, _KafkaLagOffset} = self.refs;
-      if (inputOutput) {
-        TimeSeriesChart.defaultProps.hideTooltip.call(inputOutput);
-      }
-      if (ackedTuples) {
-        TimeSeriesChart.defaultProps.hideTooltip.call(ackedTuples);
-      }
-      if (FailedTuples) {
-        TimeSeriesChart.defaultProps.hideTooltip.call(FailedTuples);
-      }
-      if (Latency) {
-        TimeSeriesChart.defaultProps.hideTooltip.call(Latency);
-      }
-      if (ProcessTime) {
-        TimeSeriesChart.defaultProps.hideTooltip.call(ProcessTime);
-      }
-      if (ExecuteTime) {
-        TimeSeriesChart.defaultProps.hideTooltip.call(ExecuteTime);
-      }
-      if (Queue) {
-        TimeSeriesChart.defaultProps.hideTooltip.call(Queue);
-      }
-      if (KafkaLagOffset){
-        TimeSeriesChart.defaultProps.hideTooltip.call(KafkaLagOffset);
-      }
-      //tooltips for graphs in Modal
-      if (_inputOutput) {
-        TimeSeriesChart.defaultProps.hideTooltip.call(_inputOutput);
-      }
-      if (_ackedTuples) {
-        TimeSeriesChart.defaultProps.hideTooltip.call(_ackedTuples);
-      }
-      if (_FailedTuples) {
-        TimeSeriesChart.defaultProps.hideTooltip.call(_FailedTuples);
-      }
-      if (_Latency) {
-        TimeSeriesChart.defaultProps.hideTooltip.call(_Latency);
-      }
-      if (_ProcessTime) {
-        TimeSeriesChart.defaultProps.hideTooltip.call(_ProcessTime);
-      }
-      if (_ExecuteTime) {
-        TimeSeriesChart.defaultProps.hideTooltip.call(_ExecuteTime);
-      }
-      if (_Queue) {
-        TimeSeriesChart.defaultProps.hideTooltip.call(_Queue);
-      }
-      if (_KafkaLagOffset){
-        TimeSeriesChart.defaultProps.hideTooltip.call(_KafkaLagOffset);
-      }
     }} onBrushEnd={function() {
       if (!this.brush.empty()) {
         const newChartXRange = this.brush.extent();
@@ -219,18 +112,111 @@ import DateTimePickerDropdown from '../../../components/DateTimePickerDropdown';
     this.setState({graphType, graphTitle, graphData, interpolation});
     this.graphModalRef.show();
   }
+  getMetrics(){
+    const {
+      topologyMetric,
+      components,
+      viewModeData,
+      engine
+    } = this.props;
+    const selectedComponentId = viewModeData.selectedComponentId;
+    let selectedComponent = selectedComponentId !== '' ? components.find((c)=>{return c.nodeId === parseInt(selectedComponentId);}) : {};
+
+    const componentType = selectedComponent.parentType || 'topology';
+    const componentName = null;
+    let template = Utils.getViewModeMetricsTemplate(engine, componentType, selectedComponent.currentType);
+
+    const metrics = [];
+    if(!_.isUndefined(viewModeData.overviewMetrics) && !_.isUndefined(viewModeData.overviewMetrics.metrics)){
+      _.each(template, (t) => {
+        const oValue = _.get(viewModeData.overviewMetrics.metrics, t.metricKeyName);
+        const value = Utils[t.valueFormat](oValue);
+        const diffValue = Utils[t.valueFormat](oValue - _.get(viewModeData.overviewMetrics.prevMetrics, t.metricKeyName));
+
+        const component = <div className="topology-foot-widget">
+          <h6>{t.uiName}
+            <big>
+              <i className={diffValue.value <= 0 ? "fa fa-arrow-down" : "fa fa-arrow-up"}></i>
+            </big>
+          </h6>
+          <h4>{value.value}{value.suffix}&nbsp;
+            <small>{diffValue.value <= 0 || diffValue.value ? '' : '+'}
+              {diffValue.value}{diffValue.suffix}
+            </small>
+          </h4>
+        </div>;
+        metrics.push(component);
+      });
+    }
+
+    return metrics;
+  }
+  getTimeseriesMetrics(){
+    const {
+      topologyMetric,
+      components,
+      viewModeData,
+      engine
+    } = this.props;
+    const selectedComponentId = viewModeData.selectedComponentId;
+    let selectedComponent = selectedComponentId !== '' ? components.find((c)=>{return c.nodeId === parseInt(selectedComponentId);}) : {};
+
+    const componentType = selectedComponent.parentType || 'topology';
+    const componentName = null;
+    let template = Utils.getViewModeTimeseriesMetricsTemplate(engine, componentType, selectedComponent.currentType);
+
+    const metrics = [];
+    if(!_.isUndefined(viewModeData.timeSeriesMetrics)){
+      const timeSeriesMetrics = viewModeData.timeSeriesMetrics.metrics;
+
+      const loader = <img src="styles/img/start-loader.gif" alt="loading" style={{
+        width: "80px",
+        marginTop: "0px"
+      }}/>;
+
+      _.each(template, (t) => {
+        const graphData = [];
+        const firstLineData = timeSeriesMetrics[t.metricKeyName[0]];
+        for(const key in firstLineData) {
+          const obj = {
+            date: new Date(parseInt(key))
+          };
+          _.each(t.metricKeyName, (kName) => {
+            obj[kName] = timeSeriesMetrics[kName][key] || 0;
+          });
+          graphData.push(obj);
+        }
+
+        const component = <div className="col-md-3">
+          <div className="topology-foot-graphs">
+            <div style={{textAlign: "left", marginLeft: '10px', cursor:'pointer', textTransform: 'uppercase'}} onClick={this.showGraphInModal.bind(this, t.uiName, '_'+t.uiName, graphData, t.interpolate)}>{t.uiName}</div>
+            <div style={{
+              height: '82px',
+              textAlign: 'center'
+            }}>
+              {this.state.loadingRecord ? loader : this.getGraph(t.uiName, graphData, t.interpolate)}
+            </div>
+          </div>
+        </div>;
+
+        metrics.push(component);
+      });
+    }
+
+    return metrics;
+  }
   render() {
     const {
       topologyMetric,
       components,
       viewModeData
     } = this.props;
-    const {metric} = topologyMetric || {
+    /*const {metric} = topologyMetric || {
       metric: (topologyMetric === '')
         ? ''
         : topologyMetric.metric
-    };
-    const metricWrap = metric;
+    };*/
+    const metricWrap = topologyMetric;
     const appMisc = metricWrap.misc || null;
     const workersTotal = appMisc? appMisc.workersTotal : 0, executorsTotal = appMisc ? appMisc.executorsTotal : 0;
     let overviewMetrics = {};
@@ -239,93 +225,6 @@ import DateTimePickerDropdown from '../../../components/DateTimePickerDropdown';
     if(!_.isUndefined(viewModeData.overviewMetrics)) {
       overviewMetrics = viewModeData.overviewMetrics;
       timeSeriesMetrics = viewModeData.timeSeriesMetrics;
-    }
-
-    const latencyMetric = Utils.formatLatency(overviewMetrics.latency);
-    const completeLatencyMetric = Utils.formatLatency(overviewMetrics.completeLatency);
-    const processTimeMetric = Utils.formatLatency(overviewMetrics.processTime);
-    const executeTimeMetric = Utils.formatLatency(overviewMetrics.executeTime);
-    const emittedMetric = Utils.abbreviateNumber(overviewMetrics.emitted);
-    const emitted = emittedMetric.value.toString();
-    const ackedMetric = Utils.abbreviateNumber(overviewMetrics.acked);
-    const acked = ackedMetric.value.toString();
-    const prevEmitted = overviewMetrics.prevEmitted || null;
-    const prevLatency = overviewMetrics.prevLatency || null;
-    const prevCompleteLatency = overviewMetrics.prevCompleteLatency || null;
-    const prevExecuteTime = overviewMetrics.prevExecuteTime || null;
-    const prevProcessTime = overviewMetrics.prevProcessTime || null;
-    const prevAcked = overviewMetrics.prevAcked || null;
-    const prevFailed = overviewMetrics.prevFailed || null;
-
-    const emittedDiffMetric = Utils.abbreviateNumber(overviewMetrics.emitted - prevEmitted);
-    const emittedDifference = emittedDiffMetric.value.toString();
-    const latencyDiffMetric = Utils.formatLatency(overviewMetrics.latency - prevLatency);
-    const completeLatencyDiffMetric = Utils.formatLatency(overviewMetrics.completeLatency - prevCompleteLatency);
-    const executeTimeDiffMetric = Utils.formatLatency(overviewMetrics.executeTime - prevExecuteTime);
-    const processTimeDiffMetric = Utils.formatLatency(overviewMetrics.processTime - prevProcessTime);
-    const ackedDiffMetric = Utils.abbreviateNumber(overviewMetrics.acked - prevAcked);
-    const ackedDifference = ackedDiffMetric.value.toString();
-    const failed = overviewMetrics.failed ? overviewMetrics.failed.toString() : '0';
-    const failedDifference = overviewMetrics.failed ? (overviewMetrics.failed - prevFailed).toString() : '0';
-
-    const inputOutputData = [];
-    const ackedData = [];
-    const failedData = [];
-    const queueData = [];
-    const processTimeData = [];
-    const executeTimeData = [];
-    const completeLatency = [];
-    const kafkaLagOffsetData = [];
-    const {
-      outputRecords,
-      inputRecords,
-      recordsInWaitQueue,
-      failedRecords,
-      misc,
-      processedTime,
-      kafkaLagOffset
-    } = timeSeriesMetrics;
-
-    for(const key in outputRecords) {
-      inputOutputData.push({
-        date: new Date(parseInt(key)),
-        Input: inputRecords[key] || 0,
-        Output: outputRecords[key] || 0
-      });
-      ackedData.push({
-        date: new Date(parseInt(key)),
-        Acked: misc.ackedRecords[key] || 0
-      });
-      failedData.push({
-        date: new Date(parseInt(key)),
-        Failed: failedRecords[key] || 0
-      });
-      queueData.push({
-        date: new Date(parseInt(key)),
-        Wait: recordsInWaitQueue[key] || 0
-      });
-      processTimeData.push({
-        date: new Date(parseInt(key)),
-        ProcessTime: processedTime[key] || 0
-      });
-      if(misc.completeLatency) {
-        completeLatency.push({
-          date: new Date(parseInt(key)),
-          Latency: misc.completeLatency[key] || 0
-        });
-      }
-      if(misc.executeTime) {
-        executeTimeData.push({
-          date: new Date(parseInt(key)),
-          ExecuteTime: misc.executeTime[key] || 0
-        });
-      }
-      if(kafkaLagOffset){
-        kafkaLagOffsetData.push({
-          date: new Date(parseInt(key)),
-          lag : kafkaLagOffset.lag[key] || 0
-        });
-      }
     }
 
     const locale = {
@@ -369,115 +268,9 @@ import DateTimePickerDropdown from '../../../components/DateTimePickerDropdown';
             </div>
           </div>
           </div>
-          <div className="topology-foot-widget">
-              <h6>Emitted
-                <big>
-                  {prevEmitted !== null ?
-                  <i className={emittedDiffMetric.value <= 0 ? "fa fa-arrow-down" : "fa fa-arrow-up"}></i>
-                  : ''}
-                </big>
-              </h6>
-              <h4>
-                {emitted}{emittedMetric.suffix}&nbsp;
-                <small>{emittedDiffMetric.value <= 0 || prevEmitted == null ? '' : '+'}
-                  {emittedDifference}{emittedMetric.suffix}
-                </small>
-              </h4>
-          </div>
-          <div className="topology-foot-widget">
-              <h6>Acked
-                <big>
-                  {prevAcked !== null ?
-                  <i className={ackedDiffMetric.value <= 0 ? "fa fa-arrow-down" : "fa fa-arrow-up"}></i>
-                  : ''}
-                </big>
-              </h6>
-              <h4>{acked}{ackedMetric.suffix}&nbsp;
-                <small>{ackedDiffMetric.value <= 0 || prevAcked == null ? '' : '+'}
-                  {ackedDifference}{ackedDiffMetric.suffix}
-                </small>
-              </h4>
-          </div>
-          {selectedComponent && selectedComponent.parentType === undefined ?
-            <div className="topology-foot-widget">
-                <h6>Latency
-                  <big>
-                    {prevLatency !== null ?
-                    <i className={latencyDiffMetric.value <= 0 ? "fa fa-arrow-down" : "fa fa-arrow-up"}></i>
-                    : ''}
-                  </big>
-                </h6>
-                <h4>{latencyMetric.value.toString()}{latencyMetric.suffix}&nbsp;
-                  <small>{latencyDiffMetric.value <= 0 || prevLatency == null ? '' : '+'}
-                    {latencyDiffMetric.value.toString()}{latencyDiffMetric.suffix}
-                  </small>
-                </h4>
-            </div>
-            : null
-          }
-          {selectedComponent && selectedComponent.parentType === "SOURCE" ?
-            <div className="topology-foot-widget">
-                <h6>Complete Latency
-                  <big>
-                    {prevCompleteLatency !== null ?
-                    <i className={completeLatencyDiffMetric.value <= 0 ? "fa fa-arrow-down" : "fa fa-arrow-up"}></i>
-                    : ''}
-                  </big>
-                </h6>
-                <h4>{completeLatencyMetric.value.toString()}{completeLatencyMetric.suffix}&nbsp;
-                  <small>{completeLatencyDiffMetric.value <= 0 || prevCompleteLatency == null ? '' : '+'}
-                    {completeLatencyDiffMetric.value.toString()}{completeLatencyDiffMetric.suffix}
-                  </small>
-                </h4>
-            </div>
-          : null}
-          {selectedComponent && (selectedComponent.parentType === "PROCESSOR" || selectedComponent.parentType === "SINK")
-            ? [<div className="topology-foot-widget" key={1.1}>
-                  <h6>Process Latency
-                    <big>
-                      {prevProcessTime !== null ?
-                      <i className={processTimeDiffMetric.value <= 0 ? "fa fa-arrow-down" : "fa fa-arrow-up"}></i>
-                      : ''}
-                    </big>
-                  </h6>
-                  <h4>{processTimeMetric.value.toString()}{processTimeMetric.suffix}&nbsp;
-                    <small>{processTimeDiffMetric.value <= 0 || prevProcessTime == null ? '' : '+'}
-                      {processTimeDiffMetric.value.toString()}{processTimeDiffMetric.suffix}
-                    </small>
-                  </h4>
-              </div>,
-              <div className="topology-foot-widget" key={1.2}>
-                  <h6>Execute Latency
-                    <big>
-                      {prevExecuteTime !== null ?
-                      <i className={executeTimeDiffMetric.value <= 0 ? "fa fa-arrow-down" : "fa fa-arrow-up"}></i>
-                      : ''}
-                    </big>
-                  </h6>
-                  <h4>{executeTimeMetric.value.toString()}{executeTimeMetric.suffix}&nbsp;
-                    <small>{executeTimeDiffMetric.value <= 0 || prevExecuteTime == null ? '' : '+'}
-                      {executeTimeDiffMetric.value.toString()}{executeTimeDiffMetric.suffix}
-                    </small>
-                  </h4>
-              </div>]
-          : null}
-          <div className="topology-foot-widget">
-              <h6>Failed
-              <big>
-                {prevFailed !== null ?
-                  <i className={failedDifference <= 0 ? "fa fa-arrow-down" : "fa fa-arrow-up"}></i>
-                  : ''}
-              </big></h6>
-              <h4>{failed} <small>{failedDifference}</small></h4>
-          </div>
-          <div className="topology-foot-widget">
-              <h6>Workers <big>&nbsp;</big></h6>
-              <h4>{workersTotal} </h4>
-          </div>
-          <div className="topology-foot-widget">
-              <h6>Executors <big>&nbsp;</big></h6>
-              <h4>{executorsTotal} </h4>
-          </div>
+
+          {this.getMetrics()}
+
           <div className="topology-foot-action" onClick={()=>{this.setState({showMetrics: !this.state.showMetrics});}}>
             {this.state.showMetrics ?
               <span>Hide Metrics <i className="fa fa-chevron-down"></i></span>
@@ -530,82 +323,8 @@ import DateTimePickerDropdown from '../../../components/DateTimePickerDropdown';
         >
           {this.state.showMetrics ?
           [<div className="row" key={1}>
-            <div className="col-md-3">
-              <div className="topology-foot-graphs">
-                <div style={{textAlign: "left", marginLeft: '10px', cursor:'pointer'}} onClick={this.showGraphInModal.bind(this, 'Input/Output', '_inputOutput', inputOutputData, 'bundle')}>Input/Output</div>
-                <div style={{
-                  height: '82px',
-                  textAlign: 'center'
-                }}>
-                  {this.state.loadingRecord ? loader : this.getGraph('inputOutput', inputOutputData, 'bundle')}
-                </div>
-              </div>
-            </div>
-            <div className="col-md-3">
-              <div className="topology-foot-graphs">
-                <div style={{textAlign: "left", marginLeft: '10px', cursor:'pointer'}} onClick={this.showGraphInModal.bind(this, 'Acked Tuples', '_ackedTuples', ackedData, 'step-before')}>Acked Tuples</div>
-                <div style={{
-                  height: '82px',
-                  textAlign: 'center'
-                }}>
-                  {this.state.loadingRecord ? loader : this.getGraph('ackedTuples', ackedData, 'step-before')}
-                </div>
-              </div>
-            </div>
-            <div className="col-md-3">
-              <div className="topology-foot-graphs">
-                <div style={{textAlign: "left", marginLeft: '10px', cursor:'pointer'}} onClick={this.showGraphInModal.bind(this, 'Failed Tuples', '_FailedTuples', failedData, 'bundle')}>Failed Tuples</div>
-                <div style={{
-                  height: '82px',
-                  textAlign: 'center'
-                }}>
-                  {this.state.loadingRecord ? loader : this.getGraph('FailedTuples', failedData, 'bundle')}
-                </div>
-              </div>
-            </div>
-            <div className="col-md-3">
-              <div className="topology-foot-graphs">
-                <div style={{textAlign: "left", marginLeft: '10px', cursor:'pointer'}} onClick={this.showGraphInModal.bind(this, 'Queue', '_Queue', queueData, 'step-before')}>Queue</div>
-                <div style={{
-                  height: '82px',
-                  textAlign: 'center'
-                }}>
-                  {this.state.loadingRecord
-                    ? loader
-                    : this.getGraph('Queue', queueData, 'step-before')}
-                </div>
-              </div>
-            </div>
-          </div>,
-            <div className="row" key={2}>
-            {selectedComponentId == '' || selectedComponent.parentType === 'SOURCE' ?
-              sourceGraphDivContent.call(this)
-            :
-            [ <div className="col-md-3" key={2.1}>
-                <div className="topology-foot-graphs">
-                  <div style={{textAlign: "left", marginLeft: '10px', cursor:'pointer'}} onClick={this.showGraphInModal.bind(this, 'Process Latency', '_ProcessTime', processTimeData, 'step-before')}>Process Latency</div>
-                  <div style={{
-                    height: '82px',
-                    textAlign: 'center'
-                  }}>
-                    {this.state.loadingRecord ? loader : this.getGraph('ProcessTime', processTimeData, 'step-before')}
-                  </div>
-                </div>
-              </div>,
-              <div className="col-md-3" key={2.2}>
-                <div className="topology-foot-graphs">
-                  <div className="topology-foot-graphs">
-                  <div style={{textAlign: "left", marginLeft: '10px', cursor:'pointer'}} onClick={this.showGraphInModal.bind(this, 'Execute Latency', '_ExecuteTime', executeTimeData, 'step-before')}>Execute Latency</div>
-                  <div style={{
-                    height: '82px',
-                    textAlign: 'center'
-                  }}>
-                    {this.state.loadingRecord ? loader : this.getGraph('ExecuteTime', executeTimeData, 'step-before')}
-                  </div>
-                </div>
-                </div>
-              </div>]
-            }
+            {this.getTimeseriesMetrics()}
+            
           </div>]
           : null}
         </Panel>

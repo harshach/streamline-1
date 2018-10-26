@@ -75,7 +75,7 @@ public class TopologyViewModeResource {
                 prevTopologyMetrics = null;
             }
 
-            ComponentMetricSummary viewModeComponentMetric = ComponentMetricSummary.convertTopologyMetric(
+            ComponentMetricSummary viewModeComponentMetric = ComponentMetricSummary.convertStreamingComponentMetric(
                     topologyMetrics, prevTopologyMetrics);
             TopologyWithMetric metric = new TopologyWithMetric(topology, viewModeComponentMetric,
                     topologyMetrics);
@@ -91,10 +91,10 @@ public class TopologyViewModeResource {
             return false;
         }
 
-        Map<Long, Double> target = metrics.getProcessedTime();
+        Map<Long, Double> target = metrics.getMetrics().get("processTime");
         if (target == null || target.size() == 0) {
             // fail back to see output records
-            target = metrics.getOutputRecords();
+            target = metrics.getMetrics().get("outputRecords");
 
             if (target == null || target.size() == 0) {
                 return false;
@@ -218,6 +218,8 @@ public class TopologyViewModeResource {
                 components = catalogService.listTopologyProcessors(queryParams);
             } else if (clazz.equals(TopologySink.class)) {
                 components = catalogService.listTopologySinks(queryParams);
+            } else if (clazz.equals(TopologyTask.class)) {
+                components = catalogService.listTopologyTasks(queryParams);
             } else {
                 throw new IllegalArgumentException("Unexpected class in parameter: " + clazz);
             }
@@ -230,11 +232,10 @@ public class TopologyViewModeResource {
                             TopologyTimeSeriesMetrics.TimeSeriesComponentMetric currentMetric = metricsService.getComponentStats(topology, s, from, to, asUser);
                             TopologyTimeSeriesMetrics.TimeSeriesComponentMetric previousMetric = metricsService.getComponentStats(topology, s, from - (to - from), from - 1, asUser);
                             if (clazz.equals(TopologySource.class)) {
-                                overviewMetric = ComponentMetricSummary.convertSourceMetric(
+                                overviewMetric = ComponentMetricSummary.convertStreamingComponentMetric(
                                         currentMetric, previousMetric);
-
                             } else {
-                                overviewMetric = ComponentMetricSummary.convertNonSourceMetric(
+                                overviewMetric = ComponentMetricSummary.convertStreamingComponentMetric(
                                         currentMetric, previousMetric);
                             }
 
@@ -279,9 +280,11 @@ public class TopologyViewModeResource {
                 TopologyTimeSeriesMetrics.TimeSeriesComponentMetric currentMetric = metricsService.getComponentStats(topology, component, from, to, asUser);
                 TopologyTimeSeriesMetrics.TimeSeriesComponentMetric previousMetric = metricsService.getComponentStats(topology, component, from - (to - from), from - 1, asUser);
                 if (clazz.equals(TopologySource.class)) {
-                    overviewMetric = ComponentMetricSummary.convertSourceMetric(currentMetric, previousMetric);
+                    overviewMetric = ComponentMetricSummary.convertStreamingComponentMetric(currentMetric, previousMetric);
+                } else if (clazz.equals(TopologyProcessor.class) || clazz.equals(TopologySink.class)) {
+                    overviewMetric = ComponentMetricSummary.convertStreamingComponentMetric(currentMetric, previousMetric);
                 } else {
-                    overviewMetric = ComponentMetricSummary.convertNonSourceMetric(currentMetric, previousMetric);
+                    overviewMetric = null;
                 }
 
                 TopologyComponentWithMetric componentWithMetrics =

@@ -39,6 +39,24 @@ const EngineREST = {
       .then((response) => {
         return response.json();
       });
+  },
+  getAllEngineMetricsTemplate(options) {
+    options = options || {};
+    options.method = options.method || 'GET';
+    options.credentials = 'same-origin';
+    return fetch(baseUrl + engineBaseURL+"/metrics", options)
+      .then((response) => {
+        return response.json();
+      });
+  },
+  getEngineMetricsTemplate(engineId, options) {
+    options = options || {};
+    options.method = options.method || 'GET';
+    options.credentials = 'same-origin';
+    return fetch(baseUrl + engineBaseURL+"/"+engineId+"/metrics", options)
+      .then((response) => {
+        return response.json();
+      });
   }
 };
 

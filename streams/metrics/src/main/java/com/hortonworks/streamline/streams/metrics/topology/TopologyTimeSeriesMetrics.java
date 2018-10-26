@@ -103,64 +103,26 @@ public interface TopologyTimeSeriesMetrics {
      */
     class TimeSeriesComponentMetric {
         private final String componentName;
-        private final Map<Long, Double> inputRecords;
-        private final Map<Long, Double> outputRecords;
-        private final Map<Long, Double> failedRecords;
-        private final Map<Long, Double> processedTime;
-        private final Map<Long, Double> recordsInWaitQueue;
-        private final Map<String, Map<Long, Double>> misc;
+        private final Map<String, Map<Long, Double>> metrics;
 
         /**
          * Constructor.
          * @param componentName 'component name' for Streamline.
          *                      If component name for streaming framework is different from component name for Streamline,
          *                      implementation of TopologyTimeSeriesMetrics should match the relation.
-         * @param inputRecords  Count of input records.
-         * @param outputRecords Count of output records.
-         * @param failedRecords Count of failed records.
-         * @param processedTime Average latency of processed time (processing one record).
-         * @param recordsInWaitQueue    Count of records which are waiting in a queue.
-         * @param misc          Additional metrics which are framework specific.
+         * @param metrics          Additional metrics which are framework specific.
          */
-        public TimeSeriesComponentMetric(String componentName, Map<Long, Double> inputRecords,
-                                         Map<Long, Double> outputRecords, Map<Long, Double> failedRecords,
-                                         Map<Long, Double> processedTime, Map<Long, Double> recordsInWaitQueue,
-                                         Map<String, Map<Long, Double>> misc) {
+        public TimeSeriesComponentMetric(String componentName, Map<String, Map<Long, Double>> metrics) {
             this.componentName = componentName;
-            this.inputRecords = inputRecords;
-            this.outputRecords = outputRecords;
-            this.failedRecords = failedRecords;
-            this.processedTime = processedTime;
-            this.recordsInWaitQueue = recordsInWaitQueue;
-            this.misc = misc;
+            this.metrics = metrics;
         }
 
         public String getComponentName() {
             return componentName;
         }
 
-        public Map<Long, Double> getInputRecords() {
-            return inputRecords;
-        }
-
-        public Map<Long, Double> getOutputRecords() {
-            return outputRecords;
-        }
-
-        public Map<Long, Double> getFailedRecords() {
-            return failedRecords;
-        }
-
-        public Map<Long, Double> getProcessedTime() {
-            return processedTime;
-        }
-
-        public Map<Long, Double> getRecordsInWaitQueue() {
-            return recordsInWaitQueue;
-        }
-
-        public Map<String, Map<Long, Double>> getMisc() {
-            return misc;
+        public Map<String, Map<Long, Double>> getMetrics() {
+            return metrics;
         }
 
         @Override
@@ -172,28 +134,13 @@ public interface TopologyTimeSeriesMetrics {
 
             if (getComponentName() != null ? !getComponentName().equals(that.getComponentName()) : that.getComponentName() != null)
                 return false;
-            if (getInputRecords() != null ? !getInputRecords().equals(that.getInputRecords()) : that.getInputRecords() != null)
-                return false;
-            if (getOutputRecords() != null ? !getOutputRecords().equals(that.getOutputRecords()) : that.getOutputRecords() != null)
-                return false;
-            if (getFailedRecords() != null ? !getFailedRecords().equals(that.getFailedRecords()) : that.getFailedRecords() != null)
-                return false;
-            if (getProcessedTime() != null ? !getProcessedTime().equals(that.getProcessedTime()) : that.getProcessedTime() != null)
-                return false;
-            if (getRecordsInWaitQueue() != null ? !getRecordsInWaitQueue().equals(that.getRecordsInWaitQueue()) : that.getRecordsInWaitQueue() != null)
-                return false;
-            return getMisc() != null ? getMisc().equals(that.getMisc()) : that.getMisc() == null;
+            return getMetrics() != null ? getMetrics().equals(that.getMetrics()) : that.getMetrics() == null;
         }
 
         @Override
         public int hashCode() {
             int result = getComponentName() != null ? getComponentName().hashCode() : 0;
-            result = 31 * result + (getInputRecords() != null ? getInputRecords().hashCode() : 0);
-            result = 31 * result + (getOutputRecords() != null ? getOutputRecords().hashCode() : 0);
-            result = 31 * result + (getFailedRecords() != null ? getFailedRecords().hashCode() : 0);
-            result = 31 * result + (getProcessedTime() != null ? getProcessedTime().hashCode() : 0);
-            result = 31 * result + (getRecordsInWaitQueue() != null ? getRecordsInWaitQueue().hashCode() : 0);
-            result = 31 * result + (getMisc() != null ? getMisc().hashCode() : 0);
+            result = 31 * result + (getMetrics() != null ? getMetrics().hashCode() : 0);
             return result;
         }
 
@@ -201,12 +148,7 @@ public interface TopologyTimeSeriesMetrics {
         public String toString() {
             return "TimeSeriesComponentMetric{" +
                     "componentName='" + componentName + '\'' +
-                    ", inputRecords=" + inputRecords +
-                    ", outputRecords=" + outputRecords +
-                    ", failedRecords=" + failedRecords +
-                    ", processedTime=" + processedTime +
-                    ", recordsInWaitQueue=" + recordsInWaitQueue +
-                    ", misc=" + misc +
+                    ", misc=" + metrics +
                     '}';
         }
     }

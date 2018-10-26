@@ -167,6 +167,45 @@ public class TopologyCatalogResource {
     }
 
 
+
+    @GET
+    @Path("/system/engines/metrics")
+    @Timed
+    public Response listEngineComponentBundles(@Context SecurityContext securityContext) {
+        Collection<EngineMetricsBundle> engineMetricsBundles = catalogService.listEngineMetricsBundles();
+        boolean topologyUser = SecurityUtil.hasRole(authorizer, securityContext, Roles.ROLE_TOPOLOGY_USER);
+        if (topologyUser) {
+            LOG.debug("Returning all projects since user has role: {}", Roles.ROLE_TOPOLOGY_USER);
+        } else {
+            engineMetricsBundles = SecurityUtil.filter(authorizer, securityContext, NAMESPACE, engineMetricsBundles, READ);
+        }
+
+        Response response;
+        if (engineMetricsBundles != null) {
+            response = WSUtils.respondEntities(engineMetricsBundles, OK);
+        } else {
+            response = WSUtils.respondEntities(Collections.emptyList(), OK);
+        }
+
+        return response;
+    }
+
+    @POST
+    @Path("/system/engines/metrics")
+    @Timed
+    public Response addEngineMetricsBundle(EngineMetricsBundle engineMetricsBundle, @Context SecurityContext securityContext) {
+        SecurityUtil.checkRole(authorizer, securityContext, Roles.ROLE_TOPOLOGY_ADMIN);
+        if (StringUtils.isEmpty(engineMetricsBundle.getName())) {
+            throw BadRequestException.missingParameter(EngineMetricsBundle.NAME);
+        }
+        EngineMetricsBundle createdEngineBundle = catalogService.addEngineMetricsBundle(engineMetricsBundle);
+        SecurityUtil.addAcl(authorizer, securityContext, NAMESPACE, createdEngineBundle.getId(),
+                EnumSet.allOf(Permission.class));
+        return WSUtils.respondEntity(createdEngineBundle, CREATED);
+    }
+
+
+
     @GET
     @Path("/projects")
     @Timed

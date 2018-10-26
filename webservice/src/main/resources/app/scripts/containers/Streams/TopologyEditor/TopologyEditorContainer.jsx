@@ -19,6 +19,7 @@ import {ItemTypes, Components, toastOpt,pageSize} from '../../../utils/Constants
 import BaseContainer from '../../BaseContainer';
 import {Link, withRouter} from 'react-router';
 import TopologyREST from '../../../rest/TopologyREST';
+import EnvironmentREST from '../../../rest/EnvironmentREST';
 import {OverlayTrigger, Tooltip, Popover, Accordion, Panel} from 'react-bootstrap';
 import Switch from 'react-bootstrap-switch';
 import TopologyConfig from './TopologyConfigContainer';
@@ -167,9 +168,7 @@ export class TopologyEditorContainer extends Component {
           <CommonNotification flag="error" content={result.responseMessage}/>, '', toastOpt);
       } else {
         var data = result;
-        this.engine = state.engines.find((e) => {
-          return e.id == data.topology.engineId;
-        });
+        this.engine = Utils.getEngineById(data.topology.engineId);
 
         this.versionId = versionId
           ? versionId
@@ -184,30 +183,32 @@ export class TopologyEditorContainer extends Component {
         this.topologyTimeSec = this.topologyConfig["topology.message.timeout.secs"];
         this.runtimeObj = data.runtime || {
           metric: (data.runtime === undefined)
-            ? ''
+            ? {metrics: {}}
             : data.runtime.metric
         };
         this.topologyMetric = this.runtimeObj.metric || {
-          misc: (this.runtimeObj.metric === undefined)
-            ? ''
-            : this.runtimeObj.metric.misc
+          metrics: {}
         };
 
         let unknown = data.running;
         let isAppRunning = false;
         let status = '';
-        if (this.topologyMetric.status) {
-          status = this.topologyMetric.status;
+        if (this.topologyMetric.metrics.status) {
+          status = this.topologyMetric.metrics.status;
           if (status === 'ACTIVE' || status === 'INACTIVE') {
             isAppRunning = true;
           }
         }
+
+        let namespaceData = {};
 
         let promiseArr = [];
         promiseArr.push(TopologyREST.getAllVersions(this.topologyId));
         promiseArr.push(TopologyREST.getTopologyConfig(data.topology.engineId));
         promiseArr.push(ProjectREST.getProject(this.projectId));
         promiseArr.push(TopologyREST.getMetaInfo(this.topologyId, this.versionId));
+
+        this.fetchNameSpace(isAppRunning, data);
 
         Promise.all(promiseArr).then((resultsArr) => {
 
@@ -242,6 +243,8 @@ export class TopologyEditorContainer extends Component {
             defaultTimeSec : defaultTimeSecVal,
             topologyNameValid: !Utils.checkWhiteSpace(this.topologyName),
             projectData: this.projectData
+          }, () => {
+            this.onFetchedData();
           });
 
           this.validateTopologyName();
@@ -265,6 +268,14 @@ export class TopologyEditorContainer extends Component {
     };
   }
 
+  fetchNameSpace(isAppRunning, data){
+    /*Namespace required for view mode*/
+  }
+
+  onFetchedData(){
+    /*Required For view mode */
+  }
+
   validateTopologyName(){
     if(Utils.checkWhiteSpace(this.topologyName)){
       this.refs.TopologyNameSpace.show();
@@ -283,8 +294,8 @@ export class TopologyEditorContainer extends Component {
                 if(topology) {
                   this.saveTopologyVersion(topology.timestamp);
                 } else {
-                  const isAppRunning = this.getAppRunningStatus(this.topologyMetric.status);
-                  this.setState({topologyStatus: this.topologyMetric.status || 'NOT RUNNING', progressCount: 0,isAppRunning});
+                  const isAppRunning = this.getAppRunningStatus(this.topologyMetric.metrics.status);
+                  this.setState({topologyStatus: this.topologyMetric.metrics.status || 'NOT RUNNING', progressCount: 0,isAppRunning});
                   // this.fetchData();
                 }
               },1000);
@@ -298,8 +309,8 @@ export class TopologyEditorContainer extends Component {
                   FSReactToastr.error(
                     <CommonNotification flag="error" content={topologyState.description}/>, '', toastOpt);
                 } else {
-                  const isAppRunning = this.getAppRunningStatus(this.topologyMetric.status);
-                  this.setState({topologyStatus: this.topologyMetric.status || 'NOT RUNNING', progressCount: 0,isAppRunning});
+                  const isAppRunning = this.getAppRunningStatus(this.topologyMetric.metrics.status);
+                  this.setState({topologyStatus: this.topologyMetric.metrics.status || 'NOT RUNNING', progressCount: 0,isAppRunning});
                 }
               },1000);
             },1000);
@@ -521,7 +532,7 @@ export class TopologyEditorContainer extends Component {
       if (result.responseMessage !== undefined) {
         FSReactToastr.error(
           <CommonNotification flag="error" content={result.responseMessage}/>, '', toastOpt);
-        let status = this.topologyMetric.status || 'NOT RUNNING';
+        let status = this.topologyMetric.metrics.status || 'NOT RUNNING';
         this.refs.deployLoadingModal.hide();
         this.setState({topologyStatus: status});
       } else {
@@ -529,7 +540,7 @@ export class TopologyEditorContainer extends Component {
           if (topology.responseMessage !== undefined) {
             FSReactToastr.error(
               <CommonNotification flag="error" content={topology.responseMessage}/>, '', toastOpt);
-            let status = this.topologyMetric.status || 'NOT RUNNING';
+            let status = this.topologyMetric.metrics.status || 'NOT RUNNING';
             this.refs.deployLoadingModal.hide();
             this.setState({topologyStatus: status});
           } else {
@@ -566,13 +577,11 @@ export class TopologyEditorContainer extends Component {
             : data.runtime.metric
         };
         this.topologyMetric = this.runtimeObj.metric || {
-          misc: (this.runtimeObj.metric === undefined)
-            ? ''
-            : this.runtimeObj.metric.misc
+          metrics: {}
         };
         this.versionId = data.topology.versionId;
         versions.push({id: data.topology.versionId, topologyId: this.topologyId, name: "CURRENT", description: ""});
-        let status = this.topologyMetric.status || '';
+        let status = this.topologyMetric.metrics.status || '';
         this.setState({topologyMetric: this.topologyMetric, isAppRunning: true, topologyStatus: status, topologyVersion: data.topology.versionId, versionsArr: versions});
       });
     });
@@ -585,7 +594,7 @@ export class TopologyEditorContainer extends Component {
         if (topology.responseMessage !== undefined) {
           FSReactToastr.error(
             <CommonNotification flag="error" content={topology.responseMessage}/>, '', toastOpt);
-          let status = this.topologyMetric.status || 'NOT RUNNING';
+          let status = this.topologyMetric.metrics.status || 'NOT RUNNING';
           document.getElementsByClassName('loader-overlay')[0].className = "loader-overlay displayNone";
           this.setState({topologyStatus: status});
         } else {
@@ -602,11 +611,9 @@ export class TopologyEditorContainer extends Component {
                 : data.runtime.metric
             };
             this.topologyMetric = this.runtimeObj.metric || {
-              misc: (this.runtimeObj.metric === undefined)
-                ? ''
-                : this.runtimeObj.metric.misc
+              metrics: {}
             };
-            let status = this.topologyMetric.status || '';
+            let status = this.topologyMetric.metrics.status || '';
             document.getElementsByClassName('loader-overlay')[0].className = "loader-overlay displayNone";
             this.setState({topologyMetric: this.topologyMetric, isAppRunning: false, topologyStatus: status});
           });
@@ -1214,7 +1221,8 @@ export class TopologyEditorContainer extends Component {
       deployStatus, testRunActivated, testCaseList, selectedTestObj, testCaseLoader,
       testRunCurrentEdges, testResult, nodeData, testName, showError, testSinkConfigure,
       nodeListArr, hideEventLog, eventLogData, testHistory, testCompleted, deployFlag,
-      testRunningMode, abortTestCase, notifyCheck, activePage, activePageList, topologyData
+      testRunningMode, abortTestCase, notifyCheck, activePage, activePageList, topologyData,
+      isAppRunning
     } = this.state;
 
     let EditorComp = null;
@@ -1257,6 +1265,8 @@ export class TopologyEditorContainer extends Component {
       topologyData={topologyData}
       setTopologyConfig={this.setTopologyConfig}
       viewModeData={this.state.viewModeData || {}}
+      isAppRunning={isAppRunning}
+      compSelectCallback={this.compSelectCallback}
     />;
   }
 

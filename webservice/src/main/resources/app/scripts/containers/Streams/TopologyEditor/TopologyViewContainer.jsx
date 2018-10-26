@@ -101,7 +101,7 @@ class TopologyViewContainer extends TopologyEditorContainer {
       durationTopologyLevel :  0
     }
   };
-
+  getDeploymentState(){}
   /*fetchData(versionId) {
     const projectId = this.props.params.projectId;
     let promiseArr = [];
@@ -267,6 +267,44 @@ class TopologyViewContainer extends TopologyEditorContainer {
     };
   }*/
 
+  fetchNameSpace(isAppRunning, data){
+    if(isAppRunning){
+      EnvironmentREST.getNameSpace(data.topology.namespaceId).then((res) => {
+        const namespaceData = res;
+        if(namespaceData.responseMessage !== undefined){
+          this.checkAuth = false;
+        } else {
+          if (namespaceData.mappings.length) {
+            let mapObj = namespaceData.mappings.find((m) => {
+              return m.serviceName.toLowerCase() === 'storm';
+            });
+            if (mapObj) {
+              this.stormClusterId = mapObj.clusterId;
+            }
+            let infraObj = namespaceData.mappings.find((m) => {
+              return m.serviceName.toLowerCase() === 'ambari_infra_solr';
+            });
+            if (infraObj) {
+              this.showLogSearch = true;
+            }
+          }
+        }
+        this.setState({availableTimeSeriesDb:namespaceData.namespace !== undefined
+                ? namespaceData.namespace.timeSeriesDB
+                  ? true
+                  : false
+                : false});
+      });
+    }
+  }
+
+  onFetchedData(){
+    const {isAppRunning} = this.state;
+    if(isAppRunning) {
+      this.fetchCatalogInfoAndMetrics(this.state.startDate.toDate().getTime(), this.state.endDate.toDate().getTime());
+    }
+  }
+
   fetchTopologyLevelSampling(){
     const {viewModeData} = this.state;
     ViewModeREST.getTopologySamplingStatus(this.topologyId).then((result)=>{
@@ -384,19 +422,23 @@ class TopologyViewContainer extends TopologyEditorContainer {
   }
 
   fetchCatalogInfoAndMetrics(fromTime, toTime) {
+    let {viewModeData} = this.state;
+
     let promiseArr = [
-      ViewModeREST.getTopologyMetrics(this.topologyId, fromTime, toTime),
-      ViewModeREST.getComponentMetrics(this.topologyId, 'sources', fromTime, toTime),
-      ViewModeREST.getComponentMetrics(this.topologyId, 'processors', fromTime, toTime),
-      ViewModeREST.getComponentMetrics(this.topologyId, 'sinks', fromTime, toTime)
+      ViewModeREST.getTopologyMetrics(this.topologyId, fromTime, toTime).then((res)=>{
+        viewModeData.topologyMetrics = res;
+        return res;
+      }, (err) => {})
     ];
+    _.each(this.engine.componentTypes, (type) => {
+      const typeInLCase = type.toLowerCase();
+      promiseArr.push(ViewModeREST.getComponentMetrics(this.topologyId, typeInLCase+'s', fromTime, toTime).then((res) => {
+        viewModeData[typeInLCase+'Metrics'] = res.entities;
+        return res;
+      }));
+    });
     this.setState({fetchMetrics: true});
     Promise.all(promiseArr).then((responseArr)=>{
-      let {viewModeData} = this.state;
-      viewModeData.topologyMetrics = responseArr[0] || {};
-      viewModeData.sourceMetrics = responseArr[1].entities || [];
-      viewModeData.processorMetrics = responseArr[2].entities || [];
-      viewModeData.sinkMetrics = responseArr[3].entities || [];
       this.setState({viewModeData: viewModeData, fetchMetrics: false}, ()=>{
         const {graphData} = this;
         const kafkaSource = _.filter(graphData.nodes, (node) => {
@@ -446,20 +488,12 @@ class TopologyViewContainer extends TopologyEditorContainer {
       return;
     }
     if(selectedComponent) {
-      let compObj;
-      if (selectedComponent.parentType == 'SOURCE') {
-        compObj = viewModeData.sourceMetrics.find((entity)=>{
-          return entity.component.id === selectedComponentId;
-        });
-      } else if (selectedComponent.parentType == 'PROCESSOR') {
-        compObj = viewModeData.processorMetrics.find((entity)=>{
-          return entity.component.id === selectedComponentId;
-        });
-      } else if (selectedComponent.parentType == 'SINK') {
-        compObj = viewModeData.sinkMetrics.find((entity)=>{
-          return entity.component.id === selectedComponentId;
-        });
-      }
+      const typeInLCase = selectedComponent.parentType.toLowerCase();
+
+      let compObj = viewModeData[typeInLCase+'Metrics'].find((entity)=>{
+        return entity.component.id === selectedComponentId;
+      });;
+
       overviewMetrics = compObj.overviewMetrics;
       timeSeriesMetrics = compObj.timeSeriesMetrics;
     } else {
@@ -570,7 +604,7 @@ class TopologyViewContainer extends TopologyEditorContainer {
     }
     return obj;
   }*/
-  killTopology() {
+  /*killTopology() {
     this.refs.BaseContainer.refs.Confirm.show({title: 'Are you sure you want to stop this Application?'}).then((confirmBox) => {
       this.setState({topologyStatus: 'KILLING...'});
       TopologyREST.killTopology(this.topologyId).then(topology => {
@@ -595,7 +629,7 @@ class TopologyViewContainer extends TopologyEditorContainer {
       });
       confirmBox.cancel();
     }, () => {});
-  }
+  }*/
   setModalContent(node, updateGraphMethod, content) {
     if (typeof content === 'function') {
       this.modalContent = content;
@@ -739,6 +773,7 @@ class TopologyViewContainer extends TopologyEditorContainer {
                     showLogSearchBtn={this.showLogSearch}
                     topologyLevelDetailsFunc={this.handleTopologyLevelDetails}
                     disabledTopologyLevelSampling={this.disabledTopologyLevelSampling}
+                    engine={this.engine}
                    />,
                   <div id="viewMode" className="graph-bg" key={"2"}>
                     <div className="zoom-btn-group">
@@ -767,7 +802,8 @@ class TopologyViewContainer extends TopologyEditorContainer {
           topologyName={this.state.topologyName}
           components={this.graphData.nodes}
           compSelectCallback={this.compSelectCallback}
-          datePickerCallback={this.datePickerCallback} />
+          datePickerCallback={this.datePickerCallback}
+          engine={this.engine} />
         : null}
       </BaseContainer>
     );

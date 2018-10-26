@@ -17,6 +17,7 @@ import _ from 'lodash';
 import moment from 'moment';
 import * as Fields from '../libs/form/Fields';
 import { Streams } from './ProcessorUtils';
+import app_state from '../app_state';
 
 const sortArray = function(sortingArr, keyName, ascendingFlag) {
   if (ascendingFlag) {
@@ -216,6 +217,28 @@ const abbreviateNumber = function(value) {
   return {value: newValue, suffix: suffix};
 };
 
+const number = function(value) {
+  let newValue = value || 0;
+  return {value: newValue, suffix: ''};
+};
+
+const time = function(milliSec) {
+  var val = milliSec || 0, suffix = 'ms';
+  if(val >= 1000) {
+    val = val / 1000;
+    suffix = 'sec';
+    if(val >= 60) {
+      val = val / 60;
+      suffix = 'min';
+      if(val >= 60) {
+        val = val / 60;
+        suffix = 'h';
+      }
+    }
+  }
+  return {value: val.toFixed(1), suffix: suffix};
+};
+
 const eventTimeData = function(inputFields) {
   const eventTimeArr = inputFields.filter((k, i) => {
     return k.type && k.type.toLowerCase() === "long";
@@ -385,22 +408,7 @@ const convertMillsecondsToSecond = function(milliSec) {
   return Math.round(milliSec / 1000);
 };
 
-const formatLatency = function (milliSec) {
-  var val = milliSec || 0, suffix = 'ms';
-  if(val >= 1000) {
-    val = val / 1000;
-    suffix = 'sec';
-    if(val >= 60) {
-      val = val / 60;
-      suffix = 'min';
-      if(val >= 60) {
-        val = val / 60;
-        suffix = 'h';
-      }
-    }
-  }
-  return {value: val.toFixed(1), suffix: suffix};
-};
+const formatLatency = time;
 
 const validateJSON = function(json){
   let validFlag = true;
@@ -816,6 +824,99 @@ const isPromise = function (object) {
   }
 };
 
+const getEngineById = function(id){
+  return app_state.engines.find((e) => {
+    return e.id == id;
+  });
+};
+
+const defaultTemplate = {"metricsUISpec":{"metrics":[],"timeseries":[],"layout":{"listing":[],"viewmode":{"DAG":{"metrics":{},"timeseries":{}},"metricsSection":{"metrics":{},"timeseries":{}}}}}};
+const defineEngineProps = function(engine){
+  Object.defineProperty(engine, 'metricsTemplate', {
+    get : function(){
+      const template = _.find(app_state.enginesMetricsTemplates, (template) => {
+        return this.name == template.engine;
+      });
+      if(template){
+        return template;
+      }else{
+        return defaultTemplate;
+      }
+    }
+  });
+};
+
+const getListingMetricsTemplate = function(engine){
+  const template = [];
+  const metricsUISpec = engine.metricsTemplate.metricsUISpec;
+  _.each(metricsUISpec.layout.listing, (mName) => {
+    const metric = _.find(metricsUISpec.metrics, (m) => {
+      return m.name == mName;
+    });
+    template.push(metric);
+  });
+  return template;
+};
+
+const filterTemplate = function(layout, metrics, componentType, componentName){
+  const template = [];
+  let metricsToFilter;
+  if(_.isArray(layout)){
+    metricsToFilter = layout;
+  }else{
+    metricsToFilter = layout.baseMetrics;
+    const componentMetrics = layout.component_metrics[componentName];
+    if(componentMetrics){
+      metricsToFilter = [...layout.baseMetrics, ...componentMetrics];
+    }
+  }
+  _.each(metricsToFilter, (mObj) => {
+    const metric = _.find(metrics, (m) => {
+      if(_.isString(mObj)){
+        return m.name == mObj;
+      }else if(mObj.name == "all" || mObj.name.indexOf(componentName.toLowerCase()) >= 0){
+        return m.name == mObj.metric;
+      }
+    });
+    if(metric){
+      template.push(metric);
+    }
+  });
+  return template;
+};
+
+const getViewModeMetricsTemplate = function(engine, componentType, componentName){
+  const metricsUISpec = engine.metricsTemplate.metricsUISpec;
+  return filterTemplate(metricsUISpec.layout.viewmode.metricsSection.metrics[componentType.toLowerCase()],
+    metricsUISpec.metrics,
+    componentType,
+    componentName);
+};
+
+const getViewModeTimeseriesMetricsTemplate = function(engine, componentType, componentName){
+  const metricsUISpec = engine.metricsTemplate.metricsUISpec;
+  return filterTemplate(metricsUISpec.layout.viewmode.metricsSection.timeseries[componentType.toLowerCase()],
+    metricsUISpec.timeseries,
+    componentType,
+    componentName);
+};
+
+const getViewModeDAGMetricsTemplate = function(engine, componentType, componentName){
+  const metricsUISpec = engine.metricsTemplate.metricsUISpec;
+  return filterTemplate(metricsUISpec.layout.viewmode.DAG.metrics[componentType.toLowerCase()],
+    metricsUISpec.metrics,
+    componentType,
+    componentName);
+};
+
+const getViewModeDAGTimeseriesMetricsTemplate = function(engine, componentType, componentName){
+  const metricsUISpec = engine.metricsTemplate.metricsUISpec;
+  return filterTemplate(metricsUISpec.layout.viewmode.DAG.timeseries[componentType.toLowerCase()],
+    metricsUISpec.timeseries,
+    componentType,
+    componentName);
+};
+
 export default {
   sortArray,
   numberToMilliseconds,
@@ -858,11 +959,20 @@ export default {
   noSpecialCharString,
   getTimeDiffInMinutes,
   abbreviateNumber,
+  number,
+  time,
   formatLatency,
   setTimoutFunc,
   populateEventFields,
   getItemFromLocalStorage,
   getSchemaKeyName,
   removeSpecialCharToSpace,
-  isPromise
+  isPromise,
+  getEngineById,
+  defineEngineProps,
+  getListingMetricsTemplate,
+  getViewModeMetricsTemplate,
+  getViewModeTimeseriesMetricsTemplate,
+  getViewModeDAGMetricsTemplate,
+  getViewModeDAGTimeseriesMetricsTemplate
 };

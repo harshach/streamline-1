@@ -35,6 +35,8 @@ import java.util.TreeMap;
 import java.util.concurrent.ForkJoinPool;
 
 import static java.util.stream.Collectors.toMap;
+import static com.hortonworks.streamline.streams.storm.common.StormRestAPIConstant.*;
+
 
 /**
  * Storm implementation of the TopologyTimeSeriesMetrics interface
@@ -138,23 +140,23 @@ public class StormTopologyTimeSeriesMetricsImpl implements TopologyTimeSeriesMet
     }
 
     private TimeSeriesComponentMetric buildTimeSeriesComponentMetric(String name, Map<String, Map<Long, Double>> stats) {
-        Map<String, Map<Long, Double>> misc = new HashMap<>();
-        misc.put(StormMappedMetric.ackedRecords.name(), stats.get(StormMappedMetric.ackedRecords.name()));
+        Map<String, Map<Long, Double>> metrics = new HashMap<>();
+        metrics.put(StormMappedMetric.ackedRecords.name(), stats.get(StormMappedMetric.ackedRecords.name()));
         if (stats.containsKey(StormMappedMetric.completeLatency.name())) {
-            misc.put(StormMappedMetric.completeLatency.name(), stats.get(StormMappedMetric.completeLatency.name()));
+            metrics.put(StormMappedMetric.completeLatency.name(), stats.get(StormMappedMetric.completeLatency.name()));
         }
         if (stats.containsKey(StormMappedMetric.executeTime.name())) {
-            misc.put(StormMappedMetric.executeTime.name(), stats.get(StormMappedMetric.executeTime.name()));
+            metrics.put(StormMappedMetric.executeTime.name(), stats.get(StormMappedMetric.executeTime.name()));
         }
 
-        TimeSeriesComponentMetric metric = new TimeSeriesComponentMetric(name,
-                stats.getOrDefault(StormMappedMetric.inputRecords.name(), Collections.emptyMap()),
-                stats.getOrDefault(StormMappedMetric.outputRecords.name(), Collections.emptyMap()),
-                stats.getOrDefault(StormMappedMetric.failedRecords.name(), Collections.emptyMap()),
-                stats.getOrDefault(StormMappedMetric.processedTime.name(), Collections.emptyMap()),
-                stats.getOrDefault(StormMappedMetric.recordsInWaitQueue.name(), Collections.emptyMap()),
-                misc);
+        metrics.put(StormMappedMetric.inputRecords.name(), stats.getOrDefault(StormMappedMetric.inputRecords.name(), Collections.emptyMap()));
+        metrics.put(StormMappedMetric.outputRecords.name(), stats.getOrDefault(StormMappedMetric.outputRecords.name(), Collections.emptyMap()));
+        metrics.put(StormMappedMetric.failedRecords.name(), stats.getOrDefault(StormMappedMetric.failedRecords.name(), Collections.emptyMap()));
+        metrics.put(StormMappedMetric.processedTime.name(), stats.getOrDefault(StormMappedMetric.processedTime.name(), Collections.emptyMap()));
+        metrics.put(StormMappedMetric.recordsInWaitQueue.name(), stats.getOrDefault(StormMappedMetric.recordsInWaitQueue.name(), Collections.emptyMap()));
 
+
+        TimeSeriesComponentMetric metric = new TimeSeriesComponentMetric(name, metrics);
         return metric;
     }
 

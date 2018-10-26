@@ -60,7 +60,9 @@ class TopologyViewMode extends Component {
     const container = document.querySelector('.content-wrapper');
     container.setAttribute("class", "content-wrapper view-mode-wrapper");
     if(this.props.isAppRunning){
-      this.getLogLevel();
+      setTimeout(() => {
+        this.getLogLevel();
+      });
     }
     this.compUnMountFlag = false;
   }
@@ -206,15 +208,8 @@ class TopologyViewMode extends Component {
         ? ''
         : topologyMetric.metric
     };
-    const metricWrap = metric;
-    const {misc} = metricWrap || {
-      misc: (metricWrap === '')
-        ? ''
-        : metricWrap.misc
-    };
-    const latencyText = Utils.secToMinConverter(metric.latency, "graph").split('/');
-    const emittedText = Utils.kFormatter(misc.emitted).toString();
-    const transferred = Utils.kFormatter(misc.transferred).toString();
+    const metricWrap = metric.metrics || {};
+
     let versionName = this.getTitleFromId(topologyVersion);
 
     if (topologyMetric && topologyMetric.runtimeTopologyId && stormViewUrl.length) {

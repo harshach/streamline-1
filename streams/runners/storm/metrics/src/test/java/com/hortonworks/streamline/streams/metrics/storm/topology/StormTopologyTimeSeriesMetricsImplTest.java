@@ -252,12 +252,11 @@ public class StormTopologyTimeSeriesMetricsImplTest {
 
         TopologyTimeSeriesMetrics.TimeSeriesComponentMetric actual =
                 stormTopologyTimeSeriesMetrics.getComponentStats(topology, source, from, to, null);
-        assertEquals(Collections.emptyMap(), actual.getInputRecords());
-        assertEquals(Collections.emptyMap(), actual.getOutputRecords());
-        assertEquals(Collections.emptyMap(), actual.getFailedRecords());
-        assertEquals(Collections.emptyMap(), actual.getRecordsInWaitQueue());
-        assertEquals(Collections.emptyMap(), actual.getProcessedTime());
-        assertEquals(expectedMisc, actual.getMisc());
+        assertEquals(Collections.emptyMap(), actual.getMetrics().get(StormMappedMetric.inputRecords.name()));
+        assertEquals(Collections.emptyMap(), actual.getMetrics().get(StormMappedMetric.outputRecords.name()));
+        assertEquals(Collections.emptyMap(), actual.getMetrics().get(StormMappedMetric.failedRecords.name()));
+        assertEquals(Collections.emptyMap(), actual.getMetrics().get(StormMappedMetric.processedTime.name()));
+        assertEquals(Collections.emptyMap(), actual.getMetrics().get(StormMappedMetric.recordsInWaitQueue.name()));
     }
 
     @Test
@@ -275,12 +274,12 @@ public class StormTopologyTimeSeriesMetricsImplTest {
 
         TopologyTimeSeriesMetrics.TimeSeriesComponentMetric actual =
                 stormTopologyTimeSeriesMetrics.getComponentStats(topology, processor, from, to, null);
-        assertEquals(Collections.emptyMap(), actual.getInputRecords());
-        assertEquals(Collections.emptyMap(), actual.getOutputRecords());
-        assertEquals(Collections.emptyMap(), actual.getFailedRecords());
-        assertEquals(Collections.emptyMap(), actual.getRecordsInWaitQueue());
-        assertEquals(Collections.emptyMap(), actual.getProcessedTime());
-        assertEquals(expectedMisc, actual.getMisc());
+        assertEquals(Collections.emptyMap(), actual.getMetrics().get(StormMappedMetric.inputRecords.name()));
+        assertEquals(Collections.emptyMap(), actual.getMetrics().get(StormMappedMetric.outputRecords.name()));
+        assertEquals(Collections.emptyMap(), actual.getMetrics().get(StormMappedMetric.failedRecords.name()));
+        assertEquals(Collections.emptyMap(), actual.getMetrics().get(StormMappedMetric.processedTime.name()));
+        assertEquals(Collections.emptyMap(), actual.getMetrics().get(StormMappedMetric.recordsInWaitQueue.name()));
+
     }
 
     @Test
@@ -298,12 +297,11 @@ public class StormTopologyTimeSeriesMetricsImplTest {
 
         TopologyTimeSeriesMetrics.TimeSeriesComponentMetric actual =
                 stormTopologyTimeSeriesMetrics.getComponentStats(topology, sink, from, to, null);
-        assertEquals(Collections.emptyMap(), actual.getInputRecords());
-        assertEquals(Collections.emptyMap(), actual.getOutputRecords());
-        assertEquals(Collections.emptyMap(), actual.getFailedRecords());
-        assertEquals(Collections.emptyMap(), actual.getRecordsInWaitQueue());
-        assertEquals(Collections.emptyMap(), actual.getProcessedTime());
-        assertEquals(expectedMisc, actual.getMisc());
+        assertEquals(Collections.emptyMap(), actual.getMetrics().get(StormMappedMetric.inputRecords.name()));
+        assertEquals(Collections.emptyMap(), actual.getMetrics().get(StormMappedMetric.outputRecords.name()));
+        assertEquals(Collections.emptyMap(), actual.getMetrics().get(StormMappedMetric.failedRecords.name()));
+        assertEquals(Collections.emptyMap(), actual.getMetrics().get(StormMappedMetric.processedTime.name()));
+        assertEquals(Collections.emptyMap(), actual.getMetrics().get(StormMappedMetric.recordsInWaitQueue.name()));
     }
 
     private TopologyLayout getTopologyLayoutForTest() throws IOException {
@@ -373,19 +371,12 @@ public class StormTopologyTimeSeriesMetricsImplTest {
         expected.put(StormMappedMetric.ackedRecords.name(), generateTestPointsMap());
         expected.put(StormMappedMetric.completeLatency.name(), generateTestPointsMap());
 
-        Map<String, Map<Long, Double>> miscExpected = new HashMap<>();
-        miscExpected.put(StormMappedMetric.ackedRecords.name(), expected.get(StormMappedMetric.ackedRecords.name()));
-        miscExpected.put(StormMappedMetric.completeLatency.name(), expected.get(StormMappedMetric.completeLatency.name()));
+        Map<String, Map<Long, Double>> metrics = new HashMap<>();
+        metrics.put(StormMappedMetric.ackedRecords.name(), expected.get(StormMappedMetric.ackedRecords.name()));
+        metrics.put(StormMappedMetric.completeLatency.name(), expected.get(StormMappedMetric.completeLatency.name()));
 
         final TopologyTimeSeriesMetrics.TimeSeriesComponentMetric expectedMetric =
-                new TopologyTimeSeriesMetrics.TimeSeriesComponentMetric(component.getName(),
-                        expected.get(StormMappedMetric.inputRecords.name()),
-                        expected.get(StormMappedMetric.outputRecords.name()),
-                        expected.get(StormMappedMetric.failedRecords.name()),
-                        expected.get(StormMappedMetric.processedTime.name()),
-                        expected.get(StormMappedMetric.recordsInWaitQueue.name()),
-                        miscExpected
-                );
+                new TopologyTimeSeriesMetrics.TimeSeriesComponentMetric(component.getName(), metrics);
 
         new Expectations() {{
             mockTimeSeriesQuerier.getMetrics(
@@ -472,19 +463,12 @@ public class StormTopologyTimeSeriesMetricsImplTest {
         expected.put(StormMappedMetric.ackedRecords.name(), generateTestPointsMap());
         expected.put(StormMappedMetric.executeTime.name(), generateTestPointsMap());
 
-        Map<String, Map<Long, Double>> miscExpected = new HashMap<>();
-        miscExpected.put(StormMappedMetric.ackedRecords.name(), expected.get(StormMappedMetric.ackedRecords.name()));
-        miscExpected.put(StormMappedMetric.executeTime.name(), expected.get(StormMappedMetric.executeTime.name()));
+        Map<String, Map<Long, Double>> metrics = new HashMap<>();
+        metrics.put(StormMappedMetric.ackedRecords.name(), expected.get(StormMappedMetric.ackedRecords.name()));
+        metrics.put(StormMappedMetric.executeTime.name(), expected.get(StormMappedMetric.executeTime.name()));
 
         final TopologyTimeSeriesMetrics.TimeSeriesComponentMetric expectedMetric =
-                new TopologyTimeSeriesMetrics.TimeSeriesComponentMetric(component.getName(),
-                        expected.get(StormMappedMetric.inputRecords.name()),
-                        expected.get(StormMappedMetric.outputRecords.name()),
-                        expected.get(StormMappedMetric.failedRecords.name()),
-                        expected.get(StormMappedMetric.processedTime.name()),
-                        expected.get(StormMappedMetric.recordsInWaitQueue.name()),
-                        miscExpected
-                );
+                new TopologyTimeSeriesMetrics.TimeSeriesComponentMetric(component.getName(), metrics);
 
         new Expectations() {{
             mockTimeSeriesQuerier.getMetrics(

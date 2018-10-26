@@ -152,6 +152,40 @@ class TopologyItems extends Component {
       : false;
   }
 
+  getMetrics(){
+    const {topologyList} = this.props;
+    const {
+      topology,
+      runtime = {},
+      namespaceName
+    } = topologyList;
+    const {metric, latencyTopN} = runtime;
+    const metricWrap = metric ? metric.metrics : {};
+
+    const engine = Utils.getEngineById(topologyList.topology.engineId);
+    const template = Utils.getListingMetricsTemplate(engine);
+
+    const metrics = [];
+
+    _.each(template, (t, i) => {
+
+      const value = Utils[t.valueFormat](_.get(metricWrap, t.metricKeyName));
+
+      const component = <div className="stream-stats" key={i}>
+        <h6>{t.uiName}</h6>
+        <h5 className="color-stats">
+          {value.value || t.defaultValue}
+          <small>{value.suffix}</small>
+        </h5>
+      </div>;
+
+      metrics.push(component);
+
+    });
+
+    return metrics;
+  }
+
   render() {
     const {topologyAction, topologyList,allACL} = this.props;
     const {
@@ -160,14 +194,7 @@ class TopologyItems extends Component {
       namespaceName
     } = topologyList;
     const {metric, latencyTopN} = runtime;
-    const metricWrap = metric || {
-      misc: (metric === undefined)
-        ? ''
-        : metric.misc
-    };
-    const {misc} = metricWrap;
-    const emittedText = Utils.kFormatter(misc.emitted).toString();
-    const transferred = Utils.kFormatter(misc.transferred).toString();
+    const metricWrap = metric ? metric.metrics : {};
     let latencyWrap = latencyTopN || [];
     let graphData = [],
       graphVal = 0;
@@ -314,40 +341,7 @@ class TopologyItems extends Component {
                 </div>
               </div>
               <div className="row row-margin-top">
-                <div className="stream-stats">
-                  <h6>Emitted</h6>
-                  <h5>{(emittedText.indexOf('k') < 1
-                      ? emittedText
-                      : emittedText.substr(0, emittedText.indexOf('k'))) || 0
-}
-                    <small>{emittedText.indexOf('.') < 1
-                        ? ''
-                        : 'k'}</small>
-                  </h5>
-                </div>
-                <div className="stream-stats">
-                  <h6>Transferred</h6>
-                  <h5>{(transferred.indexOf('k') < 1
-                      ? transferred
-                      : transferred.substr(0, transferred.indexOf('k'))) || 0
-}
-                    <small>{transferred.indexOf('.') < 1
-                        ? ''
-                        : 'k'}</small>
-                  </h5>
-                </div>
-                <div className="stream-stats">
-                  <h6>Errors</h6>
-                  <h5 className="color-error">{metricWrap.misc.errors || 0}</h5>
-                </div>
-                <div className="stream-stats">
-                  <h6>Workers</h6>
-                  <h5>{metricWrap.misc.workersTotal || 0}</h5>
-                </div>
-                <div className="stream-stats">
-                  <h6>Executors</h6>
-                  <h5>{metricWrap.misc.executorsTotal || 0}</h5>
-                </div>
+                {this.getMetrics()}
               </div>
             </div>
 }

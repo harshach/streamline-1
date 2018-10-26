@@ -37,6 +37,7 @@ import static java.util.stream.Collectors.toList;
 
 public class TopologyMetricsService implements ContainingNamespaceAwareContainer {
 
+    final static String processTime = "processLatency";
     private final EnvironmentService environmentService;
     private final TopologyMetricsContainer topologyMetricsContainer;
 
@@ -83,10 +84,10 @@ public class TopologyMetricsService implements ContainingNamespaceAwareContainer
         List<Pair<String, Double>> topNAndOther = new ArrayList<>();
 
         List<ImmutablePair<String, Double>> latencyOrderedComponents = metricsForTopology.entrySet().stream()
-                .map((x) -> new ImmutablePair<>(x.getValue().getComponentName(), x.getValue().getProcessedTime()))
+                .map((x) -> new ImmutablePair<>(x.getValue().getComponentName(), ((Double) x.getValue().getMetrics().get(processTime))))
                 // reversed sort
                 .sorted((c1, c2) -> {
-                    if (c2.getValue() == null) {
+                    if (c2 == null) {
                         // assuming c1 is bigger
                         return -1;
                     } else {

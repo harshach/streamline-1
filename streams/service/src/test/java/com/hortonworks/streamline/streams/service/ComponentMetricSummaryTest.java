@@ -28,81 +28,6 @@ import java.util.Map;
 public class ComponentMetricSummaryTest {
 
     @Test
-    public void testAggregateEmitted() {
-        TopologyTimeSeriesMetrics.TimeSeriesComponentMetric metric = getTestMetric();
-
-        long actual = ComponentMetricSummary.aggregateEmitted(metric);
-
-        // 20 + 40
-        long expected = 60;
-
-        Assert.assertEquals(expected, actual);
-    }
-
-    @Test
-    public void testAggregatedAcked() {
-        TopologyTimeSeriesMetrics.TimeSeriesComponentMetric metric = getTestMetric();
-
-        long actual = ComponentMetricSummary.aggregateAcked(metric);
-
-        // 15 + 25
-        long expected = 40;
-
-        Assert.assertEquals(expected, actual);
-    }
-
-    @Test
-    public void testAggregateFailed() {
-        TopologyTimeSeriesMetrics.TimeSeriesComponentMetric metric = getTestMetric();
-
-        long actual = ComponentMetricSummary.aggregateFailed(metric);
-
-        // 1 + 2
-        long expected = 3;
-
-        Assert.assertEquals(expected, actual);
-    }
-
-    @Test
-    public void testAggregateProcessLatency() {
-        TopologyTimeSeriesMetrics.TimeSeriesComponentMetric metric = getTestMetric();
-
-        double actual = ComponentMetricSummary.aggregateProcessLatency(metric);
-
-        // note that weighted average will be applied
-        // 1.234 * 10.0 / (10.0 + 20.0) + 4.567 * 20.0 / (10.0 + 20.0)
-        double expected = 3.456d;
-
-        Assert.assertEquals(expected, actual, DoubleUtils.EPSILON);
-    }
-
-    @Test
-    public void testAggregateExecuteLatency() {
-        TopologyTimeSeriesMetrics.TimeSeriesComponentMetric metric = getTestMetric();
-
-        double actual = ComponentMetricSummary.aggregateExecuteLatency(metric);
-
-        // note that weighted average will be applied
-        // 0.123 * 10.0 / (10.0 + 20.0) + 0.456 * 20.0 / (10.0 + 20.0)
-        double expected = 0.345d;
-
-        Assert.assertEquals(expected, actual, DoubleUtils.EPSILON);
-    }
-
-    @Test
-    public void testAggregateCompleteLatency() {
-        TopologyTimeSeriesMetrics.TimeSeriesComponentMetric metric = getTestMetric();
-
-        double actual = ComponentMetricSummary.aggregateCompleteLatency(metric);
-
-        // note that weighted average will be applied
-        // 123.456 * 15.0 / (15.0 + 25.0) + 456.789 * 25.0 / (15.0 + 25.0)
-        double expected = 331.789125d;
-
-        Assert.assertEquals(expected, actual, DoubleUtils.EPSILON);
-    }
-
-    @Test
     public void testCalculateWeightedAverage() {
         Map<Long, Double> keyMetrics = new HashMap<>();
         keyMetrics.put(1L, 10.0);
@@ -141,27 +66,32 @@ public class ComponentMetricSummaryTest {
     }
 
     private TopologyTimeSeriesMetrics.TimeSeriesComponentMetric getTestMetric() {
+        Map<String, Map<Long, Double>> metrics = new HashMap<>();
         Map<Long, Double> inputRecords = new HashMap<>();
         inputRecords.put(1L, 10.0d);
         inputRecords.put(2L, 20.0d);
+        metrics.put(StormMappedMetric.inputRecords.name(), inputRecords);
 
         Map<Long, Double> outputRecords = new HashMap<>();
         outputRecords.put(1L, 20.0d);
         outputRecords.put(2L, 40.0d);
+        metrics.put(StormMappedMetric.outputRecords.name(), outputRecords);
 
         Map<Long, Double> failedRecords = new HashMap<>();
         failedRecords.put(1L, 1.0d);
         failedRecords.put(2L, 2.0d);
+        metrics.put(StormMappedMetric.failedRecords.name(), failedRecords);
 
         Map<Long, Double> processedTime = new HashMap<>();
         processedTime.put(1L, 1.234d);
         processedTime.put(2L, 4.567d);
+        metrics.put(StormMappedMetric.processedTime.name(), processedTime);
 
         Map<Long, Double> recordsInWaitQueue = new HashMap<>();
         recordsInWaitQueue.put(1L, 1d);
         recordsInWaitQueue.put(2L, 2d);
+        metrics.put(StormMappedMetric.recordsInWaitQueue.name(), recordsInWaitQueue);
 
-        Map<String, Map<Long, Double>> misc = new HashMap<>();
 
         Map<Long, Double> executeTime = new HashMap<>();
         executeTime.put(1L, 0.123d);
@@ -175,14 +105,11 @@ public class ComponentMetricSummaryTest {
         ackedRecords.put(1L, 15.0d);
         ackedRecords.put(2L, 25.0d);
 
-        misc.put(StormMappedMetric.executeTime.name(), executeTime);
-        misc.put(StormMappedMetric.completeLatency.name(), completeLatency);
-        misc.put("ackedRecords", ackedRecords);
+        metrics.put(StormMappedMetric.executeTime.name(), executeTime);
+        metrics.put(StormMappedMetric.completeLatency.name(), completeLatency);
+        metrics.put("ackedRecords", ackedRecords);
 
-        return new TopologyTimeSeriesMetrics.TimeSeriesComponentMetric(
-                "testComponent", inputRecords, outputRecords, failedRecords, processedTime,
-                recordsInWaitQueue, misc
-        );
+        return new TopologyTimeSeriesMetrics.TimeSeriesComponentMetric("testComponent", metrics);
     }
 
 }

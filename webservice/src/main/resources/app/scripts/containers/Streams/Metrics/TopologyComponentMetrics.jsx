@@ -60,105 +60,110 @@ class TopologyComponentMetrics extends Component {
     }} /> : null ;
   }
 
+  getMetrics(overviewMetrics){
+    const {
+      viewModeData,
+      compData,
+      engine
+    } = this.props;
+
+    const componentType = compData.parentType;
+    const componentName = null;
+    let template = Utils.getViewModeDAGMetricsTemplate(engine, componentType, compData.currentType);
+
+    const metrics = [];
+    if(!_.isUndefined(overviewMetrics.metrics)){
+      _.each(template, (t) => {
+        const oValue = _.get(overviewMetrics.metrics, t.metricKeyName);
+        const value = Utils[t.valueFormat](oValue);
+
+        const colTimeWidth =  60, colStaticWidth = 40;
+
+        const uiNameArr = t.uiName.split(' ');
+
+        const component = <div className="component-metric-widget" style={{width : colStaticWidth+"px"}}>
+            <h6>{uiNameArr[0]}</h6>
+            {uiNameArr[1] ? <h6>{uiNameArr[1]}</h6> : <h6>&nbsp;</h6>}
+            <h4>{value.value}
+            <small>{value.suffix}</small></h4>
+          </div>;
+        metrics.push(component);
+      });
+    }
+
+    return metrics;
+  }
+
+  getTimeseriesMetrics(timeSeriesMetrics){
+    const {
+      viewModeData,
+      compData,
+      engine
+    } = this.props;;
+    const showMetrics = viewModeData.selectedMode == 'Metrics' ? true : false;
+
+    const componentType = compData.parentType;
+    const componentName = null;
+    let template = Utils.getViewModeDAGTimeseriesMetricsTemplate(engine, componentType, compData.currentType);
+
+    const metrics = [];
+    if(!_.isUndefined(timeSeriesMetrics.metrics)){
+
+      const loader = <img src="styles/img/start-loader.gif" alt="loading" style={{
+        width: "80px",
+        marginTop: "0px"
+      }}/>;
+
+      _.each(template, (t) => {
+        const graphData = [];
+        const firstLineData = timeSeriesMetrics.metrics[t.metricKeyName[0]];
+        for(const key in firstLineData) {
+          const obj = {
+            date: new Date(parseInt(key))
+          };
+          _.each(t.metricKeyName, (kName) => {
+            obj[kName] = timeSeriesMetrics[kName][key] || 0;
+          });
+          graphData.push(obj);
+        }
+
+        const component = <div className="component-metric-graph">
+          <div style={{textAlign: "left"}}>{t.uiName}</div>
+          <div style={{
+            height: '25px',
+            textAlign: 'center',
+            backgroundColor: '#f2f3f2'
+          }}>
+            {this.state.loadingRecord ? loader : this.getGraph(t.uiName, graphData, t.interpolate, showMetrics)}
+          </div>
+        </div>;
+
+        metrics.push(component);
+      });
+    }
+
+    return metrics;
+  }
+
   render () {
     let {viewModeData, compData} = this.props;
     const {componentLevelActionDetails} = viewModeData;
     let overviewMetrics = {}, timeSeriesMetrics = {},samplingVal= 0,
       logLevels = viewModeData.logTopologyLevel;
-    let compObj = {};
-    if (compData.parentType == 'SOURCE') {
-      compObj = viewModeData.sourceMetrics.find((entity)=>{
-        return entity.component.id === compData.nodeId;
-      });
-    } else if (compData.parentType == 'PROCESSOR') {
-      compObj = viewModeData.processorMetrics.find((entity)=>{
-        return entity.component.id === compData.nodeId;
-      });
-    } else if (compData.parentType == 'SINK') {
-      compObj = viewModeData.sinkMetrics.find((entity)=>{
-        return entity.component.id === compData.nodeId;
-      });
-    }
+
+    const typeInLCase = compData.parentType.toLowerCase();
+    let compObj = viewModeData[typeInLCase+'Metrics'].find((entity)=>{
+      return entity.component.id === compData.nodeId;
+    });;
+
+
     if(!_.isUndefined(compObj)){
       overviewMetrics = compObj.overviewMetrics;
       timeSeriesMetrics = compObj.timeSeriesMetrics;
     }
 
-    const latencyMetric = Utils.formatLatency(overviewMetrics.completeLatency);
-    const latency = latencyMetric.value.toString();
-    const latencySuffix =latencyMetric.suffix;
-    const processTimeMetric = Utils.formatLatency(overviewMetrics.processTime);
-    const processTime = processTimeMetric.value.toString();
-    const processTimeSuffix = processTimeMetric.suffix;
-    const executeTimeMetric = Utils.formatLatency(overviewMetrics.executeTime);
-    const executeTime = executeTimeMetric.value.toString();
-    const executeTimeSuffix = executeTimeMetric.suffix;
-    const emittedMetric = Utils.abbreviateNumber(overviewMetrics.emitted);
-    const emitted = emittedMetric.value.toString();
-    const ackedMetric = Utils.abbreviateNumber(overviewMetrics.acked);
-    const acked = ackedMetric.value.toString();
-    const failed = overviewMetrics.failed ? overviewMetrics.failed.toString() : '0';
-
-    const inputOutputData = [];
-    const ackedData = [];
-    const failedData = [];
-    const queueData = [];
-    const processTimeData = [];
-    const completeLatency = [];
-    const kafkaLagOffsetData=[];
-
-    if(timeSeriesMetrics) {
-      const {
-        outputRecords,
-        inputRecords,
-        recordsInWaitQueue,
-        failedRecords,
-        misc,
-        processedTime,
-        kafkaLagOffset
-      } = timeSeriesMetrics;
-      for(const key in outputRecords) {
-        inputOutputData.push({
-          date: new Date(parseInt(key)),
-          Input: inputRecords[key] || 0,
-          Output: outputRecords[key] || 0
-        });
-        ackedData.push({
-          date: new Date(parseInt(key)),
-          Acked: misc.ackedRecords[key] || 0
-        });
-        failedData.push({
-          date: new Date(parseInt(key)),
-          Failed: failedRecords[key] || 0
-        });
-        queueData.push({
-          date: new Date(parseInt(key)),
-          Wait: recordsInWaitQueue[key] || 0
-        });
-        processTimeData.push({
-          date: new Date(parseInt(key)),
-          ProcessTime: processedTime[key] || 0
-        });
-        if(misc.completeLatency) {
-          completeLatency.push({
-            date: new Date(parseInt(key)),
-            Latency: misc.completeLatency[key] || 0
-          });
-        }
-        if(kafkaLagOffset){
-          kafkaLagOffsetData.push({
-            date: new Date(parseInt(key)),
-            lag : kafkaLagOffset.lag[key] || 0
-          });
-        }
-      }
-    }
-
     const showMetrics = viewModeData.selectedMode == 'Metrics' ? true : false;
-    const loader = <img src="styles/img/start-loader.gif" alt="loading" style={{
-      width: "20px",
-      marginTop: "0px"
-    }}/>;
+
     if(!_.isEmpty(componentLevelActionDetails)){
       const sampleObj =  _.find(componentLevelActionDetails.samplings, (sample) => sample.componentId === compData.nodeId);
       samplingVal = sampleObj !== undefined && sampleObj.enabled ? sampleObj.duration : 0;
@@ -172,99 +177,13 @@ class TopologyComponentMetrics extends Component {
       <div className="overviewDiv" style={{width : parentWidth+'px'}}>
       <div className="metric-bg top"></div>
       <div className="component-metric-top">
-        <div className="component-metric-widget" style={{width : colStaticWidth+"px"}}>
-            <h6>Emitted</h6>
-            <h6>&nbsp;</h6>
-            <h4>{emitted}
-            <small>{emittedMetric.suffix}</small></h4>
-          </div>
-          <div className="component-metric-widget" style={{width : colTimeWidth+"px"}}>
-            {compData.parentType == 'SOURCE' ?
-            [ <h6 key={1.1}>Complete</h6>,
-              <h6 key={1.2}>Latency</h6>
-            ]
-            :
-            [ <h6 key={2.1}>Process</h6>,
-              <h6 key={2.2}>Latency</h6>
-            ]
-            }
-            {compData.parentType == 'SOURCE' ?
-            <h4>{latency}<small>{latencySuffix}</small></h4>
-            : <h4>{processTime}<small>{processTimeSuffix}</small></h4>
-            }
-          </div>
-          {
-            compData.parentType !== 'SOURCE'
-            ? <div className="component-metric-widget" style={{width : colTimeWidth+"px"}}>
-              {
-              [ <h6 key={2.1}>Execute</h6>,
-                <h6 key={2.2}>Latency</h6>,
-                <h4 key={2.3}>{executeTime}<small>{executeTimeSuffix}</small></h4>
-              ]
-              }
-              </div>
-            : null
-          }
-          <div className="component-metric-widget" style={{width : colStaticWidth+"px"}}>
-            <h6>Failed</h6>
-            <h6>&nbsp;</h6>
-            <h4>{failed}</h4>
-          </div>
-          <div className="component-metric-widget" style={{width : colStaticWidth+"px"}}>
-            <h6>Acked</h6>
-            <h6>&nbsp;</h6>
-            <h4>{acked}
-            <small>{ackedMetric.suffix}</small></h4>
-          </div>
+        {overviewMetrics && this.getMetrics(overviewMetrics)}
       </div>
       {showMetrics ?
       (
       <ContentScrollableComponent>
         <div className="metric-graphs-container">
-          <div className="component-metric-graph">
-            <div style={{textAlign: "left"}}>INPUT/OUTPUT</div>
-            <div style={{
-              height: '25px',
-              textAlign: 'center',
-              backgroundColor: '#f2f3f2'
-            }}>
-              {this.state.loadingRecord ? loader : this.getGraph('inputOutput', inputOutputData, 'bundle', showMetrics)}
-            </div>
-          </div>
-          <div className="component-metric-graph">
-            <div style={{textAlign: "left"}}>ACKED</div>
-            <div style={{
-              height: '25px',
-              textAlign: 'center',
-              backgroundColor: '#f2f3f2'
-            }}>
-              {this.state.loadingRecord ? loader : this.getGraph('ackedTuples', ackedData, 'step-before', showMetrics)}
-            </div>
-          </div>
-          <div className="component-metric-graph">
-            <div style={{textAlign: "left"}}>QUEUE</div>
-            <div style={{
-              height: '25px',
-              textAlign: 'center',
-              backgroundColor: '#f2f3f2'
-            }}>
-              {this.state.loadingRecord ? loader : this.getGraph('Queue', queueData, 'step-before', showMetrics)}
-            </div>
-          </div>
-          {
-            compData.parentType === 'SOURCE' && compData.currentType === "Kafka"
-            ? <div className="component-metric-graph">
-                <div style={{textAlign: "left"}}>Kafka Offset Lag</div>
-                <div style={{
-                  height: '25px',
-                  textAlign: 'center',
-                  backgroundColor: '#f2f3f2'
-                }}>
-                  {this.state.loadingRecord ? loader : this.getGraph('kafkaLagOffset', kafkaLagOffsetData, 'step-before', showMetrics)}
-                </div>
-              </div>
-            : null
-          }
+          {timeSeriesMetrics && this.getTimeseriesMetrics(timeSeriesMetrics)}
         </div>
       </ContentScrollableComponent>
       )

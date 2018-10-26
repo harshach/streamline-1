@@ -139,7 +139,11 @@ function add_all_bundles {
     post /system/engines/1/templates ${storm_dir}/templates/blank.json
     post /system/engines/2/templates ${piper_dir}/templates/blank.json
     post /system/engines/3/templates ${athenax_dir}/templates/blank.json
-    # === Source ===
+
+    # === Engine Metrics ===
+    post /system/engines/metrics ${storm_dir}/metrics/storm-metrics.json
+
+    # === Topology Settings ===
     add_topology_component_bundle /streams/componentbundles/SOURCE ${storm_dir}/components/sources/kafka-source-topology-component.json
     add_topology_component_bundle /streams/componentbundles/SOURCE ${storm_dir}/components/sources/hdfs-source-topology-component.json
     add_topology_component_bundle /streams/componentbundles/SOURCE ${storm_dir}/components/sources/eventhubs-source-topology-component.json

@@ -152,6 +152,7 @@ public class StreamCatalogService {
 
     // TODO: the namespace and Id generation logic should be moved inside DAO
     private static final String ENGINE_NAMESPACE = new Engine().getNameSpace();
+    private static final String ENGINE_METRICS_BUNDLE_NAMESPACE = new EngineMetricsBundle().getNameSpace();
     private static final String TEMPLATE_NAMESPACE = new Template().getNameSpace();
     private static final String PROJECT_NAMESPACE = new Project().getNameSpace();
     private static final String NOTIFIER_INFO_NAMESPACE = new Notifier().getNameSpace();
@@ -250,6 +251,21 @@ public class StreamCatalogService {
         Engine engine = new Engine();
         engine.setId(engineId);
         return dao.get(engine.getStorableKey());
+    }
+
+    public EngineMetricsBundle addEngineMetricsBundle (EngineMetricsBundle engineMetricsBundle) {
+        if (engineMetricsBundle.getId() == null) {
+            engineMetricsBundle.setId(this.dao.nextId(EngineMetricsBundle.NAME_SPACE));
+        }
+        if (engineMetricsBundle.getTimestamp() == null) {
+            engineMetricsBundle.setTimestamp(System.currentTimeMillis());
+        }
+        this.dao.add(engineMetricsBundle);
+        return engineMetricsBundle;
+    }
+
+    public Collection<EngineMetricsBundle> listEngineMetricsBundles() {
+       return dao.find(ENGINE_METRICS_BUNDLE_NAMESPACE, null);
     }
 
     public Collection<Template> listTemplates(List<QueryParam> queryParams) { return dao.find(TEMPLATE_NAMESPACE, queryParams);}
@@ -1138,6 +1154,8 @@ public class StreamCatalogService {
         return topologyComponentBundle;
     }
 
+
+
     public TopologyComponentBundle addOrUpdateTopologyComponentBundle (Long id, TopologyComponentBundle topologyComponentBundle, java.io.File bundleJar) throws
             ComponentConfigException, IOException {
         topologyComponentBundle.getTopologyComponentUISpecification().validate();
@@ -1187,6 +1205,8 @@ public class StreamCatalogService {
     public InputStream getFileFromJarStorage(String fileName) throws IOException {
         return this.fileStorage.download(fileName);
     }
+
+
 
     public Collection<CustomProcessorInfo> listCustomProcessorsFromBundleWithFilter(List<QueryParam> params) throws IOException {
         Collection<TopologyComponentBundle> customProcessors = this.listCustomProcessorBundlesWithFilter(params);

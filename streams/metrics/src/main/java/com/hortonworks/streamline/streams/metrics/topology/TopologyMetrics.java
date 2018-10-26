@@ -66,13 +66,7 @@ public interface TopologyMetrics extends TopologyTimeSeriesMetrics {
     class TopologyMetric {
         private final String framework;
         private final String topologyName;
-        private final String status;
-        private final Long uptime;
-        private final Long windowSecs;
-        private final Double throughput;
-        private final Double latency;
-        private final Long failedRecords;
-        private final Map<String, Number> misc;
+        private final Map<String, Object> metrics;
 
         /**
          * Constructor.
@@ -80,62 +74,20 @@ public interface TopologyMetrics extends TopologyTimeSeriesMetrics {
          * @param topologyName  'topology name' for Streams.
          *                      If topology name for streaming framework is different from topology name for Streams,
          *                      implementation of TopologyMetrics should match the relation.
-         * @param status        Status of the topology. Representation of status may be different among implementations.
-         * @param uptime        Uptime for Streams.
-         * @param windowSecs    Time window (seconds) for below metrics.
-         * @param throughput    Throughput for Streams in window, represented via tps (processed records per second).
-         * @param latency       Average latency of processed time (processing one record) in window.
-         * @param failedRecords Failed records in window.
-         * @param misc          Additional metrics which are framework specific.
+         * @param metrics       Metrics for the application
          */
-        public TopologyMetric(String framework, String topologyName, String status, Long uptime,
-            Long windowSecs, Double throughput, Double latency, Long failedRecords,
-            Map<String, Number> misc) {
+        public TopologyMetric(String framework, String topologyName, Map<String, Object> metrics) {
             this.framework = framework;
             this.topologyName = topologyName;
-            this.status = status;
-            this.uptime = uptime;
-            this.windowSecs = windowSecs;
-            this.throughput = throughput;
-            this.latency = latency;
-            this.failedRecords = failedRecords;
-            this.misc = misc;
+            this.metrics = metrics;
         }
 
-        public String getFramework() {
-            return framework;
-        }
+        public String getFramework() { return framework; }
 
-        public String getTopologyName() {
-            return topologyName;
-        }
+        public String getTopologyName() { return topologyName; }
 
-        public String getStatus() {
-            return status;
-        }
-
-        public Long getUptime() {
-            return uptime;
-        }
-
-        public Long getWindowSecs() {
-            return windowSecs;
-        }
-
-        public Double getThroughput() {
-            return throughput;
-        }
-
-        public Double getLatency() {
-            return latency;
-        }
-
-        public Long getFailedRecords() {
-            return failedRecords;
-        }
-
-        public Map<String, Number> getMisc() {
-            return misc;
+        public Map<String, Object> getMetrics() {
+            return metrics;
         }
     }
 
@@ -148,10 +100,7 @@ public interface TopologyMetrics extends TopologyTimeSeriesMetrics {
      */
     class ComponentMetric {
         private final String componentName;
-        private final Long inputRecords;
-        private final Long outputRecords;
-        private final Long failedRecords;
-        private final Double processedTime;
+        private final Map<String, Object> metrics;
 
         /**
          * Constructor.
@@ -159,37 +108,20 @@ public interface TopologyMetrics extends TopologyTimeSeriesMetrics {
          * @param componentName 'component name' for Streamline.
          *                      If component name for streaming framework is different from component name for Streamline,
          *                      implementation of TopologyMetrics should match the relation.
-         * @param inputRecords  Count of input records.
-         * @param outputRecords Count of output records.
-         * @param failedRecords Count of failed records.
-         * @param processedTime Average latency of processed time (processing one record).
+         * @param metrics component level metrics
          */
-        public ComponentMetric(String componentName, Long inputRecords, Long outputRecords, Long failedRecords, Double processedTime) {
+        public ComponentMetric(String componentName, Map<String, Object> metrics) {
             this.componentName = componentName;
-            this.inputRecords = inputRecords;
-            this.outputRecords = outputRecords;
-            this.failedRecords = failedRecords;
-            this.processedTime = processedTime;
+            this.metrics = metrics;
         }
 
         public String getComponentName() {
             return componentName;
         }
 
-        public Long getInputRecords() {
-            return inputRecords;
+        public Map<String, Object> getMetrics() {
+            return metrics;
         }
 
-        public Long getOutputRecords() {
-            return outputRecords;
-        }
-
-        public Long getFailedRecords() {
-            return failedRecords;
-        }
-
-        public Double getProcessedTime() {
-            return processedTime;
-        }
     }
 }

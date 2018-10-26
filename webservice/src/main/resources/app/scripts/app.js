@@ -17,6 +17,7 @@ import { render } from 'react-dom';
 import { Router, browserHistory, hashHistory } from 'react-router';
 import FSReactToastr from './components/FSReactToastr';
 import { toastOpt, unknownAccessCode } from './utils/Constants';
+import Utils from './utils/Utils';
 import MiscREST from './rest/MiscREST';
 import UserRoleREST from './rest/UserRoleREST';
 import EngineREST from './rest/EngineREST';
@@ -41,23 +42,24 @@ class App extends Component {
     promiseArr.push(EngineREST.getAllEngines().then((res) => {
       app_state.engines = res.entities;
 
-      /*app_state.engines.push({
-        "id": 3,
-        "name": "STORM",
-        "displayName": "STORM",
-        "deploymentModes": '["DEPLOY"]',
-        "componentTypes": '["SOURCE","PROCESSOR","SINK"]',
-        "config": "{}"
-      });*/
-
       _.each(app_state.engines, (e) => {
+
         e.deploymentModes = JSON.parse(e.deploymentModes);
         e.componentTypes = JSON.parse(e.componentTypes);
         e.config = JSON.parse(e.config);
+
+        Utils.defineEngineProps(e);
+
       });
 
       return res;
     }));
+
+    promiseArr.push(EngineREST.getAllEngineMetricsTemplate().then((res) => {
+      app_state.enginesMetricsTemplates = res.entities;
+      return res;
+    }));
+
     Promise.all(promiseArr)
       .then((results)=>{
         if(results[0].responseMessage !== undefined){

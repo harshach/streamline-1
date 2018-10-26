@@ -1,0 +1,212 @@
+{
+    "name": "Storm METRICS",
+    "engine": "STORM",
+    "template": ["Blank"],
+    "metricsUISpec": {
+    "metrics": [{
+        "name": "Emitted",
+        "uiName": "EMITTED",
+        "metricKeyName": "outputRecords",
+        "metricPrevKeyName": "prevOutputRecords",
+        "valueFormat": "abbreviateNumber",
+        "defaultValue": 0
+    },{
+        "name": "Transferred",
+        "uiName": "TRANSFERRED",
+        "metricKeyName": "transferred",
+        "metricPrevKeyName": "prevTransferred",
+        "valueFormat": "abbreviateNumber",
+        "defaultValue": 0
+    },{
+        "name": "Errors",
+        "uiName": "ERRORS",
+        "metricKeyName": "errors",
+        "metricPrevKeyName": "prevErrors",
+        "valueFormat": "number",
+        "defaultValue": 0
+    },{
+        "name": "Workers",
+        "uiName": "WORKERS",
+        "metricKeyName": "workersTotal",
+        "metricPrevKeyName": "prevWorkersTotal",
+        "valueFormat": "number",
+        "defaultValue": 0
+    },{
+        "name": "Executors",
+        "uiName": "EXECUTORS",
+        "metricKeyName": "executorsTotal",
+        "metricPrevKeyName": "prevExecutorsTotal",
+        "valueFormat": "number",
+        "defaultValue": 0
+    },{
+        "name": "Acked",
+        "uiName": "ACKED",
+        "metricKeyName": "ackedRecords",
+        "metricPrevKeyName": "prevAckedRecords",
+        "valueFormat": "abbreviateNumber",
+        "defaultValue": 0
+    },{
+        "name": "Latency",
+        "uiName": "Latency",
+        "metricKeyName": "latency",
+        "metricPrevKeyName": "prevLatency",
+        "valueFormat": "time",
+        "defaultValue": 0
+    },{
+        "name": "Failed",
+        "uiName": "Failed",
+        "metricKeyName": "failedRecords",
+        "metricPrevKeyName": "prevFailedRecords",
+        "valueFormat": "number",
+        "defaultValue": 0
+    },{
+        "name": "CompleteLatency",
+        "uiName": "Complete Latency",
+        "metricKeyName": "completeLatency",
+        "metricPrevKeyName": "prevCompleteLatency",
+        "valueFormat": "time",
+        "defaultValue": 0
+    },{
+        "name": "ProcessLatency",
+        "uiName": "Process Latency",
+        "metricKeyName": "processLatency",
+        "metricPrevKeyName": "prevProcessLatency",
+        "valueFormat": "time",
+        "defaultValue": 0
+    },{
+        "name": "ExecuteLatency",
+        "uiName": "Execute Latency",
+        "metricKeyName": "executeLatency",
+        "metricPrevKeyName": "prevExecuteLatency",
+        "valueFormat": "time",
+        "defaultValue": 0
+    }],
+    "timeseries": [{
+        "name": "InputOutput",
+        "uiName": "Input/Output",
+        "metricKeyName": ["inputRecords", "outputRecords"],
+        "interpolate": "bundle"
+    },{
+        "name": "AckedTuples",
+        "uiName": "Acked Tuples",
+        "metricKeyName": ["ackedRecords"],
+        "interpolate": "step-before"
+    },{
+        "name": "FailedTuples",
+        "uiName": "Failed Tuples",
+        "metricKeyName": ["failedRecords"],
+        "interpolate": "bundle"
+    },{
+        "name": "Queue",
+        "uiName": "Queue",
+        "metricKeyName": ["recordsInWaitQueue"],
+        "interpolate": "step-before"
+    },{
+        "name": "ProcessTime",
+        "uiName": "Process Time",
+        "metricKeyName": ["processedTime"],
+        "interpolate": "step-before"
+    },{
+        "name": "ExecuteTime",
+        "uiName": "Execute Time",
+        "metricKeyName": ["executeTime"],
+        "interpolate": "step-before"
+    },{
+        "name": "Latency",
+        "uiName": "Latency",
+        "metricKeyName": ["completeLatency"],
+        "interpolate": "step-before"
+    },{
+        "name": "KafkaLagOffset",
+        "uiName": "Kafka Lag Offset",
+        "metricKeyName": ["kafkaLagOffset.lag"],
+        "interpolate": "step-before"
+    }],
+    "layout":{
+            "listing": ["Emitted", "Transferred", "Errors", "Workers", "Executors"],
+            "viewmode": {
+                "DAG": {
+                    "metrics": {
+                        "topology": [],
+                        "source": {
+                            "baseMetrics" :["Emitted", "Acked", "Failed", "CompleteLatency"],
+                            "component_metrics": {}
+                        },
+                        "processor": {
+                            "baseMetrics": ["Emitted", "Acked", "Failed", "ProcessLatency", "ExecuteLatency"],
+                            "component_metrics": {}
+                        },
+                        "sink": {
+                            "baseMetrics": [
+                                "Emitted",
+                                "Acked",
+                                "Failed",
+                                "ProcessLatency",
+                                "ExecuteLatency"
+                            ],
+                            "component_metrics": {}
+                        }
+                    },
+                    "timeseries": {
+                        "topology": [],
+                        "source": {
+                            "baseMetrics": [
+                                "InputOutput",
+                                "AckedTuples",
+                                "Queue",
+                                "KafkaLagOffset"
+                            ],
+                            "compoent_metrics": {}
+                        },
+                        "processor": {
+                            "baseMetrics": [
+                                "InputOutput",
+                                "AckedTuples",
+                                "Queue"
+                            ]
+                        },
+                        "sink": {
+                            "baseMetrics": [
+                                "InputOutput",
+                                "AckedTuples",
+                                "Queue"
+                            ]
+                        }
+                    }
+                },
+                "metricsSection": {
+                    "metrics": {
+                        "topology": ["Emitted", "Workers", "Executors", "Acked", "Latency", "Failed"],
+                        "source": {
+                            "baseMetrics": ["Emitted", "Workers", "Executors", "Acked", "Latency", "Failed", "CompleteLatency"],
+                            "component_metrics": {}
+                         },
+                        "processor": {
+                            "baseMetrics": ["Emitted", "Workers", "Executors", "Acked", "Latency", "Failed", "ProcessLatency", "ExecuteLatency"],
+                            "component_metrics": {}
+                        },
+                        "sink": {
+                            "baseMetrics": ["Emitted", "Workers", "Executors", "Acked", "Latency", "Failed", "ProcessLatency", "ExecuteLatency"],
+                            "component_metrics": {}
+                        }
+                    },
+                    "timeseries": {
+                        "topology": ["InputOutput", "AckedTuples", "FailedTuples", "Queue"],
+                        "source": {
+                            "baseMetrics": ["InputOutput", "AckedTuples", "FailedTuples", "Queue", "Latency"],
+                            "component_metrics": {"Kafka": ["KafkaLagOffset"]}
+                        },
+                        "processor": {
+                            "baseMetrics": ["InputOutput", "AckedTuples", "FailedTuples", "Queue", "ExecuteTime"],
+                            "component_metrics": {}
+                        },
+                        "sink": {
+                            "baseMetrics": ["InputOutput", "AckedTuples", "FailedTuples", "Queue", "ExecuteTime"],
+                            "component_metrics": {}
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

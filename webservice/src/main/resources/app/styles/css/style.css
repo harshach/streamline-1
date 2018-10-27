@@ -411,7 +411,52 @@ label {
   background: white;
   border: 1px solid #ccc;
   border-radius: 4px;
-  padding: 0 0 2px 2px;
+  padding: 5px;
+}
+.cron-field-row {
+    margin: 0 0 10px 0;
+}
+.cron-string {
+  margin-top: 15px;
+  background: #e3f6f8;
+  color: #429198;
+  padding: 7px 10px;
+  border-left: 3px solid #429198;
+}
+.cron-badge-option-container{
+  display: inline-block;
+  margin: 10px 0 10px 0;
+}
+.cron-badge-option{
+  height: 30px;
+  width: 30px;
+  background: #f5f5f5;
+  margin: 2px 5px;
+  padding: 5px;
+  display: inline-table;
+  text-align: center;
+  border-radius: 15px;
+  cursor: pointer;
+}
+.cron-badge-option.disabled{
+  cursor: not-allowed;
+}
+.cron-badge-option:hover{
+  background: #d6d6d6;
+}
+.cron-badge-option.active{
+  background: #449d44;
+  color: white;
+}
+.week-opt-container .cron-badge-option{
+  /*width: 30px;*/
+}
+.month-opt-container .cron-badge-option{
+  width: 35px;
+  height: 32px;
+  border-radius: 18px;
+  font-size: 12px;
+  padding: 8px 5px;
 }
 
 #tsFieldDropdown{

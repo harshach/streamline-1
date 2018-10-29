@@ -35,6 +35,7 @@ import TopologyREST from '../../rest/TopologyREST';
 import ProcessorUtils from '../../utils/ProcessorUtils';
 import DatetimeRangePicker from 'react-bootstrap-datetimerangepicker';
 import moment from 'moment';
+import Cron from '../cron';
 
 import CommonCodeMirror from '../../components/CommonCodeMirror';
 
@@ -586,6 +587,26 @@ export class keyvalue extends BaseField {
         {this.getField()}
       </FormGroup>
     );
+  }
+}
+
+export class cron extends BaseField {
+  handleChange = (value) => {
+    const {Form} = this.context;
+    this.props.data[this.props.value] = value;
+    Form.setState(Form.state);
+    this.validate();
+  }
+  validate() {
+    return super.validate(this.props.data[this.props.value]);
+  }
+  getField = () => {
+    return <Cron
+      value={this.props.data[this.props.value]}
+      onChange={this.handleChange}
+      className="form-field cron-field"
+      disabled={this.context.Form.props.readOnly}
+    />;
   }
 }
 

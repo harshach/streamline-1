@@ -209,7 +209,7 @@ export default class ReactCron extends Component {
 
   constructor(props){
     super(props);
-    this._value = '* * * * *';
+    this._value = '0 0 * * 0';
     if(props.value){
       this._value = props.value;
     }else{
@@ -386,12 +386,6 @@ export default class ReactCron extends Component {
     return (
       (this.state.selectedPeriod === 'hour') &&
       <cron-hour-component>
-        <div className="cron-field-row">
-          <span className='m-l-xs'>Day : </span>
-          <div className="cron-badge-option-container week-opt-container">
-            {this.getBadgeOptions(dayOptions, -1, 1, () => {})}
-          </div>
-        </div>
         <span className='m-l-xs'>Minute : </span>
         {this.getMinuteSelect(selectedHourOption, this.onHourOptionSelect('min'))}
         {this.getTextComp(`${cronPeriodString} ${selectedHourOption.min} minute past the hour`)}
@@ -409,12 +403,6 @@ export default class ReactCron extends Component {
     return (
       (this.state.selectedPeriod === 'day') &&
       <cron-day-component>
-        <div className="cron-field-row">
-          <span className='m-l-xs'>Day : </span>
-          <div className="cron-badge-option-container week-opt-container">
-            {this.getBadgeOptions(dayOptions, -1, 1, () => {})}
-          </div>
-        </div>
         <span className='m-l-xs'>Time : </span>
         {this.getHourSelect(selectedDayOption, this.onDayOptionSelect('hour'))}
         :
@@ -551,7 +539,7 @@ export default class ReactCron extends Component {
 
   getStateValue(valueStr){
     var stateVal = {
-      selectedPeriod: 'minute',
+      selectedPeriod: 'week',
       selectedHourOption: {
         min: 0
       },

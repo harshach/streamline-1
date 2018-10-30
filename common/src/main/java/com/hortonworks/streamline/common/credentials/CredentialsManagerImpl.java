@@ -2,7 +2,7 @@ package com.hortonworks.streamline.common.credentials;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.io.InputStream;
 import java.util.Arrays;
 import java.util.List;
@@ -16,10 +16,9 @@ public class CredentialsManagerImpl implements CredentialsManager {
     }
 
     public void load(String configFile) {
-        try {
-            InputStream input = new FileInputStream(new File(configFile));
+        try(InputStream input = new FileInputStream(new File(configFile))) {
             yaml = new Yaml().load(input);
-        } catch (FileNotFoundException e) {
+        } catch (IOException e) {
             throw new CredentialsManagerException(e);
         }
     }

@@ -298,6 +298,18 @@ public class StreamCatalogService {
         return project;
     }
 
+    public Project editProject(Long projectId, Project project) {
+        validateProject(project);
+
+        project.setId(projectId);
+        long timestamp = System.currentTimeMillis();
+        project.setTimestamp(timestamp);
+        this.dao.update(project);
+
+        LOG.debug("Updated project {}", project);
+        return project;
+    }
+
     public Project removeProject(Long proejctId) {
         Project project = new Project();
         project.setId(proejctId);

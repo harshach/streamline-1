@@ -219,6 +219,23 @@ public class TopologyCatalogResource {
         return WSUtils.respondEntity(createdProject, CREATED);
     }
 
+    @PUT
+    @Path("/projects/{projectId}")
+    @Timed
+    public Response editProject(@PathParam("projectId") Long projectId,
+                                Project project,
+                                @Context SecurityContext securityContext) {
+        SecurityUtil.checkRoleOrPermissions(authorizer, securityContext, Roles.ROLE_TOPOLOGY_ADMIN,
+                NAMESPACE, projectId, WRITE);
+        if (StringUtils.isEmpty(project.getName())) {
+            throw BadRequestException.missingParameter(Project.NAME);
+        }
+
+        Project updatedProject = catalogService.editProject(projectId, project);
+
+        return WSUtils.respondEntity(updatedProject, OK);
+    }
+
     @DELETE
     @Path("/projects/{projectId}")
     @Timed

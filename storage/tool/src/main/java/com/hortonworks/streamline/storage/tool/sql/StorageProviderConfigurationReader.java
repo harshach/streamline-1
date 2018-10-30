@@ -26,6 +26,7 @@ public class StorageProviderConfigurationReader {
     private static final String DATA_SOURCE_URL = "dataSource.url";
     private static final String DATA_SOURCE_USER = "dataSource.user";
     private static final String DATA_SOURCE_PASSWORD = "dataSource.password";
+    private static final String CREDENTIALS_SECURED = "credentials.secured";
 
     public StorageProviderConfiguration readStorageConfig(Map<String, Object> conf) {
         Map<String, Object> storageConf = (Map<String, Object>) conf.get(
@@ -44,16 +45,19 @@ public class StorageProviderConfigurationReader {
             throw new RuntimeException("No db.type presented to properties.");
         }
 
+        boolean credentialsSecured = (boolean) properties.get(CREDENTIALS_SECURED);
+
         Map<String, Object> dbProps = (Map<String, Object>) properties.get(DB_PROPERTIES);
 
-        return readDatabaseProperties(dbProps, DatabaseType.fromValue(dbType));
+        return readDatabaseProperties(dbProps, DatabaseType.fromValue(dbType), credentialsSecured);
     }
 
-    private static StorageProviderConfiguration readDatabaseProperties(Map<String, Object> dbProperties, DatabaseType databaseType) {
+    private static StorageProviderConfiguration readDatabaseProperties(
+        Map<String, Object> dbProperties, DatabaseType databaseType, boolean credentialsSecured) {
         String jdbcUrl = (String) dbProperties.get(DATA_SOURCE_URL);
         String user = (String) dbProperties.getOrDefault(DATA_SOURCE_USER, "");
         String password = (String) dbProperties.getOrDefault(DATA_SOURCE_PASSWORD, "");
 
-        return StorageProviderConfiguration.get(jdbcUrl, user, password, databaseType);
+        return StorageProviderConfiguration.get(jdbcUrl, user, password, databaseType, credentialsSecured);
     }
 }

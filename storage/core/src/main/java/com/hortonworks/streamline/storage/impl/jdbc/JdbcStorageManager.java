@@ -16,8 +16,12 @@
 package com.hortonworks.streamline.storage.impl.jdbc;
 
 
-import com.hortonworks.streamline.common.QueryParam;
 import com.hortonworks.registries.common.Schema;
+import com.hortonworks.streamline.common.QueryParam;
+import com.hortonworks.streamline.common.credentials.CredentialsConstants;
+import com.hortonworks.streamline.common.credentials.CredentialsManager;
+import com.hortonworks.streamline.common.credentials.CredentialsManagerException;
+import com.hortonworks.streamline.common.credentials.CredentialsManagerFactory;
 import com.hortonworks.streamline.common.transaction.TransactionIsolation;
 import com.hortonworks.streamline.storage.OrderByField;
 import com.hortonworks.streamline.storage.PrimaryKey;
@@ -34,14 +38,13 @@ import com.hortonworks.streamline.storage.impl.jdbc.provider.sql.factory.QueryEx
 import com.hortonworks.streamline.storage.impl.jdbc.provider.sql.query.SqlSelectQuery;
 import com.hortonworks.streamline.storage.impl.jdbc.util.CaseAgnosticStringSet;
 import com.hortonworks.streamline.storage.search.SearchQuery;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 //Use unique constraints on respective columns of a table for handling concurrent inserts etc.
 public class JdbcStorageManager implements TransactionManager, StorageManager {
@@ -222,7 +225,6 @@ public class JdbcStorageManager implements TransactionManager, StorageManager {
      */
     @Override
     public void init(Map<String, Object> properties) {
-
         if(!properties.containsKey(DB_TYPE)) {
             throw new IllegalArgumentException("db.type should be set on jdbc properties");
         }
@@ -237,10 +239,46 @@ public class JdbcStorageManager implements TransactionManager, StorageManager {
         log.info("jdbc provider type: [{}]", type);
         Map<String, Object> dbProperties = (Map<String, Object>) properties.get("db.properties");
 
+        if(areCredentialsSecured(properties)) {
+            log.info("Updating credentials from Langley");
+            updateCredentials(dbProperties);
+        }
+
         QueryExecutor queryExecutor = QueryExecutorFactory.get(type, dbProperties);
 
         this.queryExecutor = queryExecutor;
         this.queryExecutor.setStorableFactory(storableFactory);
+    }
+
+    private boolean areCredentialsSecured(Map<String, Object> properties) {
+        return (Boolean) properties.get(CredentialsConstants.CREDENTIALS_SECURED_PROPERTY);
+    }
+
+    private void updateCredentials(Map<String, Object> properties) {
+        try {
+            CredentialsManager credentialsManager = CredentialsManagerFactory.getSecretsManager();
+            credentialsManager.load(CredentialsConstants.LANGLEY_SECRETS_YAML_PATH);
+
+            String nemoUsername = credentialsManager.getString(String
+                .format(CredentialsConstants.NEMO_USER_DB_PROPERTY,
+                    getStorageProviderDBName(properties)));
+            String nemoPassword = credentialsManager
+                .getString(
+                    String.format(CredentialsConstants.NEMO_PASSWORD_DB_PROPERTY, nemoUsername));
+            properties.put("dataSource.user", nemoUsername);
+            properties.put("dataSource.password", nemoPassword);
+            log.info("Updated the credentials from Langley");
+
+        } catch (CredentialsManagerException e) {
+            throw new StorageException("Unable to get the Nemo credentials from Langley.", e);
+        }
+    }
+
+    private String getStorageProviderDBName(Map<String, Object> properties) {
+        String datasourceUrl = (String) properties.get("dataSource.url");
+        String[] datasourceUrlSplit = datasourceUrl.split("/");
+        String dbName = datasourceUrlSplit[datasourceUrlSplit.length -1 ];
+        return dbName;
     }
 
     @Override

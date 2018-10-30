@@ -16,6 +16,10 @@
 
 package com.hortonworks.streamline.storage.tool.shell;
 
+import com.hortonworks.streamline.common.credentials.CredentialsConstants;
+import com.hortonworks.streamline.common.credentials.CredentialsManager;
+import com.hortonworks.streamline.common.credentials.CredentialsManagerException;
+import com.hortonworks.streamline.common.credentials.CredentialsManagerFactory;
 import com.hortonworks.streamline.storage.tool.sql.StorageProviderConfiguration;
 import com.hortonworks.streamline.storage.tool.sql.StorageProviderConfigurationReader;
 import com.hortonworks.streamline.storage.tool.sql.Utils;
@@ -115,20 +119,24 @@ public class ShellMigrationInitializer {
         String scriptRootPath = commandLine.getOptionValue(OPTION_SCRIPT_ROOT_PATH);
         String confFilePath = commandLine.getOptionValue(OPTION_CONFIG_FILE_PATH);
 
-        StorageProviderConfiguration storageProperties;
+        StorageProviderConfiguration storageProviderConfiguration;
         try {
             Map<String, Object> conf = Utils.readConfig(confFilePath);
 
             StorageProviderConfigurationReader confReader = new StorageProviderConfigurationReader();
-            storageProperties = confReader.readStorageConfig(conf);
+            storageProviderConfiguration = confReader.readStorageConfig(conf);
         } catch (IOException e) {
             System.err.println("Error occurred while reading config file: " + confFilePath);
             System.exit(1);
             throw new IllegalStateException("Shouldn't reach here");
         }
 
+        if (storageProviderConfiguration.areCredentialsSecured()) {
+            System.out.println("Updating credentials from Langley");
+            storageProviderConfiguration = updateCredentials(storageProviderConfiguration);
+        }
 
-        ShellMigrationHelper schemaMigrationHelper = new ShellMigrationHelper(ShellFlywayFactory.get(storageProperties, scriptRootPath));
+        ShellMigrationHelper schemaMigrationHelper = new ShellMigrationHelper(ShellFlywayFactory.get(storageProviderConfiguration, scriptRootPath));
         try {
             schemaMigrationHelper.execute(shellMigrationOptionSpecified);
             System.out.println(String.format("\"%s\" option successful", shellMigrationOptionSpecified.toString()));
@@ -138,6 +146,35 @@ public class ShellMigrationInitializer {
         }
 
     }
+
+    private static StorageProviderConfiguration updateCredentials(
+        StorageProviderConfiguration storageProviderConfiguration) {
+        try {
+           CredentialsManager credentialsManager = CredentialsManagerFactory.getSecretsManager();
+            credentialsManager.load(CredentialsConstants.LANGLEY_SECRETS_YAML_PATH);
+
+            String nemoUsername = credentialsManager.getString(String
+                .format(CredentialsConstants.NEMO_USER_DB_PROPERTY,
+                    getStorageProviderDBName(storageProviderConfiguration.getUrl())));
+            String nemoPassword = credentialsManager
+                .getString(
+                    String.format(CredentialsConstants.NEMO_PASSWORD_DB_PROPERTY, nemoUsername));
+
+            storageProviderConfiguration = StorageProviderConfiguration.get(storageProviderConfiguration.getUrl(), nemoUsername, nemoPassword, storageProviderConfiguration.getDbType());
+            System.out.println("Updated the credentials from Langley");
+            return storageProviderConfiguration;
+
+        } catch (CredentialsManagerException e) {
+            throw new RuntimeException("Unable to get the Nemo credentials from Langley.", e);
+        }
+    }
+
+    private static String getStorageProviderDBName(String datasourceUrl) {
+        String[] datasourceUrlSplit = datasourceUrl.split("/");
+        String dbName = datasourceUrlSplit[datasourceUrlSplit.length -1 ];
+        return dbName;
+    }
+
 
     private static void usage(Options options) {
         HelpFormatter formatter = new HelpFormatter();

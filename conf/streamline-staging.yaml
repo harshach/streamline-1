@@ -74,11 +74,12 @@ storageProviderConfiguration:
  properties:
   db.type: "mysql"
   queryTimeoutInSecs: 30
+  credentials.secured: true
   db.properties:
     dataSourceClassName: "com.mysql.jdbc.jdbc2.optional.MysqlDataSource"
     dataSource.url: "jdbc:mysql://127.5.4.177:17025/uworc_staging"
-    dataSource.user: xxx
-    dataSource.password: xxx
+    dataSource.user: "xxx"
+    dataSource.password: "xxx"
 
 # --
 # PostgreSQL based storage provider configuration

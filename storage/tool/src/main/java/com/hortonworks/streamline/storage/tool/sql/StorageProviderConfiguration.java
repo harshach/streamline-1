@@ -22,17 +22,22 @@ public class StorageProviderConfiguration {
     private String user = "";
     private String password = "";
     private DatabaseType dbType;
+    private boolean credentialsSecured = false;
 
-    private StorageProviderConfiguration(String url, String user, String password, DatabaseType dbType) {
+    private StorageProviderConfiguration(String url, String user, String password, DatabaseType dbType, boolean credentialsSecured) {
         this.url = url;
         this.user = user;
         this.password = password;
         this.dbType = dbType;
+        this.credentialsSecured = credentialsSecured;
     }
 
-
     public static StorageProviderConfiguration get(String url, String user, String password, DatabaseType databaseType) {
-        return new StorageProviderConfiguration(url, user, password, databaseType);
+        return get(url, user, password, databaseType, false);
+    }
+
+    public static StorageProviderConfiguration get(String url, String user, String password, DatabaseType databaseType, boolean credentialsSecured) {
+        return new StorageProviderConfiguration(url, user, password, databaseType, credentialsSecured);
     }
 
     public String getUrl() {
@@ -51,4 +56,7 @@ public class StorageProviderConfiguration {
         return dbType;
     }
 
+    public boolean areCredentialsSecured() {
+        return credentialsSecured;
+    }
 }

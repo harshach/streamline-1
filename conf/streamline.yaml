@@ -74,6 +74,7 @@ storageProviderConfiguration:
  properties:
   db.type: "mysql"
   queryTimeoutInSecs: 30
+  credentials.secured: false
   db.properties:
     dataSourceClassName: "com.mysql.jdbc.jdbc2.optional.MysqlDataSource"
     dataSource.url: "jdbc:mysql://localhost/streamline_db"

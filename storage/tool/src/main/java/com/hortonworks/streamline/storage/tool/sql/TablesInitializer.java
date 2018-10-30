@@ -16,6 +16,10 @@
 
 package com.hortonworks.streamline.storage.tool.sql;
 
+import com.hortonworks.streamline.common.credentials.CredentialsConstants;
+import com.hortonworks.streamline.common.credentials.CredentialsManager;
+import com.hortonworks.streamline.common.credentials.CredentialsManagerException;
+import com.hortonworks.streamline.common.credentials.CredentialsManagerFactory;
 import org.apache.commons.cli.BasicParser;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
@@ -162,17 +166,22 @@ public class TablesInitializer {
         String scriptRootPath = commandLine.getOptionValue(OPTION_SCRIPT_ROOT_PATH);
         String mysqlJarUrl = commandLine.getOptionValue(OPTION_MYSQL_JAR_URL_PATH);
 
-        StorageProviderConfiguration storageProperties;
+        StorageProviderConfiguration storageProviderConfiguration;
         Map<String, Object> conf;
         try {
             conf = Utils.readConfig(confFilePath);
 
             StorageProviderConfigurationReader confReader = new StorageProviderConfigurationReader();
-            storageProperties = confReader.readStorageConfig(conf);
+            storageProviderConfiguration = confReader.readStorageConfig(conf);
         } catch (IOException e) {
             System.err.println("Error occurred while reading config file: " + confFilePath);
             System.exit(1);
             throw new IllegalStateException("Shouldn't reach here");
+        }
+
+        if (storageProviderConfiguration.areCredentialsSecured()) {
+            System.out.println("Updating the credentials from Langley");
+            storageProviderConfiguration = updateCredentials(storageProviderConfiguration);
         }
 
         String bootstrapDirPath = null;
@@ -189,7 +198,7 @@ public class TablesInitializer {
                     Authenticator.setDefault(getBasicAuthenticator(url.getHost(), url.getPort(), httpProxyUsername, httpProxyPassword));
                 }
             }
-            MySqlDriverHelper.downloadMySQLJarIfNeeded(storageProperties, bootstrapDirPath, mysqlJarUrl, proxy);
+            MySqlDriverHelper.downloadMySQLJarIfNeeded(storageProviderConfiguration, bootstrapDirPath, mysqlJarUrl, proxy);
         } catch (Exception e) {
             System.err.println("Error occurred while downloading MySQL jar. bootstrap dir: " + bootstrapDirPath);
             System.exit(1);
@@ -200,7 +209,7 @@ public class TablesInitializer {
         if(disableValidateOnMigrate) {
             System.out.println("Disabling validation on schema migrate");
         }
-        SchemaMigrationHelper schemaMigrationHelper = new SchemaMigrationHelper(SchemaFlywayFactory.get(storageProperties, scriptRootPath, !disableValidateOnMigrate));
+        SchemaMigrationHelper schemaMigrationHelper = new SchemaMigrationHelper(SchemaFlywayFactory.get(storageProviderConfiguration, scriptRootPath, !disableValidateOnMigrate));
         try {
             schemaMigrationHelper.execute(schemaMigrationOptionSpecified);
             System.out.println(String.format("\"%s\" option successful", schemaMigrationOptionSpecified.toString()));
@@ -209,6 +218,34 @@ public class TablesInitializer {
             System.exit(1);
         }
 
+    }
+
+    private static StorageProviderConfiguration updateCredentials(
+        StorageProviderConfiguration storageProviderConfiguration) {
+        try {
+            CredentialsManager credentialsManager = CredentialsManagerFactory.getSecretsManager();
+            credentialsManager.load(CredentialsConstants.LANGLEY_SECRETS_YAML_PATH);
+
+            String nemoUsername = credentialsManager.getString(String
+                .format(CredentialsConstants.NEMO_USER_DB_PROPERTY,
+                    getStorageProviderDBName(storageProviderConfiguration.getUrl())));
+            String nemoPassword = credentialsManager
+                .getString(
+                    String.format(CredentialsConstants.NEMO_PASSWORD_DB_PROPERTY, nemoUsername));
+
+            storageProviderConfiguration = StorageProviderConfiguration.get(storageProviderConfiguration.getUrl(), nemoUsername, nemoPassword, storageProviderConfiguration.getDbType());
+            System.out.println("Updated the credentials from Langley");
+            return storageProviderConfiguration;
+
+        } catch (CredentialsManagerException e) {
+            throw new RuntimeException("Unable to get the Nemo credentials from Langley.", e);
+        }
+    }
+
+    private static String getStorageProviderDBName(String datasourceUrl) {
+        String[] datasourceUrlSplit = datasourceUrl.split("/");
+        String dbName = datasourceUrlSplit[datasourceUrlSplit.length -1 ];
+        return dbName;
     }
 
     private static void usage(Options options) {

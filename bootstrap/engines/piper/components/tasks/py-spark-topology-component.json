@@ -5,7 +5,7 @@
   "engine": "PIPER",
   "template": ["Blank"],
   "builtin": true,
-  "transformationClass": "com.hortonworks.streamline.streams.layout.piper.GenericPiperTaskComponent",
+  "transformationClass": "com.hortonworks.streamline.streams.layout.piper.SparkTaskComponent",
   "input": true,
   "output": true,
   "topologyComponentUISpecification": {
@@ -20,6 +20,14 @@
         "type": "string"
       },
       {
+        "uiName": "Use Drogon",
+        "fieldName": "use_drogon",
+        "isOptional": false,
+        "tooltip": "Whether to use Drogon or Spark Submit",
+        "defaultValue": true,
+        "type": "boolean"
+      },
+      {
         "uiName": "Python filename",
         "fieldName": "task_params.pyfile",
         "tooltip": "Python filename, for example hdfs:///app/myapp/pyspark_script.py",
@@ -31,21 +39,21 @@
         "fieldName": "task_params.spark_args",
         "tooltip": "Spark Args, for example --nPartitions,15",
         "isOptional": true,
-        "type": "array.string"
+        "type": "keyvalue"
       },
       {
         "uiName": "Spark Opts",
         "fieldName": "task_params.spark_opts",
         "tooltip": "Spark Opts --executor-memory:12g",
         "isOptional": true,
-        "type": "array.string"
+        "type": "keyvalue"
       },
       {
         "uiName": "Spark ENV additions",
         "fieldName": "task_params.env_additions",
         "tooltip": "Spark environment additions. For example, ENV1:foo",
         "isOptional": true,
-        "type": "array.string"
+        "type": "keyvalue"
       },
       {
         "uiName": "Spark Connection ID",
@@ -54,6 +62,7 @@
         "isOptional": false,
         "type": "string"
       },
+
       {
         "uiName": "Pool",
         "fieldName": "pool",

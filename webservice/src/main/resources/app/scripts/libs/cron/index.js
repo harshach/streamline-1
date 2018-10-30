@@ -347,8 +347,7 @@ export default class ReactCron extends Component {
       </select>
     );
   }
-  getBadgeOptions(options, value, substrVal, onClick){
-    const {disabled} = this.props;
+  getBadgeOptions(options, value, substrVal, onClick, disabled){
     const optionComps = [];
     options.forEach((o) => {
       let strVal = o.label;
@@ -389,7 +388,7 @@ export default class ReactCron extends Component {
         <div className="cron-field-row">
           <span className='m-l-xs'>Day : </span>
           <div className="cron-badge-option-container week-opt-container">
-            {this.getBadgeOptions(dayOptions, -1, 1, () => {})}
+            {this.getBadgeOptions(dayOptions, -1, 1, () => {}, true)}
           </div>
         </div>
         <span className='m-l-xs'>Minute : </span>
@@ -412,7 +411,7 @@ export default class ReactCron extends Component {
         <div className="cron-field-row">
           <span className='m-l-xs'>Day : </span>
           <div className="cron-badge-option-container week-opt-container">
-            {this.getBadgeOptions(dayOptions, -1, 1, () => {})}
+            {this.getBadgeOptions(dayOptions, -1, 1, () => {}, true)}
           </div>
         </div>
         <span className='m-l-xs'>Time : </span>
@@ -444,7 +443,7 @@ export default class ReactCron extends Component {
             {dayOptions.map(this.getOptionComponent('week_option'))}
           </select>*/}
           <div className="cron-badge-option-container week-opt-container">
-            {this.getBadgeOptions(dayOptions, selectedWeekOption.dow, 1, this.onWeekOptionSelect('dow'))}
+            {this.getBadgeOptions(dayOptions, selectedWeekOption.dow, 1, this.onWeekOptionSelect('dow'), disabled)}
           </div>
         </div>
         <div className="cron-field-row">
@@ -478,7 +477,7 @@ export default class ReactCron extends Component {
             {monthDaysOptions.map(this.getOptionComponent('month_days_option'))}
           </select>*/}
           <div className="cron-badge-option-container month-opt-container">
-            {this.getBadgeOptions(monthDaysOptions, selectedMonthOption.dom, 0, this.onMonthOptionSelect('dom'))}
+            {this.getBadgeOptions(monthDaysOptions, selectedMonthOption.dom, 0, this.onMonthOptionSelect('dom'), disabled)}
           </div>
         </div>
         <div className="cron-field-row">
@@ -515,7 +514,7 @@ export default class ReactCron extends Component {
             {monthOptions.map(this.getOptionComponent('month_option'))}
           </select>*/}
           <div className="cron-badge-option-container month-opt-container">
-            {this.getBadgeOptions(monthOptions, selectedYearOption.mon, 3, this.onYearOptionSelect('mon'))}
+            {this.getBadgeOptions(monthOptions, selectedYearOption.mon, 3, this.onYearOptionSelect('mon'), disabled)}
           </div>
         </div>
         <div className="cron-field-row">
@@ -524,7 +523,7 @@ export default class ReactCron extends Component {
             {monthDaysOptions.map(this.getOptionComponent('month_days_option'))}
           </select>*/}
           <div className="cron-badge-option-container month-opt-container">
-            {this.getBadgeOptions(monthDaysOptions, selectedYearOption.dom, 0, this.onYearOptionSelect('dom'))}
+            {this.getBadgeOptions(monthDaysOptions, selectedYearOption.dom, 0, this.onYearOptionSelect('dom'), disabled)}
           </div>
         </div>
         <div className="cron-field-row">

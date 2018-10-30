@@ -440,9 +440,13 @@ label {
 }
 .cron-badge-option.disabled{
   cursor: not-allowed;
+  color: #bcbcbc;
 }
 .cron-badge-option:hover{
   background: #d6d6d6;
+}
+.cron-badge-option.disabled:hover{
+  background: #f5f5f5;
 }
 .cron-badge-option.active{
   background: #449d44;

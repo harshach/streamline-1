@@ -13,7 +13,7 @@ java:
     # This is to allow maven to download the node distribution over https
     - 'RUN mkdir -p /etc/artifactory_client && cp /etc/maven/artifactory-client.jks /etc/artifactory_client/artifactory-client.jks'
   build_cmds:
-    - 'RUN mvn clean install -Dfindbugs.skip=true -DskipTests=true -P dist && cd /home/udocker/uworc && cp streamline-dist/target/hortonworks-streamline-*.zip .
+    - 'RUN mvn clean install -Dfindbugs.skip=true -DskipTests=true -U -P dist && cd /home/udocker/uworc && cp streamline-dist/target/hortonworks-streamline-*.zip .
        && unzip hortonworks-streamline-0.6.0-SNAPSHOT.zip && chown -R udocker:udocker /home/udocker/uworc/ && ln -s /var/log/udocker/uworc /home/udocker/uworc/logs'
 
 export_paths:
@@ -52,4 +52,4 @@ applications:
   - udeploy_app_id: 'uworc'
     app_type: command_line
     command_line:
-      run_cmd: '/home/udocker/uworc/hortonworks-streamline-0.6.0-SNAPSHOT/bootstrap/bootstrap-storage.sh migrate ${UBER_RUNTIME_ENVIRONMENT} && /home/udocker/uworc/hortonworks-streamline-0.6.0-SNAPSHOT/bin/streamline start ${UBER_RUNTIME_ENVIRONMENT} ${UBER_PORT_HTTP} && sleep 120 && /home/udocker/uworc/hortonworks-streamline-0.6.0-SNAPSHOT/bootstrap/bootstrap.sh migrate ${UBER_RUNTIME_ENVIRONMENT} && tail -f /dev/null'
+      run_cmd: /home/udocker/uworc/udeploy/runtime_cmds.sh

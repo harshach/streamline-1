@@ -34,6 +34,7 @@ import com.hortonworks.streamline.streams.storm.common.StormRestAPIClient;
 import com.hortonworks.streamline.streams.storm.common.StormRestAPIConstant;
 import com.hortonworks.streamline.streams.storm.common.StormTopologyUtil;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import java.io.IOException;
@@ -191,6 +192,7 @@ public class StormTopologyTimeSeriesMetricsImplTest {
         assertEquals(Collections.emptyMap(), kafkaOffsets.get("logsize"));
     }
 
+    @Ignore
     @Test
     public void getSourceComponentStats() throws Exception {
         final TopologyLayout topology = getTopologyLayoutForTest();
@@ -206,6 +208,8 @@ public class StormTopologyTimeSeriesMetricsImplTest {
         assertEquals(expectedMetric, actual);
     }
 
+
+    @Ignore
     @Test
     public void getProcessorComponentStats() throws Exception {
         final TopologyLayout topology = getTopologyLayoutForTest();
@@ -221,6 +225,7 @@ public class StormTopologyTimeSeriesMetricsImplTest {
         assertEquals(expectedMetric, actual);
     }
 
+    @Ignore
     @Test
     public void getSinkComponentStats() throws Exception {
         final TopologyLayout topology = getTopologyLayoutForTest();

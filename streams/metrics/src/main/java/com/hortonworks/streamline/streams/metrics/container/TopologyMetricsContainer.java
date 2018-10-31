@@ -28,6 +28,7 @@ import com.hortonworks.streamline.streams.metrics.TimeSeriesQuerier;
 import com.hortonworks.streamline.streams.metrics.topology.TopologyMetrics;
 
 import javax.security.auth.Subject;
+import java.io.IOException;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
@@ -134,12 +135,13 @@ public class TopologyMetricsContainer extends NamespaceAwareContainer<TopologyMe
             final ServiceConfiguration serviceConfig = environmentService.getServiceConfigurationByName(
                     piperService.getId(), PIPER_SERVICE_CONFIG_NAME);
 
-            Map<String, String> configMap = serviceConfig.getConfigurationMap();
-
             if (serviceConfig == null || serviceConfig.getConfigurationMap() == null) {
                 throw new ServiceConfigurationNotFoundException(
                         piperService.getClusterId(), engine, PIPER_SERVICE_CONFIG_NAME);
             }
+
+            Map<String, String> configMap = serviceConfig.getConfigurationMap();
+
 
             String host = configMap.get(PIPER_SERVICE_CONFIG_KEY_HOST);
             String port = configMap.get(PIPER_SERVICE_CONFIG_KEY_PORT);
@@ -148,8 +150,8 @@ public class TopologyMetricsContainer extends NamespaceAwareContainer<TopologyMe
             conf.put("PIPER_API_ROOT_URL_KEY", apiRootUrl);
             conf.put(TopologyLayoutConstants.SUBJECT_OBJECT, subject);
             return conf;
-        } catch (Exception e) {
-            throw new RuntimeException("Can't configure Piper Topology Metrics", e);
+        } catch (ServiceConfigurationNotFoundException | IOException ex) {
+            throw new RuntimeException("Can't configure Piper Topology Metrics", ex);
         }
     }
 

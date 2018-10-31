@@ -118,29 +118,47 @@ public class PiperTopologyMetricsImpl implements TopologyMetrics {
 		return metricMap;
 	}
 
+	private Map<String, Object> toTaskMap(List<Object> tasks) {
+		Map<String, Object> map = new HashMap<>();
+		if (tasks != null) {
+			for(int i=0; i<tasks.size(); i++) {
+				Map task = (Map) tasks.get(i);
+				if (task.get("task_id") != null) {
+					map.put((String)task.get("task_id"), task);
+				}
+			}
+		}
+		return map;
+	}
+
 	public Map getExecution(TopologyLayout topology, Collection<? extends TopologyComponent> components,
 							String applicationId, String executionDate) {
 
-		ArrayList<Object> componentMetrics = new ArrayList<Object>();
+		List<Object> componentMetrics = new ArrayList<>();
 
-		Map result = new HashMap<>();
+		Map<String, Object> result = new HashMap<>();
 		Map response = this.client.getTaskGraph(applicationId, executionDate);
 		Map graph = (Map) response.get("graph");
-		ArrayList<Object> nodes = (ArrayList<Object>)graph.get("nodes");
-		if (nodes != null) {
-			for(int i=0; i<nodes.size(); i++) {
-				Map componentMetric = new HashMap();
-				Map node = (Map) nodes.get(i);
+		List tasks = (List)graph.get("nodes");
+		Map<String, Object> taskMap = toTaskMap(tasks);
 
-				componentMetric.put("componentId", i); // FIXME
+		if (components != null) {
+			for (TopologyComponent component: components) {
+
+				String componentName = component.getName();
+				Map task = (Map) taskMap.getOrDefault(componentName, new HashMap());
+
+				Map<String, Object> componentMetric = new HashMap<>();
+
+				componentMetric.put("componentId", component.getId());
 				componentMetric.put("executionDate", executionDate);
-				componentMetric.put("taskStatus", node.get("state"));
-				componentMetric.put("taskStartDate", node.get("start_date"));
-				componentMetric.put("taskEndDate", node.get("end_date"));
-				componentMetric.put("taskDuration", node.get("duration"));
-				componentMetric.put("taskRetryCount", node.get("try_number"));
-				componentMetric.put("taskRetries", node.get("retries"));
-				componentMetric.put("taskPool", node.get("pool"));
+				componentMetric.put("taskStatus", task.get("state"));
+				componentMetric.put("taskStartDate", task.get("start_date"));
+				componentMetric.put("taskEndDate", task.get("end_date"));
+				componentMetric.put("taskDuration", task.get("duration"));
+				componentMetric.put("taskRetryCount", task.get("try_number"));
+				componentMetric.put("taskRetries", task.get("retries"));
+				componentMetric.put("taskPool", task.get("pool"));
 
 				componentMetrics.add(componentMetric);
 			}
@@ -155,7 +173,7 @@ public class PiperTopologyMetricsImpl implements TopologyMetrics {
 	public Map getExecutions(TopologyLayout topology, String applicationId,
 							 Long from, Long to, Integer page, Integer pageSize) {
 
-		Map result = new HashMap<>();
+		Map<String, Object> result = new HashMap<>();
 		ArrayList<Object> topologyMetrics = new ArrayList<Object>();
 
 		Map response = this.client.getPipelineRuns(applicationId, from, to, page, pageSize);
@@ -170,7 +188,7 @@ public class PiperTopologyMetricsImpl implements TopologyMetrics {
 				Map execution = (Map) executions.get(i);
 
 				//Abbreviated topology metric
-				Map topologyMetric = new HashMap();
+				Map<String, Object> topologyMetric = new HashMap<>();
 				topologyMetric.put("status", execution.get("state"));
 				topologyMetric.put("executionDate", execution.get("execution_date"));
 				topologyMetric.put("createdAt", execution.get("created_at"));

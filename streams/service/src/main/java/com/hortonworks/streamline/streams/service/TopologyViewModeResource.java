@@ -11,6 +11,7 @@ import com.hortonworks.streamline.streams.metrics.topology.service.TopologyMetri
 import com.hortonworks.streamline.streams.security.Roles;
 import com.hortonworks.streamline.streams.security.SecurityUtil;
 import com.hortonworks.streamline.streams.security.StreamlineAuthorizer;
+
 import org.jooq.lambda.Unchecked;
 
 import javax.ws.rs.GET;
@@ -31,6 +32,9 @@ import java.util.Map;
 import static com.hortonworks.streamline.streams.security.Permission.READ;
 import static java.util.stream.Collectors.toList;
 import static javax.ws.rs.core.Response.Status.OK;
+
+import com.hortonworks.streamline.streams.metrics.piper.topology.PiperTopologyMetricsImpl;  // FIXME remove
+import com.hortonworks.streamline.streams.catalog.CatalogToLayoutConverter;  // FIXME remove
 
 @Path("/v1/catalog")
 @Produces(MediaType.APPLICATION_JSON)
@@ -198,6 +202,85 @@ public class TopologyViewModeResource {
         return getComponent(topologyId, sinkId, from, to, uriInfo, securityContext, TopologySink.class);
     }
 
+    @GET
+    @Path("/topologies/{topologyId}/executions")
+    @Timed
+    public Response getExecutions(@PathParam("topologyId") Long topologyId,
+                                  @QueryParam("from") Long from,
+                                  @QueryParam("to") Long to,
+                                  @QueryParam("page") Integer page,
+                                  @QueryParam("pageSize") Integer pageSize,
+                                  @Context UriInfo uriInfo,
+                                  @Context SecurityContext securityContext) throws IOException {
+
+        SecurityUtil.checkRoleOrPermissions(authorizer, securityContext, Roles.ROLE_TOPOLOGY_USER,
+                Topology.NAMESPACE, topologyId, READ);
+
+        assertTimeRange(from, to);
+
+        if (page == null) {
+            page = new Integer(0);
+        }
+
+        if (pageSize == null) {
+            pageSize = new Integer(20);
+        }
+
+        Topology topology = catalogService.getTopology(topologyId);
+        if (topology != null) {
+
+            // FIXME T2184621 remove hack, need interface updates
+            PiperTopologyMetricsImpl topologyMetrics = (PiperTopologyMetricsImpl)
+                    metricsService.getTopologyMetricsInstanceHack(topology);
+
+            String applicationId = getRuntimeTopologyId(topology, null);  //FIXME where do we get user?
+
+            Map executions = topologyMetrics.getExecutions(CatalogToLayoutConverter.getTopologyLayout(topology), applicationId,
+                    from, to, page, pageSize);
+
+            return WSUtils.respondEntity(executions, OK);
+        }
+
+        return null;
+    }
+
+    @GET
+    @Path("/topologies/{topologyId}/executions/{executionDate}")
+    @Timed
+    public Response getExecution(@PathParam("topologyId") Long topologyId,
+                                 @PathParam("executionDate") String executionDate,
+                                 @Context UriInfo uriInfo,
+                                 @Context SecurityContext securityContext) throws IOException {
+
+        SecurityUtil.checkRoleOrPermissions(authorizer, securityContext, Roles.ROLE_TOPOLOGY_USER,
+                Topology.NAMESPACE, topologyId, READ);
+
+        Topology topology = catalogService.getTopology(topologyId);
+        if (topology != null) {
+            Long currentVersionId = catalogService.getCurrentVersionId(topologyId);
+
+            List<com.hortonworks.streamline.common.QueryParam> queryParams =
+                    WSUtils.buildTopologyIdAndVersionIdAwareQueryParams(topologyId, currentVersionId, uriInfo);
+
+            Collection<? extends TopologyComponent> components =
+                components = catalogService.listTopologyTasks(queryParams);
+
+            String applicationId = getRuntimeTopologyId(topology, null);  //FIXME where do we get user?
+
+            // FIXME T2184621 remove hack, need interface updates
+            PiperTopologyMetricsImpl topologyMetrics = (PiperTopologyMetricsImpl)
+                    metricsService.getTopologyMetricsInstanceHack(topology);
+
+            Map execution = topologyMetrics.getExecution(CatalogToLayoutConverter.getTopologyLayout(topology),
+                    components, applicationId, executionDate);
+            return WSUtils.respondEntity(execution, OK);
+        }
+
+        return null;
+    }
+
+
+
     private Response listComponents(Long topologyId, Long from, Long to, UriInfo uriInfo,
                                     SecurityContext securityContext, Class<? extends TopologyComponent> clazz) {
         SecurityUtil.checkRoleOrPermissions(authorizer, securityContext, Roles.ROLE_TOPOLOGY_USER,
@@ -358,4 +441,10 @@ public class TopologyViewModeResource {
             return timeSeriesMetrics;
         }
     }
+
+    private String getRuntimeTopologyId(Topology topology, String asUser) throws IOException {
+        TopologyRuntimeIdMap topologyRuntimeIdMap = catalogService.getTopologyRuntimeIdMap(topology.getId(), topology.getNamespaceId());
+        return topologyRuntimeIdMap != null ? topologyRuntimeIdMap.getApplicationId() : null;
+    }
+
 }

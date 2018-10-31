@@ -106,6 +106,11 @@ public class TopologyMetricsService implements ContainingNamespaceAwareContainer
         return topNAndOther;
     }
 
+    // FIXME T2184621 remove this work around once TopoService and TopoMetrics interfaces are updated.
+    public TopologyMetrics getTopologyMetricsInstanceHack(Topology topology) {
+        return getTopologyMetricsInstance(topology);
+    }
+
     @Override
     public void invalidateInstance(Long namespaceId) {
         try {

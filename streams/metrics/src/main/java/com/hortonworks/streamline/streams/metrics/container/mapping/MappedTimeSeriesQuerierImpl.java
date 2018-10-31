@@ -16,7 +16,8 @@
 package com.hortonworks.streamline.streams.metrics.container.mapping;
 
 public enum MappedTimeSeriesQuerierImpl {
-    STORM_AMBARI_METRICS("com.hortonworks.streamline.streams.metrics.storm.ambari.AmbariMetricsServiceWithStormQuerier");
+    STORM_AMBARI_METRICS("com.hortonworks.streamline.streams.metrics.storm.ambari.AmbariMetricsServiceWithStormQuerier"),
+    PIPER_M3_METRICS("com.hortonworks.streamline.streams.metrics.piper.m3.M3MetricsWithPiperQuerier");
 
     private final String className;
 

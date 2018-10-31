@@ -16,7 +16,8 @@
 package com.hortonworks.streamline.streams.metrics.container.mapping;
 
 public enum MappedTopologyMetricsImpl {
-    STORM("com.hortonworks.streamline.streams.metrics.storm.topology.StormTopologyMetricsImpl");
+    STORM("com.hortonworks.streamline.streams.metrics.storm.topology.StormTopologyMetricsImpl"),
+    PIPER("com.hortonworks.streamline.streams.metrics.piper.topology.PiperTopologyMetricsImpl");
 
     private final String className;
 

@@ -15,10 +15,8 @@
  **/
 package com.hortonworks.streamline.streams.metrics.container;
 
-import com.hortonworks.streamline.streams.cluster.catalog.Component;
-import com.hortonworks.streamline.streams.cluster.catalog.ComponentProcess;
-import com.hortonworks.streamline.streams.cluster.catalog.Namespace;
-import com.hortonworks.streamline.streams.cluster.catalog.Service;
+import com.hortonworks.streamline.streams.cluster.catalog.*;
+import com.hortonworks.streamline.streams.cluster.exception.ServiceConfigurationNotFoundException;
 import com.hortonworks.streamline.streams.metrics.container.mapping.MappedTimeSeriesQuerierImpl;
 import com.hortonworks.streamline.streams.metrics.container.mapping.MappedTopologyMetricsImpl;
 import com.hortonworks.streamline.streams.cluster.container.NamespaceAwareContainer;
@@ -59,7 +57,14 @@ public class TopologyMetricsContainer extends NamespaceAwareContainer<TopologyMe
         }
 
         // FIXME: "how to initialize" is up to implementation detail - now we just only consider about Storm implementation
-        Map<String, Object> conf = buildStormTopologyMetricsConfigMap(namespace, engine, subject);
+        // FIXME: Workaround pending T2184545
+        Map<String, Object> conf = null;
+        if ("PIPER".equals(engine)) {
+            conf = buildPiperTopologyMetricsConfigMap(namespace, engine, subject);
+        } else {
+            conf = buildStormTopologyMetricsConfigMap(namespace, engine, subject);
+        }
+
 
         String className = metricsImpl.getClassName();
         TopologyMetrics topologyMetrics = initTopologyMetrics(conf, className);
@@ -77,7 +82,12 @@ public class TopologyMetricsContainer extends NamespaceAwareContainer<TopologyMe
             }
 
             // FIXME: "how to initialize" is up to implementation detail - now we just only consider about Storm & AMS implementation
-            Map<String, String> confTimeSeriesQuerier = buildAMSTimeSeriesQuerierConfigMap(namespace, timeSeriesDB);
+            Map<String, String> confTimeSeriesQuerier = null;
+            if ("PIPER".equals(engine)) {
+                confTimeSeriesQuerier =  buildPiperM3TimeSeriesQuerierConfigMap(namespace, timeSeriesDB);
+            } else {
+                confTimeSeriesQuerier = buildAMSTimeSeriesQuerierConfigMap(namespace, timeSeriesDB);
+            }
 
             className = timeSeriesQuerierImpl.getClassName();
             TimeSeriesQuerier timeSeriesQuerier = initTimeSeriesQuerier(confTimeSeriesQuerier, className);
@@ -107,6 +117,48 @@ public class TopologyMetricsContainer extends NamespaceAwareContainer<TopologyMe
         } catch (IllegalAccessException | InstantiationException | ClassNotFoundException | ConfigException e) {
             throw new RuntimeException("Can't initialize Time-series Querier instance - Class Name: " + className, e);
         }
+    }
+
+    // FIXME: Workaround pending T2184545
+    private Map<String, Object> buildPiperTopologyMetricsConfigMap(Namespace namespace, String engine, Subject subject) {
+        try {
+            Map<String, Object> conf = new HashMap<>();
+
+            // FIXME - Piper (and Strom) specific code should be somewhere else, engine?
+            String PIPER_SERVICE_CONFIG_NAME = "properties";
+            String PIPER_SERVICE_CONFIG_KEY_HOST = "piper.service.host";
+            String PIPER_SERVICE_CONFIG_KEY_PORT = "piper.service.port";
+
+            Service piperService = getFirstOccurenceServiceForNamespace(namespace, engine);
+
+            final ServiceConfiguration serviceConfig = environmentService.getServiceConfigurationByName(
+                    piperService.getId(), PIPER_SERVICE_CONFIG_NAME);
+
+            Map<String, String> configMap = serviceConfig.getConfigurationMap();
+
+            if (serviceConfig == null || serviceConfig.getConfigurationMap() == null) {
+                throw new ServiceConfigurationNotFoundException(
+                        piperService.getClusterId(), engine, PIPER_SERVICE_CONFIG_NAME);
+            }
+
+            String host = configMap.get(PIPER_SERVICE_CONFIG_KEY_HOST);
+            String port = configMap.get(PIPER_SERVICE_CONFIG_KEY_PORT);
+
+            String apiRootUrl = String.format("http://%s:%s", host, port);
+            conf.put("PIPER_API_ROOT_URL_KEY", apiRootUrl);
+            conf.put(TopologyLayoutConstants.SUBJECT_OBJECT, subject);
+            return conf;
+        } catch (Exception e) {
+            throw new RuntimeException("Can't configure Piper Topology Metrics", e);
+        }
+    }
+
+
+    private Map<String, String> buildPiperM3TimeSeriesQuerierConfigMap(Namespace namespace, String timeSeriesDB) {
+        //FIXME Add M3 service and use namespace to get ServiceConfiguration
+        Map<String, String> conf = new HashMap<>();
+
+        return conf;
     }
 
     private Map<String, Object> buildStormTopologyMetricsConfigMap(Namespace namespace, String engine, Subject subject) {

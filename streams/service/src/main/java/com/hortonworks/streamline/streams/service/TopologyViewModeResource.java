@@ -14,11 +14,7 @@ import com.hortonworks.streamline.streams.security.StreamlineAuthorizer;
 
 import org.jooq.lambda.Unchecked;
 
-import javax.ws.rs.GET;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
-import javax.ws.rs.QueryParam;
+import javax.ws.rs.*;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
@@ -208,8 +204,8 @@ public class TopologyViewModeResource {
     public Response getExecutions(@PathParam("topologyId") Long topologyId,
                                   @QueryParam("from") Long from,
                                   @QueryParam("to") Long to,
-                                  @QueryParam("page") Integer page,
-                                  @QueryParam("pageSize") Integer pageSize,
+                                  @DefaultValue("0") @QueryParam("page") Integer page,
+                                  @DefaultValue("20") @QueryParam("pageSize") Integer pageSize,
                                   @Context UriInfo uriInfo,
                                   @Context SecurityContext securityContext) throws IOException {
 
@@ -217,14 +213,6 @@ public class TopologyViewModeResource {
                 Topology.NAMESPACE, topologyId, READ);
 
         assertTimeRange(from, to);
-
-        if (page == null) {
-            page = new Integer(0);
-        }
-
-        if (pageSize == null) {
-            pageSize = new Integer(20);
-        }
 
         Topology topology = catalogService.getTopology(topologyId);
         if (topology != null) {
@@ -262,8 +250,7 @@ public class TopologyViewModeResource {
             List<com.hortonworks.streamline.common.QueryParam> queryParams =
                     WSUtils.buildTopologyIdAndVersionIdAwareQueryParams(topologyId, currentVersionId, uriInfo);
 
-            Collection<? extends TopologyComponent> components =
-                components = catalogService.listTopologyTasks(queryParams);
+            Collection<? extends TopologyComponent> components = catalogService.listTopologyTasks(queryParams);
 
             String applicationId = getRuntimeTopologyId(topology, null);  //FIXME where do we get user?
 

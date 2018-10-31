@@ -50,6 +50,25 @@ public class PiperRestAPIClient {
                 this.apiRootUrl, DEFAULT_PAGE_SIZE, encodeParam(type)));
     }
 
+    public Map getPipelineRuns(String uuid, Long from, Long to, Integer page, Integer pageSize) {
+        // FIXME don't send params if not set
+        // FIXME call search
+        // FIXME where should date conversion happen
+        return doGetRequest(String.format("%s/api/v1/pipelines/%s/runs?page=%d&page_size=%d",
+                this.apiRootUrl, uuid, page, pageSize));
+    }
+
+    public Map getPipelineState(String uuid, String executionDate) {
+        // FIXME only pass execution date if present
+        return doGetRequest(String.format("%s/api/v1/pipeline/state?pipeline_id=%s",
+                this.apiRootUrl, uuid));
+    }
+
+    public Map getTaskGraph(String uuid, String executionDate) {
+        return doGetRequest(String.format("%s/api/v1/pipeline/task_graph?pipeline_id=%s&execution_date=%s",
+                this.apiRootUrl, uuid, executionDate));
+    }
+
     private String encodeParam(String s) {
         try {
             return URLEncoder.encode(s, "UTF-8");

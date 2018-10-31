@@ -132,7 +132,7 @@
             <destName>streamline-dev.yaml</destName>
         </file>
         <file>
-            <source>${project.basedir}./conf/streamline.yaml</source>
+            <source>${project.basedir}./conf/streamline-production.yaml</source>
             <outputDirectory>/conf</outputDirectory>
             <destName>streamline-production.yaml</destName>
         </file>

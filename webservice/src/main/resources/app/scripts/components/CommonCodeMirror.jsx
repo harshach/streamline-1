@@ -280,11 +280,37 @@ export default class CommonCodeMirror extends Component{
     }
   }
 
+  onHandleRelease = () => {
+    document.body.removeEventListener("mousemove", this.onHandleDrag);
+    window.removeEventListener("mouseup", this.onHandleRelease);
+  }
+  onHandleDrag = (e) => {
+    const MIN_HEIGHT = this.props.height || 200;
+    this.codeWrapper.setSize(null, Math.max(MIN_HEIGHT, (this.start_h + e.clientY - this.start_y)) + "px");
+  }
+  onHandleMouseDown = (e) => {
+    function height_of($el) {
+      return parseInt(window.getComputedStyle($el).height.replace(/px$/, ""));
+    }
+
+    this.start_x = e.clientX;
+    this.start_y = e.clientY;
+    this.start_h = height_of(this.container);
+
+    document.body.addEventListener("mousemove", this.onHandleDrag);
+    window.addEventListener("mouseup", this.onHandleRelease);
+  }
+
   render(){
     const {textValue} = this.state;
     const {placeHolder} = this.props;
     return(
-      <textarea ref="codeDiv" name="codeDiv" value={textValue} placeholder={placeHolder || "Code goes here..."}></textarea>
+      <div className="codemirror-container" >
+        <div ref={(ref) => this.container = ref}>
+          <textarea ref="codeDiv" name="codeDiv" value={textValue} placeholder={placeHolder || "Code goes here..."}></textarea>
+        </div>
+        <div className="handle" ref={(ref) => this.handle = ref} onMouseDown={this.onHandleMouseDown}></div>
+      </div>
     );
   }
 }

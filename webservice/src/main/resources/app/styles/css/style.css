@@ -1755,6 +1755,30 @@ label {
   z-index: 9999;
 }
 
+.codemirror-container .handle {
+  background: transparent;
+  position: absolute;
+  width: 100%;
+  bottom: 14px;
+  user-select: none;
+  cursor: row-resize;
+}
+
+.codemirror-container .handle:before {
+  content: '\2261'; /* https://en.wikipedia.org/wiki/Triple_bar */
+  color: #999;
+  position: absolute;
+  left: 50%;
+}
+
+.codemirror-container .handle:hover {
+  background: transparent;
+}
+
+.codemirror-container .handle:hover:before {
+  color: #000;
+}
+
 .ReactCodeMirror {
   width: 100%;
 }

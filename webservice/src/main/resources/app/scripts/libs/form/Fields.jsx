@@ -423,7 +423,7 @@ export class sql extends BaseField {
       placeHolder=" "
       editMode={true}
       width={'100%'}
-      height={'200px'}
+      height={200}
       editMode={false}
       modeOptions={{readOnly: this.context.Form.props.readOnly}}
     /></div>;

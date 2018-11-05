@@ -1,0 +1,129 @@
+{
+  "type": "TASK",
+  "name": "External Task Sensor",
+  "subType": "EXTERNAL_TASK_SENSOR",
+  "engine": "PIPER",
+  "template": ["Blank"],
+  "builtin": true,
+  "transformationClass": "com.hortonworks.streamline.streams.layout.piper.ExternalTaskSensorTaskComponent",
+  "input": true,
+  "output": true,
+  "topologyComponentUISpecification": {
+    "fields": [
+      {
+        "uiName": "Piper Task Class",
+        "fieldName": "class_name",
+        "isUserInput": false,
+        "tooltip": "Piper Task Class name",
+        "isOptional": false,
+        "defaultValue": "piper.sensors.external_task_sensor.ExternalTaskSensor",
+        "type": "string"
+      },
+      {
+        "uiName": "External Pipeline ID",
+        "fieldName": "task_params.external_pipeline_id",
+        "tooltip": "The pipeline_id that contains the task you want to wait for.",
+        "isOptional": false,
+        "type": "string"
+      },
+      {
+        "uiName": "External Task ID",
+        "fieldName": "task_params.external_task_id",
+        "tooltip": "The task_id that contains the task you want to wait for.",
+        "isOptional": false,
+        "type": "string"
+      },
+      {
+        "uiName": "Allowed States",
+        "fieldName": "allowed_states",
+        "tooltip": "Task state to wait on.",
+        "isOptional": false,
+        "type": "enumstring",
+        "defaultValue": "Success",
+        "options": ["Success", "Failed"]
+      },
+      {
+        "uiName": "Execution Delta Direction",
+        "fieldName": "execution_delta.direction",
+        "tooltip": "Whether to check before or after the execution date for sensor",
+        "isOptional": false,
+        "type": "enumstring",
+        "defaultValue": "Before current execution date",
+        "options": ["Before current execution date", "After current execution date"]
+      },
+      {
+        "uiName": "Delta Minutes",
+        "fieldName": "execution_delta.minutes",
+        "tooltip": "Execution delta Minutes",
+        "isOptional": false,
+        "defaultValue": 0,
+        "type": "number"
+      },
+      {
+        "uiName": "Delta Hours",
+        "fieldName": "execution_delta.hours",
+        "tooltip": "Execution delta Hours",
+        "isOptional": false,
+        "defaultValue": 12,
+        "type": "number"
+      },
+      {
+        "uiName": "Delta Days",
+        "fieldName": "execution_delta.days",
+        "tooltip": "Execution delta Days",
+        "isOptional": false,
+        "defaultValue": 0,
+        "type": "number"
+      },
+      {
+        "uiName": "Poke Interval",
+        "fieldName": "task_params.poke_interval",
+        "tooltip": "Poke interval in seconds. How often to check for sensor. ",
+        "defaultValue": 180,
+        "isOptional": false,
+        "type": "number"
+      },
+      {
+        "uiName": "Pool",
+        "fieldName": "pool",
+        "isUserInput": true,
+        "tooltip": "Piper pool to run task in",
+        "isOptional": false,
+        "type": "string"
+      },
+      {
+        "uiName": "Retries",
+        "fieldName": "retries",
+        "isUserInput": true,
+        "tooltip": "Number of Retries",
+        "isOptional": true,
+        "type": "number"
+      },
+      {
+        "uiName": "Retry Delay",
+        "fieldName": "retry_delay",
+        "isUserInput": true,
+        "tooltip": "Retry delay in seconds between retries",
+        "isOptional": true,
+        "type": "number"
+      },
+      {
+        "uiName": "Execution Timeout",
+        "fieldName": "execution_timeout",
+        "isUserInput": true,
+        "tooltip": "Execution timeout in seconds. After this time task will be failed. Must be <= 24 hours.",
+        "isOptional": true,
+        "type": "number"
+      },
+      {
+        "uiName": "Trigger Rule",
+        "fieldName": "trigger_rule",
+        "isUserInput": true,
+        "tooltip": "Trigger Rule for running task looking at task dependencies",
+        "isOptional": true,
+        "type": "enumstring",
+        "options": ["all_success", "all_failed", "all_done", "one_success", "one_failed", "dummy"]
+      }
+    ]
+  }
+}

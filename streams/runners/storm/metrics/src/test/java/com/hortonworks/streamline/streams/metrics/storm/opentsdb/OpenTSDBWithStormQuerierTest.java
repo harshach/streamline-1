@@ -16,12 +16,17 @@
 package com.hortonworks.streamline.streams.metrics.storm.opentsdb;
 
 import com.github.tomakehurst.wiremock.junit.WireMockRule;
+import com.hortonworks.streamline.streams.catalog.Engine;
+import com.hortonworks.streamline.streams.cluster.catalog.Namespace;
+import com.hortonworks.streamline.streams.cluster.service.EnvironmentService;
 import com.hortonworks.streamline.streams.metrics.TimeSeriesQuerier;
+import com.hortonworks.streamline.streams.metrics.topology.service.TopologyCatalogHelperService;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 
+import javax.security.auth.Subject;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -44,16 +49,24 @@ public class OpenTSDBWithStormQuerierTest {
     @Rule
     public WireMockRule wireMockRule = new WireMockRule(18089);
     private OpenTSDBWithStormQuerier querier;
+    private TopologyCatalogHelperService topologyCatalogHelperService;
+    private Engine engine;
+    private Namespace namespace;
+    private Subject subject;
+
 
 
     @Before
     public void setUp() throws Exception {
         querier = new OpenTSDBWithStormQuerier();
-
-        Map<String, String> conf = new HashMap<>();
+        topologyCatalogHelperService = new TopologyCatalogHelperService(null, null);
+        engine = new Engine();
+        engine.setName("STORM");
+        namespace = new Namespace();
+        Map<String, Object> conf = new HashMap<>();
         conf.put(QUERY_API_URL, "http://localhost:18089" + TEST_QUERY_API_PATH);
 
-        querier.init(conf);
+        querier.init(engine, namespace, topologyCatalogHelperService, subject, conf);
     }
 
     @After

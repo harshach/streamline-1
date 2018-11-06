@@ -84,7 +84,8 @@ public class StreamlineConfiguration extends Configuration {
         this.storageProviderConfiguration = storageProviderConfiguration;
     }
 
-   public String getCatalogRootUrl() {
+
+    public String getCatalogRootUrl() {
         return catalogRootUrl;
     }
 

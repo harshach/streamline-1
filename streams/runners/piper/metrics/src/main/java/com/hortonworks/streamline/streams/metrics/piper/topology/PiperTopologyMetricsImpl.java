@@ -1,18 +1,22 @@
 package com.hortonworks.streamline.streams.metrics.piper.topology;
 
 import com.hortonworks.streamline.common.exception.ConfigException;
+import com.hortonworks.streamline.streams.catalog.Engine;
 import com.hortonworks.streamline.streams.catalog.TopologyComponent;
+import com.hortonworks.streamline.streams.cluster.catalog.Namespace;
 import com.hortonworks.streamline.streams.exception.TopologyNotAliveException;
 import com.hortonworks.streamline.streams.layout.component.Component;
 import com.hortonworks.streamline.streams.layout.component.TopologyLayout;
 import com.hortonworks.streamline.streams.metrics.TimeSeriesQuerier;
 import com.hortonworks.streamline.streams.metrics.topology.TopologyMetrics;
+import com.hortonworks.streamline.streams.metrics.topology.service.TopologyCatalogHelperService;
 import com.hortonworks.streamline.streams.piper.common.PiperRestAPIClient;
 import org.apache.avro.generic.GenericData;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.security.auth.Subject;
 import java.util.*;
 
 
@@ -51,7 +55,8 @@ public class PiperTopologyMetricsImpl implements TopologyMetrics {
 	}
 
 	@Override
-	public void init(Map<String, Object> conf) throws ConfigException {
+	public void init(Engine engine, Namespace namespace, TopologyCatalogHelperService topologyCatalogHelperService,
+					 Subject subject, Map<String, Object> conf) throws ConfigException {
 		String piperAPIRootUrl = (String)conf.get("PIPER_API_ROOT_URL_KEY");
 		this.client = new PiperRestAPIClient(piperAPIRootUrl, null);
 	}

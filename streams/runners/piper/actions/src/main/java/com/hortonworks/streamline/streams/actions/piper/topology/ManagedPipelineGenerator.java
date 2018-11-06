@@ -200,6 +200,7 @@ public class ManagedPipelineGenerator extends TopologyDagVisitor {
             }
         } else if (datacenterProp.containsKey(PIPER_TOPOLOGY_CONFIG_NON_SECURE_OPTION)) {
             pipeline.setSecure(false);
+            pipeline.setAutoEnable(true);
         }
     }
 

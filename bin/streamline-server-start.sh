@@ -13,9 +13,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-if [ $# -ne 2 ];
+if [ $# -ne 1 ];
 then
-        echo "USAGE: $0 [-daemon] STREAMLINE_CONFIG_YAML STREAMLINE_PORT"
+        echo "USAGE: $0 [-daemon] STREAMLINE_CONFIG_YAML"
         exit 1
 fi
 
@@ -138,8 +138,9 @@ if [ -z "$STREAMLINE_JVM_PERFORMANCE_OPTS" ]; then
   STREAMLINE_JVM_PERFORMANCE_OPTS="-server -XX:+UseParNewGC -XX:+UseConcMarkSweepGC -XX:+CMSClassUnloadingEnabled -XX:+CMSScavengeBeforeRemark -XX:+DisableExplicitGC -Djava.awt.headless=true"
 fi
 
-STREAMLINE_UBER_PORT=$2
-STREAMLINE_CUSTOM_PORT_COMMAND="-Ddw.server.applicationConnectors[0].port=$STREAMLINE_UBER_PORT"
+
+[ -z $UBER_PORT_HTTP ] && UBER_PORT_HTTP=8080
+STREAMLINE_CUSTOM_PORT_COMMAND="-Ddw.server.applicationConnectors[0].port=$UBER_PORT_HTTP"
 
 # Launch mode
 if [ "x$DAEMON_MODE" = "xtrue" ]; then

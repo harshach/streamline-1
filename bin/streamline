@@ -43,15 +43,14 @@ STREAMLINE_LAUNCH_COMMAND=$1
 # User Name for setup parameter
 [ -z $STREAMLINE_USER ] && STREAMLINE_USER=streamline
 
+[ -z $UBER_RUNTIME_ENVIRONMENT ] && UBER_RUNTIME_ENVIRONMENT=dev
 
 #App name
 APP_NAME=streamline
 
-STREAMLINE_UBER_PORT=$3
-
-STREAMLINE_START_CMD="$STREAMLINE_HOME/bin/streamline-server-start.sh $STREAMLINE_HOME/conf/streamline-$2.yaml $STREAMLINE_UBER_PORT"
-STREAMLINE_SETUP_CMD="$STREAMLINE_HOME/bootstrap/bootstrap-storage.sh $2"
-STREAMLINE_BOOTSTRAP_CMD="$STREAMLINE_HOME/bootstrap/bootstrap.sh $2"
+STREAMLINE_START_CMD="$STREAMLINE_HOME/bin/streamline-server-start.sh $STREAMLINE_HOME/conf/streamline-${UBER_RUNTIME_ENVIRONMENT}.yaml"
+STREAMLINE_SETUP_CMD="$STREAMLINE_HOME/bootstrap/bootstrap-storage.sh"
+STREAMLINE_BOOTSTRAP_CMD="$STREAMLINE_HOME/bootstrap/bootstrap.sh"
 
 #Name of PID file
 [ -z $PID_DIR ] && PID_DIR="/var/run/$APP_NAME"
@@ -67,6 +66,9 @@ function main {
    case "$1" in
       start)
          streamlineStart
+         ;;
+      start-fg)
+         streamlineStartFg
          ;;
       stop)
          streamlineStop
@@ -91,7 +93,7 @@ function main {
           ;;
 
       *)
-         printf "Usage: $0 {start|stop|status|clean|setup|bootstrap|version|git-hash} {uber-environment} {uber-port} \n "
+         printf "Usage: $0 {start|start-fg|stop|status|clean|setup|bootstrap|version|git-hash}\n "
          ;;
    esac
 }
@@ -119,6 +121,21 @@ function streamlineStart {
 
    printf "succeeded with PID=$PID.\n"
    return 0
+}
+
+function streamlineStartFg {
+
+   getPID
+   streamlineIsRunning $PID
+   if [ $? -eq 1 ]; then
+     printf "Streamline is already running with PID=$PID.\n"
+     exit 0
+   fi
+
+   printf "Starting Streamline in Foreground"
+
+   rm -f $PID_FILE
+   $STREAMLINE_START_CMD
 }
 
 function streamlineStop {

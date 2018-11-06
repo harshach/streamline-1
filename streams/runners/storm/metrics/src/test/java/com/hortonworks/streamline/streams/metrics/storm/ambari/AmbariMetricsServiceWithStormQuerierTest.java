@@ -18,7 +18,11 @@ package com.hortonworks.streamline.streams.metrics.storm.ambari;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.tomakehurst.wiremock.junit.WireMockRule;
+import com.hortonworks.streamline.streams.catalog.Engine;
+import com.hortonworks.streamline.streams.cluster.catalog.Namespace;
+import com.hortonworks.streamline.streams.cluster.service.EnvironmentService;
 import com.hortonworks.streamline.streams.metrics.TimeSeriesQuerier;
+import com.hortonworks.streamline.streams.metrics.topology.service.TopologyCatalogHelperService;
 import org.apache.commons.lang3.tuple.Pair;
 import org.junit.After;
 import org.junit.Assert;
@@ -26,6 +30,7 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 
+import javax.security.auth.Subject;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -49,15 +54,23 @@ public class AmbariMetricsServiceWithStormQuerierTest {
     @Rule
     public WireMockRule wireMockRule = new WireMockRule(18089);
     private AmbariMetricsServiceWithStormQuerier querier;
+    private TopologyCatalogHelperService topologyCatalogHelperService;
+    private Engine engine;
+    private Namespace namespace;
+    private Subject subject;
 
     @Before
     public void setUp() throws Exception {
         querier = new AmbariMetricsServiceWithStormQuerier();
-
-        Map<String, String> conf = new HashMap<>();
+        topologyCatalogHelperService  = new TopologyCatalogHelperService(null, null);
+        engine = new Engine();
+        engine.setName("STORM");
+        namespace = new Namespace();
+        subject = new Subject();
+        Map<String, Object> conf = new HashMap<>();
         conf.put(COLLECTOR_API_URL, "http://localhost:18089" + TEST_COLLECTOR_API_PATH);
 
-        querier.init(conf);
+        querier.init(engine, namespace, topologyCatalogHelperService, subject, conf);
     }
 
     @After

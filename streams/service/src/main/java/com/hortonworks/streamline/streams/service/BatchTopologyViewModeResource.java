@@ -6,15 +6,20 @@ import com.hortonworks.streamline.common.exception.service.exception.request.Ent
 import com.hortonworks.streamline.common.util.WSUtils;
 import com.hortonworks.streamline.streams.catalog.*;
 import com.hortonworks.streamline.streams.catalog.service.StreamCatalogService;
+import com.hortonworks.streamline.streams.metrics.piper.topology.PiperTopologyMetricsImpl;
 import com.hortonworks.streamline.streams.metrics.topology.TopologyTimeSeriesMetrics;
 import com.hortonworks.streamline.streams.metrics.topology.service.TopologyMetricsService;
 import com.hortonworks.streamline.streams.security.Roles;
 import com.hortonworks.streamline.streams.security.SecurityUtil;
 import com.hortonworks.streamline.streams.security.StreamlineAuthorizer;
-
 import org.jooq.lambda.Unchecked;
 
-import javax.ws.rs.*;
+import javax.ws.rs.GET;
+import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
+import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
+import javax.ws.rs.DefaultValue;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
@@ -29,20 +34,19 @@ import static com.hortonworks.streamline.streams.security.Permission.READ;
 import static java.util.stream.Collectors.toList;
 import static javax.ws.rs.core.Response.Status.OK;
 
-import com.hortonworks.streamline.streams.metrics.piper.topology.PiperTopologyMetricsImpl;  // FIXME remove
-import com.hortonworks.streamline.streams.catalog.CatalogToLayoutConverter;  // FIXME remove
 
-@Path("/v1/catalog")
+
+@Path("/v1/catalog/batch")
 @Produces(MediaType.APPLICATION_JSON)
-public class TopologyViewModeResource {
+public class BatchTopologyViewModeResource {
 
     public static final int THRESHOLD_VALID_MINIMUM_METRICS_POINTS = 3;
     private final StreamlineAuthorizer authorizer;
     private final StreamCatalogService catalogService;
     private final TopologyMetricsService metricsService;
 
-    public TopologyViewModeResource(StreamlineAuthorizer authorizer, StreamCatalogService catalogService,
-                                    TopologyMetricsService metricsService) {
+    public BatchTopologyViewModeResource(StreamlineAuthorizer authorizer, StreamCatalogService catalogService,
+                                         TopologyMetricsService metricsService) {
         this.authorizer = authorizer;
         this.catalogService = catalogService;
         this.metricsService = metricsService;
@@ -77,7 +81,7 @@ public class TopologyViewModeResource {
 
             ComponentMetricSummary viewModeComponentMetric = ComponentMetricSummary.convertStreamingComponentMetric(
                     topologyMetrics, prevTopologyMetrics);
-            TopologyWithMetric metric = new TopologyWithMetric(topology, viewModeComponentMetric,
+            com.hortonworks.streamline.streams.service.BatchTopologyViewModeResource.TopologyWithMetric metric = new com.hortonworks.streamline.streams.service.BatchTopologyViewModeResource.TopologyWithMetric(topology, viewModeComponentMetric,
                     topologyMetrics);
             return WSUtils.respondEntity(metric, OK);
         }
@@ -129,74 +133,6 @@ public class TopologyViewModeResource {
         return true;
     }
 
-    @GET
-    @Path("/topologies/{topologyId}/sources/metrics")
-    @Timed
-    public Response listSources(@PathParam("topologyId") Long topologyId,
-                                @QueryParam("from") Long from,
-                                @QueryParam("to") Long to,
-                                @Context UriInfo uriInfo,
-                                @Context SecurityContext securityContext) throws IOException {
-        return listComponents(topologyId, from, to, uriInfo, securityContext, TopologySource.class);
-    }
-
-    @GET
-    @Path("/topologies/{topologyId}/sources/{sourceId}/metrics")
-    @Timed
-    public Response getSource(@PathParam("topologyId") Long topologyId,
-                              @PathParam("sourceId") Long sourceId,
-                              @QueryParam("from") Long from,
-                              @QueryParam("to") Long to,
-                              @Context UriInfo uriInfo,
-                              @Context SecurityContext securityContext) throws IOException {
-        return getComponent(topologyId, sourceId, from, to, uriInfo, securityContext, TopologySource.class);
-    }
-
-    @GET
-    @Path("/topologies/{topologyId}/processors/metrics")
-    @Timed
-    public Response listProcessors(@PathParam("topologyId") Long topologyId,
-                                   @QueryParam("from") Long from,
-                                   @QueryParam("to") Long to,
-                                   @Context UriInfo uriInfo,
-                                   @Context SecurityContext securityContext) throws IOException {
-        return listComponents(topologyId, from, to, uriInfo, securityContext, TopologyProcessor.class);
-    }
-
-    @GET
-    @Path("/topologies/{topologyId}/processors/{processorId}/metrics")
-    @Timed
-    public Response getProcessors(@PathParam("topologyId") Long topologyId,
-                                  @PathParam("processorId") Long processorId,
-                                  @QueryParam("from") Long from,
-                                  @QueryParam("to") Long to,
-                                  @Context UriInfo uriInfo,
-                                  @Context SecurityContext securityContext) throws IOException {
-        return getComponent(topologyId, processorId, from, to, uriInfo, securityContext, TopologyProcessor.class);
-    }
-
-    @GET
-    @Path("/topologies/{topologyId}/sinks/metrics")
-    @Timed
-    public Response listSinks(@PathParam("topologyId") Long topologyId,
-                              @QueryParam("from") Long from,
-                              @QueryParam("to") Long to,
-                              @Context UriInfo uriInfo,
-                              @Context SecurityContext securityContext) throws IOException {
-        return listComponents(topologyId, from, to, uriInfo, securityContext, TopologySink.class);
-    }
-
-    @GET
-    @Path("/topologies/{topologyId}/sinks/{sinkId}/metrics")
-    @Timed
-    public Response getSink(@PathParam("topologyId") Long topologyId,
-                            @PathParam("sinkId") Long sinkId,
-                            @QueryParam("from") Long from,
-                            @QueryParam("to") Long to,
-                            @Context UriInfo uriInfo,
-                            @Context SecurityContext securityContext) throws IOException {
-        return getComponent(topologyId, sinkId, from, to, uriInfo, securityContext, TopologySink.class);
-    }
 
     @GET
     @Path("/topologies/{topologyId}/executions")
@@ -268,107 +204,6 @@ public class TopologyViewModeResource {
 
 
 
-    private Response listComponents(Long topologyId, Long from, Long to, UriInfo uriInfo,
-                                    SecurityContext securityContext, Class<? extends TopologyComponent> clazz) {
-        SecurityUtil.checkRoleOrPermissions(authorizer, securityContext, Roles.ROLE_TOPOLOGY_USER,
-                Topology.NAMESPACE, topologyId, READ);
-
-        assertTimeRange(from, to);
-
-        Long currentVersionId = catalogService.getCurrentVersionId(topologyId);
-
-        List<com.hortonworks.streamline.common.QueryParam> queryParams = WSUtils.buildTopologyIdAndVersionIdAwareQueryParams(topologyId, currentVersionId, uriInfo);
-
-        Topology topology = catalogService.getTopology(topologyId);
-        if (topology != null) {
-            Collection<? extends TopologyComponent> components;
-            if (clazz.equals(TopologySource.class)) {
-                components = catalogService.listTopologySources(queryParams);
-            } else if (clazz.equals(TopologyProcessor.class)) {
-                components = catalogService.listTopologyProcessors(queryParams);
-            } else if (clazz.equals(TopologySink.class)) {
-                components = catalogService.listTopologySinks(queryParams);
-            } else if (clazz.equals(TopologyTask.class)) {
-                components = catalogService.listTopologyTasks(queryParams);
-            } else {
-                throw new IllegalArgumentException("Unexpected class in parameter: " + clazz);
-            }
-            if (components != null) {
-                String asUser = WSUtils.getUserFromSecurityContext(securityContext);
-
-                List<TopologyComponentWithMetric> componentsWithMetrics = components.stream()
-                        .map(Unchecked.function(s -> {
-                            ComponentMetricSummary overviewMetric;
-                            TopologyTimeSeriesMetrics.TimeSeriesComponentMetric currentMetric = metricsService.getComponentStats(topology, s, from, to, asUser);
-                            TopologyTimeSeriesMetrics.TimeSeriesComponentMetric previousMetric = metricsService.getComponentStats(topology, s, from - (to - from), from - 1, asUser);
-                            if (clazz.equals(TopologySource.class)) {
-                                overviewMetric = ComponentMetricSummary.convertStreamingComponentMetric(
-                                        currentMetric, previousMetric);
-                            } else {
-                                overviewMetric = ComponentMetricSummary.convertStreamingComponentMetric(
-                                        currentMetric, previousMetric);
-                            }
-
-                            return new TopologyComponentWithMetric(s, overviewMetric, currentMetric);
-                        }))
-                        .collect(toList());
-
-                return WSUtils.respondEntities(componentsWithMetrics, OK);
-            }
-
-            throw EntityNotFoundException.byFilter(queryParams.toString());
-        }
-
-        throw EntityNotFoundException.byName("topology ID " + topologyId);
-    }
-
-    private Response getComponent(Long topologyId, Long componentId, Long from, Long to, UriInfo uriInfo,
-                                  SecurityContext securityContext, Class<? extends TopologyComponent> clazz)
-            throws IOException {
-        SecurityUtil.checkRoleOrPermissions(authorizer, securityContext, Roles.ROLE_TOPOLOGY_USER,
-                Topology.NAMESPACE, topologyId, READ);
-
-        assertTimeRange(from, to);
-
-        Topology topology = catalogService.getTopology(topologyId);
-        if (topology != null) {
-            TopologyComponent component;
-            if (clazz.equals(TopologySource.class)) {
-                component = catalogService.getTopologySource(topologyId, componentId);
-            } else if (clazz.equals(TopologyProcessor.class)) {
-                component = catalogService.getTopologyProcessor(topologyId, componentId);
-            } else if (clazz.equals(TopologySink.class)) {
-                component = catalogService.getTopologySink(topologyId, componentId);
-            } else {
-                throw new IllegalArgumentException("Unexpected class in parameter: " + clazz);
-            }
-
-            if (component != null) {
-                String asUser = WSUtils.getUserFromSecurityContext(securityContext);
-
-                ComponentMetricSummary overviewMetric;
-                TopologyTimeSeriesMetrics.TimeSeriesComponentMetric currentMetric = metricsService.getComponentStats(topology, component, from, to, asUser);
-                TopologyTimeSeriesMetrics.TimeSeriesComponentMetric previousMetric = metricsService.getComponentStats(topology, component, from - (to - from), from - 1, asUser);
-                if (clazz.equals(TopologySource.class)) {
-                    overviewMetric = ComponentMetricSummary.convertStreamingComponentMetric(currentMetric, previousMetric);
-                } else if (clazz.equals(TopologyProcessor.class) || clazz.equals(TopologySink.class)) {
-                    overviewMetric = ComponentMetricSummary.convertStreamingComponentMetric(currentMetric, previousMetric);
-                } else {
-                    overviewMetric = null;
-                }
-
-                TopologyComponentWithMetric componentWithMetrics =
-                        new TopologyComponentWithMetric(component, overviewMetric, currentMetric);
-
-                return WSUtils.respondEntity(componentWithMetrics, OK);
-            }
-
-            throw EntityNotFoundException.byName("component ID " + componentId);
-        }
-
-        throw EntityNotFoundException.byName("topology ID " + topologyId);
-    }
-
     private void assertTimeRange(Long from, Long to) {
         if (from == null) {
             throw com.hortonworks.streamline.common.exception.service.exception.request.BadRequestException.missingParameter("from");
@@ -433,5 +268,4 @@ public class TopologyViewModeResource {
         TopologyRuntimeIdMap topologyRuntimeIdMap = catalogService.getTopologyRuntimeIdMap(topology.getId(), topology.getNamespaceId());
         return topologyRuntimeIdMap != null ? topologyRuntimeIdMap.getApplicationId() : null;
     }
-
 }

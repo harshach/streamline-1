@@ -15,6 +15,14 @@
  **/
 package com.hortonworks.streamline.streams.metrics.storm.topology;
 
+import com.hortonworks.streamline.streams.catalog.Engine;
+import com.hortonworks.streamline.streams.cluster.catalog.ComponentProcess;
+import com.hortonworks.streamline.streams.cluster.catalog.Namespace;
+import com.hortonworks.streamline.streams.cluster.catalog.Service;
+import com.hortonworks.streamline.streams.cluster.discovery.ambari.ComponentPropertyPattern;
+import com.hortonworks.streamline.streams.cluster.service.EnvironmentService;
+
+import com.hortonworks.streamline.streams.metrics.topology.service.TopologyCatalogHelperService;
 import org.apache.commons.lang3.StringUtils;
 import com.google.common.base.Stopwatch;
 import com.google.common.cache.CacheBuilder;
@@ -25,7 +33,6 @@ import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 import com.hortonworks.streamline.common.util.ParallelStreamUtil;
 import com.hortonworks.streamline.common.exception.ConfigException;
-import com.hortonworks.streamline.streams.layout.TopologyLayoutConstants;
 import com.hortonworks.streamline.streams.layout.component.Component;
 import com.hortonworks.streamline.streams.layout.component.TopologyLayout;
 import com.hortonworks.streamline.streams.metrics.TimeSeriesQuerier;
@@ -41,10 +48,7 @@ import org.slf4j.LoggerFactory;
 import javax.security.auth.Subject;
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ForkJoinPool;
 import java.util.concurrent.TimeUnit;
@@ -56,6 +60,7 @@ import static com.hortonworks.streamline.streams.storm.common.StormRestAPIConsta
  */
 public class StormTopologyMetricsImpl implements TopologyMetrics {
     private static final Logger LOG = LoggerFactory.getLogger(StormTopologyMetricsImpl.class);
+    public static final String COMPONENT_NAME_STORM_UI_SERVER = ComponentPropertyPattern.STORM_UI_SERVER.name();
 
     private static final String FRAMEWORK = "STORM";
     private static final int MAX_SIZE_TOPOLOGY_CACHE = 10;
@@ -65,8 +70,11 @@ public class StormTopologyMetricsImpl implements TopologyMetrics {
 
     // shared across the metrics instances
     private static final ForkJoinPool FORK_JOIN_POOL = new ForkJoinPool(FORK_JOIN_POOL_PARALLELISM);
-
+    private TopologyCatalogHelperService topologyCatalogHelperService;
     private StormRestAPIClient client;
+    private Subject subject;
+    private Engine engine;
+    private Namespace namespace;
     private TopologyTimeSeriesMetrics timeSeriesMetrics;
 
     private LoadingCache<Pair<String, String>, Map<String, ?>> topologyRetrieveCache;
@@ -79,13 +87,15 @@ public class StormTopologyMetricsImpl implements TopologyMetrics {
      * {@inheritDoc}
      */
     @Override
-    public void init(Map<String, Object> conf) throws ConfigException {
-        String stormApiRootUrl = null;
-        Subject subject = null;
-        if (conf != null) {
-            stormApiRootUrl = (String) conf.get(TopologyLayoutConstants.STORM_API_ROOT_URL_KEY);
-            subject = (Subject) conf.get(TopologyLayoutConstants.SUBJECT_OBJECT);
-        }
+    public void init(Engine engine, Namespace namespace, TopologyCatalogHelperService topologyCatalogHelperService,
+                     Subject subject, Map<String, Object> conf) throws ConfigException {
+
+        this.subject = subject;
+        this.namespace = namespace;
+        this.engine = engine;
+        this.topologyCatalogHelperService = topologyCatalogHelperService;
+
+        String stormApiRootUrl = buildStormRestApiRootUrl();
         Client restClient = ClientBuilder.newClient(new ClientConfig());
         this.client = new StormRestAPIClient(restClient, stormApiRootUrl, subject);
         timeSeriesMetrics = new StormTopologyTimeSeriesMetricsImpl(client);
@@ -403,6 +413,35 @@ public class StormTopologyMetricsImpl implements TopologyMetrics {
             return responseMap;
         } finally {
             stopwatch.stop();
+        }
+    }
+
+
+    private String buildStormRestApiRootUrl() throws ConfigException {
+        // Assuming that a namespace has one mapping of engine
+        Service engineService = topologyCatalogHelperService.getFirstOccurenceServiceForNamespace(namespace, engine.getName());
+        if (engineService == null) {
+            throw new ConfigException("Engine " + engine + " is not associated to the namespace " +
+                    namespace.getName() + "(" + namespace.getId() + ")");
+        }
+        com.hortonworks.streamline.streams.cluster.catalog.Component uiServer = topologyCatalogHelperService.getComponent(engineService, COMPONENT_NAME_STORM_UI_SERVER)
+                .orElseThrow(() -> new RuntimeException(engine + " doesn't have " + COMPONENT_NAME_STORM_UI_SERVER + " as component"));
+        Collection<ComponentProcess> uiServerProcesses = topologyCatalogHelperService.listComponentProcesses(uiServer.getId());
+        if (uiServerProcesses.isEmpty()) {
+            throw new ConfigException(engine + " doesn't have any process for " + COMPONENT_NAME_STORM_UI_SERVER + " as component");
+        }
+        ComponentProcess uiServerProcess = uiServerProcesses.iterator().next();
+        String uiHost = uiServerProcess.getHost();
+        Integer uiPort = uiServerProcess.getPort();
+        assertHostAndPort(uiServer.getName(), uiHost, uiPort);
+        return "http://" + uiHost + ":" + uiPort + "/api/v1";
+
+    }
+
+    private void assertHostAndPort(String componentName, String host, Integer port) {
+        if (host == null || host.isEmpty() || port == null) {
+            throw new RuntimeException(componentName + " component doesn't have enough information - host: " + host +
+                    " / port: " + port);
         }
     }
 

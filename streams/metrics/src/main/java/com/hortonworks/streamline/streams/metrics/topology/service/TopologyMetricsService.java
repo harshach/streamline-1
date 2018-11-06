@@ -15,15 +15,15 @@
  **/
 package com.hortonworks.streamline.streams.metrics.topology.service;
 
+import com.hortonworks.streamline.streams.catalog.Engine;
+import com.hortonworks.streamline.streams.cluster.container.ContainingNamespaceAwareContainer;
+import com.hortonworks.streamline.streams.metrics.TopologyMetricsFactory;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 import com.hortonworks.streamline.streams.catalog.CatalogToLayoutConverter;
 import com.hortonworks.streamline.streams.cluster.catalog.Namespace;
 import com.hortonworks.streamline.streams.catalog.Topology;
 import com.hortonworks.streamline.streams.catalog.TopologyComponent;
-import com.hortonworks.streamline.streams.cluster.container.ContainingNamespaceAwareContainer;
-import com.hortonworks.streamline.streams.cluster.service.EnvironmentService;
-import com.hortonworks.streamline.streams.metrics.container.TopologyMetricsContainer;
 import com.hortonworks.streamline.streams.metrics.topology.TopologyMetrics;
 import com.hortonworks.streamline.streams.metrics.topology.TopologyTimeSeriesMetrics;
 
@@ -38,12 +38,14 @@ import static java.util.stream.Collectors.toList;
 public class TopologyMetricsService implements ContainingNamespaceAwareContainer {
 
     final static String processTime = "processLatency";
-    private final EnvironmentService environmentService;
-    private final TopologyMetricsContainer topologyMetricsContainer;
+    private final TopologyMetricsFactory topologyMetricsFactory;
+    private final TopologyCatalogHelperService topologyCatalogHelperService;
+    private final Subject subject;
 
-    public TopologyMetricsService(EnvironmentService environmentService, Subject subject) {
-        this.environmentService = environmentService;
-        this.topologyMetricsContainer = new TopologyMetricsContainer(environmentService, subject);
+    public TopologyMetricsService(TopologyCatalogHelperService topologyCatalogHelperService, Map<String, Object> config, Subject subject) {
+        this.topologyCatalogHelperService = topologyCatalogHelperService;
+        this.topologyMetricsFactory = new TopologyMetricsFactory(config);
+        this.subject = subject;
     }
 
     public Map<String, TopologyMetrics.ComponentMetric> getTopologyMetrics(Topology topology, String asUser) throws IOException {
@@ -112,24 +114,15 @@ public class TopologyMetricsService implements ContainingNamespaceAwareContainer
     }
 
     @Override
-    public void invalidateInstance(Long namespaceId) {
-        try {
-            topologyMetricsContainer.invalidateInstance(namespaceId);
-        } catch (Throwable e) {
-            // swallow
-        }
-    }
+    public void invalidateInstance(Long namespaceId) { }
 
     private TopologyMetrics getTopologyMetricsInstance(Topology topology) {
-        Namespace namespace = environmentService.getNamespace(topology.getNamespaceId());
+        Namespace namespace = topologyCatalogHelperService.getNamespace(topology.getNamespaceId());
         if (namespace == null) {
             throw new RuntimeException("Corresponding namespace not found: " + topology.getNamespaceId());
         }
-
-        TopologyMetrics topologyMetrics = topologyMetricsContainer.findInstance(namespace);
-        if (topologyMetrics == null) {
-            throw new RuntimeException("Can't find Topology Metrics for such namespace " + topology.getNamespaceId());
-        }
+        Engine engine = topologyCatalogHelperService.getEngine(topology.getEngineId());
+        TopologyMetrics topologyMetrics = topologyMetricsFactory.getTopologyMetrics(engine, namespace, topologyCatalogHelperService, subject);
         return topologyMetrics;
     }
 }

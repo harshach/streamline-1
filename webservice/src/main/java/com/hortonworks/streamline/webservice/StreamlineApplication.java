@@ -37,11 +37,7 @@ import com.hortonworks.streamline.streams.security.authentication.StreamlineKerb
 import com.hortonworks.streamline.streams.security.impl.DefaultStreamlineAuthorizer;
 import com.hortonworks.streamline.streams.security.service.SecurityCatalogService;
 import com.hortonworks.streamline.streams.service.GenericExceptionMapper;
-import com.hortonworks.streamline.webservice.configurations.AuthorizerConfiguration;
-import com.hortonworks.streamline.webservice.configurations.LoginConfiguration;
-import com.hortonworks.streamline.webservice.configurations.ModuleConfiguration;
-import com.hortonworks.streamline.webservice.configurations.StorageProviderConfiguration;
-import com.hortonworks.streamline.webservice.configurations.StreamlineConfiguration;
+import com.hortonworks.streamline.webservice.configurations.*;
 import com.hortonworks.streamline.webservice.health.DummyHealthCheck;
 import com.hortonworks.streamline.webservice.resources.StreamlineConfigurationResource;
 import io.dropwizard.Application;
@@ -211,6 +207,7 @@ public class StreamlineApplication extends Application<StreamlineConfiguration> 
         }
         return fileStorage;
     }
+
 
     private void registerResources(StreamlineConfiguration configuration, Environment environment, Subject subject) throws ConfigException,
             ClassNotFoundException, IllegalAccessException, InstantiationException {

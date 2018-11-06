@@ -16,7 +16,12 @@
 package com.hortonworks.streamline.streams.metrics;
 
 import com.hortonworks.streamline.common.exception.ConfigException;
+import com.hortonworks.streamline.streams.catalog.Engine;
+import com.hortonworks.streamline.streams.cluster.catalog.Namespace;
+import com.hortonworks.streamline.streams.cluster.service.EnvironmentService;
+import com.hortonworks.streamline.streams.metrics.topology.service.TopologyCatalogHelperService;
 
+import javax.security.auth.Subject;
 import java.util.Map;
 
 /**
@@ -29,10 +34,11 @@ public interface TimeSeriesQuerier {
     /**
      * Initialize method. Any one time initialization is done here.
      *
-     * @param conf Configuration for implementation of TopologyMetrics.
+     * @param config Configuration for implementation of TopologyMetrics.
      * @throws ConfigException throw when instance can't be initialized with this configuration (misconfigured).
      */
-    void init (Map<String, String> conf) throws ConfigException;
+    void init (Engine engine, Namespace namespace, TopologyCatalogHelperService topologyCatalogHelperService,
+               Subject subject, Map<String, Object> config) throws ConfigException;
 
     /**
      * Query metrics to time-series DB. The result should aggregate all components metrics to one (meaning topology level).

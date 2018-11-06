@@ -23,8 +23,8 @@ import com.hortonworks.streamline.storage.TransactionManager;
 import com.hortonworks.streamline.storage.transaction.ManagedTransaction;
 import com.hortonworks.streamline.registries.model.client.MLModelRegistryClient;
 import com.hortonworks.streamline.streams.actions.TopologyActions;
+import com.hortonworks.streamline.streams.actions.TopologyActionsFactory;
 import com.hortonworks.streamline.streams.actions.builder.TopologyActionsBuilder;
-import com.hortonworks.streamline.streams.actions.builder.mapping.MappedTopologyActionsBuilder;
 import com.hortonworks.streamline.streams.actions.topology.state.TopologyContext;
 import com.hortonworks.streamline.streams.actions.topology.state.TopologyState;
 import com.hortonworks.streamline.streams.actions.topology.state.TopologyStateFactory;
@@ -35,7 +35,6 @@ import com.hortonworks.streamline.streams.cluster.catalog.Namespace;
 import com.hortonworks.streamline.streams.cluster.container.ContainingNamespaceAwareContainer;
 import com.hortonworks.streamline.streams.cluster.service.EnvironmentService;
 import com.hortonworks.streamline.streams.layout.component.TopologyDag;
-import joptsimple.internal.Strings;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -55,10 +54,10 @@ public class TopologyActionsService implements ContainingNamespaceAwareContainer
     private final EnvironmentService environmentService;
     private final TopologyDagBuilder topologyDagBuilder;
     private final FileStorage fileStorage;
-    private final Map<Engine, Map<Namespace, TopologyActionsBuilder>> topologyActionsBuilderMap;
     private final TopologyStateFactory stateFactory;
     private final TopologyTestRunner topologyTestRunner;
     private final ManagedTransaction managedTransaction;
+    private final TopologyActionsFactory topologyActionsFactory;
     private final Map<String, String> conf;
     private final Subject subject;
 
@@ -71,7 +70,6 @@ public class TopologyActionsService implements ContainingNamespaceAwareContainer
         this.topologyDagBuilder = new TopologyDagBuilder(catalogService, modelRegistryClient);
         this.subject = subject;
         this.conf = new HashMap<>();
-
         for (Map.Entry<String, Object> confEntry : configuration.entrySet()) {
             Object value = confEntry.getValue();
             conf.put(confEntry.getKey(), value == null ? null : value.toString());
@@ -85,14 +83,14 @@ public class TopologyActionsService implements ContainingNamespaceAwareContainer
         if (topologyTestRunResultDir.endsWith(File.separator)) {
             topologyTestRunResultDir = topologyTestRunResultDir.substring(0, topologyTestRunResultDir.length() - 1);
         }
-
-        this.topologyActionsBuilderMap = new HashMap<>();
+        this.topologyActionsFactory = new TopologyActionsFactory(configuration);
         this.stateFactory = TopologyStateFactory.getInstance();
         this.topologyTestRunner = new TopologyTestRunner(catalogService, this, topologyTestRunResultDir);
         this.managedTransaction = new ManagedTransaction(transactionManager, TransactionIsolation.DEFAULT);
     }
 
     public Void deployTopology(Topology topology, String asUser) throws Exception {
+        LOG.info("in deployTopology");
         TopologyContext ctx = managedTransaction.executeFunction(() -> getTopologyContext(topology, asUser));
         topology.setTopologyDag(topologyDagBuilder.getDag(topology));
         LOG.debug("Deploying topology {}", topology);
@@ -175,23 +173,8 @@ public class TopologyActionsService implements ContainingNamespaceAwareContainer
             throw new RuntimeException("Corresponding namespace not found: " + ds.getNamespaceId());
         }
         Engine engine = catalogService.getEngine(ds.getEngineId());
-        topologyActionsBuilderMap.putIfAbsent(engine,
-                new HashMap<>());
-        Map<Namespace, TopologyActionsBuilder> topologyActionsMap = topologyActionsBuilderMap.get(engine);
-        TopologyActionsBuilder topologyActionsBuilder = topologyActionsMap.get(namespace);
-        String className = Strings.EMPTY;
-        if (topologyActionsBuilder == null) {
-            try {
-                MappedTopologyActionsBuilder mappedActionsBuilder = MappedTopologyActionsBuilder.valueOf(engine.getName());
-                className = mappedActionsBuilder.getClassName();
-                topologyActionsBuilder = mappedActionsBuilder.instantiate(className);
-                topologyActionsBuilder.init(conf, this, namespace, subject);
-                topologyActionsMap.put(namespace, topologyActionsBuilder);
-                topologyActionsBuilderMap.put(engine, topologyActionsMap);
-            } catch (IllegalAccessException | InstantiationException | ClassNotFoundException e) {
-                throw new RuntimeException("Can't initialize Topology actions instance - Class Name: " + className, e);
-            }
-        }
+        TopologyActionsBuilder topologyActionsBuilder = topologyActionsFactory.getTopologyActionsBuilder(engine, namespace,
+                this, conf, subject);
         return topologyActionsBuilder.getTopologyActions();
     }
 

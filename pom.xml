@@ -177,6 +177,7 @@
         <postgresql.version>9.4.1212</postgresql.version>
         <hikari.version>2.2.5</hikari.version>
         <h2database.version>1.4.188</h2database.version>
+        <heatpipe4j.version>4.02.011</heatpipe4j.version>
 
         <!-- Runtime Scope Dependencies -->
         <logback.version>1.1.7</logback.version>
@@ -328,6 +329,11 @@
                 <groupId>com.sun.mail</groupId>
                 <artifactId>javax.mail</artifactId>
                 <version>${javax.mail.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.uber</groupId>
+                <artifactId>heatpipe4j</artifactId>
+                <version>${heatpipe4j.version}</version>
             </dependency>
             <dependency>
                 <groupId>com.zaxxer</groupId>
@@ -742,6 +748,11 @@
             <dependency>
                 <groupId>com.hortonworks.streamline</groupId>
                 <artifactId>streamline-layout-piper</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.hortonworks.streamline</groupId>
+                <artifactId>streamline-registry</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>

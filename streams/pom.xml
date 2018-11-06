@@ -29,6 +29,7 @@
         <module>actions</module>
         <module>authorizer</module>
         <module>sql</module>
+        <module>registry</module>
         <!-- test jar builders -->
         <module>test-support</module>
         <module>logsearch</module>

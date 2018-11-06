@@ -20,7 +20,8 @@
 verbose=false
 shell_dir=$(dirname $0)
 bootstrap_dir=${shell_dir}/..
-CONFIG_FILE_PATH=${bootstrap_dir}/../conf/streamline-production.yaml
+[ -z $UBER_RUNTIME_ENVIRONMENT ] && UBER_RUNTIME_ENVIRONMENT=dev
+CONFIG_FILE_PATH=${bootstrap_dir}/../conf/streamline-${UBER_RUNTIME_ENVIRONMENT}.yaml
 
 # Which java to use
 if [ -z "${JAVA_HOME}" ]; then
@@ -122,6 +123,11 @@ CATALOG_ROOT_URL=`exec ${JAVA} -cp ${CLASSPATH} ${CONF_READER_MAIN_CLASS} ${CONF
 # if it doesn't exit with code 0, just give up
 if [ $? -ne 0 ]; then
   exit 1
+fi
+
+if [ ! -z "$UBER_PORT_HTTP" ]; then
+  ORIGINAL_CATALOG_URL_PORT=`echo $CATALOG_ROOT_URL | awk -F[/:] '{print $5}'`
+  CATALOG_ROOT_URL=${CATALOG_ROOT_URL/$ORIGINAL_CATALOG_URL_PORT/$UBER_PORT_HTTP}
 fi
 
 echo "Catalog Root URL: ${CATALOG_ROOT_URL}"

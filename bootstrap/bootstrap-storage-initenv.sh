@@ -30,7 +30,8 @@ while [ -h "${PRG}" ]; do
 done
 
 BOOTSTRAP_DIR=`dirname ${PRG}`
-CONFIG_FILE_PATH=${BOOTSTRAP_DIR}/../conf/streamline-$1.yaml
+[ -z $UBER_RUNTIME_ENVIRONMENT ] && UBER_RUNTIME_ENVIRONMENT=dev
+CONFIG_FILE_PATH=${BOOTSTRAP_DIR}/../conf/streamline-${UBER_RUNTIME_ENVIRONMENT}.yaml
 MYSQL_JAR_URL_PATH=https://dev.mysql.com/get/Downloads/Connector-J/mysql-connector-java-5.1.40.zip
 
 # Which java to use

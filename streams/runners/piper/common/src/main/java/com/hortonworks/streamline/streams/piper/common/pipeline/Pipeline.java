@@ -93,6 +93,9 @@ public class Pipeline {
     private Boolean emailOnRetry;
     @JsonProperty("email_on_failure")
     private Boolean emailOnFailure;
+    @JsonProperty("auto_enable")
+    private Boolean autoEnable;
+
     /**
      * 
      * (Required)
@@ -404,6 +407,17 @@ public class Pipeline {
     public void setEmailOnFailure(Boolean emailOnFailure) {
         this.emailOnFailure = emailOnFailure;
     }
+
+    @JsonProperty("auto_enable")
+    public Boolean getAutoEnable() {
+        return autoEnable;
+    }
+
+    @JsonProperty("auto_enable")
+    public void setAutoEnable(Boolean autoEnable) {
+        this.autoEnable = autoEnable;
+    }
+
 
     /**
      * 

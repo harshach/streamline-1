@@ -67,7 +67,7 @@ public class PiperTopologyMetricsImpl implements TopologyMetrics {
 	// FIXME Workaround pending T2184545
 	public TopologyMetric getTopologyMetric(TopologyLayout topology, String asUser) {
 		String applicationId = "f7a8eef8-d1a2-11e8-9217-8c859066bcf7";
-		Map response = this.client.getPipelineState(applicationId, null);
+		Map response = this.client.getPipelineState(applicationId);
 
 		/*  FIXME transform.
 			FIXME needs to be implemented for project listing

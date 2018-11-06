@@ -131,18 +131,24 @@ import DateTimePickerDropdown from '../../../components/DateTimePickerDropdown';
       _.each(template, (t) => {
         const oValue = _.get(viewModeData.overviewMetrics.metrics, t.metricKeyName);
         const value = Utils[t.valueFormat](oValue);
-        const diffValue = Utils[t.valueFormat](oValue - _.get(viewModeData.overviewMetrics.prevMetrics, t.metricKeyName));
+        let diffValue;
+        if(_.isObject(viewModeData.overviewMetrics.prevMetrics)){
+          diffValue = Utils[t.valueFormat](oValue - _.get(viewModeData.overviewMetrics.prevMetrics, t.metricKeyName));
+        }
 
         const component = <div className="topology-foot-widget">
           <h6>{t.uiName}
-            <big>
-              <i className={diffValue.value <= 0 ? "fa fa-arrow-down" : "fa fa-arrow-up"}></i>
-            </big>
+            {!_.isUndefined(diffValue) && <big>
+                <i className={diffValue.value <= 0 ? "fa fa-arrow-down" : "fa fa-arrow-up"}></i>
+              </big>
+            }
           </h6>
           <h4>{value.value}{value.suffix}&nbsp;
-            <small>{diffValue.value <= 0 || diffValue.value ? '' : '+'}
-              {diffValue.value}{diffValue.suffix}
-            </small>
+            {!_.isUndefined(diffValue) && 
+              <small>{diffValue.value <= 0 || diffValue.value ? '' : '+'}
+                {diffValue.value}{diffValue.suffix}
+              </small>
+            }
           </h4>
         </div>;
         metrics.push(component);

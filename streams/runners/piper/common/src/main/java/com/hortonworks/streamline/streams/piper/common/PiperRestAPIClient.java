@@ -58,8 +58,7 @@ public class PiperRestAPIClient {
                 this.apiRootUrl, uuid, page, pageSize));
     }
 
-    public Map getPipelineState(String uuid, String executionDate) {
-        // FIXME only pass execution date if present
+    public Map getPipelineState(String uuid) {
         return doGetRequest(String.format("%s/api/v1/pipeline/state?pipeline_id=%s",
                 this.apiRootUrl, uuid));
     }

@@ -91,6 +91,7 @@ class TopologyViewContainer extends TopologyEditorContainer {
       sourceMetrics: [],
       processorMetrics: [],
       sinkMetrics: [],
+      taskMetrics: [],
       selectedMode: 'Overview',
       selectedComponentId: '',
       overviewMetrics: {},
@@ -434,16 +435,32 @@ class TopologyViewContainer extends TopologyEditorContainer {
   }
 
   onSelectExecution = (ex) => {
-    const {executionInfo} = this.state;
+    const {executionInfo, viewModeData} = this.state;
     ex.loading = true;
 
     this.setState({executionInfo: executionInfo}, () => {
       ViewModeREST.getComponentExecutions(this.topologyId, ex.executionDate).then((res) => {
         const selectedExecutionComponentsStatus = res.components || [];
         ex.loading = false;
+
+        const taskMetrics = [];
+
+        _.each(selectedExecutionComponentsStatus, (compEx) => {
+          const compMetrics = {};
+          compMetrics.component = {
+            id: compEx.componentId
+          };
+          compMetrics.overviewMetrics = {
+            metrics: compEx
+          };
+          taskMetrics.push(compMetrics);
+        });
+
+        viewModeData.taskMetrics = taskMetrics;
         this.setState({
           selectedExecution: ex,
-          selectedExecutionComponentsStatus: selectedExecutionComponentsStatus
+          selectedExecutionComponentsStatus: selectedExecutionComponentsStatus,
+          viewModeData: viewModeData
         }, () => {
           this.triggerUpdateGraph();
         });
@@ -477,6 +494,21 @@ class TopologyViewContainer extends TopologyEditorContainer {
       page: executionInfoPage
     }).then((res) => {
       this.state.executionInfo = res;
+
+      const latestExecution = res.executions[res.executions.length - 1];
+
+      viewModeData.topologyMetrics = {
+        overviewMetrics: {
+          metrics: latestExecution
+        }
+      };
+
+      this.setState({
+        viewModeData: viewModeData
+      }, () => {
+        this.onSelectExecution(latestExecution);
+      });
+
       return res;
     });
   }
@@ -484,23 +516,23 @@ class TopologyViewContainer extends TopologyEditorContainer {
   fetchCatalogInfoAndMetrics(fromTime, toTime) {
     let {viewModeData, executionInfoPageSize, executionInfoPage} = this.state;
 
-    let promiseArr = [
-      ViewModeREST.getTopologyMetrics(this.topologyId, fromTime, toTime).then((res)=>{
-        viewModeData.topologyMetrics = res;
-        return res;
-      }, (err) => {})
-    ];
-    _.each(this.engine.componentTypes, (type) => {
-      const typeInLCase = type.toLowerCase();
-      promiseArr.push(ViewModeREST.getComponentMetrics(this.topologyId, typeInLCase+'s', fromTime, toTime).then((res) => {
-        viewModeData[typeInLCase+'Metrics'] = res.entities;
-        return res;
-      }));
-    });
+    let promiseArr = [];
 
     if(this.engine.type == 'batch'){
       const req = this.fetchExecutions();
       promiseArr.push(req);
+    }else{
+      promiseArr.push(ViewModeREST.getTopologyMetrics(this.topologyId, fromTime, toTime).then((res)=>{
+        viewModeData.topologyMetrics = res;
+        return res;
+      }, (err) => {})
+      _.each(this.engine.componentTypes, (type) => {
+        const typeInLCase = type.toLowerCase();
+        promiseArr.push(ViewModeREST.getComponentMetrics(this.topologyId, typeInLCase+'s', fromTime, toTime).then((res) => {
+          viewModeData[typeInLCase+'Metrics'] = res.entities;
+          return res;
+        }));
+      });
     }
 
     this.setState({fetchMetrics: true});
@@ -860,7 +892,7 @@ class TopologyViewContainer extends TopologyEditorContainer {
           : "modal-fixed-height"} data-title={this.modalTitle} data-resolve={this.handleSaveNodeModal.bind(this)}>
           {this.modalContent()}
         </Modal>
-        {this.state.isAppRunning && this.graphData.nodes.length > 0 && this.versionName.toLowerCase() == 'current' && this.state.availableTimeSeriesDb ?
+        {this.state.isAppRunning && this.graphData.nodes.length > 0 && this.versionName.toLowerCase() == 'current' ?
         <TopologyViewModeMetrics
           ref="metricsPanelRef"
           {...this.state}

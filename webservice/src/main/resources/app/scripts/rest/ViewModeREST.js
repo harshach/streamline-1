@@ -149,7 +149,7 @@ const ViewModeREST = {
     return fetch(url, options)
       .then(Utils.checkStatus);
       /*.then((res) => {
-        return {"components":[{"taskRetryCount":1,"taskEndDate":"2018-10-29T22:11:06","taskRetries":0,"componentId":1,"taskDuration":1,"taskStartDate":"2018-10-29T22:11:05","executionDate":"2018-10-26T19:00:00","taskPool":"adhoc","taskStatus":"failed"},{"taskRetryCount":1,"taskEndDate":"2018-10-29T22:10:50","taskRetries":0,"componentId":6,"taskDuration":0,"taskStartDate":"2018-10-29T22:10:50","executionDate":"2018-10-26T19:00:00","taskPool":"adhoc","taskStatus":"success"}]};
+        return {"components":[{"taskRetryCount":1,"taskEndDate":"2018-10-29T22:11:06","taskRetries":0,"componentId":1,"taskDuration":1,"taskStartDate":"2018-10-29T22:11:05","executionDate":"2018-10-26T19:00:00","taskPool":"adhoc","taskStatus":"success"},{"taskRetryCount":1,"taskEndDate":"2018-10-29T22:10:50","taskRetries":0,"componentId":6,"taskDuration":0,"taskStartDate":"2018-10-29T22:10:50","executionDate":"2018-10-26T19:00:00","taskPool":"adhoc","taskStatus":"success"}]};
       });*/
   }
 };

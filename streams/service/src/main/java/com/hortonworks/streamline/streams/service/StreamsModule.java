@@ -44,6 +44,7 @@ import com.hortonworks.streamline.streams.metrics.topology.service.TopologyCatal
 import com.hortonworks.streamline.streams.logsearch.topology.service.TopologyLogSearchService;
 import com.hortonworks.streamline.streams.metrics.topology.service.TopologyMetricsService;
 import com.hortonworks.streamline.streams.notification.service.NotificationServiceImpl;
+import com.hortonworks.streamline.streams.registry.SchemaRegistryClientAdapter;
 import com.hortonworks.streamline.streams.sampling.service.TopologySamplingService;
 import com.hortonworks.streamline.streams.security.StreamlineAuthorizer;
 import com.hortonworks.streamline.streams.security.service.SecurityCatalogResource;
@@ -114,7 +115,7 @@ public class StreamsModule implements ModuleRegistration, StorageManagerAware, T
                 topologyMetricsService, topologyLogSearchService, securityCatalogService, subject));
         result.add(new UDFCatalogResource(authorizer, streamcatalogService, fileStorage));
         result.addAll(getNotificationsRelatedResources(authorizer, streamcatalogService));
-        result.add(new SchemaResource(createSchemaRegistryClient()));
+        result.add(new SchemaResource(createSchemaRegistryClientAdapter()));
         result.addAll(getServiceMetadataResources(authorizer, environmentService, subject));
         result.add(new NamespaceCatalogResource(authorizer, streamcatalogService, topologyActionsService, environmentService));
         result.add(new SearchCatalogResource(authorizer, streamcatalogService, environmentService,
@@ -122,6 +123,11 @@ public class StreamsModule implements ModuleRegistration, StorageManagerAware, T
         watchFiles(streamcatalogService);
         setupPlaceholderEntities(streamcatalogService, environmentService);
         return result;
+    }
+
+    private SchemaRegistryClientAdapter createSchemaRegistryClientAdapter() {
+        SchemaRegistryClient schemaRegistryClient = createSchemaRegistryClient();
+        return new SchemaRegistryClientAdapter(schemaRegistryClient);
     }
 
     private SchemaRegistryClient createSchemaRegistryClient() {

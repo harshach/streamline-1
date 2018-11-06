@@ -16,12 +16,18 @@
 package com.hortonworks.streamline.streams.metrics.storm.graphite;
 
 import com.github.tomakehurst.wiremock.junit.WireMockRule;
+import com.hortonworks.streamline.streams.catalog.Engine;
+import com.hortonworks.streamline.streams.cluster.catalog.Namespace;
+import com.hortonworks.streamline.streams.cluster.service.EnvironmentService;
 import com.hortonworks.streamline.streams.metrics.TimeSeriesQuerier;
+import com.hortonworks.streamline.streams.metrics.storm.ambari.AmbariMetricsServiceWithStormQuerier;
+import com.hortonworks.streamline.streams.metrics.topology.service.TopologyCatalogHelperService;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 
+import javax.security.auth.Subject;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -41,17 +47,26 @@ public class GraphiteWithStormQuerierTest {
     @Rule
     public WireMockRule wireMockRule = new WireMockRule(18089);
     private GraphiteWithStormQuerier querier;
+    private TopologyCatalogHelperService topologyCatalogHelperService;
+    private Engine engine;
+    private Namespace namespace;
+    private Subject subject;
 
     @Before
     public void setUp() throws Exception {
         querier = new GraphiteWithStormQuerier();
 
-        Map<String, String> conf = new HashMap<>();
+        topologyCatalogHelperService = new TopologyCatalogHelperService(null, null);
+        engine = new Engine();
+        engine.setName("STORM");
+        namespace = new Namespace();
+        subject = new Subject();
+        Map<String, Object> conf = new HashMap<>();
         conf.put(GraphiteWithStormQuerier.RENDER_API_URL, "http://localhost:18089" + TEST_RENDER_API_PATH);
         conf.put(GraphiteWithStormQuerier.METRIC_NAME_PREFIX, "storm");
         conf.put(GraphiteWithStormQuerier.USE_FQDN, "false");
 
-        querier.init(conf);
+        querier.init(engine, namespace, topologyCatalogHelperService, subject,conf);
     }
 
     @After

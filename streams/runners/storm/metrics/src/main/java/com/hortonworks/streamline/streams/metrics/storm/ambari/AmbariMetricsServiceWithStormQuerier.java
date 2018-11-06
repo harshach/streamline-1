@@ -21,13 +21,18 @@ import com.google.common.collect.ImmutableMap;
 import com.hortonworks.streamline.common.JsonClientUtil;
 import com.hortonworks.streamline.common.exception.ConfigException;
 import com.hortonworks.streamline.common.util.DoubleUtils;
+import com.hortonworks.streamline.streams.catalog.Engine;
+import com.hortonworks.streamline.streams.cluster.catalog.Namespace;
+import com.hortonworks.streamline.streams.cluster.service.EnvironmentService;
 import com.hortonworks.streamline.streams.metrics.AbstractTimeSeriesQuerier;
+import com.hortonworks.streamline.streams.metrics.topology.service.TopologyCatalogHelperService;
 import org.apache.commons.lang3.tuple.Pair;
 import org.glassfish.jersey.client.ClientConfig;
 import org.glassfish.jersey.uri.internal.JerseyUriBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.security.auth.Subject;
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
 import java.net.URI;
@@ -90,11 +95,12 @@ public class AmbariMetricsServiceWithStormQuerier extends AbstractTimeSeriesQuer
      * {@inheritDoc}
      */
     @Override
-    public void init(Map<String, String> conf) throws ConfigException {
+    public void init(Engine engine, Namespace namespace, TopologyCatalogHelperService topologyCatalogHelperService,
+                     Subject subject, Map<String, Object> conf) throws ConfigException {
         if (conf != null) {
             try {
-                collectorApiUri = new URI(conf.get(COLLECTOR_API_URL));
-                appId = conf.get(APP_ID);
+                collectorApiUri = new URI((String) conf.get(COLLECTOR_API_URL));
+                appId = (String) conf.get(APP_ID);
                 if (appId == null) {
                     appId = DEFAULT_APP_ID;
                 }

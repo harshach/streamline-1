@@ -1,15 +1,17 @@
 package com.hortonworks.streamline.streams.metrics.piper.m3;
 
-import com.google.common.collect.Lists;
 import com.hortonworks.streamline.common.JsonClientUtil;
 import com.hortonworks.streamline.common.exception.ConfigException;
+import com.hortonworks.streamline.streams.catalog.Engine;
+import com.hortonworks.streamline.streams.cluster.catalog.Namespace;
 import com.hortonworks.streamline.streams.metrics.AbstractTimeSeriesQuerier;
-import org.apache.commons.lang.BooleanUtils;
+import com.hortonworks.streamline.streams.metrics.topology.service.TopologyCatalogHelperService;
 import org.glassfish.jersey.client.ClientConfig;
 import org.glassfish.jersey.uri.internal.JerseyUriBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.security.auth.Subject;
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
 import java.net.URI;
@@ -35,7 +37,8 @@ public class M3MetricsWithPiperQuerier extends AbstractTimeSeriesQuerier{
      * {@inheritDoc}
      */
     @Override
-    public void init(Map<String, String> conf) throws ConfigException {
+    public void init(Engine engine, Namespace namespace, TopologyCatalogHelperService topologyCatalogHelperService,
+                     Subject subject, Map<String, Object> conf) throws ConfigException {
         if (conf != null) {
             try {
                 client = ClientBuilder.newClient(new ClientConfig());
@@ -112,7 +115,7 @@ public class M3MetricsWithPiperQuerier extends AbstractTimeSeriesQuerier{
     }
 
     public static void main(String[] args) {
-        System.out.println("hello");
+        /*System.out.println("hello");
         M3MetricsWithPiperQuerier querier = new M3MetricsWithPiperQuerier();
         String topologyName = "topologyName";
         String componentId = "componentId";
@@ -121,13 +124,13 @@ public class M3MetricsWithPiperQuerier extends AbstractTimeSeriesQuerier{
         long from = 0;
         long to = 0;
 
-        try {
-            querier.init(new HashMap<>());
+       try {
+            //querier.init(new HashMap<>());
             // disabling to avoid findbugs error until we fix the interfaces.
             //querier.getMetrics(topologyName, componentId, metricName, function, to, from);
         } catch (Exception e) {
             System.out.println(e);
-        }
+        }*/
 
     }
 }

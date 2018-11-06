@@ -40,6 +40,7 @@ import com.hortonworks.streamline.streams.cluster.resource.ServiceBundleResource
 import com.hortonworks.streamline.streams.cluster.resource.ServiceCatalogResource;
 import com.hortonworks.streamline.streams.cluster.resource.ServiceConfigurationCatalogResource;
 import com.hortonworks.streamline.streams.cluster.service.EnvironmentService;
+import com.hortonworks.streamline.streams.metrics.topology.service.TopologyCatalogHelperService;
 import com.hortonworks.streamline.streams.logsearch.topology.service.TopologyLogSearchService;
 import com.hortonworks.streamline.streams.metrics.topology.service.TopologyMetricsService;
 import com.hortonworks.streamline.streams.notification.service.NotificationServiceImpl;
@@ -86,10 +87,11 @@ public class StreamsModule implements ModuleRegistration, StorageManagerAware, T
         final StreamCatalogService streamcatalogService = new StreamCatalogService(storageManager, fileStorage, modelRegistryClient);
         final EnvironmentService environmentService = new EnvironmentService(storageManager,(Boolean)config.get(Constants.CONFIG_ENABLE_SHADOW_NAMESPACES));
         TagClient tagClient = new TagClient(catalogRootUrl);
+        final TopologyCatalogHelperService topologyHelperCatalogService = new TopologyCatalogHelperService(streamcatalogService, environmentService);
         final CatalogService catalogService = new CatalogService(storageManager, fileStorage, tagClient);
         final TopologyActionsService topologyActionsService = new TopologyActionsService(streamcatalogService,
                 environmentService, fileStorage, modelRegistryClient, config, subject, transactionManager);
-        final TopologyMetricsService topologyMetricsService = new TopologyMetricsService(environmentService, subject);
+        final TopologyMetricsService topologyMetricsService = new TopologyMetricsService(topologyHelperCatalogService, config, subject);
         final TopologyLogSearchService topologyLogSearchService = new TopologyLogSearchService(environmentService, subject);
 
         environmentService.addNamespaceAwareContainer(topologyActionsService);
@@ -145,7 +147,8 @@ public class StreamsModule implements ModuleRegistration, StorageManagerAware, T
                 new TopologyActionResource(authorizer, streamcatalogService, actionsService),
                 new TopologyDashboardResource(authorizer, streamcatalogService, environmentService, actionsService,
                         metricsService, transactionManager),
-                new TopologyViewModeResource(authorizer, streamcatalogService, metricsService),
+                new StreamTopologyViewModeResource(authorizer, streamcatalogService, metricsService),
+                new BatchTopologyViewModeResource(authorizer, streamcatalogService, metricsService),
                 new TopologyComponentBundleResource(authorizer, streamcatalogService, environmentService, subject),
                 new TopologyStreamCatalogResource(authorizer, streamcatalogService),
                 new TopologyEditorMetadataResource(authorizer, streamcatalogService),

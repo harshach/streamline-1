@@ -18,13 +18,18 @@ package com.hortonworks.streamline.streams.metrics.storm.graphite;
 import com.google.common.collect.Lists;
 import com.hortonworks.streamline.common.JsonClientUtil;
 import com.hortonworks.streamline.common.exception.ConfigException;
+import com.hortonworks.streamline.streams.catalog.Engine;
+import com.hortonworks.streamline.streams.cluster.catalog.Namespace;
+import com.hortonworks.streamline.streams.cluster.service.EnvironmentService;
 import com.hortonworks.streamline.streams.metrics.AbstractTimeSeriesQuerier;
+import com.hortonworks.streamline.streams.metrics.topology.service.TopologyCatalogHelperService;
 import org.apache.commons.lang.BooleanUtils;
 import org.glassfish.jersey.client.ClientConfig;
 import org.glassfish.jersey.uri.internal.JerseyUriBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.security.auth.Subject;
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
 import java.net.URI;
@@ -71,12 +76,13 @@ public class GraphiteWithStormQuerier extends AbstractTimeSeriesQuerier {
      * {@inheritDoc}
      */
     @Override
-    public void init(Map<String, String> conf) throws ConfigException {
+    public void init(Engine engine, Namespace namespace, TopologyCatalogHelperService topologyCatalogHelperService,
+                     Subject subject, Map<String, Object> conf) throws ConfigException {
         if (conf != null) {
             try {
-                renderApiUrl = new URI(conf.get(RENDER_API_URL));
-                metricNamePrefix = conf.get(METRIC_NAME_PREFIX);
-                useFQDN = BooleanUtils.toBoolean(conf.get(USE_FQDN));
+                renderApiUrl = new URI((String) conf.get(RENDER_API_URL));
+                metricNamePrefix = (String) conf.get(METRIC_NAME_PREFIX);
+                useFQDN = BooleanUtils.toBoolean((String) conf.get(USE_FQDN));
             } catch (URISyntaxException e) {
                 throw new ConfigException(e);
             }

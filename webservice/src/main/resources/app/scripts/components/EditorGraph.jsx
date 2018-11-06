@@ -137,7 +137,8 @@ class EditorGraph extends Component {
       componentLevelAction,
       contextRouter,
       engine,
-      topologyData
+      topologyData,
+      selectedExecutionComponentsStatus
     } = this.props;
     const {boxes, bundleArr, loading} = this.state;
 
@@ -176,7 +177,9 @@ class EditorGraph extends Component {
               viewModeContextRouter={contextRouter}
               componentsBundle={componentsBundle}
               engine={engine}
-              topologyData={topologyData}/>
+              topologyData={topologyData}
+              selectedExecutionComponentsStatus={selectedExecutionComponentsStatus || []}
+            />
             {state.showComponentNodeContainer && !viewMode
               ? <ComponentNode
                 testRunningMode={testRunningMode}

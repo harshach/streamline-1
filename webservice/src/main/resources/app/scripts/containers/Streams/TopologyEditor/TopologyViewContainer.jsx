@@ -99,7 +99,12 @@ class TopologyViewContainer extends TopologyEditorContainer {
       sampleTopologyLevel : '',
       logTopologyLevel : 'None',
       durationTopologyLevel :  0
-    }
+    },
+    executionInfoPageSize: 5,
+    executionInfoPage: 0,
+    executionInfo: {},
+    selectedExecution: {},
+    selectedExecutionComponentsStatus: []
   };
   getDeploymentState(){}
   /*fetchData(versionId) {
@@ -421,8 +426,63 @@ class TopologyViewContainer extends TopologyEditorContainer {
     });
   }
 
+  getEditorProps = () => {
+    const {selectedExecutionComponentsStatus} = this.state;
+    return {
+      selectedExecutionComponentsStatus: selectedExecutionComponentsStatus
+    };
+  }
+
+  onSelectExecution = (ex) => {
+    const {executionInfo} = this.state;
+    ex.loading = true;
+
+    this.setState({executionInfo: executionInfo}, () => {
+      ViewModeREST.getComponentExecutions(this.topologyId, ex.executionDate).then((res) => {
+        const selectedExecutionComponentsStatus = res.components || [];
+        ex.loading = false;
+        this.setState({
+          selectedExecution: ex,
+          selectedExecutionComponentsStatus: selectedExecutionComponentsStatus
+        }, () => {
+          this.triggerUpdateGraph();
+        });
+      });
+    });
+  }
+  getPrevPageExecutions = () => {
+    const {executionInfoPageSize} = this.state;
+    this.setState({executionInfoPageSize: executionInfoPageSize+1}, () => {
+      this.fetchExecutions().then((res) => {
+        this.forceUpdate();
+      });
+    });
+  }
+  getNextPageExecutions = () => {
+    const {executionInfoPageSize} = this.state;
+    this.setState({executionInfoPageSize: executionInfoPageSize-1}, () => {
+      this.fetchExecutions().then((res) => {
+        this.forceUpdate();
+      });
+    });
+  }
+
+  fetchExecutions = () => {
+    let {viewModeData, executionInfoPageSize, executionInfoPage, startDate, endDate} = this.state;
+
+    return ViewModeREST.getAllExecutions(this.topologyId, {
+      from: startDate.unix(),
+      to: endDate.unix(),
+      pageSize: executionInfoPageSize,
+      page: executionInfoPage
+    }).then((res) => {
+      this.state.executionInfo = res;
+      return res;
+    });
+  }
+
   fetchCatalogInfoAndMetrics(fromTime, toTime) {
-    let {viewModeData} = this.state;
+    let {viewModeData, executionInfoPageSize, executionInfoPage} = this.state;
 
     let promiseArr = [
       ViewModeREST.getTopologyMetrics(this.topologyId, fromTime, toTime).then((res)=>{
@@ -437,6 +497,12 @@ class TopologyViewContainer extends TopologyEditorContainer {
         return res;
       }));
     });
+
+    if(this.engine.type == 'batch'){
+      const req = this.fetchExecutions();
+      promiseArr.push(req);
+    }
+
     this.setState({fetchMetrics: true});
     Promise.all(promiseArr).then((responseArr)=>{
       this.setState({viewModeData: viewModeData, fetchMetrics: false}, ()=>{
@@ -803,7 +869,11 @@ class TopologyViewContainer extends TopologyEditorContainer {
           components={this.graphData.nodes}
           compSelectCallback={this.compSelectCallback}
           datePickerCallback={this.datePickerCallback}
-          engine={this.engine} />
+          engine={this.engine}
+          onSelectExecution={this.onSelectExecution}
+          getPrevPageExecutions={this.getPrevPageExecutions}
+          getNextPageExecutions={this.getNextPageExecutions}
+        />
         : null}
       </BaseContainer>
     );

@@ -205,6 +205,62 @@ import DateTimePickerDropdown from '../../../components/DateTimePickerDropdown';
 
     return metrics;
   }
+  getExecutionComp(){
+    const {executionInfo, onSelectExecution, selectedExecution,
+      getPrevPageExecutions, getNextPageExecutions} = this.props;
+    let comp = null;
+
+    const executions = executionInfo.executions;
+
+    if(executions && executions.length){
+      const isFirstPage = executionInfo.page == 0;
+      const isLastPage = Math.ceil(executionInfo.totalResults/executionInfo.pageSize) == (executionInfo.page+1);
+
+      comp = <div className="clearfix topology-foot-top executions-container">
+        <table>
+          <tbody>
+            <tr>
+            <td className={`arrowBtn ${isLastPage ? 'disabled' : ''}`} onClick={isLastPage ? ()=>{} : getPrevPageExecutions}>
+              <i className="fa fa-angle-double-left fa-2x"></i>
+            </td>
+
+            {_.map(executions, (ex, i) => {
+              const errorClass = ex.status == 'failed' ? 'error' : '';
+              const selectedClass = selectedExecution == ex ? 'selected' : '';
+              const momentObj = moment(ex.executionDate);
+              return <td
+                className={`${errorClass} ${selectedClass}`}
+                onClick={() => {onSelectExecution(ex);}}
+              >
+                <h6>
+                  <i className="fa fa-calendar m-r-xs"></i>
+                  {momentObj.format('MM/DD/YYYY')}
+                </h6>
+                <h6>
+                  <i className="fa fa-clock-o m-r-xs"></i>
+                  {momentObj.format('LTS')}
+                </h6>
+                { ex.loading &&
+                <div className="loading-container">
+                  <div>
+                    <i className="fa fa-spinner fa-spin fa-fw"></i>
+                  </div>
+                </div>
+                }
+              </td>;
+            })}
+
+            <td className={`arrowBtn ${isFirstPage ? 'disabled' : ''}`} onClick={isFirstPage ? ()=>{} : getNextPageExecutions}>
+              <i className="fa fa-angle-double-right fa-2x"></i>
+            </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>;
+    }
+
+    return comp;
+  }
   render() {
     const {
       topologyMetric,
@@ -247,6 +303,8 @@ import DateTimePickerDropdown from '../../../components/DateTimePickerDropdown';
     }}/>;
     const topologyFooter = (
       <div className="topology-foot">
+        {this.getExecutionComp()}
+
         <div className="clearfix topology-foot-top">
           <div className="topology-foot-component">
           <div>

@@ -1267,7 +1267,12 @@ export class TopologyEditorContainer extends Component {
       viewModeData={this.state.viewModeData || {}}
       isAppRunning={isAppRunning}
       compSelectCallback={this.compSelectCallback}
+      {...this.getEditorProps()}
     />;
+  }
+
+  getEditorProps = () => {
+    return {}; /*Required for view mode*/
   }
 
   render() {

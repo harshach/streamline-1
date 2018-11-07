@@ -55,7 +55,6 @@ class TopologyViewContainer extends TopologyEditorContainer {
     this.customProcessors = [];
     this.showLogSearch = false;
     this.fetchData();
-    this.fetchTopologyLevelSampling();
     this.checkAuth = true;
     this.sampleInputNotify = false;
   }
@@ -308,11 +307,15 @@ class TopologyViewContainer extends TopologyEditorContainer {
     const {isAppRunning} = this.state;
     if(isAppRunning) {
       this.fetchCatalogInfoAndMetrics(this.state.startDate.toDate().getTime(), this.state.endDate.toDate().getTime());
+      this.fetchTopologyLevelSampling();
     }
   }
 
   fetchTopologyLevelSampling(){
     const {viewModeData} = this.state;
+    if(this.engine.type != 'stream'){
+      return;
+    }
     ViewModeREST.getTopologySamplingStatus(this.topologyId).then((result)=>{
       if(result.responseMessage !== undefined){
         FSReactToastr.error(

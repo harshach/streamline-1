@@ -1411,7 +1411,11 @@ export default class TopologyGraphComponent extends Component {
           .attr('y', 0)
           .style("display", "none");
       }
-      render(<ComponentLogActions topologyId={thisGraph.topologyId} viewModeContextRouter={thisGraph.props.viewModeContextRouter}  componentLevelAction={GraphUtils.componentLevelActionHandler.bind(this)} selectedNodeId={selectedNodeId} allComponentLevelAction={allComponentLevelAction} sampleTopologyLevel={sampleTopologyLevel}/>, this.logActions.node());
+      if(engine.type == 'stream'){
+        render(<ComponentLogActions topologyId={thisGraph.topologyId} viewModeContextRouter={thisGraph.props.viewModeContextRouter}  componentLevelAction={GraphUtils.componentLevelActionHandler.bind(this)} selectedNodeId={selectedNodeId} allComponentLevelAction={allComponentLevelAction} sampleTopologyLevel={sampleTopologyLevel}/>, this.logActions.node());
+      }else{
+        return null;
+      }
     }
 
     // remove old nodes

@@ -133,7 +133,7 @@ const ViewModeREST = {
     options.credentials = 'same-origin';
     const q_params = jQuery.param(params, true);
     const url = sampleModeBaseUrl+'/'+topologyId+'/executions?'+q_params;
-    // const url = baseUrl + 'topologies/' + topologyId + '/sources/metrics?from='+params.from+'&to='+params.to;
+    // const url = baseUrl + 'system/engines';
     return fetch(url, options)
       .then(Utils.checkStatus);
       /*.then((res) => {
@@ -145,7 +145,7 @@ const ViewModeREST = {
     options.method = options.method || 'GET';
     options.credentials = 'same-origin';
     const url = sampleModeBaseUrl+'/'+topologyId+'/executions/'+dateTimeStr;
-    // const url = baseUrl + 'topologies/' + topologyId + '/sources/metrics?from='+1540684800+'&to='+1540876781;
+    // const url = baseUrl + 'system/engines';
     return fetch(url, options)
       .then(Utils.checkStatus);
       /*.then((res) => {

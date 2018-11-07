@@ -4,112 +4,119 @@
   "template": ["Blank"],
   "metricsUISpec": {
     "metrics": [{
+      "name": "status",
       "uiName": "Status",
       "metricKeyName": "status",
-      "valueFormat": "string",
-      "defaultValue": "",
-      "comment": "Pipeline is active and not paused."
-    },{
-      "uiName": "Latest Run",
-      "metricKeyName": "latest_execution_date",
-      "valueFormat": "datetime",
-      "defaultValue": "",
-      "comment": "Identifier for this pipeline run (execution date)."
-    },{
-      "uiName": "Latest Run Result",
-      "metricKeyName": "latest_execution_status",
+      "metricPrevKeyName": "status",
       "valueFormat": "string",
       "defaultValue": ""
     },{
+      "name": "latestRun",
+      "uiName": "Latest Run",
+      "metricKeyName": "latest_execution_date",
+      "metricPrevKeyName": "latest_execution_date",
+      "valueFormat": "datetime",
+      "defaultValue": ""
+    },{
+      "name": "latestRunResult",
+      "uiName": "Latest Run Result",
+      "metricKeyName": "latest_execution_status",
+      "metricPrevKeyName": "latest_execution_status",
+      "valueFormat": "string",
+      "defaultValue": ""
+    },{
+      "name": "Duration",
       "uiName": "Duration",
-      "metricKeyName": "duration",
+      "metricKeyName": "taskDuration",
+      "metricPrevKeyName": "taskDuration",
       "valueFormat": "time",
       "defaultValue": ""
     },{
+      "name": "catchingUp",
       "uiName": "Catching Up",
       "metricKeyName": "auto_backfilling",
+      "metricPrevKeyName": "auto_backfilling",
       "valueFormat": "boolean",
       "defaultValue": ""
     },{
+      "name": "nextScheduledRun",
       "uiName": "Next Scheduled Run",
       "metricKeyName": "next_execution_date",
+      "metricPrevKeyName": "next_execution_date",
       "valueFormat": "datetime",
       "defaultValue": ""
     },{
+      "name": "pipelineType",
       "uiName": "Pipeline Type",
       "metricKeyName": "pipeline_type",
+      "metricPrevKeyName": "pipeline_type",
       "valueFormat": "string",
-      "defaultValue": "",
-      "comment": "scheduled or triggered"
+      "defaultValue": ""
     },{
+      "name": "schedule",
       "uiName": "Schedule",
       "metricKeyName": "cadence",
+      "metricPrevKeyName": "cadence",
       "valueFormat": "string",
-      "defaultValue": "",
-      "comment": "human readable string describing cadence of pipeline eg. daily at 12pm, only present for scheduled pipelines"
+      "defaultValue": ""
     },{
+      "name": "runName",
       "uiName": "Run Name",
       "metricKeyName": "triggered_pipeline_runname",
+      "metricPrevKeyName": "triggered_pipeline_runname",
       "valueFormat": "string",
-      "defaultValue": "",
-      "comment": "only present for triggered pipelines, run name"
+      "defaultValue": ""
     },{
+      "name": "taskStatus",
       "uiName": "Status",
-      "metricKeyName": "task_status",
+      "metricKeyName": "taskStatus",
+      "metricPrevKeyName": "taskStatus",
       "valueFormat": "string",
-      "defaultValue": "",
-      "comment": "the metrics prefixed with task will need to be returned per task_id"
+      "defaultValue": ""
     },{
+      "name": "startTime",
       "uiName": "Start Time",
       "metricKeyName": "task_start_date",
+      "metricPrevKeyName": "task_start_date",
       "valueFormat": "datetime",
       "defaultValue": ""
     },{
+      "name": "endTime",
       "uiName": "End Time",
       "metricKeyName": "task_end_date",
+      "metricPrevKeyName": "task_end_date",
       "valueFormat": "datetime",
       "defaultValue": ""
     },{
+      "name": "duration",
       "uiName": "Duration",
       "metricKeyName": "next_execution_date",
       "metricPrevKeyName": "",
       "valueFormat": "datetime",
       "defaultValue": ""
     },{
+      "name": "retries",
       "uiName": "Retries",
       "metricKeyName": "retries",
       "metricPrevKeyName": "",
       "valueFormat": "datetime",
-      "defaultValue": "",
-      "comment": "if easy"
+      "defaultValue": ""
     }],
     "timeseries": [{
+      "name": "taskDuration",
       "uiName": "Task Duration",
       "metricKeyName": ["piper_task_duration"],
-      "metricQuery": "fetch service:piper name:piper_task_duration pipeline:$pipeline env:$deployment timertype:upper | scale 1000 | aliasByTags task",
-      "params": {
-        "pipeline":"application_id",
-        "deployment":"namespace"
-      },
-      "interpoloate": "stepped"
+      "interpolate": "stepped"
     },{
+      "name": "avgCPUUsage",
       "uiName": "Avg CPU Usage",
       "metricKeyName": ["average_cpu_usage"],
-      "metricQuery": "fetch env:$deployment service:piper name:piper_task_monitoring reason:average_cpu_usage pipeline:$pipeline | sort avg desc | showTags true $legend_key | head $top_n",
-      "params": {
-        "pipeline":"application_id",
-        "deployment":"namespace"
-      },
-      "interpoloate": "stepped"
+      "interpolate": "stepped"
     },{
+      "name": "memoryUsage",
       "uiName": "Memory Usage",
       "metricKeyName": ["memory_usage"],
-      "metricQuery": "fetch env:$deployment service:piper name:piper_task_monitoring reason:memory_usage pipeline:$pipeline | sort avg desc | showTags true $legend_key | head $top_n",
-      "params": {
-        "pipeline":"application_id",
-        "deployment":"namespace"
-      },
-      "interpoloate": "stepped"
+      "interpolate": "stepped"
     }],
     "layout":{
       "listing": ["status", "latest_execution_date", "latest_execution_status", "next_execution_date", "duration"],
@@ -118,14 +125,14 @@
           "metrics": {
             "topology": [],
             "task": {
-              "base_metrics": ["task_status", "task_start_date", "task_end_date", "task_duration"],
+              "baseMetrics": ["taskStatus", "startTime", "endTime", "duration"],
               "component_metrics" : {}
             }
           },
           "timeseries": {
             "topology": [],
             "task": {
-              "base_metrics": [],
+              "baseMetrics": [],
               "component_metrics": {}
             }
           }
@@ -134,14 +141,14 @@
           "metrics": {
             "topology": [],
             "task": {
-              "base_metrics": [],
+              "baseMetrics": [],
               "component_metrics": {}
             }
           },
           "timeseries": {
             "topology": [],
             "task": {
-              "base_metrics": [],
+              "baseMetrics": [],
               "component_metrics": {}
             }
           }

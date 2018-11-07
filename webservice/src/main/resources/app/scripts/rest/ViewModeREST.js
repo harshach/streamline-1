@@ -133,19 +133,19 @@ const ViewModeREST = {
     options.credentials = 'same-origin';
     const q_params = jQuery.param(params, true);
     const url = sampleModeBaseUrl+'/'+topologyId+'/executions?'+q_params;
-    // const url = baseUrl + 'topologies/' + topologyId + '/sources/metrics?from='+params.from+'&to='+params.to;
+    // const url = baseUrl + 'system/engines';
     return fetch(url, options)
       .then(Utils.checkStatus);
-      // .then((res) => {
-      //   return {"totalResults":34,"executions":[{"createdAt":"2018-10-29T22:01:04","executionDate":"2018-10-26T00:00:00","status":"failed"},{"createdAt":"2018-10-29T22:01:34","executionDate":"2018-10-26T01:00:00","status":"done"},{"createdAt":"2018-10-29T22:02:04","executionDate":"2018-10-26T02:00:00","status":"done"},{"createdAt":"2018-10-29T22:02:34","executionDate":"2018-10-26T03:00:00","status":"done"},{"createdAt":"2018-10-29T22:03:05","executionDate":"2018-10-26T04:00:00","status":"done"}],"pageSize":5,"page":0};
-      // });
+      /*.then((res) => {
+        return {"totalResults":34,"executions":[{"createdAt":"2018-10-29T22:01:04","executionDate":"2018-10-26T00:00:00","status":"failed"},{"createdAt":"2018-10-29T22:01:34","executionDate":"2018-10-26T01:00:00","status":"done"},{"createdAt":"2018-10-29T22:02:04","executionDate":"2018-10-26T02:00:00","status":"done"},{"createdAt":"2018-10-29T22:02:34","executionDate":"2018-10-26T03:00:00","status":"done"},{"createdAt":"2018-10-29T22:03:05","executionDate":"2018-10-26T04:00:00","status":"done"}],"pageSize":5,"page":0};
+      });*/
   },
   getComponentExecutions(topologyId, dateTimeStr, options){
     options = options || {};
     options.method = options.method || 'GET';
     options.credentials = 'same-origin';
     const url = sampleModeBaseUrl+'/'+topologyId+'/executions/'+dateTimeStr;
-    // const url = baseUrl + 'topologies/' + topologyId + '/sources/metrics?from='+1540684800+'&to='+1540876781;
+    // const url = baseUrl + 'system/engines';
     return fetch(url, options)
       .then(Utils.checkStatus);
       /*.then((res) => {

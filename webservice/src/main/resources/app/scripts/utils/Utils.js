@@ -222,7 +222,7 @@ const string = function(val) {
 };
 
 const datetime = function(val) {
-  return {value: moment(val).format('MM/DD/YYYY HH/mm'), suffix: ''};
+  return {value: moment(val).format('MM/DD/YYYY HH:mm'), suffix: ''};
 };
 
 const boolean = function(val) {
@@ -974,6 +974,8 @@ export default {
   getTimeDiffInMinutes,
   abbreviateNumber,
   string,
+  datetime,
+  boolean,
   number,
   time,
   formatLatency,

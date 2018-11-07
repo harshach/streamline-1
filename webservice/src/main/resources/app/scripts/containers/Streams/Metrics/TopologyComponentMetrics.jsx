@@ -81,7 +81,7 @@ class TopologyComponentMetrics extends Component {
 
         const uiNameArr = t.uiName.split(' ');
 
-        const component = <div className="component-metric-widget" style={{width : colStaticWidth+"px"}}>
+        const component = <div className="component-metric-widget" style={{margin : "0 10px 10px 0"}}>
             <h6>{uiNameArr[0]}</h6>
             {uiNameArr[1] ? <h6>{uiNameArr[1]}</h6> : <h6>&nbsp;</h6>}
             <h4>{value.value}

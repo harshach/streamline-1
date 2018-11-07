@@ -76,23 +76,23 @@
     },{
       "name": "startTime",
       "uiName": "Start Time",
-      "metricKeyName": "task_start_date",
-      "metricPrevKeyName": "task_start_date",
+      "metricKeyName": "taskStartDate",
+      "metricPrevKeyName": "taskStartDate",
       "valueFormat": "datetime",
       "defaultValue": ""
     },{
       "name": "endTime",
       "uiName": "End Time",
-      "metricKeyName": "task_end_date",
-      "metricPrevKeyName": "task_end_date",
+      "metricKeyName": "taskEndDate",
+      "metricPrevKeyName": "taskEndDate",
       "valueFormat": "datetime",
       "defaultValue": ""
     },{
-      "name": "duration",
+      "name": "taskSuration",
       "uiName": "Duration",
-      "metricKeyName": "next_execution_date",
+      "metricKeyName": "taskDuration",
       "metricPrevKeyName": "",
-      "valueFormat": "datetime",
+      "valueFormat": "time",
       "defaultValue": ""
     },{
       "name": "retries",
@@ -119,13 +119,13 @@
       "interpolate": "stepped"
     }],
     "layout":{
-      "listing": ["status", "latest_execution_date", "latest_execution_status", "next_execution_date", "duration"],
+      "listing": ["status", "latestRun", "latestRunResult", "nextScheduledRun", "duration"],
       "viewmode": {
         "DAG": {
           "metrics": {
             "topology": [],
             "task": {
-              "baseMetrics": ["taskStatus", "startTime", "endTime", "duration"],
+              "baseMetrics": ["taskStatus", "startTime", "endTime", "taskSuration"],
               "component_metrics" : {}
             }
           },
@@ -141,7 +141,7 @@
           "metrics": {
             "topology": ["status"],
             "task": {
-              "baseMetrics": ["taskStatus", "startTime", "endTime", "duration"],
+              "baseMetrics": ["taskStatus", "startTime", "endTime", "taskSuration"],
               "component_metrics": {}
             }
           },

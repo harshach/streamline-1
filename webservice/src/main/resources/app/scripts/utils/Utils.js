@@ -217,12 +217,16 @@ const abbreviateNumber = function(value) {
   return {value: newValue, suffix: suffix};
 };
 
-const string = function(val) {
+const string = function(val = '') {
   return {value: val.toString(), suffix: ''};
 };
 
 const datetime = function(val) {
-  return {value: moment(val).format('MM/DD/YYYY HH:mm'), suffix: ''};
+  if(val){
+    return {value: moment(val).format('MM/DD/YYYY HH:mm'), suffix: ''};
+  }else{
+    return {value: '', suffix: ''};
+  }
 };
 
 const boolean = function(val) {

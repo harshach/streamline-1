@@ -50,9 +50,9 @@ import DateTimePickerDropdown from '../../../components/DateTimePickerDropdown';
     };
   }
   componentWillReceiveProps(props) {
-    if(props.viewModeData.selectedComponentId !== '') {
+    /*if(props.viewModeData.selectedComponentId !== '') {
       this.setState({showMetrics: true});
-    }
+    }*/
   }
   getGraph(name, data, interpolation, graphHeight) {
     const self = this;

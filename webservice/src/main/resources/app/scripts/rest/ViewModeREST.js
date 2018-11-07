@@ -132,7 +132,7 @@ const ViewModeREST = {
     options.method = options.method || 'GET';
     options.credentials = 'same-origin';
     const q_params = jQuery.param(params, true);
-    const url = sampleModeBaseUrl+'/'+topologyId+'/executions?'+q_params;
+    const url = baseUrl+'batch/topologies/'+topologyId+'/executions?'+q_params;
     // const url = baseUrl + 'system/engines';
     return fetch(url, options)
       .then(Utils.checkStatus);
@@ -144,7 +144,7 @@ const ViewModeREST = {
     options = options || {};
     options.method = options.method || 'GET';
     options.credentials = 'same-origin';
-    const url = sampleModeBaseUrl+'/'+topologyId+'/executions/'+dateTimeStr;
+    const url = baseUrl+'batch/topologies/'+topologyId+'/executions/'+dateTimeStr;
     // const url = baseUrl + 'system/engines';
     return fetch(url, options)
       .then(Utils.checkStatus);

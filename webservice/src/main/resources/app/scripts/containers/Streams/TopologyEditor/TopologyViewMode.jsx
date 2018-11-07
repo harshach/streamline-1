@@ -198,7 +198,8 @@ class TopologyViewMode extends Component {
       versionsArr = [],
       allACL,
       viewModeData,
-      disabledTopologyLevelSampling
+      disabledTopologyLevelSampling,
+      engine
     } = this.props;
 
     const topologyMetric = runtimeObj;
@@ -250,6 +251,7 @@ class TopologyViewMode extends Component {
     return (
       <div>
         <div className="view-mode-title-box row">
+          { engine.type == 'stream' &&
           <div className="col-sm-4">
             <DropdownButton title={titleContent}
               id="log-duration-dropdown"
@@ -271,6 +273,7 @@ class TopologyViewMode extends Component {
               />
             </DropdownButton>
           </div>
+          }
           {/*<div className="col-sm-3">
             <div className="filter-label">
               <span className="text-muted">Version:</span>
@@ -282,6 +285,7 @@ class TopologyViewMode extends Component {
               </DropdownButton>
             </div>
           </div>*/}
+          { engine.type == 'stream' &&
           <div className="col-sm-4 text-right">
             <div>
               <span className="text-muted">Mode: </span>
@@ -292,6 +296,7 @@ class TopologyViewMode extends Component {
               </ToggleButtonGroup>
             </div>
           </div>
+          }
           <div className="pull-right">
             {versionName.toLowerCase() == 'current'
               ? [

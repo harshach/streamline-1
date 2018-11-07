@@ -8,7 +8,6 @@ import com.hortonworks.streamline.streams.cluster.catalog.ComponentProcess;
 import com.hortonworks.streamline.streams.cluster.catalog.Namespace;
 import com.hortonworks.streamline.streams.cluster.catalog.Service;
 import com.hortonworks.streamline.streams.cluster.discovery.ambari.ComponentPropertyPattern;
-import com.hortonworks.streamline.streams.layout.TopologyLayoutConstants;
 import com.hortonworks.streamline.streams.metrics.topology.service.TopologyCatalogHelperService;
 import com.hortonworks.streamline.streams.sampling.service.TopologySampling;
 import com.hortonworks.streamline.streams.storm.common.StormRestAPIClient;
@@ -37,17 +36,12 @@ public class StormTopologySamplingService implements TopologySampling {
     }
 
     @Override
-    public void init(Engine engine, Namespace namespace, TopologyCatalogHelperService topologyCatalogHelperService, Subject subject, Map<String, Object> conf) {
+    public void init(Engine engine, Namespace namespace, TopologyCatalogHelperService topologyCatalogHelperService, Subject subject, Map<String, Object> conf) throws ConfigException {
         this.engine = engine;
         this.namespace = namespace;
         this.topologyCatalogHelperService = topologyCatalogHelperService;
         this.subject = subject;
-        String stormApiRootUrl = null;
-
-        if (conf != null) {
-            stormApiRootUrl = (String) conf.get(TopologyLayoutConstants.STORM_API_ROOT_URL_KEY);
-            subject = (Subject) conf.get(TopologyLayoutConstants.SUBJECT_OBJECT);
-        }
+        String stormApiRootUrl = buildStormRestApiRootUrl();
         Client restClient = ClientBuilder.newClient(new ClientConfig());
         this.client = new StormRestAPIClient(restClient, stormApiRootUrl, subject);
     }

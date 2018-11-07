@@ -1,5 +1,6 @@
 package com.hortonworks.streamline.streams.sampling.service;
 
+import com.hortonworks.streamline.common.exception.ConfigException;
 import com.hortonworks.streamline.streams.catalog.Engine;
 import com.hortonworks.streamline.streams.cluster.catalog.Namespace;
 import com.hortonworks.streamline.streams.metrics.topology.service.TopologyCatalogHelperService;
@@ -39,7 +40,7 @@ public class TopologySamplingFactory {
                 topologySampling.init(engine, namespace, topologyCatalogHelperService, subject, config);
                 samplingMap.put(namespace, topologySampling);
                 topologySamplingMap.put(engine, samplingMap);
-            } catch (IllegalAccessException | InstantiationException | ClassNotFoundException e) {
+            } catch (IllegalAccessException | InstantiationException | ClassNotFoundException | ConfigException e) {
                 throw new RuntimeException("Can't initialize Topology actions instance - Class Name: " + className, e);
             }
         }

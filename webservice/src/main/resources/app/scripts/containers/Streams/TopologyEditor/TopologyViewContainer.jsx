@@ -525,7 +525,7 @@ class TopologyViewContainer extends TopologyEditorContainer {
       promiseArr.push(ViewModeREST.getTopologyMetrics(this.topologyId, fromTime, toTime).then((res)=>{
         viewModeData.topologyMetrics = res;
         return res;
-      }, (err) => {})
+      }, (err) => {}));
       _.each(this.engine.componentTypes, (type) => {
         const typeInLCase = type.toLowerCase();
         promiseArr.push(ViewModeREST.getComponentMetrics(this.topologyId, typeInLCase+'s', fromTime, toTime).then((res) => {

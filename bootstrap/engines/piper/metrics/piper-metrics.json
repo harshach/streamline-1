@@ -139,9 +139,9 @@
         },
         "metricsSection": {
           "metrics": {
-            "topology": [],
+            "topology": ["status"],
             "task": {
-              "baseMetrics": [],
+              "baseMetrics": ["taskStatus", "startTime", "endTime", "duration"],
               "component_metrics": {}
             }
           },

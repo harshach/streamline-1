@@ -457,11 +457,19 @@ class TopologyViewContainer extends TopologyEditorContainer {
         });
 
         viewModeData.taskMetrics = taskMetrics;
+
+
+        viewModeData.topologyMetrics = {
+          overviewMetrics: {
+            metrics: ex
+          }
+        };
         this.setState({
           selectedExecution: ex,
           selectedExecutionComponentsStatus: selectedExecutionComponentsStatus,
           viewModeData: viewModeData
         }, () => {
+          this.syncComponentData();
           this.triggerUpdateGraph();
         });
       });

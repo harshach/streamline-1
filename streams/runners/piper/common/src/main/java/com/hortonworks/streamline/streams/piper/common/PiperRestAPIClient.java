@@ -59,8 +59,9 @@ public class PiperRestAPIClient {
     }
 
     public Map getPipelineState(String uuid) {
-        return doGetRequest(String.format("%s/api/v1/pipeline/state?pipeline_id=%s",
+        Map response =  doGetRequest(String.format("%s/api/v1/pipeline/state?pipeline_id=%s",
                 this.apiRootUrl, uuid));
+        return PiperUtil.fixExecutionDate(response);
     }
 
     public Map getTaskGraph(String uuid, String executionDate) {

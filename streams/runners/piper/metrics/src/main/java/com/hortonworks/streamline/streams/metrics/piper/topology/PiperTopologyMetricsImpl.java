@@ -1,30 +1,107 @@
 package com.hortonworks.streamline.streams.metrics.piper.topology;
 
 import com.hortonworks.streamline.common.exception.ConfigException;
+import com.hortonworks.streamline.common.util.WSUtils;
 import com.hortonworks.streamline.streams.catalog.Engine;
+import com.hortonworks.streamline.streams.catalog.Topology;
 import com.hortonworks.streamline.streams.catalog.TopologyComponent;
+import com.hortonworks.streamline.streams.catalog.TopologyRuntimeIdMap;
 import com.hortonworks.streamline.streams.cluster.catalog.Namespace;
-import com.hortonworks.streamline.streams.exception.TopologyNotAliveException;
+import com.hortonworks.streamline.streams.cluster.catalog.Service;
+import com.hortonworks.streamline.streams.cluster.catalog.ServiceConfiguration;
 import com.hortonworks.streamline.streams.layout.component.Component;
 import com.hortonworks.streamline.streams.layout.component.TopologyLayout;
 import com.hortonworks.streamline.streams.metrics.TimeSeriesQuerier;
 import com.hortonworks.streamline.streams.metrics.topology.TopologyMetrics;
 import com.hortonworks.streamline.streams.metrics.topology.service.TopologyCatalogHelperService;
 import com.hortonworks.streamline.streams.piper.common.PiperRestAPIClient;
-import org.apache.avro.generic.GenericData;
-import org.apache.commons.lang3.StringUtils;
+import com.hortonworks.streamline.streams.piper.common.PiperUtil;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.security.auth.Subject;
+import java.io.IOException;
 import java.util.*;
+
+import static com.hortonworks.streamline.streams.piper.common.PiperConstants.PIPER_ROOT_URL_KEY;
+import static com.hortonworks.streamline.streams.piper.common.PiperConstants.PIPER_SERVICE_CONFIG_NAME;
+import static com.hortonworks.streamline.streams.piper.common.PiperConstants.PIPER_SERVICE_CONFIG_KEY_HOST;
+import static com.hortonworks.streamline.streams.piper.common.PiperConstants.PIPER_SERVICE_CONFIG_KEY_PORT;
+import static com.hortonworks.streamline.streams.piper.common.PiperConstants.PIPER_RESPONSE_DATA;
+import static com.hortonworks.streamline.streams.piper.common.PiperConstants.PIPER_RESPONSE_TOTAL_RESULTS;
+import static com.hortonworks.streamline.streams.piper.common.PiperConstants.PIPER_RESPONSE_PAGE;
+import static com.hortonworks.streamline.streams.piper.common.PiperConstants.PIPER_RESPONSE_PAGE_SIZE;
+import static com.hortonworks.streamline.streams.piper.common.PiperConstants.STATE_KEY_EXECUTION_DATE;
+import static com.hortonworks.streamline.streams.piper.common.PiperConstants.STATE_KEY_EXECUTION_STATE;
+import static com.hortonworks.streamline.streams.piper.common.PiperConstants.PIPER_METRIC_RUNTIME_STATUS;
+import static com.hortonworks.streamline.streams.piper.common.PiperConstants.PIPER_METRIC_LATEST_EXECUTION_DATE;
+import static com.hortonworks.streamline.streams.piper.common.PiperConstants.PIPER_METRIC_LATEST_EXECUTION_STATUS;
+import static com.hortonworks.streamline.streams.piper.common.PiperConstants.RESPONSE_TOTAL_RESULTS;
+import static com.hortonworks.streamline.streams.piper.common.PiperConstants.RESPONSE_PAGE_SIZE;
+import static com.hortonworks.streamline.streams.piper.common.PiperConstants.RESPONSE_PAGE;
+
 
 
 public class PiperTopologyMetricsImpl implements TopologyMetrics {
 	private static final Logger LOG = LoggerFactory.getLogger(PiperTopologyMetricsImpl.class);
 	private PiperRestAPIClient client;
+	private TopologyCatalogHelperService topologyCatalogHelperService;
 
-	@Override
+	// Piper JSON API keys
+	private static final String STATE_KEY_SCHEDULE_INTERVAL = "schedule_interval";
+    private static final String STATE_KEY_DURATION = "duration";
+    private static final String STATE_KEY_AUTOBACKFILLING = "autobackfilling";
+    private static final String STATE_KEY_NEXT_EXECUTION_DATE = "next_execution_date";
+    private static final String STATE_KEY_PIPELINE_TYPE = "pipeline_type";
+    private static final String STATE_KEY_TRIGGERED_PIPELINE_RUN_NAME = "triggered_pipeline_run_name";
+
+    private static final String TASK_GRAPH_KEY_GRAPH= "graph";
+    private static final String TASK_GRAPH_KEY_NODES = "nodes";
+    private static final String TASK_GRAPH_KEY_STATE = "state";
+    private static final String TASK_GRAPH_KEY_START_DATE = "start_date";
+    private static final String TASK_GRAPH_KEY_END_DATE = "end_date";
+    private static final String TASK_GRAPH_KEY_DURATION = "duration";
+    private static final String TASK_GRAPH_KEY_TRY_NUMBER = "try_number";
+    private static final String TASK_GRAPH_KEY_RETRIES = "retries";
+    private static final String TASK_GRAPH_KEY_POOL = "pool";
+    private static final String TASK_GRAPH_KEY_TASK_ID = "task_id";
+
+    private static final String RUNS_KEY_STATE = "state";
+    private static final String RUNS_KEY_EXECUTION_DATE = "execution_date";
+    private static final String RUNS_KEY_CREATED_AT = "created_at";
+
+
+    // uWorc JSON Metric keys
+    private static final String PIPER_METRIC_FRAMEWORK = "PIPER";
+
+    private static final String PIPER_METRICS_EXECUTIONS = "executions";
+
+    private static final String PIPER_METRIC_COMPONENTS = "components";
+    private static final String PIPER_METRIC_COMPONENT_ID = "componentId";
+    private static final String PIPER_METRIC_COMPONENT_NAME = "componentName";
+
+    private static final String PIPER_METRIC_CADENCE = "cadence";
+    private static final String PIPER_METRIC_DURATION = "duration";
+    private static final String PIPER_METRIC_AUTOBACKFILLING = "autobackfilling";
+    private static final String PIPER_METRIC_NEXT_EXECUTION_DATE = "nextExecutionDate";
+    private static final String PIPER_METRIC_PIPELINE_TYPE = "pipelineType";
+    private static final String PIPER_METRIC_TRIGGERED_PIPELINE_RUN_NAME = "triggeredPipelineRunName";
+
+    private static final String PIPER_METRIC_TASK_STATUS = "taskStatus";
+    private static final String PIPER_METRIC_TASK_START_DATE = "taskStartDate";
+    private static final String PIPER_METRIC_TASK_END_DATE = "taskEndDate";
+    private static final String PIPER_METRIC_TASK_DURATION = "taskDuration";
+    private static final String PIPER_METRIC_TASK_RETRY_COUNT = "taskRetryCount";
+    private static final String PIPER_METRIC_TASK_RETRIES = "taskRetries";
+    private static final String PIPER_METRIC_TASK_POOL = "taskPool";
+
+    private static final String PIPER_METRIC_EXECUTION_STATUS = "status";
+    private static final String PIPER_METRIC_EXECUTION_DATE = "executionDate";
+    private static final String PIPER_METRIC_CREATED_AT = "createdAt";
+
+
+    @Override
 	public void setTimeSeriesQuerier(TimeSeriesQuerier timeSeriesQuerier) {
 
 	}
@@ -57,150 +134,213 @@ public class PiperTopologyMetricsImpl implements TopologyMetrics {
 	@Override
 	public void init(Engine engine, Namespace namespace, TopologyCatalogHelperService topologyCatalogHelperService,
 					 Subject subject, Map<String, Object> conf) throws ConfigException {
-		String piperAPIRootUrl = (String)conf.get("PIPER_API_ROOT_URL_KEY");
-		this.client = new PiperRestAPIClient(piperAPIRootUrl, null);
+
+		this.topologyCatalogHelperService = topologyCatalogHelperService;
+		Map<String, Object> piperConf = buildPiperTopologyMetricsConfigMap(namespace, engine);
+		String piperAPIRootUrl = (String) piperConf.get(PIPER_ROOT_URL_KEY);
+		this.client = new PiperRestAPIClient(piperAPIRootUrl, subject);
 	}
 
 	@Override
-	// FIXME needs applicationId, catalogService or impl needs to init with catalogService (StormImpl asks the storm server)
 	// FIXME we could use this for getExecutions if it accepted params
 	// FIXME Workaround pending T2184545
-	public TopologyMetric getTopologyMetric(TopologyLayout topology, String asUser) {
-		String applicationId = "f7a8eef8-d1a2-11e8-9217-8c859066bcf7";
-		Map response = this.client.getPipelineState(applicationId);
+	public TopologyMetric getTopologyMetric(TopologyLayout topologyLayout, String asUser) {
+        Map<String, Object> metrics = new HashMap<>();
 
-		/*  FIXME transform.
-			FIXME needs to be implemented for project listing
+        Topology topology = getTopologyForLayout(topologyLayout);
+		String runtimeId = getRuntimeTopologyId(topology);
+		if (runtimeId != null) {
+            Map response = client.getPipelineState(runtimeId);
+            String runtimeStatus = PiperUtil.getRuntimeStatus(response);
+            metrics.put(PIPER_METRIC_RUNTIME_STATUS, runtimeStatus);
+            metrics.put(PIPER_METRIC_LATEST_EXECUTION_DATE, response.get(STATE_KEY_EXECUTION_DATE));
+            metrics.put(PIPER_METRIC_LATEST_EXECUTION_STATUS, response.get(STATE_KEY_EXECUTION_STATE));
 
-			"metricKeyName": "status"
-			"comment": "Pipeline is active and not paused."
+            // FIXME is UI interpreting and humanizing?
+            metrics.put(PIPER_METRIC_CADENCE, response.get(STATE_KEY_SCHEDULE_INTERVAL));
 
-			"metricKeyName": "latest_execution_date",
-			"comment": "Identifier for this pipeline run (execution date)."
+            // FIXME these fields are not currently available https://code.uberinternal.com/T2207333
+            metrics.put(PIPER_METRIC_DURATION, response.get(STATE_KEY_DURATION));
+            metrics.put(PIPER_METRIC_AUTOBACKFILLING, response.get(STATE_KEY_AUTOBACKFILLING));
+            metrics.put(PIPER_METRIC_NEXT_EXECUTION_DATE, response.get(STATE_KEY_NEXT_EXECUTION_DATE));
+            metrics.put(PIPER_METRIC_PIPELINE_TYPE, response.get(STATE_KEY_PIPELINE_TYPE));
 
+            metrics.put(PIPER_METRIC_TRIGGERED_PIPELINE_RUN_NAME, response.get(STATE_KEY_TRIGGERED_PIPELINE_RUN_NAME));
+        }
 
-			"metricKeyName": "latest_execution_status",
-			"valueFormat": "string",
-			"defaultValue": ""
-
-
-			"metricKeyName": "duration",
-			"valueFormat": "time",
-
-			"metricKeyName": "auto_backfilling",
-			"valueFormat": "boolean",
-
-			"metricKeyName": "next_execution_date",
-			"valueFormat": "datetime",
-
-
-			"metricKeyName": "pipeline_type",
-			"valueFormat": "string",
-			"defaultValue": "",
-			"comment": "scheduled or triggered"
-
-			"metricKeyName": "cadence",
-			"valueFormat": "string",
-
-			"metricKeyName": "triggered_pipeline_runname",
-			"valueFormat": "string",
-			"comment": "only present for triggered pipelines, run name"
-		*/
-
-		return new TopologyMetric("PIPER", topology.getName(), response);
+		return new TopologyMetric(PIPER_METRIC_FRAMEWORK, topology.getName(), metrics);
 	}
 
 	@Override
-	// FIXME T2184613 - needs applicationId, catalogService or impl needs to init with catalogService (StormImpl asks the storm server)
-	// FIXME we could use this for getExecution if it accepted params
-	public Map<String, ComponentMetric> getMetricsForTopology(TopologyLayout topology, String asUser) {
-		// Stubbed
-		String streamlineComponentName = "COMPONENT_ID";
-		Map<String, Object> map = new HashMap<>();
-		Map<String, ComponentMetric> metricMap = new HashMap<>();
-		ComponentMetric componentMetric = new ComponentMetric(streamlineComponentName, map);
-		metricMap.put("COMPONENT_ID", componentMetric);
-		return metricMap;
+	public Map<String, ComponentMetric> getMetricsForTopology(TopologyLayout topologyLayout, String asUser) {
+        Map<String, ComponentMetric> metricMap = new HashMap<>();
+
+        Topology topology = getTopologyForLayout(topologyLayout);
+        String runtimeId = getRuntimeTopologyId(topology);
+        if (runtimeId != null) {
+
+            Map response = client.getPipelineState(runtimeId);
+            String latestExecutionDate = (String) response.get(STATE_KEY_EXECUTION_DATE);
+
+            if (latestExecutionDate != null) {
+                Map<String, Object> execution = getExecution(topologyLayout,latestExecutionDate);
+                List<Map<String, Object>> componentList = (List) execution.get(PIPER_METRIC_COMPONENTS);
+                for(Map component: componentList) {
+                    Long componentId = (Long) component.get(PIPER_METRIC_COMPONENT_ID);
+                    String streamlineComponentName = (String) component.get(PIPER_METRIC_COMPONENT_NAME);
+                    metricMap.put(componentId.toString(), new ComponentMetric(streamlineComponentName, component));
+                }
+            }
+        }
+        return metricMap;
 	}
 
-	private Map<String, Object> toTaskMap(List<Object> tasks) {
-		Map<String, Object> map = new HashMap<>();
-		if (tasks != null) {
-			for(int i=0; i<tasks.size(); i++) {
-				Map task = (Map) tasks.get(i);
-				if (task.get("task_id") != null) {
-					map.put((String)task.get("task_id"), task);
-				}
-			}
-		}
-		return map;
-	}
-
-	public Map getExecution(TopologyLayout topology, Collection<? extends TopologyComponent> components,
-							String applicationId, String executionDate) {
+	public Map<String, Object> getExecution(TopologyLayout topologyLayout, String executionDate) {
 
 		List<Object> componentMetrics = new ArrayList<>();
+        Map<String, Object> result = new HashMap<>();
 
-		Map<String, Object> result = new HashMap<>();
-		Map response = this.client.getTaskGraph(applicationId, executionDate);
-		Map graph = (Map) response.get("graph");
-		List tasks = (List)graph.get("nodes");
-		Map<String, Object> taskMap = toTaskMap(tasks);
+        Topology topology = getTopologyForLayout(topologyLayout);
+        String runtimeId = getRuntimeTopologyId(topology);
+        if (runtimeId != null) {
 
-		if (components != null) {
-			for (TopologyComponent component: components) {
+            Map response = client.getTaskGraph(runtimeId, executionDate);
+            Map graph = (Map) response.get(TASK_GRAPH_KEY_GRAPH);
+            List tasks = (List) graph.get(TASK_GRAPH_KEY_NODES);
+            Map<String, Object> taskMap = toTaskMap(tasks);
 
-				String componentName = component.getName();
-				Map task = (Map) taskMap.getOrDefault(componentName, new HashMap());
+            Collection<? extends TopologyComponent> components = getTopologyComponents(topology);
+            if (components != null) {
+                for (TopologyComponent component : components) {
 
-				Map<String, Object> componentMetric = new HashMap<>();
+                    String componentName = component.getName();
+                    Map task = (Map) taskMap.getOrDefault(componentName, new HashMap());
 
-				componentMetric.put("componentId", component.getId());
-				componentMetric.put("executionDate", executionDate);
-				componentMetric.put("taskStatus", task.get("state"));
-				componentMetric.put("taskStartDate", task.get("start_date"));
-				componentMetric.put("taskEndDate", task.get("end_date"));
-				componentMetric.put("taskDuration", task.get("duration"));
-				componentMetric.put("taskRetryCount", task.get("try_number"));
-				componentMetric.put("taskRetries", task.get("retries"));
-				componentMetric.put("taskPool", task.get("pool"));
+                    Map<String, Object> componentMetric = new HashMap<>();
 
-				componentMetrics.add(componentMetric);
-			}
-		}
+                    componentMetric.put(PIPER_METRIC_COMPONENT_ID, component.getId());
+                    componentMetric.put(PIPER_METRIC_COMPONENT_NAME, component.getName());
+                    componentMetric.put(PIPER_METRIC_EXECUTION_DATE, executionDate);
+                    componentMetric.put(PIPER_METRIC_TASK_STATUS, task.get(TASK_GRAPH_KEY_STATE));
+                    componentMetric.put(PIPER_METRIC_TASK_START_DATE, task.get(TASK_GRAPH_KEY_START_DATE));
+                    componentMetric.put(PIPER_METRIC_TASK_END_DATE, task.get(TASK_GRAPH_KEY_END_DATE));
+                    componentMetric.put(PIPER_METRIC_TASK_DURATION, task.get(TASK_GRAPH_KEY_DURATION));
+                    componentMetric.put(PIPER_METRIC_TASK_RETRY_COUNT, task.get(TASK_GRAPH_KEY_TRY_NUMBER));
+                    componentMetric.put(PIPER_METRIC_TASK_RETRIES, task.get(TASK_GRAPH_KEY_RETRIES));
+                    componentMetric.put(PIPER_METRIC_TASK_POOL, task.get(TASK_GRAPH_KEY_POOL));
 
-		result.put("components", componentMetrics);
+                    componentMetrics.add(componentMetric);
+                }
+            }
+        }
 
+		result.put(PIPER_METRIC_COMPONENTS, componentMetrics);
 		return result;
 
 	}
 
-	public Map getExecutions(TopologyLayout topology, String applicationId,
-							 Long from, Long to, Integer page, Integer pageSize) {
-
+	public Map<String, Object> getExecutions(TopologyLayout topologyLayout, Long from, Long to, Integer page, Integer pageSize) {
 		Map<String, Object> result = new HashMap<>();
 		ArrayList<Object> topologyMetrics = new ArrayList<Object>();
 
-		Map response = this.client.getPipelineRuns(applicationId, from, to, page, pageSize);
-		ArrayList<Object> executions = (ArrayList<Object>) response.get("data");
+        Topology topology = getTopologyForLayout(topologyLayout);
+        String runtimeId = getRuntimeTopologyId(topology);
 
-		result.put("totalResults", response.get("total_results"));
-		result.put("page", response.get("page"));
-		result.put("pageSize", response.get("page_size"));
+        if (runtimeId != null) {
 
-		if (executions != null) {
-			for (int i = 0; i < executions.size(); i++) {
-				Map execution = (Map) executions.get(i);
+            Map response = this.client.getPipelineRuns(runtimeId, from, to, page, pageSize);
+            ArrayList<Map<String, Object>> executions = (ArrayList<Map<String, Object>>) response.get(PIPER_RESPONSE_DATA);
 
-				//Abbreviated topology metric
-				Map<String, Object> topologyMetric = new HashMap<>();
-				topologyMetric.put("status", execution.get("state"));
-				topologyMetric.put("executionDate", execution.get("execution_date"));
-				topologyMetric.put("createdAt", execution.get("created_at"));
-				topologyMetrics.add(topologyMetric);
-			}
-		}
-		result.put("executions", topologyMetrics);
+            result.put(RESPONSE_TOTAL_RESULTS, response.get(PIPER_RESPONSE_TOTAL_RESULTS));
+            result.put(RESPONSE_PAGE, response.get(PIPER_RESPONSE_PAGE));
+            result.put(RESPONSE_PAGE_SIZE, response.get(PIPER_RESPONSE_PAGE_SIZE));
+
+            if (executions != null) {
+                for (Map execution: executions) {
+
+                    //Abbreviated topology metric
+                    Map<String, Object> topologyMetric = new HashMap<>();
+                    topologyMetric.put(PIPER_METRIC_EXECUTION_STATUS, execution.get(RUNS_KEY_STATE));
+                    topologyMetric.put(PIPER_METRIC_EXECUTION_DATE, execution.get(RUNS_KEY_EXECUTION_DATE));
+                    topologyMetric.put(PIPER_METRIC_CREATED_AT, execution.get(RUNS_KEY_CREATED_AT));
+                    topologyMetrics.add(topologyMetric);
+                }
+            }
+        }
+		result.put(PIPER_METRICS_EXECUTIONS, topologyMetrics);
 		return result;
+	}
+
+	private Topology getTopologyForLayout(TopologyLayout topologyLayout) {
+        Topology topology = topologyCatalogHelperService.getTopology(topologyLayout.getId());
+        if (topology == null) {
+            throw new IllegalStateException("Topology not found topology id:" + topologyLayout.getId());
+        }
+        return topology;
+    }
+
+	private String getRuntimeTopologyId(Topology topology) {
+	    String runtimeId = null;
+        TopologyRuntimeIdMap topologyRuntimeIdMap =
+                topologyCatalogHelperService.getTopologyRuntimeIdMap(
+                        topology.getId(), topology.getNamespaceId());
+        if (topologyRuntimeIdMap != null) {
+            runtimeId = topologyRuntimeIdMap.getApplicationId();
+        }
+        return runtimeId;
+	}
+
+	private Collection<? extends TopologyComponent>  getTopologyComponents(Topology topology) {
+        Long currentVersionId = topologyCatalogHelperService.getCurrentVersionId(topology.getId());
+
+        List<com.hortonworks.streamline.common.QueryParam> queryParams =
+                WSUtils.buildTopologyIdAndVersionIdAwareQueryParams(topology.getId(), currentVersionId, null);
+
+        return topologyCatalogHelperService.listTopologyTasks(queryParams);
+    }
+
+    private Map<String, Object> toTaskMap(List<Map<String, Object>> tasks) {
+        Map<String, Object> map = new HashMap<>();
+        if (tasks != null) {
+            for(Map task: tasks) {
+                if (task.get(TASK_GRAPH_KEY_TASK_ID) != null) {
+                    map.put((String)task.get(TASK_GRAPH_KEY_TASK_ID), task);
+                }
+            }
+        }
+        return map;
+    }
+
+	private Map<String, Object> buildPiperTopologyMetricsConfigMap(Namespace namespace, Engine engine) throws ConfigException {
+        Map<String, Object> conf = new HashMap<>();
+
+        Service piperService = topologyCatalogHelperService.
+                getFirstOccurenceServiceForNamespace(namespace, engine.getName());
+
+        final ServiceConfiguration serviceConfig = topologyCatalogHelperService.getServiceConfigurationByName(
+                piperService.getId(), PIPER_SERVICE_CONFIG_NAME);
+
+        if (serviceConfig == null) {
+            throw new ConfigException("Serivce Config Not Found " + PIPER_SERVICE_CONFIG_NAME);
+        }
+
+        Map<String, String> configMap = null;
+        try {
+            configMap = serviceConfig.getConfigurationMap();
+        } catch (IOException e) {
+            throw new ConfigException("Service Config Map could not be loaded " + PIPER_SERVICE_CONFIG_NAME, e);
+        }
+
+        if (configMap == null) {
+            throw new ConfigException("Serivce Config Map Not Found " + PIPER_SERVICE_CONFIG_NAME);
+        }
+
+        String host = configMap.get(PIPER_SERVICE_CONFIG_KEY_HOST);
+        String port = configMap.get(PIPER_SERVICE_CONFIG_KEY_PORT);
+
+        String apiRootUrl = PiperUtil.buildPiperRestApiRootUrl(host, port);
+        conf.put(PIPER_ROOT_URL_KEY, apiRootUrl);
+
+        return conf;
 	}
 }

@@ -26,7 +26,7 @@ public class EntityNotFoundException extends WebServiceException {
   private static final String BY_VERSION_MESSAGE = "Entity with id [%s] and version [%s] not found.";
   private static final String BY_PARSER_SCHEMA_MESSAGE = "Parser schema not found for entity with id [%s].";
 
-  private EntityNotFoundException(String message) {
+  public EntityNotFoundException(String message) {
     super(Response.Status.NOT_FOUND, message);
   }
 

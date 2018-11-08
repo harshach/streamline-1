@@ -11,13 +11,13 @@
       "comment": "Pipeline is active and not paused."
     },{
       "uiName": "Latest Run",
-      "metricKeyName": "latest_execution_date",
+      "metricKeyName": "latestExecutionDate",
       "valueFormat": "datetime",
       "defaultValue": "",
       "comment": "Identifier for this pipeline run (execution date)."
     },{
       "uiName": "Latest Run Result",
-      "metricKeyName": "latest_execution_status",
+      "metricKeyName": "latestExecutionStatus",
       "valueFormat": "string",
       "defaultValue": ""
     },{
@@ -27,17 +27,17 @@
       "defaultValue": ""
     },{
       "uiName": "Catching Up",
-      "metricKeyName": "auto_backfilling",
+      "metricKeyName": "autobackfilling",
       "valueFormat": "boolean",
       "defaultValue": ""
     },{
       "uiName": "Next Scheduled Run",
-      "metricKeyName": "next_execution_date",
+      "metricKeyName": "nextExecutionDate",
       "valueFormat": "datetime",
       "defaultValue": ""
     },{
       "uiName": "Pipeline Type",
-      "metricKeyName": "pipeline_type",
+      "metricKeyName": "pipelineType",
       "valueFormat": "string",
       "defaultValue": "",
       "comment": "scheduled or triggered"
@@ -49,29 +49,29 @@
       "comment": "human readable string describing cadence of pipeline eg. daily at 12pm, only present for scheduled pipelines"
     },{
       "uiName": "Run Name",
-      "metricKeyName": "triggered_pipeline_runname",
+      "metricKeyName": "triggeredPipelineRunName",
       "valueFormat": "string",
       "defaultValue": "",
       "comment": "only present for triggered pipelines, run name"
     },{
       "uiName": "Status",
-      "metricKeyName": "task_status",
+      "metricKeyName": "taskStatus",
       "valueFormat": "string",
       "defaultValue": "",
       "comment": "the metrics prefixed with task will need to be returned per task_id"
     },{
       "uiName": "Start Time",
-      "metricKeyName": "task_start_date",
+      "metricKeyName": "taskStartDate",
       "valueFormat": "datetime",
       "defaultValue": ""
     },{
       "uiName": "End Time",
-      "metricKeyName": "task_end_date",
+      "metricKeyName": "taskEndDate",
       "valueFormat": "datetime",
       "defaultValue": ""
     },{
       "uiName": "Duration",
-      "metricKeyName": "next_execution_date",
+      "metricKeyName": "nextExecutionDate",
       "metricPrevKeyName": "",
       "valueFormat": "datetime",
       "defaultValue": ""
@@ -85,7 +85,7 @@
     }],
     "timeseries": [{
       "uiName": "Task Duration",
-      "metricKeyName": ["piper_task_duration"],
+      "metricKeyName": ["piperTaskDuration"],
       "metricQuery": "fetch service:piper name:piper_task_duration pipeline:$pipeline env:$deployment timertype:upper | scale 1000 | aliasByTags task",
       "params": {
         "pipeline":"application_id",
@@ -94,7 +94,7 @@
       "interpoloate": "stepped"
     },{
       "uiName": "Avg CPU Usage",
-      "metricKeyName": ["average_cpu_usage"],
+      "metricKeyName": ["averageCpuUsage"],
       "metricQuery": "fetch env:$deployment service:piper name:piper_task_monitoring reason:average_cpu_usage pipeline:$pipeline | sort avg desc | showTags true $legend_key | head $top_n",
       "params": {
         "pipeline":"application_id",
@@ -103,7 +103,7 @@
       "interpoloate": "stepped"
     },{
       "uiName": "Memory Usage",
-      "metricKeyName": ["memory_usage"],
+      "metricKeyName": ["memoryUsage"],
       "metricQuery": "fetch env:$deployment service:piper name:piper_task_monitoring reason:memory_usage pipeline:$pipeline | sort avg desc | showTags true $legend_key | head $top_n",
       "params": {
         "pipeline":"application_id",
@@ -112,13 +112,13 @@
       "interpoloate": "stepped"
     }],
     "layout":{
-      "listing": ["status", "latest_execution_date", "latest_execution_status", "next_execution_date", "duration"],
+      "listing": ["status", "latestExecutionDate", "latestExecutionStatus", "nextExecutionDate", "duration"],
       "viewmode": {
         "DAG": {
           "metrics": {
             "topology": [],
             "task": {
-              "base_metrics": ["task_status", "task_start_date", "task_end_date", "task_duration"],
+              "base_metrics": ["taskStatus", "taskStartDate", "taskEndDate", "taskDuration"],
               "component_metrics" : {}
             }
           },

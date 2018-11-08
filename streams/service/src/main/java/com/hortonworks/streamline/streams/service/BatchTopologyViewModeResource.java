@@ -151,21 +151,20 @@ public class BatchTopologyViewModeResource {
         assertTimeRange(from, to);
 
         Topology topology = catalogService.getTopology(topologyId);
-        if (topology != null) {
 
-            // FIXME T2184621 remove hack, need interface updates
-            PiperTopologyMetricsImpl topologyMetrics = (PiperTopologyMetricsImpl)
-                    metricsService.getTopologyMetricsInstanceHack(topology);
-
-            String applicationId = getRuntimeTopologyId(topology, null);  //FIXME where do we get user?
-
-            Map executions = topologyMetrics.getExecutions(CatalogToLayoutConverter.getTopologyLayout(topology), applicationId,
-                    from, to, page, pageSize);
-
-            return WSUtils.respondEntity(executions, OK);
+        if (topology == null) {
+            throw new EntityNotFoundException("Topology not found topologyId: " + topologyId);
         }
 
-        return null;
+        // FIXME T2184621 remove hack, need interface updates
+        PiperTopologyMetricsImpl topologyMetrics = (PiperTopologyMetricsImpl)
+                metricsService.getTopologyMetricsInstanceHack(topology);
+
+        Map executions = topologyMetrics.getExecutions(
+                CatalogToLayoutConverter.getTopologyLayout(topology), from, to, page, pageSize);
+
+        return WSUtils.respondEntity(executions, OK);
+
     }
 
     @GET
@@ -180,28 +179,22 @@ public class BatchTopologyViewModeResource {
                 Topology.NAMESPACE, topologyId, READ);
 
         Topology topology = catalogService.getTopology(topologyId);
-        if (topology != null) {
-            Long currentVersionId = catalogService.getCurrentVersionId(topologyId);
 
-            List<com.hortonworks.streamline.common.QueryParam> queryParams =
-                    WSUtils.buildTopologyIdAndVersionIdAwareQueryParams(topologyId, currentVersionId, uriInfo);
-
-            Collection<? extends TopologyComponent> components = catalogService.listTopologyTasks(queryParams);
-
-            String applicationId = getRuntimeTopologyId(topology, null);  //FIXME where do we get user?
-
-            // FIXME T2184621 remove hack, need interface updates
-            PiperTopologyMetricsImpl topologyMetrics = (PiperTopologyMetricsImpl)
-                    metricsService.getTopologyMetricsInstanceHack(topology);
-
-            Map execution = topologyMetrics.getExecution(CatalogToLayoutConverter.getTopologyLayout(topology),
-                    components, applicationId, executionDate);
-            return WSUtils.respondEntity(execution, OK);
+        if (topology == null) {
+            throw new EntityNotFoundException("Topology not found topologyId: " + topologyId);
         }
 
-        return null;
-    }
+        // FIXME T2184621 remove hack, need interface updates
+        PiperTopologyMetricsImpl topologyMetrics = (PiperTopologyMetricsImpl)
+                metricsService.getTopologyMetricsInstanceHack(topology);
 
+        Map execution = topologyMetrics.getExecution(
+                            CatalogToLayoutConverter.getTopologyLayout(topology),
+                            executionDate);
+
+        return WSUtils.respondEntity(execution, OK);
+
+    }
 
 
     private void assertTimeRange(Long from, Long to) {
@@ -262,10 +255,5 @@ public class BatchTopologyViewModeResource {
         public TopologyTimeSeriesMetrics.TimeSeriesComponentMetric getTimeSeriesMetrics() {
             return timeSeriesMetrics;
         }
-    }
-
-    private String getRuntimeTopologyId(Topology topology, String asUser) throws IOException {
-        TopologyRuntimeIdMap topologyRuntimeIdMap = catalogService.getTopologyRuntimeIdMap(topology.getId(), topology.getNamespaceId());
-        return topologyRuntimeIdMap != null ? topologyRuntimeIdMap.getApplicationId() : null;
     }
 }

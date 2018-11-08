@@ -3,6 +3,8 @@ package com.hortonworks.streamline.streams.actions.piper.topology;
 import com.hortonworks.streamline.streams.actions.StatusImpl;
 import com.hortonworks.streamline.streams.actions.TopologyActionContext;
 import com.hortonworks.streamline.streams.actions.TopologyActions;
+import com.hortonworks.streamline.streams.piper.common.PiperConstants;
+import com.hortonworks.streamline.streams.piper.common.PiperUtil;
 import com.hortonworks.streamline.streams.piper.common.pipeline.Pipeline;
 import com.hortonworks.streamline.streams.actions.topology.service.TopologyActionsService;
 import com.hortonworks.streamline.streams.catalog.Topology;
@@ -26,26 +28,18 @@ import java.nio.file.Path;
 import java.util.Map;
 import java.util.Optional;
 
+import static com.hortonworks.streamline.streams.piper.common.PiperConstants.PIPER_RESPONSE_DATA;
+import static com.hortonworks.streamline.streams.piper.common.PiperConstants.PIPER_ROOT_URL_KEY;
+import static com.hortonworks.streamline.streams.piper.common.PiperConstants.PIPER_METRIC_LATEST_EXECUTION_DATE;
+import static com.hortonworks.streamline.streams.piper.common.PiperConstants.STATE_KEY_EXECUTION_DATE;
+import static com.hortonworks.streamline.streams.piper.common.PiperConstants.PIPER_METRIC_LATEST_EXECUTION_STATUS;
+import static com.hortonworks.streamline.streams.piper.common.PiperConstants.STATE_KEY_EXECUTION_STATE;
+
+
 public class PiperTopologyActionsImpl implements TopologyActions {
 
     private static final Logger LOG = LoggerFactory.getLogger(PiperTopologyActionsImpl.class);
-    private static final String PIPER_RESPONSE_DATA = "data";
     private static final String PIPER_RESPONSE_APPLICATION_ID = "pipeline_id";
-    private static final String PIPER_ROOT_URL = "piper.root_url";
-
-    private static final String STATE_KEY_ACTIVE = "active";
-    private static final String STATE_KEY_PAUSED = "paused";
-    private static final String STATE_KEY_EXECUTION_STATE = "state";
-    private static final String STATE_KEY_EXECUTION_TS = "execution_ts";
-
-    private static final String PIPER_RUNTIME_STATUS_ENABLED = "enabled";
-    private static final String PIPER_RUNTIME_STATUS_PAUSED = "paused";
-    private static final String PIPER_RUNTIME_STATUS_INACTIVE = "inactive";
-
-    // Extras
-    private static final String PIPER_METRIC_LATEST_EXECUTION_DATE = "latest_execution_date";
-    private static final String PIPER_METRIC_LATEST_EXECUTION_STATUS = "latest_execution_status";
-
 
     private PiperRestAPIClient client;
 
@@ -54,7 +48,7 @@ public class PiperTopologyActionsImpl implements TopologyActions {
 
     @Override
     public void init(Map<String, Object> conf, TopologyActionsService topologyActionsService) {
-        String piperAPIRootUrl = (String)conf.get(PIPER_ROOT_URL);
+        String piperAPIRootUrl = (String)conf.get(PIPER_ROOT_URL_KEY);
         this.client = new PiperRestAPIClient(piperAPIRootUrl, null);
     }
 
@@ -154,28 +148,16 @@ public class PiperTopologyActionsImpl implements TopologyActions {
         return (String)data.get(PIPER_RESPONSE_APPLICATION_ID);
     }
 
-
-    // Returns "enabled, paused, inactive, or unknown".
-    // Extras may include last_execution_date (effectively pipeline run id) and status.
     private Status getRuntimeStatus(Map stateResponse) {
         StatusImpl runtimeStatus = new StatusImpl();
 
         if (stateResponse != null) {
-            Boolean active = (Boolean) stateResponse.get(STATE_KEY_ACTIVE);
-            Boolean paused = (Boolean) stateResponse.get(STATE_KEY_PAUSED);
-
-            if (active == null || paused == null) {
-                runtimeStatus.setStatus(Status.STATUS_UNKNOWN);
-            } else if (active && !paused) {
-                runtimeStatus.setStatus(PIPER_RUNTIME_STATUS_ENABLED);
-            } else if (active) {
-                runtimeStatus.setStatus(PIPER_RUNTIME_STATUS_PAUSED);
-            } else {
-                runtimeStatus.setStatus(PIPER_RUNTIME_STATUS_INACTIVE);
-            }
-
-            runtimeStatus.putExtra(PIPER_METRIC_LATEST_EXECUTION_DATE, (String)stateResponse.get(STATE_KEY_EXECUTION_TS));
-            runtimeStatus.putExtra(PIPER_METRIC_LATEST_EXECUTION_STATUS, (String)stateResponse.get(STATE_KEY_EXECUTION_STATE));
+            String runtimeStatusString = PiperUtil.getRuntimeStatus(stateResponse);
+            runtimeStatus.setStatus(runtimeStatusString);
+            runtimeStatus.putExtra(PIPER_METRIC_LATEST_EXECUTION_DATE,
+                    (String)stateResponse.get(STATE_KEY_EXECUTION_DATE));
+            runtimeStatus.putExtra(PIPER_METRIC_LATEST_EXECUTION_STATUS,
+                    (String)stateResponse.get(STATE_KEY_EXECUTION_STATE));
         }
 
         return runtimeStatus;

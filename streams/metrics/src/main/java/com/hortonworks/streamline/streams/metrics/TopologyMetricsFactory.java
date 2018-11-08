@@ -43,7 +43,7 @@ public class TopologyMetricsFactory {
                 String topologyMetricsClazz = getConfiguredClass(engine, TOPOLOGY_METRICS_CLASS);
                 topologyMetrics = instantiateTopologyMetrics(topologyMetricsClazz);
                 topologyMetrics.init(engine, namespace, topologyCatalogHelperService, subject, config);
-                String topologyTimeseriesClazz = getConfiguredClass(engine, TOPOLOGY_METRICS_CLASS);
+                String topologyTimeseriesClazz = getConfiguredClass(engine, TIMESERIES_METRICS_CLASS);
                 TimeSeriesQuerier timeSeriesQuerier = instantiateTimeSeriesQuerier(topologyTimeseriesClazz);
                 timeSeriesQuerier.init(engine, namespace, topologyCatalogHelperService, subject, config);
                 topologyMetrics.setTimeSeriesQuerier(timeSeriesQuerier);

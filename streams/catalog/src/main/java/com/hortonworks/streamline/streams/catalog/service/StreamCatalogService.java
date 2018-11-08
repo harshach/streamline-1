@@ -699,11 +699,18 @@ public class StreamCatalogService {
             addRule(topologyId, newVersionId, new TopologyRule(topologyRule));
         }
 
+        // tasks
+        Collection<TopologyTask> topologyTasks = listTopologyTasks(topologyIdVersionIdQueryParams);
+        for (TopologyTask topologyTask: topologyTasks) {
+            addTopologyTask(topologyId, newVersionId, new TopologyTask(topologyTask));
+        }
+
         // add edges
         Collection<TopologyEdge> edges = listTopologyEdges(topologyIdVersionIdQueryParams);
         for (TopologyEdge edge: edges) {
             addTopologyEdge(topologyId, newVersionId, new TopologyEdge(edge));
         }
+
 
         // add topology test run case
         Collection<TopologyTestRunCase> runCases = listTopologyTestRunCase(topologyIdVersionIdQueryParams);

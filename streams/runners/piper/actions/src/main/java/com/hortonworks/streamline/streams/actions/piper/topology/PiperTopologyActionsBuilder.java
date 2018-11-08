@@ -8,22 +8,19 @@ import com.hortonworks.streamline.streams.cluster.catalog.Namespace;
 import com.hortonworks.streamline.streams.cluster.catalog.Service;
 import com.hortonworks.streamline.streams.cluster.catalog.ServiceConfiguration;
 import com.hortonworks.streamline.streams.cluster.service.EnvironmentService;
+import com.hortonworks.streamline.streams.piper.common.PiperUtil;
 
 import javax.security.auth.Subject;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
+import static com.hortonworks.streamline.streams.piper.common.PiperConstants.*;
+
 /**
  * ToplogyActionsBuilder for PIPER implementation
  */
 public class PiperTopologyActionsBuilder implements TopologyActionsBuilder<Map<String, Object>> {
-
-    private static final String PIPER_SERVICE_NAME = "PIPER";
-    private static final String PIPER_SERVICE_CONFIG_NAME = "properties";
-    private static final String PIPER_SERVICE_CONFIG_KEY_HOST = "piper.service.host";
-    private static final String PIPER_SERVICE_CONFIG_KEY_PORT = "piper.service.port";
-    private static final String PIPER_ROOT_URL = "piper.root_url";
 
     private TopologyActions piperTopologyActions;
     private TopologyActionsService topologyActionsService;
@@ -57,8 +54,8 @@ public class PiperTopologyActionsBuilder implements TopologyActionsBuilder<Map<S
         }
         String host = configMap.get(PIPER_SERVICE_CONFIG_KEY_HOST);
         String port = configMap.get(PIPER_SERVICE_CONFIG_KEY_PORT);
-        String rootUrl = buildPiperRestApiRootUrl(host, port);
-        conf.put(PIPER_ROOT_URL, rootUrl);
+        String rootUrl = PiperUtil.buildPiperRestApiRootUrl(host, port);
+        conf.put(PIPER_ROOT_URL_KEY, rootUrl);
     }
 
     @Override
@@ -74,10 +71,6 @@ public class PiperTopologyActionsBuilder implements TopologyActionsBuilder<Map<S
     @Override
     public void cleanup() {
 
-    }
-
-    private String buildPiperRestApiRootUrl(String host, String port) {
-        return "http://" + host + ":" + port;
     }
 
 }

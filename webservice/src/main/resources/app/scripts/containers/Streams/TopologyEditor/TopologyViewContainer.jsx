@@ -481,17 +481,13 @@ class TopologyViewContainer extends TopologyEditorContainer {
   getPrevPageExecutions = () => {
     const {executionInfoPageSize} = this.state;
     this.setState({executionInfoPageSize: executionInfoPageSize+1}, () => {
-      this.fetchExecutions().then((res) => {
-        this.forceUpdate();
-      });
+      this.fetchExecutions();
     });
   }
   getNextPageExecutions = () => {
     const {executionInfoPageSize} = this.state;
     this.setState({executionInfoPageSize: executionInfoPageSize-1}, () => {
-      this.fetchExecutions().then((res) => {
-        this.forceUpdate();
-      });
+      this.fetchExecutions();
     });
   }
 

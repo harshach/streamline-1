@@ -138,10 +138,10 @@ Make sure you followed [Create a distribution](#building) steps to create binary
 2. cd hortonworks-streamline-{project.version}
 3. Edit conf/streamline-dev.yaml and provide the database and credentials under the "storageProviderConfiguration".
 4. If you don't want to run a DB locally , you can use InMemoryStorageManager. You'll loose any changes if you restart the server
-5. ./bootstrap/bootstrap-storage.sh migrate dev
+5. ./bootstrap/bootstrap-storage.sh migrate
 6. cerberus -s schema-service
-7. ./bin/streamline start dev 8080
-8. ./bootstrap/bootstrap.sh migrate dev
+7. ./bin/streamline start
+8. ./bootstrap/bootstrap.sh migrate
 9. You should be able to access streamline by visiting http://HOST:8080/
 
 <a name="run-intellij"></a>

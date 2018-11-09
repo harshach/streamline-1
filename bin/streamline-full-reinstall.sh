@@ -34,9 +34,9 @@ cd ..
 cp streamline-dist/target/hortonworks-streamline-0.6.0-SNAPSHOT.zip .
 unzip hortonworks-streamline-0.6.0-SNAPSHOT.zip
 cd hortonworks-streamline-0.6.0-SNAPSHOT
-./bootstrap/bootstrap-storage.sh migrate dev
+./bootstrap/bootstrap-storage.sh migrate
 cerberus -s schema-service
-./bin/streamline start dev 8080
+./bin/streamline start
 
 echo 'waiting for UI...'
 until $(curl --output /dev/null --silent --head --fail http://localhost:8080); do
@@ -45,7 +45,7 @@ until $(curl --output /dev/null --silent --head --fail http://localhost:8080); d
 done
 echo ""
 
-./bootstrap/bootstrap.sh migrate dev
+./bootstrap/bootstrap.sh migrate
 
 /usr/bin/open "http://localhost:8080"
 echo "\n\nStreamline running at: http://localhost:8080"

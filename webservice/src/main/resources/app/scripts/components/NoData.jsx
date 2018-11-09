@@ -107,7 +107,7 @@ export default class NoData extends Component {
                         <span className="hb xs default-blue">2</span>
                         &nbsp;Please run</h4>
                       <div className="intro-content">
-                        ./bin/streamline bootstrap dev
+                        ./bin/streamline bootstrap
                         <br/>
                         to initialize the component definitions.
                       </div>

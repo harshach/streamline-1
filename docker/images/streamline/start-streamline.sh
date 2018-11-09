@@ -47,7 +47,7 @@ run_bootstrap_storage() {
     must_pushd "${STREAMLINE_HOME}"/bootstrap
     echo "Bootstrap dir : " $PWD
     if [ ! -f $STREAMLINE_BOOTSTRAP_STORAGE_DONE ]; then
-        "./bootstrap-storage.sh" create dev
+        "./bootstrap-storage.sh" create
         touch $STREAMLINE_BOOTSTRAP_STORAGE_DONE
     fi
 
@@ -64,7 +64,7 @@ run_bootstrap() {
     must_pushd "${STREAMLINE_HOME}"/bootstrap
     echo "Bootstrap dir : " $PWD
     if [ ! -f $STREAMLINE_BOOTSTRAP_DONE ]; then
-        "./bootstrap.sh" migrate dev
+        "./bootstrap.sh" migrate
         touch $STREAMLINE_BOOTSTRAP_DONE
     fi
 

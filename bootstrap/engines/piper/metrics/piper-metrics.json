@@ -10,17 +10,19 @@
       "metricPrevKeyName": "status",
       "valueFormat": "string",
       "defaultValue": ""
+      "comment": "Pipeline is active and not paused."
     },{
       "name": "latestRun",
       "uiName": "Latest Run",
-      "metricKeyName": "latest_execution_date",
+      "metricKeyName": "latestExecutionDate",
       "metricPrevKeyName": "latest_execution_date",
       "valueFormat": "datetime",
       "defaultValue": ""
+      "comment": "Identifier for this pipeline run (execution date)."
     },{
       "name": "latestRunResult",
       "uiName": "Latest Run Result",
-      "metricKeyName": "latest_execution_status",
+      "metricKeyName": "latestExecutionStatus",
       "metricPrevKeyName": "latest_execution_status",
       "valueFormat": "string",
       "defaultValue": ""
@@ -34,24 +36,25 @@
     },{
       "name": "catchingUp",
       "uiName": "Catching Up",
-      "metricKeyName": "auto_backfilling",
+      "metricKeyName": "autobackfilling",
       "metricPrevKeyName": "auto_backfilling",
       "valueFormat": "boolean",
       "defaultValue": ""
     },{
       "name": "nextScheduledRun",
       "uiName": "Next Scheduled Run",
-      "metricKeyName": "next_execution_date",
+      "metricKeyName": "nextExecutionDate",
       "metricPrevKeyName": "next_execution_date",
       "valueFormat": "datetime",
       "defaultValue": ""
     },{
       "name": "pipelineType",
       "uiName": "Pipeline Type",
-      "metricKeyName": "pipeline_type",
+      "metricKeyName": "pipelineType",
       "metricPrevKeyName": "pipeline_type",
       "valueFormat": "string",
       "defaultValue": ""
+      "comment": "scheduled or triggered"
     },{
       "name": "schedule",
       "uiName": "Schedule",
@@ -59,13 +62,15 @@
       "metricPrevKeyName": "cadence",
       "valueFormat": "string",
       "defaultValue": ""
+      "comment": "human readable string describing cadence of pipeline eg. daily at 12pm, only present for scheduled pipelines"
     },{
       "name": "runName",
       "uiName": "Run Name",
-      "metricKeyName": "triggered_pipeline_runname",
+      "metricKeyName": "triggeredPipelineRunName",
       "metricPrevKeyName": "triggered_pipeline_runname",
       "valueFormat": "string",
       "defaultValue": ""
+      "comment": "only present for triggered pipelines, run name"
     },{
       "name": "taskStatus",
       "uiName": "Status",
@@ -73,6 +78,7 @@
       "metricPrevKeyName": "taskStatus",
       "valueFormat": "string",
       "defaultValue": ""
+      "comment": "the metrics prefixed with task will need to be returned per task_id"
     },{
       "name": "startTime",
       "uiName": "Start Time",
@@ -90,7 +96,7 @@
     },{
       "name": "taskSuration",
       "uiName": "Duration",
-      "metricKeyName": "taskDuration",
+      "metricKeyName": "nextExecutionDate",
       "metricPrevKeyName": "",
       "valueFormat": "time",
       "defaultValue": ""
@@ -101,31 +107,47 @@
       "metricPrevKeyName": "",
       "valueFormat": "datetime",
       "defaultValue": ""
+      "comment": "if easy"
     }],
     "timeseries": [{
       "name": "taskDuration",
       "uiName": "Task Duration",
-      "metricKeyName": ["piper_task_duration"],
+      "metricKeyName": ["piperTaskDuration"],
+      "metricQuery": "fetch service:piper name:piper_task_duration pipeline:$pipeline env:$deployment timertype:upper | scale 1000 | aliasByTags task",
+      "params": {
+        "pipeline":"application_id",
+        "deployment":"namespace"
+      },
       "interpolate": "stepped"
     },{
       "name": "avgCPUUsage",
       "uiName": "Avg CPU Usage",
-      "metricKeyName": ["average_cpu_usage"],
+      "metricKeyName": ["averageCpuUsage"],
+      "metricQuery": "fetch env:$deployment service:piper name:piper_task_monitoring reason:average_cpu_usage pipeline:$pipeline | sort avg desc | showTags true $legend_key | head $top_n",
+      "params": {
+        "pipeline":"application_id",
+        "deployment":"namespace"
+      },
       "interpolate": "stepped"
     },{
       "name": "memoryUsage",
       "uiName": "Memory Usage",
-      "metricKeyName": ["memory_usage"],
+      "metricKeyName": ["memoryUsage"],
+      "metricQuery": "fetch env:$deployment service:piper name:piper_task_monitoring reason:memory_usage pipeline:$pipeline | sort avg desc | showTags true $legend_key | head $top_n",
+      "params": {
+        "pipeline":"application_id",
+        "deployment":"namespace"
+      },
       "interpolate": "stepped"
     }],
     "layout":{
-      "listing": ["status", "latestRun", "latestRunResult", "nextScheduledRun", "duration"],
+      "listing": ["status", "latestExecutionDate", "latestExecutionStatus", "nextExecutionDate", "duration"],
       "viewmode": {
         "DAG": {
           "metrics": {
             "topology": [],
             "task": {
-              "baseMetrics": ["taskStatus", "startTime", "endTime", "taskSuration"],
+              "base_metrics": ["taskStatus", "taskStartDate", "taskEndDate", "taskDuration"],
               "component_metrics" : {}
             }
           },

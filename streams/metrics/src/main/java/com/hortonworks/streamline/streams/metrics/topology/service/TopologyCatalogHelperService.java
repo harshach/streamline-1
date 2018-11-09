@@ -1,13 +1,16 @@
 package com.hortonworks.streamline.streams.metrics.topology.service;
 
+import com.hortonworks.streamline.common.QueryParam;
 import com.hortonworks.streamline.streams.catalog.Engine;
 import com.hortonworks.streamline.streams.catalog.Topology;
 import com.hortonworks.streamline.streams.catalog.TopologyRuntimeIdMap;
+import com.hortonworks.streamline.streams.catalog.TopologyTask;
 import com.hortonworks.streamline.streams.catalog.service.StreamCatalogService;
 import com.hortonworks.streamline.streams.cluster.catalog.*;
 import com.hortonworks.streamline.streams.cluster.service.EnvironmentService;
 
 import java.util.Collection;
+import java.util.List;
 import java.util.Optional;
 
 
@@ -46,9 +49,20 @@ public class TopologyCatalogHelperService {
         return environmentService.listComponentProcesses(componentId);
     }
 
+    public ServiceConfiguration getServiceConfigurationByName(Long serviceId, String configurationName) {
+        return environmentService.getServiceConfigurationByName(serviceId, configurationName);
+    }
+
     public Namespace getNamespace(Long namespaceId) {
         return environmentService.getNamespace(namespaceId);
     }
 
+    public Long getCurrentVersionId(Long topologyId) {
+        return streamCatalogService.getCurrentVersionId(topologyId);
+    }
+
+    public Collection<TopologyTask> listTopologyTasks(List<QueryParam> params)  {
+        return streamCatalogService.listTopologyTasks(params);
+    }
 
 }

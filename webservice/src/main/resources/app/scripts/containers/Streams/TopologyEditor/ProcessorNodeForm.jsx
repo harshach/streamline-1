@@ -46,7 +46,8 @@ export default class ProcessorNodeForm extends Component {
       description: '',
       outputStreamObj: {},
       inputStreamOptions: [],
-      processorNode : {}
+      processorNode : {},
+      fetchLoader: true
     };
   }
   getChildContext() {
@@ -82,7 +83,7 @@ export default class ProcessorNodeForm extends Component {
             let s = result;
             inputStreams.push(s);
           });
-          this.setState({streamObj: inputStreams[0], inputStreamOptions: inputStreams,processorNode:processorNode});
+          this.setState({streamObj: inputStreams[0], inputStreamOptions: inputStreams,processorNode:processorNode, fetchLoader: false});
           // this.refs.StreamSidebarInput.update(streamResult);
         });
       }

@@ -16,7 +16,6 @@
 package com.hortonworks.streamline.streams.service;
 
 import com.hortonworks.streamline.common.transaction.TransactionIsolation;
-import com.hortonworks.registries.schemaregistry.client.SchemaRegistryClient;
 import com.hortonworks.streamline.storage.StorageManagerAware;
 import com.hortonworks.streamline.storage.TransactionManager;
 import com.hortonworks.streamline.storage.TransactionManagerAware;
@@ -44,8 +43,7 @@ import com.hortonworks.streamline.streams.metrics.topology.service.TopologyCatal
 import com.hortonworks.streamline.streams.logsearch.topology.service.TopologyLogSearchService;
 import com.hortonworks.streamline.streams.metrics.topology.service.TopologyMetricsService;
 import com.hortonworks.streamline.streams.notification.service.NotificationServiceImpl;
-import com.hortonworks.streamline.streams.sampling.service.TopologySampling;
-import com.hortonworks.streamline.streams.registry.SchemaRegistryClientAdapter;
+import com.hortonworks.streamline.streams.registry.StreamlineSchemaRegistryClient;
 import com.hortonworks.streamline.streams.sampling.service.TopologySamplingService;
 import com.hortonworks.streamline.streams.security.StreamlineAuthorizer;
 import com.hortonworks.streamline.streams.security.service.SecurityCatalogResource;
@@ -55,7 +53,6 @@ import com.hortonworks.streamline.streams.service.metadata.HiveMetadataResource;
 import com.hortonworks.streamline.streams.service.metadata.KafkaMetadataResource;
 import com.hortonworks.streamline.streams.service.metadata.StormMetadataResource;
 import com.hortonworks.streamline.streams.actions.builder.mapping.MappedTopologyActionsBuilder;
-import com.hortonworks.streamline.streams.registry.SchemaRegistryClientAdapter;
 
 
 import java.util.ArrayList;
@@ -117,7 +114,7 @@ public class StreamsModule implements ModuleRegistration, StorageManagerAware, T
                 topologyMetricsService, topologyLogSearchService,topologySamplingService,securityCatalogService, subject));
         result.add(new UDFCatalogResource(authorizer, streamcatalogService, fileStorage));
         result.addAll(getNotificationsRelatedResources(authorizer, streamcatalogService));
-        result.add(new SchemaResource(createSchemaRegistryClientAdapter()));
+        result.add(new SchemaResource(createStreamlineSchemaRegistryClient()));
         result.addAll(getServiceMetadataResources(authorizer, environmentService, subject));
         result.add(new NamespaceCatalogResource(authorizer, streamcatalogService, topologyActionsService, environmentService));
         result.add(new SearchCatalogResource(authorizer, streamcatalogService, environmentService,
@@ -127,15 +124,16 @@ public class StreamsModule implements ModuleRegistration, StorageManagerAware, T
         return result;
     }
 
-    private SchemaRegistryClientAdapter createSchemaRegistryClientAdapter() {
-        SchemaRegistryClient schemaRegistryClient = createSchemaRegistryClient();
-        return new SchemaRegistryClientAdapter(schemaRegistryClient);
-    }
-
-    private SchemaRegistryClient createSchemaRegistryClient() {
-        Map<String, ?> conf = Collections.singletonMap(SchemaRegistryClient.Configuration.SCHEMA_REGISTRY_URL.name(),
-                                                       config.get("schemaRegistryUrl"));
-        return new SchemaRegistryClient(conf);
+    private StreamlineSchemaRegistryClient createStreamlineSchemaRegistryClient() {
+        String streamlineSchemaRegistryClientClass = (String) config.get(Constants.CONFIG_STREAMLINE_SCHEMA_REGISTRY_CLIENT_CLASS);
+        StreamlineSchemaRegistryClient streamlineSchemaRegistryClient;
+        try {
+            streamlineSchemaRegistryClient = (StreamlineSchemaRegistryClient) Class.forName(streamlineSchemaRegistryClientClass).newInstance();
+        } catch (ClassNotFoundException | IllegalAccessException | InstantiationException e) {
+            throw new RuntimeException(e);
+        }
+        streamlineSchemaRegistryClient.init(config);
+        return streamlineSchemaRegistryClient;
     }
 
     private List<Object> getAuthorizerResources(StreamlineAuthorizer authorizer, SecurityCatalogService securityCatalogService) {

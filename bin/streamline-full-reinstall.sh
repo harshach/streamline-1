@@ -35,6 +35,7 @@ cp streamline-dist/target/hortonworks-streamline-0.6.0-SNAPSHOT.zip .
 unzip hortonworks-streamline-0.6.0-SNAPSHOT.zip
 cd hortonworks-streamline-0.6.0-SNAPSHOT
 ./bootstrap/bootstrap-storage.sh migrate dev
+cerberus -s schema-service
 ./bin/streamline start dev 8080
 
 echo 'waiting for UI...'

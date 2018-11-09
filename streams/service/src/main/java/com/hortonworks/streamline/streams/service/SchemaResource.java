@@ -29,6 +29,7 @@ import com.hortonworks.streamline.common.exception.service.exception.request.Ent
 import com.hortonworks.streamline.common.util.WSUtils;
 import com.hortonworks.streamline.streams.registry.SchemaRegistryClientAdapter;
 import com.hortonworks.streamline.streams.registry.StreamlineSchemaNotFoundException;
+import com.hortonworks.streamline.streams.registry.StreamlineSchemaRegistryClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -53,10 +54,10 @@ import static javax.ws.rs.core.Response.Status.OK;
 public class SchemaResource {
     private static final Logger LOG = LoggerFactory.getLogger(SchemaResource.class);
 
-    private final SchemaRegistryClientAdapter schemaRegistryClientAdapter;
+    private final StreamlineSchemaRegistryClient streamlineSchemaRegistryClient;
 
-    public SchemaResource(SchemaRegistryClientAdapter schemaRegistryClientAdapter) {
-        this.schemaRegistryClientAdapter = schemaRegistryClientAdapter;
+    public SchemaResource(StreamlineSchemaRegistryClient streamlineSchemaRegistryClient) {
+        this.streamlineSchemaRegistryClient = streamlineSchemaRegistryClient;
     }
 
     @POST
@@ -66,6 +67,11 @@ public class SchemaResource {
                                       @Context SecurityContext securityContext) throws IOException {
         Preconditions.checkNotNull(streamsSchemaInfo, "streamsSchemaInfo can not be null");
 
+        if (!(streamlineSchemaRegistryClient instanceof SchemaRegistryClientAdapter)) {
+            throw new UnsupportedOperationException("Post to schemas endpoint is supported with only Hortonworks schema-registry.");
+        }
+
+        SchemaRegistryClientAdapter schemaRegistryClientAdapter = (SchemaRegistryClientAdapter) streamlineSchemaRegistryClient;
         SchemaMetadata schemaMetadata = streamsSchemaInfo.getSchemaMetadata();
         String schemaName = schemaMetadata.getName();
         Long schemaMetadataId = schemaRegistryClientAdapter.registerSchemaMetadata(schemaMetadata);
@@ -107,7 +113,7 @@ public class SchemaResource {
     private Response doGetAllSchemaVersionForBranch(String schemaName, String branchName) {
         try {
             LOG.info("Get all versions for schema : {}", schemaName);
-            List<Integer> schemaVersions = schemaRegistryClientAdapter.getSchemaVersions(schemaName, branchName);
+            List<Integer> schemaVersions = streamlineSchemaRegistryClient.getSchemaVersions(schemaName, branchName);
             LOG.debug("Received schema versions [{}] for schema: {}", schemaVersions, schemaName);
             return WSUtils.respondEntities(schemaVersions, OK);
         } catch (StreamlineSchemaNotFoundException e) {
@@ -136,7 +142,7 @@ public class SchemaResource {
                                         @Context SecurityContext securityContext) {
         try {
             LOG.info("Get schema:version [{}:{}]", schemaName, version);
-            String schema = schemaRegistryClientAdapter.getSchema(schemaName, Integer.parseInt(version));
+            String schema = streamlineSchemaRegistryClient.getSchema(schemaName, Integer.parseInt(version));
             LOG.debug("Received schema version: [{}]", schema);
             schema = AvroStreamlineSchemaConverter.convertAvroSchemaToStreamlineSchema(schema);
             LOG.debug("Converted schema: [{}]", schema);
@@ -156,7 +162,7 @@ public class SchemaResource {
     public Response getSchemaBranches(@PathParam("schemaName") String schemaName,
                                       @Context SecurityContext securityContext) {
         try {
-            List<String> schemaBranchNames = schemaRegistryClientAdapter.getSchemaBranchNames(schemaName);
+            List<String> schemaBranchNames = streamlineSchemaRegistryClient.getSchemaBranchNames(schemaName);
             LOG.info("Schema branches for schema [{}]: {}", schemaName, schemaBranchNames);
             return WSUtils.respondEntities(schemaBranchNames, OK);
         } catch (StreamlineSchemaNotFoundException e) {

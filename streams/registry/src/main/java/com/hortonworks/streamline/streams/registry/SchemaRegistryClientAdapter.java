@@ -13,14 +13,18 @@ import com.hortonworks.registries.schemaregistry.errors.SchemaBranchNotFoundExce
 import com.hortonworks.registries.schemaregistry.errors.SchemaNotFoundException;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 public class SchemaRegistryClientAdapter implements StreamlineSchemaRegistryClient {
     private SchemaRegistryClient schemaRegistryClient;
 
-    public SchemaRegistryClientAdapter(SchemaRegistryClient schemaRegistryClient) {
-        this.schemaRegistryClient = schemaRegistryClient;
+    public void init(Map<String, Object> config) {
+        Map<String, ?> conf = Collections.singletonMap(SchemaRegistryClient.Configuration.SCHEMA_REGISTRY_URL.name(),
+                config.get("schemaRegistryUrl"));
+        this.schemaRegistryClient = new SchemaRegistryClient(conf);
     }
 
     @Override

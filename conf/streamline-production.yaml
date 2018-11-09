@@ -7,7 +7,9 @@ modules:
       # directory to store the results of topology test run
       topologyTestRunResultDir: /tmp
       # schema registry configuration
-      schemaRegistryUrl: "http://localhost:9090/api/v1"
+      streamlineSchemaRegistryClientClass: "com.hortonworks.streamline.streams.registry.HeatpipeSchemaServiceClientAdapter"
+      # streamlineSchemaRegistryClientClass: "com.hortonworks.streamline.streams.registry.SchemaRegistryClientAdapter"
+      # schemaRegistryUrl: "http://localhost:9090/api/v1"
       #Custom processor upload configuration
       #customProcessorWatchPath: "/tmp"
       #customProcessorUploadFailPath: "/tmp/failed"

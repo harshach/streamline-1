@@ -211,6 +211,7 @@ function add_all_bundles {
     post /servicebundles ${service_dir}/hive-bundle.json
     post /servicebundles ${service_dir}/email-bundle.json
     post /servicebundles ${service_dir}/piper-bundle.json
+    post /servicebundles ${service_dir}/m3-bundle.json
 }
 
 function add_roles_and_users {

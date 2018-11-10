@@ -1,0 +1,22 @@
+{
+  "name": "M3",
+  "registerClass": "com.hortonworks.streamline.streams.cluster.register.impl.M3ServiceRegistrar",
+  "serviceUISpecification": {
+    "fields": [
+      {
+        "uiName": "M3 REST API Host",
+        "fieldName": "m3.service.host",
+        "isOptional": false,
+        "tooltip": "A  Host for REST API",
+        "type": "string"
+      },
+      {
+        "uiName": "M3 REST API Port",
+        "fieldName": "m3.service.port",
+        "isOptional": false,
+        "tooltip": "A Port for REST API",
+        "type": "number"
+      }
+    ]
+  }
+}

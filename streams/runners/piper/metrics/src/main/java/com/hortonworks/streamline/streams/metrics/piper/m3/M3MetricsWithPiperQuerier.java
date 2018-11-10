@@ -3,14 +3,18 @@ package com.hortonworks.streamline.streams.metrics.piper.m3;
 import com.hortonworks.streamline.common.exception.ConfigException;
 import com.hortonworks.streamline.streams.catalog.Engine;
 import com.hortonworks.streamline.streams.cluster.catalog.Namespace;
+import com.hortonworks.streamline.streams.cluster.catalog.Service;
+import com.hortonworks.streamline.streams.cluster.catalog.ServiceConfiguration;
 import com.hortonworks.streamline.streams.metrics.AbstractTimeSeriesQuerier;
 import com.hortonworks.streamline.streams.metrics.topology.client.M3RestAPIClient;
 import com.hortonworks.streamline.streams.metrics.topology.service.TopologyCatalogHelperService;
+import com.hortonworks.streamline.streams.piper.common.PiperUtil;
 import org.apache.commons.lang3.text.StrSubstitutor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.security.auth.Subject;
+import java.io.IOException;
 import java.net.URISyntaxException;
 
 import java.util.TreeMap;
@@ -22,11 +26,16 @@ public class M3MetricsWithPiperQuerier extends AbstractTimeSeriesQuerier{
 
     private static final Logger LOG = LoggerFactory.getLogger(M3MetricsWithPiperQuerier.class);
 
+    private static final String M3_SERVICE_NAME = "M3";
+    private static final String M3_SERVICE_CONFIG_NAME = "properties";
+    private static final String M3_SERVICE_CONFIG_KEY_HOST = "m3.service.host";
+    private static final String M3_SERVICE_CONFIG_KEY_PORT = "m3.service.port";
     private static final String TARGET_KEY = "target";
     private static final String DATAPOINTS_KEY = "datapoints";
-
+    private static final String M3_ROOT_URL_KEY = "API_ROOT_URL";
 
     private M3RestAPIClient client;
+    private TopologyCatalogHelperService topologyCatalogHelperService;
 
     public M3MetricsWithPiperQuerier() {
     }
@@ -38,8 +47,12 @@ public class M3MetricsWithPiperQuerier extends AbstractTimeSeriesQuerier{
     public void init(Engine engine, Namespace namespace, TopologyCatalogHelperService topologyCatalogHelperService,
                      Subject subject, Map<String, Object> conf) throws ConfigException {
 
+        this.topologyCatalogHelperService = topologyCatalogHelperService;
+
         try {
-            client = new M3RestAPIClient("http://localhost:14115", null);
+            Map<String, String> m3Conf = buildPiperM3TimeSeriesQuerierConfigMap(namespace, engine);
+
+            client = new M3RestAPIClient(m3Conf.get(M3_ROOT_URL_KEY), subject);
         } catch (URISyntaxException e) {
             throw new ConfigException(e);
         }
@@ -129,4 +142,42 @@ public class M3MetricsWithPiperQuerier extends AbstractTimeSeriesQuerier{
         return s + " ";
     }
 
+    private Map<String, String> buildPiperM3TimeSeriesQuerierConfigMap(Namespace namespace, Engine engine)
+        throws ConfigException {
+
+        Map<String, String> conf = new HashMap<>();
+
+        Service m3Service = topologyCatalogHelperService.
+                getFirstOccurenceServiceForNamespace(namespace, M3_SERVICE_NAME);
+
+        if (m3Service == null) {
+            throw new ConfigException("Service  Not Found " + M3_SERVICE_NAME);
+        }
+
+        final ServiceConfiguration serviceConfig = topologyCatalogHelperService.getServiceConfigurationByName(
+                m3Service.getId(), M3_SERVICE_CONFIG_NAME);
+
+        if (serviceConfig == null) {
+            throw new ConfigException("Service Config Not Found " + M3_SERVICE_CONFIG_NAME);
+        }
+
+        Map<String, String> configMap;
+        try {
+            configMap = serviceConfig.getConfigurationMap();
+        } catch (IOException e) {
+            throw new ConfigException("Service Config Map could not be loaded " + M3_SERVICE_CONFIG_NAME, e);
+        }
+
+        if (configMap == null) {
+            throw new ConfigException("Service Config Map Not Found " + M3_SERVICE_CONFIG_NAME);
+        }
+
+        String host = configMap.get(M3_SERVICE_CONFIG_KEY_HOST);
+        String port = configMap.get(M3_SERVICE_CONFIG_KEY_PORT);
+
+        String apiRootUrl = "http://" + host + ":" + port;
+        conf.put(M3_ROOT_URL_KEY, apiRootUrl);
+
+        return conf;
+    }
 }

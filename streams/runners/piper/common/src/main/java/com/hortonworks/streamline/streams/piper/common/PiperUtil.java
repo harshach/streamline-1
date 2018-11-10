@@ -2,7 +2,13 @@ package com.hortonworks.streamline.streams.piper.common;
 
 import java.util.Map;
 
-import static com.hortonworks.streamline.streams.piper.common.PiperConstants.*;
+import static com.hortonworks.streamline.streams.piper.common.PiperConstants.PIPER_RUNTIME_STATUS_UNKNOWN;
+import static com.hortonworks.streamline.streams.piper.common.PiperConstants.STATE_KEY_ACTIVE;
+import static com.hortonworks.streamline.streams.piper.common.PiperConstants.STATE_KEY_PAUSED;
+import static com.hortonworks.streamline.streams.piper.common.PiperConstants.PIPER_RUNTIME_STATUS_ENABLED;
+import static com.hortonworks.streamline.streams.piper.common.PiperConstants.PIPER_RUNTIME_STATUS_PAUSED;
+import static com.hortonworks.streamline.streams.piper.common.PiperConstants.PIPER_RUNTIME_STATUS_INACTIVE;
+import static com.hortonworks.streamline.streams.piper.common.PiperConstants.STATE_KEY_EXECUTION_TS;
 
 public class PiperUtil {
     public static String getRuntimeStatus(Map<String, Object> stateResponse) {

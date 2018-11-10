@@ -12,6 +12,7 @@ import com.hortonworks.streamline.streams.cluster.catalog.ServiceConfiguration;
 import com.hortonworks.streamline.streams.layout.component.Component;
 import com.hortonworks.streamline.streams.layout.component.TopologyLayout;
 import com.hortonworks.streamline.streams.metrics.TimeSeriesQuerier;
+import com.hortonworks.streamline.streams.metrics.piper.m3.M3MetricsWithPiperQuerier;
 import com.hortonworks.streamline.streams.metrics.topology.TopologyMetrics;
 import com.hortonworks.streamline.streams.metrics.topology.service.TopologyCatalogHelperService;
 import com.hortonworks.streamline.streams.piper.common.PiperRestAPIClient;
@@ -21,6 +22,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.security.auth.Subject;
+import javax.ws.rs.core.MultivaluedMap;
 import java.io.IOException;
 import java.util.*;
 
@@ -47,6 +49,7 @@ public class PiperTopologyMetricsImpl implements TopologyMetrics {
 	private static final Logger LOG = LoggerFactory.getLogger(PiperTopologyMetricsImpl.class);
 	private PiperRestAPIClient client;
 	private TopologyCatalogHelperService topologyCatalogHelperService;
+	private TimeSeriesQuerier timeSeriesQuerier;
 
 	// Piper JSON API keys
 	private static final String STATE_KEY_SCHEDULE_INTERVAL = "schedule_interval";
@@ -103,7 +106,7 @@ public class PiperTopologyMetricsImpl implements TopologyMetrics {
 
     @Override
 	public void setTimeSeriesQuerier(TimeSeriesQuerier timeSeriesQuerier) {
-
+        this.timeSeriesQuerier = timeSeriesQuerier;
 	}
 
 	@Override
@@ -128,10 +131,10 @@ public class PiperTopologyMetricsImpl implements TopologyMetrics {
 
 	@Override
 	public TimeSeriesQuerier getTimeSeriesQuerier() {
-		return null;
+		return this.timeSeriesQuerier;
 	}
 
-	@Override
+    @Override
 	public void init(Engine engine, Namespace namespace, TopologyCatalogHelperService topologyCatalogHelperService,
 					 Subject subject, Map<String, Object> conf) throws ConfigException {
 
@@ -271,6 +274,34 @@ public class PiperTopologyMetricsImpl implements TopologyMetrics {
 		return result;
 	}
 
+    public Map<Long, Object> getTimeSeriesMetrics(Topology topology, String metricKeyName,
+        String metricQueryFormat, Map<String, String> clientMetricParams, long from, long to, String asUser) {
+
+        Map<Long, Object> results = new HashMap<>();
+
+        M3MetricsWithPiperQuerier timeSeriesQuerier = (M3MetricsWithPiperQuerier) this.timeSeriesQuerier;
+
+        Map<String, String> metricParams = getServerSubstitionParams(topology);
+
+        // merge (overwrite) params from client
+        for (Map.Entry<String,String> entry : clientMetricParams.entrySet()) {
+            metricParams.put(entry.getKey(), (entry.getValue()));
+        }
+
+        Map<String, Object> metricsByTag =
+                timeSeriesQuerier.getMetricsByTag(metricQueryFormat, metricParams, from, to, asUser);
+
+        Collection<? extends TopologyComponent> components = getTopologyComponents(topology);
+
+        if (components != null) {
+            for (TopologyComponent component : components) {
+                Object metrics = metricsByTag.get(component.getName());
+                results.put(component.getId(), metrics);
+            }
+        }
+        return results;
+    }
+
 	private Topology getTopologyForLayout(TopologyLayout topologyLayout) {
         Topology topology = topologyCatalogHelperService.getTopology(topologyLayout.getId());
         if (topology == null) {
@@ -297,6 +328,15 @@ public class PiperTopologyMetricsImpl implements TopologyMetrics {
                 WSUtils.buildTopologyIdAndVersionIdAwareQueryParams(topology.getId(), currentVersionId, null);
 
         return topologyCatalogHelperService.listTopologyTasks(queryParams);
+    }
+
+    private Map<String, String> getServerSubstitionParams(Topology topology) {
+        Map<String, String> params = new HashMap<String, String>();
+        String runtimeId = getRuntimeTopologyId(topology);
+        params.put("pipeline", runtimeId);
+        params.put("pipelineId", runtimeId);
+        params.put("applicationId", runtimeId);
+        return params;
     }
 
     private Map<String, Object> toTaskMap(List<Map<String, Object>> tasks) {

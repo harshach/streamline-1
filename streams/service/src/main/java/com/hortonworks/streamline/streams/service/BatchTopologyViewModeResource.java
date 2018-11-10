@@ -6,13 +6,13 @@ import com.hortonworks.streamline.common.exception.service.exception.request.Ent
 import com.hortonworks.streamline.common.util.WSUtils;
 import com.hortonworks.streamline.streams.catalog.*;
 import com.hortonworks.streamline.streams.catalog.service.StreamCatalogService;
+import com.hortonworks.streamline.streams.metrics.piper.m3.M3MetricsWithPiperQuerier;
 import com.hortonworks.streamline.streams.metrics.piper.topology.PiperTopologyMetricsImpl;
 import com.hortonworks.streamline.streams.metrics.topology.TopologyTimeSeriesMetrics;
 import com.hortonworks.streamline.streams.metrics.topology.service.TopologyMetricsService;
 import com.hortonworks.streamline.streams.security.Roles;
 import com.hortonworks.streamline.streams.security.SecurityUtil;
 import com.hortonworks.streamline.streams.security.StreamlineAuthorizer;
-import org.jooq.lambda.Unchecked;
 
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
@@ -21,12 +21,14 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.DefaultValue;
 import javax.ws.rs.core.Context;
+import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.SecurityContext;
 import javax.ws.rs.core.UriInfo;
 import java.io.IOException;
-import java.util.Collection;
+import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -45,12 +47,60 @@ public class BatchTopologyViewModeResource {
     private final StreamCatalogService catalogService;
     private final TopologyMetricsService metricsService;
 
+    private static final String PARAM_TO = "to";
+    private static final String PARAM_FROM = "from";
+    private static final String PARAM_METRIC_KEY_NAME = "metricKeyName";
+    private static final String PARAM_METRIC_QUERY = "metricQuery";
+
+
     public BatchTopologyViewModeResource(StreamlineAuthorizer authorizer, StreamCatalogService catalogService,
                                          TopologyMetricsService metricsService) {
         this.authorizer = authorizer;
         this.catalogService = catalogService;
         this.metricsService = metricsService;
     }
+
+
+    @GET
+    @Path("/topologies/{topologyId}/metrics/{metricKeyName}")
+    @Timed
+    public Response getTopologyMetrics(@PathParam("topologyId") Long topologyId,
+                                       @PathParam("metricKeyName") String metricKeyName,
+                                       @QueryParam("metricQuery") String metricQuery,
+                                       @QueryParam("from") Long from,
+                                       @QueryParam("to") Long to,
+                                       @Context UriInfo uriInfo,
+                                       @Context SecurityContext securityContext) throws IOException {
+
+        SecurityUtil.checkRoleOrPermissions(authorizer, securityContext, Roles.ROLE_TOPOLOGY_USER,
+                Topology.NAMESPACE, topologyId, READ);
+
+        assertTimeRange(from, to);
+        assertRequired(metricQuery, "metricQuery,");
+
+        Topology topology = catalogService.getTopology(topologyId);
+        if (topology == null) {
+            throw new EntityNotFoundException("Topology not found topologyId: " + topologyId);
+        }
+
+        String asUser = WSUtils.getUserFromSecurityContext(securityContext);
+
+        MultivaluedMap<String, String> queryParams = uriInfo.getQueryParameters();
+
+        List<String> ignore = Arrays.asList(PARAM_TO, PARAM_FROM, PARAM_METRIC_KEY_NAME, PARAM_METRIC_QUERY);
+        Map<String, String> metricParams = toSingleValueMap(queryParams, ignore);
+
+        // FIXME T2184621 remove hack, need interface updates
+        PiperTopologyMetricsImpl topologyMetricsService = (PiperTopologyMetricsImpl)
+                metricsService.getTopologyMetricsInstanceHack(topology);
+
+        Map<Long, Object> topologyMetrics = topologyMetricsService.getTimeSeriesMetrics(
+                topology, metricKeyName, metricQuery, metricParams, from, to, asUser);
+
+        return WSUtils.respondEntity(topologyMetrics, OK);
+
+    }
+
 
     @GET
     @Path("/topologies/{topologyId}/metrics")
@@ -204,6 +254,22 @@ public class BatchTopologyViewModeResource {
         if (to == null) {
             throw BadRequestException.missingParameter("to");
         }
+    }
+
+    private void assertRequired(Object object, String value) {
+        if ( object == null) {
+            throw BadRequestException.missingParameter(value);
+        }
+    }
+
+    private Map<String, String> toSingleValueMap(MultivaluedMap<String, String> multivaluedMap, List<String> ignore) {
+        Map<String, String> result = new HashMap<>();
+        for (String key : multivaluedMap.keySet()) {
+            if (ignore != null && !ignore.contains(key)) {
+                result.put(key, multivaluedMap.getFirst(key));
+            }
+        }
+        return result;
     }
 
     private static class TopologyWithMetric {

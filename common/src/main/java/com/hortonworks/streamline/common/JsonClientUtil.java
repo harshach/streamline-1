@@ -72,6 +72,31 @@ public class JsonClientUtil {
         return getEntities(target, DEFAULT_MEDIA_TYPE, clazz);
     }
 
+    public static <T> List<T> getEntities(WebTarget target, Map<String, String> headers, Class<T> clazz) {
+        Invocation.Builder builder = target.request();
+        for ( Map.Entry<String, String> entry : headers.entrySet()) {
+            builder.header(entry.getKey(), entry.getValue());
+        }
+
+        builder.accept(DEFAULT_MEDIA_TYPE);
+
+        List<T> entities = new ArrayList<>();
+        try {
+            String response = builder.get(String.class);
+            ObjectMapper mapper = new ObjectMapper();
+            JsonNode node = mapper.readTree(response);
+            Iterator<JsonNode> it = node.elements();
+            while (it.hasNext()) {
+                entities.add(mapper.treeToValue(it.next(), clazz));
+            }
+            return entities;
+        }  catch (WebApplicationException e) {
+            throw WrappedWebApplicationException.of(e);
+        } catch (Exception ex) {
+            throw new RuntimeException(ex);
+        }
+    }
+
     public static <T> List<T> getEntities(WebTarget target, MediaType mediaType, Class<T> clazz) {
         List<T> entities = new ArrayList<>();
         try {

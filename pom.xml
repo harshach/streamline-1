@@ -296,6 +296,10 @@
                     <groupId>com.sun.jersey</groupId>
                     <artifactId>jersey-json</artifactId>
                   </exclusion>
+                  <exclusion>
+                    <groupId>org.hibernate</groupId>
+                    <artifactId>hibernate-validator</artifactId>
+                  </exclusion>
                 </exclusions>
             </dependency>
             <dependency>
@@ -1009,6 +1013,16 @@
             </snapshots>
             <id>clojars</id>
             <url>https://repository.apache.org/content/repositories/snapshots/</url>
+        </repository>
+        <repository>
+            <releases>
+                <enabled>true</enabled>
+            </releases>
+            <snapshots>
+                <enabled>true</enabled>
+            </snapshots>
+            <id>uber</id>
+            <url>http://artifactory.uber.internal:4587/artifactory/repo/</url>
         </repository>
     </repositories>
 

@@ -38,6 +38,7 @@ public class ComponentTypes {
     public static final String BRANCH = "BRANCH";
     public static final String WINDOW = "WINDOW";
     public static final String CUSTOM = "CUSTOM";
+    public static final String SQL = "SQL";
     public static final String OPENTSDB = "OPENTSDB";
     public static final String HBASE = "HBASE";
     public static final String HDFS = "HDFS";

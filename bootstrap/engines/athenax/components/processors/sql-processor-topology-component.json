@@ -16,14 +16,6 @@
         "isOptional": false,
         "tooltip": "sql statement",
         "type": "sql"
-      },
-      {
-        "uiName": "Parallelism",
-        "fieldName": "parallelism",
-        "isOptional": true,
-        "tooltip": "Parallelism hint for sql processing",
-        "type": "number",
-        "defaultValue": 1
       }
     ]
   }

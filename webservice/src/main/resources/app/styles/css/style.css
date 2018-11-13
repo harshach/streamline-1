@@ -1911,6 +1911,25 @@ span.version {
   overflow-y: auto;*/
 }
 
+.service-components>li {
+  margin-top:10px;
+  position: relative;
+}
+
+.service-components>li a.close{
+  position: absolute;
+  background-color:white;
+  top: -6px;
+  right: -8px;
+  font-size: 20px;
+  display: none;
+}
+
+.service-components > li:hover a.close{
+  display: block;
+}
+
+
 .service-components, .select-env-service, .environment-components {
   list-style: none;
   margin: 0;

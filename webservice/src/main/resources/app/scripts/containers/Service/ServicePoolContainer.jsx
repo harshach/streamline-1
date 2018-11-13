@@ -25,6 +25,7 @@ import {observer} from 'mobx-react';
 
 /* import common utils*/
 import ClusterREST from '../../rest/ClusterREST';
+import ManualClusterREST from '../../rest/ManualClusterREST';
 import MiscREST from '../../rest/MiscREST';
 import UserRoleREST from '../../rest/UserRoleREST';
 import Utils from '../../utils/Utils';
@@ -51,12 +52,33 @@ import CommonShareModal from '../../components/CommonShareModal';
   if Manual CLuster is created we Add plus button to UI for adding services manually
 */
 const ServiceItems = (props) => {
-  const {item} = props;
+  const {
+    item,
+    deleteManualService
+  } = props;
   let name = item.name.replace('_', ' ');
   return (
     item.manualClusterId
     ? <li><img src="styles/img/plus.png" alt="plus button" data-stest="plusBtn" onClick={props.addManualService} data-id={item.manualClusterId}/>Add New</li>
-    : <li><img src={`styles/img/icon-${item.name.toLowerCase()}.png`}/>{name}</li>
+    : <li>
+        <img
+          src={`styles/img/icon-${item.name.toLowerCase()}.png`}
+          onClick={props.viewManualService}
+          data-id={item.clusterId}
+          data-service-id={item.id} />
+        {name}
+        { deleteManualService
+          ? <a href="javascript:void(0)"
+              title="Delete"
+              className="close"
+              onClick={(event) => {
+                deleteManualService(item.clusterId, item.id);
+              }}>
+              <i className="fa fa-times-circle"></i>
+            </a>
+          : ""
+        }
+      </li>
   );
 };
 
@@ -68,6 +90,7 @@ const ServiceItems = (props) => {
 class PoolItemsCard extends Component {
   constructor(props) {
     super(props);
+    this.deleteManualService = this.deleteManualService.bind(this);
   }
 
 
@@ -146,8 +169,29 @@ class PoolItemsCard extends Component {
     }
   }
 
+  deleteManualService = (clusterId, serviceId) => {
+    const {allACL} = this.props;
+    if(app_state.streamline_config.secureMode){
+      let permissions = true;
+      const userInfo = app_state.user_profile !== undefined ? app_state.user_profile.admin : false;
+      const aclObject = findSingleAclObj(Number(clusterId),allACL || []);
+      if(!_.isEmpty(aclObject)){
+        const {p_permission} = handleSecurePermission(aclObject,userInfo,"Service pool");
+        permissions = p_permission;
+      } else {
+        permissions = hasEditCapability("Service Pool");
+      }
+      if(permissions){
+        this.props.handleDeleteService(clusterId, serviceId);
+      }
+    } else {
+      this.props.handleDeleteService(clusterId, serviceId);
+    }
+  }
+
+
   render() {
-    const {clusterList, loader,allACL} = this.props;
+    const {clusterList, loader, allACL, handleDeleteService} = this.props;
     const {cluster, services} = clusterList;
     const tempArr = services || {
       service: (services === undefined)
@@ -227,7 +271,11 @@ class PoolItemsCard extends Component {
                 <ul className="service-components ">
                   {serviceWrap.length !== 0
                     ? serviceWrap.map((items, i) => {
-                      return <ServiceItems key={i} item={items.service} addManualService={this.addManualService}/>;
+                      return <ServiceItems
+                        key={i}
+                        item={items.service}
+                        deleteManualService={permission ? this.deleteManualService : null}
+                        addManualService={this.addManualService}/>;
                     })
                     : <div className="col-sm-12 text-center">
                           No Service
@@ -275,6 +323,7 @@ class ServicePoolContainer extends Component {
     };
     this.fetchData();
     this.initialFetch = false;
+    this.handleDeleteService = this.handleDeleteService.bind(this);
   }
 
   /*
@@ -481,6 +530,32 @@ class ServicePoolContainer extends Component {
             const clearTimer = setTimeout(() => {
               FSReactToastr.success(
                 <strong>cluster deleted successfully</strong>
+              );
+            }, 500);
+          });
+        }
+      });
+      confirmBox.cancel();
+    }, () => {});
+  }
+
+  handleDeleteService = (clusterId, serviceId) => {
+    this.refs.BaseContainer.refs.Confirm.show({title: 'Are you sure you want to delete?'}).then((confirmBox) => {
+      ManualClusterREST.deleteService(clusterId, serviceId).then((service) => {
+        this.initialFetch = false;
+        if (service.responseMessage !== undefined) {
+          let errorMsg = service.responseMessage;
+          FSReactToastr.error(<CommonNotification flag="error" content={errorMsg}/>, '', toastOpt);
+        } else {
+          const serviceName = service.name;
+          this.setState({
+            fetchLoader: true
+          }, () => {
+            this.fetchData();
+            clearTimeout(clearTimer);
+            const clearTimer = setTimeout(() => {
+              FSReactToastr.success(
+                <strong>{`Service ${serviceName} deleted successfully`}</strong>
               );
             }, 500);
           });
@@ -865,6 +940,8 @@ class ServicePoolContainer extends Component {
     });
   }
 
+
+
   /*
     addManualServiceSave is used to call addManualServiceRef validate
     And trigger the addManualServiceRef handleSave for completing the Process
@@ -980,6 +1057,7 @@ class ServicePoolContainer extends Component {
       loader,
       clusterData,
       mClusterId,
+      mServiceId,
       mClusterServiceUpdate,
       mServiceNameList,
       filterValue,
@@ -1088,7 +1166,16 @@ class ServicePoolContainer extends Component {
                 ? <NoData imgName={"applications"} searchVal={filterValue}/>
                 : entities.length !== 0
                   ? splitData[pageIndex].map((list) => {
-                    return <PoolItemsCard key={list.cluster.id} clusterList={list} poolActionClicked={this.poolActionClicked} refIdArr={refIdArr} loader={loader} addManualServiceHandler={this.addManualServiceHandler} allACL={allACL}/>;
+                    return <PoolItemsCard
+                      key={list.cluster.id}
+                      clusterList={list}
+                      poolActionClicked={this.poolActionClicked}
+                      refIdArr={refIdArr}
+                      loader={loader}
+                      handleDeleteService={this.handleDeleteService}
+                      viewManualServiceHandler={this.viewManualServiceHandler}
+                      addManualServiceHandler={this.addManualServiceHandler}
+                      allACL={allACL}/>;
                   })
                   : !this.initialFetch && entities.length === 0
                     ? <NoData imgName={"services"}/>

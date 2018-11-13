@@ -57,6 +57,15 @@ const ManualClusterREST = {
       .then((response) => {
         return response.json();
       });
+  },
+  deleteService(clusterId, serviceId, options) {
+    options = options || {};
+    options.method = options.method || 'DELETE';
+    options.credentials = 'same-origin';
+    return fetch(baseUrl + clusterBaseURL + '/'+ clusterId +'/services/'+ serviceId, options)
+      .then((response) => {
+        return response.json();
+      });
   }
 };
 

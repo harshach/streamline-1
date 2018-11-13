@@ -37,6 +37,7 @@ import DatetimeRangePicker from 'react-bootstrap-datetimerangepicker';
 import moment from 'moment';
 import Cron from '../cron';
 
+import CodeMirror from 'codemirror';
 import CommonCodeMirror from '../../components/CommonCodeMirror';
 
 export class BaseField extends Component {
@@ -406,15 +407,21 @@ export class datetime extends date {
 
 export class sql extends BaseField {
   handleChange = (value) => {
+    const {fieldJson} = this.props;
     const {Form} = this.context;
     this.props.data[this.props.value] = value;
     Form.setState(Form.state);
     this.validate();
+    if(fieldJson.onChange){
+      fieldJson.onChange(value);
+    }
   }
   validate() {
     return super.validate(this.props.data[this.props.value]);
   }
   getField = () => {
+    const {fieldJson} = this.props;
+
     return <div style={{position: 'relative'}}><CommonCodeMirror
       ref="codemirror"
       modeType="sql"
@@ -425,7 +432,13 @@ export class sql extends BaseField {
       width={'100%'}
       height={'200px'}
       editMode={false}
-      modeOptions={{readOnly: this.context.Form.props.readOnly}}
+      modeOptions={{
+        readOnly: this.context.Form.props.readOnly,
+        mode:"text/x-sql",
+        hint: CodeMirror.hint.sql,
+        hintOptions:fieldJson.hintOptions || []
+      }}
+      hintOptions={fieldJson.hintOptions}
     /></div>;
   }
 }

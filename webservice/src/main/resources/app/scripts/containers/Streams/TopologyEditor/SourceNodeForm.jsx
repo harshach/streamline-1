@@ -78,7 +78,7 @@ export default class SourceNodeForm extends Component {
         this.nodeData = results[0];
         if (this.nodeData.outputStreams.length === 0) {
           this.streamObj = {
-            streamId: this.props.configData.subType.toLowerCase() + '_stream_' + this.nodeData.id,
+            streamId: null,
             fields: []
           };
         } else {
@@ -323,7 +323,7 @@ export default class SourceNodeForm extends Component {
 
   updateStreamObj = (resultArr) => {
     return {
-      streamId: this.props.configData.subType.toLowerCase() + '_stream_' + this.nodeData.id,
+      streamId: this.state.formData.topic + '_' + this.nodeData.id,
       fields: resultArr
     };
   }

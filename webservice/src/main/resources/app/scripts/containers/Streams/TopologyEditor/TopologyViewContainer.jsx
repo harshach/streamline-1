@@ -55,7 +55,6 @@ class TopologyViewContainer extends TopologyEditorContainer {
     this.customProcessors = [];
     this.showLogSearch = false;
     this.fetchData();
-    this.fetchTopologyLevelSampling();
     this.checkAuth = true;
     this.sampleInputNotify = false;
   }
@@ -91,6 +90,7 @@ class TopologyViewContainer extends TopologyEditorContainer {
       sourceMetrics: [],
       processorMetrics: [],
       sinkMetrics: [],
+      taskMetrics: [],
       selectedMode: 'Overview',
       selectedComponentId: '',
       overviewMetrics: {},
@@ -99,7 +99,12 @@ class TopologyViewContainer extends TopologyEditorContainer {
       sampleTopologyLevel : '',
       logTopologyLevel : 'None',
       durationTopologyLevel :  0
-    }
+    },
+    executionInfoPageSize: 5,
+    executionInfoPage: 0,
+    executionInfo: {},
+    selectedExecution: {},
+    selectedExecutionComponentsStatus: []
   };
   getDeploymentState(){}
   /*fetchData(versionId) {
@@ -302,11 +307,15 @@ class TopologyViewContainer extends TopologyEditorContainer {
     const {isAppRunning} = this.state;
     if(isAppRunning) {
       this.fetchCatalogInfoAndMetrics(this.state.startDate.toDate().getTime(), this.state.endDate.toDate().getTime());
+      this.fetchTopologyLevelSampling();
     }
   }
 
   fetchTopologyLevelSampling(){
     const {viewModeData} = this.state;
+    if(this.engine.type != 'stream'){
+      return;
+    }
     ViewModeREST.getTopologySamplingStatus(this.topologyId).then((result)=>{
       if(result.responseMessage !== undefined){
         FSReactToastr.error(
@@ -421,22 +430,118 @@ class TopologyViewContainer extends TopologyEditorContainer {
     });
   }
 
-  fetchCatalogInfoAndMetrics(fromTime, toTime) {
-    let {viewModeData} = this.state;
+  getEditorProps = () => {
+    const {selectedExecutionComponentsStatus} = this.state;
+    return {
+      selectedExecutionComponentsStatus: selectedExecutionComponentsStatus
+    };
+  }
 
-    let promiseArr = [
-      ViewModeREST.getTopologyMetrics(this.topologyId, fromTime, toTime).then((res)=>{
+  onSelectExecution = (ex) => {
+    const {executionInfo, viewModeData} = this.state;
+    ex.loading = true;
+
+    this.setState({executionInfo: executionInfo}, () => {
+      ViewModeREST.getComponentExecutions(this.topologyId, ex.executionDate).then((res) => {
+        const selectedExecutionComponentsStatus = res.components || [];
+        ex.loading = false;
+
+        const taskMetrics = [];
+
+        _.each(selectedExecutionComponentsStatus, (compEx) => {
+          const compMetrics = {};
+          compMetrics.component = {
+            id: compEx.componentId
+          };
+          compMetrics.overviewMetrics = {
+            metrics: compEx
+          };
+          taskMetrics.push(compMetrics);
+        });
+
+        viewModeData.taskMetrics = taskMetrics;
+
+
+        viewModeData.topologyMetrics = {
+          overviewMetrics: {
+            metrics: ex
+          }
+        };
+        this.setState({
+          selectedExecution: ex,
+          selectedExecutionComponentsStatus: selectedExecutionComponentsStatus,
+          viewModeData: viewModeData
+        }, () => {
+          this.syncComponentData();
+          this.triggerUpdateGraph();
+        });
+      });
+    });
+  }
+  getPrevPageExecutions = () => {
+    const {executionInfoPageSize} = this.state;
+    this.setState({executionInfoPageSize: executionInfoPageSize+1}, () => {
+      this.fetchExecutions();
+    });
+  }
+  getNextPageExecutions = () => {
+    const {executionInfoPageSize} = this.state;
+    this.setState({executionInfoPageSize: executionInfoPageSize-1}, () => {
+      this.fetchExecutions();
+    });
+  }
+
+  fetchExecutions = () => {
+    let {viewModeData, executionInfoPageSize, executionInfoPage, startDate, endDate} = this.state;
+
+    return ViewModeREST.getAllExecutions(this.topologyId, {
+      from: startDate.unix(),
+      to: endDate.unix(),
+      pageSize: executionInfoPageSize,
+      page: executionInfoPage
+    }).then((res) => {
+      this.state.executionInfo = res;
+
+      const latestExecution = res.executions[res.executions.length - 1];
+
+      viewModeData.topologyMetrics = {
+        overviewMetrics: {
+          metrics: latestExecution
+        }
+      };
+
+      this.setState({
+        viewModeData: viewModeData
+      }, () => {
+        this.onSelectExecution(latestExecution);
+      });
+
+      return res;
+    });
+  }
+
+  fetchCatalogInfoAndMetrics(fromTime, toTime) {
+    let {viewModeData, executionInfoPageSize, executionInfoPage} = this.state;
+
+    let promiseArr = [];
+
+    if(this.engine.type == 'batch'){
+      const req = this.fetchExecutions();
+      promiseArr.push(req);
+    }else{
+      promiseArr.push(ViewModeREST.getTopologyMetrics(this.topologyId, fromTime, toTime).then((res)=>{
         viewModeData.topologyMetrics = res;
         return res;
-      }, (err) => {})
-    ];
-    _.each(this.engine.componentTypes, (type) => {
-      const typeInLCase = type.toLowerCase();
-      promiseArr.push(ViewModeREST.getComponentMetrics(this.topologyId, typeInLCase+'s', fromTime, toTime).then((res) => {
-        viewModeData[typeInLCase+'Metrics'] = res.entities;
-        return res;
-      }));
-    });
+      }, (err) => {}));
+      _.each(this.engine.componentTypes, (type) => {
+        const typeInLCase = type.toLowerCase();
+        promiseArr.push(ViewModeREST.getComponentMetrics(this.topologyId, typeInLCase+'s', fromTime, toTime).then((res) => {
+          viewModeData[typeInLCase+'Metrics'] = res.entities;
+          return res;
+        }));
+      });
+    }
+
     this.setState({fetchMetrics: true});
     Promise.all(promiseArr).then((responseArr)=>{
       this.setState({viewModeData: viewModeData, fetchMetrics: false}, ()=>{
@@ -794,7 +899,7 @@ class TopologyViewContainer extends TopologyEditorContainer {
           : "modal-fixed-height"} data-title={this.modalTitle} data-resolve={this.handleSaveNodeModal.bind(this)}>
           {this.modalContent()}
         </Modal>
-        {this.state.isAppRunning && this.graphData.nodes.length > 0 && this.versionName.toLowerCase() == 'current' && this.state.availableTimeSeriesDb ?
+        {this.state.isAppRunning && this.graphData.nodes.length > 0 && this.versionName.toLowerCase() == 'current' ?
         <TopologyViewModeMetrics
           ref="metricsPanelRef"
           {...this.state}
@@ -803,7 +908,11 @@ class TopologyViewContainer extends TopologyEditorContainer {
           components={this.graphData.nodes}
           compSelectCallback={this.compSelectCallback}
           datePickerCallback={this.datePickerCallback}
-          engine={this.engine} />
+          engine={this.engine}
+          onSelectExecution={this.onSelectExecution}
+          getPrevPageExecutions={this.getPrevPageExecutions}
+          getNextPageExecutions={this.getNextPageExecutions}
+        />
         : null}
       </BaseContainer>
     );

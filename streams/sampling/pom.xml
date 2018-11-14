@@ -29,5 +29,9 @@
             <groupId>com.hortonworks.streamline</groupId>
             <artifactId>streamline-layout</artifactId>
         </dependency>
+        <dependency>
+            <groupId>com.hortonworks.streamline</groupId>
+            <artifactId>streamline-metrics</artifactId>
+        </dependency>
     </dependencies>
 </project>

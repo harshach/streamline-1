@@ -888,9 +888,22 @@ export default class TopologyGraphComponent extends Component {
     });
 
     thisGraph.rectangles.selectAll('rect.node-rectangle').attr('class', function(d){
-      let classStr = "node-rectangle "+ TopologyUtils.getNodeRectClass(d,'uniqRect');
-      classStr += d.reconfigure ?  ' reconfig-node ' : '' ;
-      return classStr;
+      const classArr = ["node-rectangle", TopologyUtils.getNodeRectClass(d,'uniqRect')];
+      if(d.reconfigure){
+        classArr.push('reconfig-node');
+      }
+
+      const componentsStatus = thisGraph.props.selectedExecutionComponentsStatus;
+      if(componentsStatus.length){
+        const comp = _.find(componentsStatus, (compStatus) => {
+          return compStatus.componentId == d.nodeId;
+        });
+        if(comp && comp.taskStatus == 'failed'){
+          classArr.push('error-node');
+        }
+      }
+
+      return classArr.join(' ');
     }).attr("filter", function(d) {
       if (!d.isConfigured) {
         return "url(#grayscale)";
@@ -1398,7 +1411,11 @@ export default class TopologyGraphComponent extends Component {
           .attr('y', 0)
           .style("display", "none");
       }
-      render(<ComponentLogActions topologyId={thisGraph.topologyId} viewModeContextRouter={thisGraph.props.viewModeContextRouter}  componentLevelAction={GraphUtils.componentLevelActionHandler.bind(this)} selectedNodeId={selectedNodeId} allComponentLevelAction={allComponentLevelAction} sampleTopologyLevel={sampleTopologyLevel}/>, this.logActions.node());
+      if(engine.type == 'stream'){
+        render(<ComponentLogActions topologyId={thisGraph.topologyId} viewModeContextRouter={thisGraph.props.viewModeContextRouter}  componentLevelAction={GraphUtils.componentLevelActionHandler.bind(this)} selectedNodeId={selectedNodeId} allComponentLevelAction={allComponentLevelAction} sampleTopologyLevel={sampleTopologyLevel}/>, this.logActions.node());
+      }else{
+        return null;
+      }
     }
 
     // remove old nodes

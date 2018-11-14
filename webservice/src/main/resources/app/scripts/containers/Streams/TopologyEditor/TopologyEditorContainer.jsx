@@ -195,7 +195,7 @@ export class TopologyEditorContainer extends Component {
         let status = '';
         if (this.topologyMetric.metrics.status) {
           status = this.topologyMetric.metrics.status;
-          if (status === 'ACTIVE' || status === 'INACTIVE') {
+          if (status === 'ACTIVE' || status === 'INACTIVE' || status === 'enabled') {
             isAppRunning = true;
           }
         }
@@ -1267,7 +1267,12 @@ export class TopologyEditorContainer extends Component {
       viewModeData={this.state.viewModeData || {}}
       isAppRunning={isAppRunning}
       compSelectCallback={this.compSelectCallback}
+      {...this.getEditorProps()}
     />;
+  }
+
+  getEditorProps = () => {
+    return {}; /*Required for view mode*/
   }
 
   render() {

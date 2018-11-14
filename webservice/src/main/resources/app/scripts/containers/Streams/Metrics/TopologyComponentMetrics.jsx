@@ -81,7 +81,7 @@ class TopologyComponentMetrics extends Component {
 
         const uiNameArr = t.uiName.split(' ');
 
-        const component = <div className="component-metric-widget" style={{width : colStaticWidth+"px"}}>
+        const component = <div className="component-metric-widget" style={{margin : "0 10px 10px 0"}}>
             <h6>{uiNameArr[0]}</h6>
             {uiNameArr[1] ? <h6>{uiNameArr[1]}</h6> : <h6>&nbsp;</h6>}
             <h4>{value.value}
@@ -146,7 +146,7 @@ class TopologyComponentMetrics extends Component {
   }
 
   render () {
-    let {viewModeData, compData} = this.props;
+    let {viewModeData, compData, engine} = this.props;
     const {componentLevelActionDetails} = viewModeData;
     let overviewMetrics = {}, timeSeriesMetrics = {},samplingVal= 0,
       logLevels = viewModeData.logTopologyLevel;
@@ -189,10 +189,12 @@ class TopologyComponentMetrics extends Component {
       )
       : ''
       }
+      {engine.type == 'stream' &&
       <div className="metric-bg bottom">
         <span className="pull-left">Log: <span style={{color: '#2787ad'}}>{logLevels}</span></span>
         <span className="pull-right">Sampling: <span style={{color: '#2787ad'}}>{samplingVal}%</span></span>
       </div>
+      }
       </div>
     );
   }

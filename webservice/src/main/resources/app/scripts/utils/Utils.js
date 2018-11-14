@@ -217,6 +217,22 @@ const abbreviateNumber = function(value) {
   return {value: newValue, suffix: suffix};
 };
 
+const string = function(val = '') {
+  return {value: val.toString(), suffix: ''};
+};
+
+const datetime = function(val) {
+  if(val){
+    return {value: moment(val).format('MM/DD/YYYY HH:mm'), suffix: ''};
+  }else{
+    return {value: '', suffix: ''};
+  }
+};
+
+const boolean = function(val) {
+  return {value: val.toString(), suffix: ''};
+};
+
 const number = function(value) {
   let newValue = value || 0;
   return {value: newValue, suffix: ''};
@@ -864,10 +880,12 @@ const filterTemplate = function(layout, metrics, componentType, componentName){
   if(_.isArray(layout)){
     metricsToFilter = layout;
   }else{
-    metricsToFilter = layout.baseMetrics;
-    const componentMetrics = layout.component_metrics[componentName];
-    if(componentMetrics){
-      metricsToFilter = [...layout.baseMetrics, ...componentMetrics];
+    if(layout){
+      metricsToFilter = layout.baseMetrics;
+      const componentMetrics = layout.component_metrics[componentName];
+      if(componentMetrics){
+        metricsToFilter = [...layout.baseMetrics, ...componentMetrics];
+      }
     }
   }
   _.each(metricsToFilter, (mObj) => {
@@ -959,6 +977,9 @@ export default {
   noSpecialCharString,
   getTimeDiffInMinutes,
   abbreviateNumber,
+  string,
+  datetime,
+  boolean,
   number,
   time,
   formatLatency,

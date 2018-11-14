@@ -1,20 +1,24 @@
 package com.hortonworks.streamline.streams.sampling.service;
 
+import com.hortonworks.streamline.streams.catalog.Engine;
 import com.hortonworks.streamline.streams.catalog.Topology;
 import com.hortonworks.streamline.streams.catalog.TopologyComponent;
 import com.hortonworks.streamline.streams.cluster.catalog.Namespace;
 import com.hortonworks.streamline.streams.cluster.service.EnvironmentService;
+import com.hortonworks.streamline.streams.metrics.topology.service.TopologyCatalogHelperService;
 
 import javax.security.auth.Subject;
+import java.util.Map;
 
 public class TopologySamplingService {
-    private final EnvironmentService environmentService;
-    private final TopologySamplingContainer topologySamplingContainer;
+    private final TopologyCatalogHelperService topologyCatalogHelperService;
+    private final TopologySamplingFactory topologySamplingFactory;
+    private final Subject subject;
 
-
-    public TopologySamplingService(EnvironmentService environmentService, Subject subject) {
-        this.environmentService = environmentService;
-        this.topologySamplingContainer = new TopologySamplingContainer(environmentService, subject);
+    public TopologySamplingService(TopologyCatalogHelperService topologyCatalogHelperService, Map<String, Object> config, Subject subject) {
+        this.topologyCatalogHelperService = topologyCatalogHelperService;
+        this.topologySamplingFactory = new TopologySamplingFactory(config);
+        this.subject = subject;
     }
 
     public boolean enableSampling(Topology topology, int pct, String asUser) {
@@ -48,15 +52,12 @@ public class TopologySamplingService {
     }
 
     private TopologySampling getSamplingInstance(Topology topology) {
-        Namespace namespace = environmentService.getNamespace(topology.getNamespaceId());
+        Namespace namespace = topologyCatalogHelperService.getNamespace(topology.getNamespaceId());
         if (namespace == null) {
             throw new RuntimeException("Corresponding namespace not found: " + topology.getNamespaceId());
         }
-
-        TopologySampling topologySampling = topologySamplingContainer.findInstance(namespace);
-        if (topologySampling == null) {
-            throw new RuntimeException("Can't find Topology sampling for such namespace " + topology.getNamespaceId());
-        }
+        Engine engine = topologyCatalogHelperService.getEngine(topology.getEngineId());
+        TopologySampling topologySampling = topologySamplingFactory.getTopologySampling(engine, namespace, topologyCatalogHelperService, subject);
         return topologySampling;
     }
 }

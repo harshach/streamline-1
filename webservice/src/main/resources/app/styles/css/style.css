@@ -406,6 +406,12 @@ label {
   position: absolute;
   padding-top: 5px !important;
 }
+.processor-node-fields-container{
+  position: absolute;
+  left: 300px;
+  right: 300px;
+  height: 100%;
+}
 
 .form-field.cron-field select{
   background: white;
@@ -1212,6 +1218,85 @@ label {
   bottom: 30px;
   right: 30px;
   z-index: 99;
+}
+
+.topology-foot > a:hover{
+  text-decoration: none;
+}
+
+.executions-container{
+  padding: 7px;
+}
+
+.executions-container table{
+  width:100%;
+  border-collapse: separate;
+  border-spacing: 10px 0;
+}
+
+.executions-container table td{
+  border-bottom: 1px solid #6d6e72;
+  text-align: center;
+  background: #7e7e7e;
+  border-radius: 5px;
+  position: relative;
+}
+.executions-container table td:hover{
+  background: #909090;
+}
+
+.executions-container table td.arrowBtn{
+  width: 20px;
+  background: transparent;
+}
+.executions-container table td.arrowBtn:hover{
+  color: #95d6ec;
+  background: transparent;
+}
+.executions-container table td.arrowBtn.disabled{
+  color: lightgrey;
+  cursor: not-allowed;
+}
+.executions-container table td.arrowBtn.disabled:hover{
+  color: lightgrey;
+}
+
+.executions-container table td.error{
+  border: 1px solid #b0b0b0;
+  background: #8e3c3c;
+}
+.executions-container table td.error:hover{
+  border: 1px solid #b0b0b0;
+  background: #ad4d4d;
+}
+.executions-container table td.selected{
+  border-bottom: 1px solid #c1c1c1;
+}
+.executions-container table td h6{
+  margin: 5px 0px;
+}
+.executions-container table td h6:hover{
+  text-decoration: none;
+}
+.loading-container{
+  position: absolute;
+  top:0;
+  bottom: 0;
+  right: 0;
+  left: 0;
+  background: rgba(255, 255, 255, 0.6);;
+  color: grey;
+  border-radius: 5px;
+}
+
+.loading-container > div{
+  display: table;
+  width: 100%;
+  height: 100%;
+}
+.loading-container > div > i{
+  display: table-cell;
+  vertical-align: middle;
 }
 
 .displayNone {
@@ -4079,7 +4164,8 @@ ul.custom-pagination li.active{
 .topology-foot-widget h4 {
   color: #fff;
   margin: 0;
-  font-size: 18px;
+  font-size: 16px;
+  text-transform: uppercase;
 }
 .topology-foot-widget h4 small {
   margin-left: 5px;

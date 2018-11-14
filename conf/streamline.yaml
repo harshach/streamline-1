@@ -22,11 +22,13 @@ modules:
            topologyActionsClass: "com.hortonworks.streamline.streams.actions.piper.topology.PiperTopologyActionsBuilder"
            topologyMetricsClass: "com.hortonworks.streamline.streams.metrics.piper.topology.PiperTopologyMetricsImpl"
            timeseriesMetricsClass: "com.hortonworks.streamline.streams.metrics.piper.m3.M3MetricsWithPiperQuerier"
+           topologySamplingClass: ""
        - engineName: STORM
          properties:
            topologyActionsClass: "com.hortonworks.streamline.streams.actions.storm.topology.StormTopologyActionsBuilder"
            topologyMetricsClass: "com.hortonworks.streamline.streams.metrics.storm.topology.StormTopologyMetricsImpl"
            timeseriesMetricsClass: "com.hortonworks.streamline.streams.metrics.storm.ambari.AmbariMetricsServiceWithStormQuerier"
+           topologySamplingClass: "com.hortonworks.streamline.streams.sampling.service.storm.StormTopologySamplingService"
 
 catalogRootUrl: "http://localhost:8080/api/v1/catalog"
 

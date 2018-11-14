@@ -243,12 +243,22 @@ export default class SqlProcessorNodeForm extends Component {
     this.hintOptions=[];
     if(uiSpec.length){
       const allFields = [];
+      const tableNames = [];
       _.each(inputStreamOptions, (stream) => {
+        const streamIdWOId = stream.streamId.split('_');
+        streamIdWOId.splice(streamIdWOId.length-1, 1);
+        const topicNameFromStreamId = streamIdWOId.join('_');
+        tableNames.push({
+          name: topicNameFromStreamId,
+          type: 'TABLE'
+        });
+
         allFields.push.apply(allFields, stream.fields);
       });
 
       Array.prototype.push.apply(this.hintOptions,ProcessorUtils.generateCodeMirrorOptions(allFields,"ARGS"));
       Array.prototype.push.apply(this.hintOptions,ProcessorUtils.generateCodeMirrorOptions(this.udfList,"FUNCTION"));
+      Array.prototype.push.apply(this.hintOptions,ProcessorUtils.generateCodeMirrorOptions(tableNames,"TABLE"));
 
       uiSpec[0].hintOptions = this.hintOptions;
       uiSpec[0].onChange = this.onSqlChange;

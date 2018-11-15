@@ -41,6 +41,7 @@ import Paginate from '../../components/Paginate';
 import CommonLoaderSign from '../../components/CommonLoaderSign';
 import AddManualCluster from '../ManualCluster/AddManualCluster';
 import AddManualService from '../ManualCluster/AddManualService';
+import ViewManualService from '../ManualCluster/ViewManualService';
 import {hasEditCapability, hasViewCapability,findSingleAclObj,handleSecurePermission} from '../../utils/ACLUtils';
 import app_state from '../../app_state';
 import CommonShareModal from '../../components/CommonShareModal';
@@ -54,7 +55,8 @@ import CommonShareModal from '../../components/CommonShareModal';
 const ServiceItems = (props) => {
   const {
     item,
-    deleteManualService
+    deleteManualService,
+    viewManualService
   } = props;
   let name = item.name.replace('_', ' ');
   return (
@@ -63,9 +65,9 @@ const ServiceItems = (props) => {
     : <li>
         <img
           src={`styles/img/icon-${item.name.toLowerCase()}.png`}
-          onClick={props.viewManualService}
-          data-id={item.clusterId}
-          data-service-id={item.id} />
+          onClick={() => {
+            viewManualService(item.clusterId, item.id);
+          }}/>
         {name}
         { deleteManualService
           ? <a href="javascript:void(0)"
@@ -141,6 +143,27 @@ class PoolItemsCard extends Component {
       ? true
       : false;
   }
+
+  viewManualService = (mClusterId, mServiceId) => {
+    const {allACL} = this.props;
+    if(app_state.streamline_config.secureMode){
+      let permissions = true,rights_share=true;
+      const userInfo = app_state.user_profile !== undefined ? app_state.user_profile.admin : false;
+      const aclObject = findSingleAclObj(Number(mClusterId),allACL || []);
+      if(!_.isEmpty(aclObject)){
+        const {p_permission} = handleSecurePermission(aclObject,userInfo,"Service pool");
+        permissions = p_permission;
+      } else {
+        permissions = hasEditCapability("Service Pool");
+      }
+      if(permissions){
+        this.props.viewManualServiceHandler(mClusterId, mServiceId);
+      }
+    } else {
+      this.props.viewManualServiceHandler(mClusterId, mServiceId);
+    }
+  }
+
 
   /*
     addManualService accept click event
@@ -275,6 +298,7 @@ class PoolItemsCard extends Component {
                         key={i}
                         item={items.service}
                         deleteManualService={permission ? this.deleteManualService : null}
+                        viewManualService={this.viewManualService}
                         addManualService={this.addManualService}/>;
                     })
                     : <div className="col-sm-12 text-center">
@@ -916,7 +940,9 @@ class ServicePoolContainer extends Component {
     ? this.addManualClusterModal.hide()
     : name === "service"
       ? this.addManualServiceModal.hide()
-      : '';
+      : name === "service-view"
+        ? this.viewManualServiceModal.hide()
+        : '';
   }
 
   /*
@@ -940,6 +966,14 @@ class ServicePoolContainer extends Component {
     });
   }
 
+  /*
+  viewManualServiceHandler - takes clusterId and service Id
+  */
+  viewManualServiceHandler = (clusterId, serviceId) => {
+    this.setState({mClusterId : clusterId, mServiceId:serviceId}, () => {
+      this.viewManualServiceModal.show();
+    });
+  }
 
 
   /*
@@ -1197,6 +1231,19 @@ class ServicePoolContainer extends Component {
         <Modal ref={(ref) => this.addManualServiceModal = ref} data-title={mClusterServiceUpdate ? "Edit Manual Service" : "Add Manual Service"}  data-resolve={this.addManualServiceSave} data-reject={this.addManualCommonCancel.bind(this,'service')} onKeyPress={this.handleKeyPress}>
           <AddManualService ref="addManualServiceRef" mClusterId={mClusterId} mClusterServiceUpdate={mClusterServiceUpdate} serviceNameList={mServiceNameList}/>
         </Modal>
+        <Modal
+          ref={(ref) => this.viewManualServiceModal = ref}
+          data-title={"View Manual Service"}
+          data-resolve={this.addManualCommonCancel.bind(this,'service-view')}
+          data-reject={this.addManualCommonCancel.bind(this,'service-view')}
+          onKeyPress={this.addManualCommonCancel.bind(this,'service-view')}>
+          <ViewManualService
+            ref="viewManualServiceRef"
+            mClusterId={mClusterId}
+            mServiceId={mServiceId}
+          />
+        </Modal>
+
         {/* CommonShareModal */}
         <Modal ref={"CommonShareModalRef"} data-title="Share Cluster"  data-resolve={this.handleShareSave.bind(this)} data-reject={this.handleShareCancel.bind(this)}>
           <CommonShareModal ref="CommonShareModal" shareObj={shareObj}/>

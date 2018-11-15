@@ -205,13 +205,12 @@ public class TopologyCatalogResource {
     }
 
 
-
     @GET
     @Path("/projects")
     @Timed
     public Response listProjects (@Context SecurityContext securityContext) {
-        Collection<Project>  projects = catalogService.listProjects();
         boolean topologyUser = SecurityUtil.hasRole(authorizer, securityContext, Roles.ROLE_TOPOLOGY_USER);
+        Collection<Project>  projects = catalogService.listProjects();
         if (topologyUser) {
             LOG.debug("Returning all projects since user has role: {}", Roles.ROLE_TOPOLOGY_USER);
         } else {

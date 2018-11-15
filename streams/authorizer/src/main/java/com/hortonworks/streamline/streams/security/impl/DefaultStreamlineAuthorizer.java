@@ -41,30 +41,33 @@ public class DefaultStreamlineAuthorizer implements StreamlineAuthorizer {
 
     public static final String CONF_CATALOG_SERVICE = "catalogService";
     public static final String CONF_ADMIN_PRINCIPALS = "adminPrincipals";
+    public static final String CONF_PRINCIPAL_DOMAIN = "principalDomain";
 
     private SecurityCatalogService catalogService;
     private Set<String> adminUsers;
+    private String prinicipalDomain;
 
     @SuppressWarnings("unchecked")
     @Override
     public void init(Map<String, Object> config) {
-        LOG.info("Initializing DefaultStreamlineAuthorizer with config {}", config);
+        LOG.debug("Initializing DefaultStreamlineAuthorizer with config {}", config);
         catalogService = (SecurityCatalogService) config.get(CONF_CATALOG_SERVICE);
         adminUsers = ((Set<String>) config.get(CONF_ADMIN_PRINCIPALS)).stream()
                 .map(SecurityUtil::getUserName)
                 .collect(Collectors.toSet());
-        LOG.info("Admin users: {}", adminUsers);
+        prinicipalDomain = (String) config.get(CONF_ADMIN_PRINCIPALS);
+        LOG.debug("Admin users: {}", adminUsers);
         mayBeAddAdminUsers();
         mayBeAssignAdminRole();
     }
 
     private void mayBeAddAdminUsers() {
-        LOG.info("Checking user entries for admin users");
+        LOG.debug("Checking user entries for admin users");
         adminUsers.stream()
                 .filter(name -> {
                     User user = catalogService.getUser(name);
                     if (user != null) {
-                        LOG.info("Entry for user '{}' already exists", name);
+                        LOG.debug("Entry for user '{}' already exists", name);
                         return false;
                     } else {
                         return true;
@@ -73,21 +76,21 @@ public class DefaultStreamlineAuthorizer implements StreamlineAuthorizer {
                 .forEach(name -> {
                     User user = new User();
                     user.setName(name);
-                    user.setEmail(name + "@auto-generated.com");
+                    user.setEmail(name + "@" + prinicipalDomain);
                     user.setMetadata("{\"colorCode\":\"#8261be\",\"colorLabel\":\"purple\",\"icon\":\"gears\"}");
                     try {
                         User addedUser = catalogService.addUser(user);
-                        LOG.info("Added admin user entry: {}", addedUser);
+                        LOG.debug("Added admin user entry: {}", addedUser);
                     } catch (DuplicateEntityException exception) {
                         // In HA setup the other server may have already added the user.
-                        LOG.info("Caught exception: " + ExceptionUtils.getStackTrace(exception));
-                        LOG.info("Admin user entry: {} already exists.", user);
+                        LOG.debug("Caught exception: " + ExceptionUtils.getStackTrace(exception));
+                        LOG.debug("Admin user entry: {} already exists.", user);
                     }
                 });
     }
 
     private void mayBeAssignAdminRole() {
-        LOG.info("Checking if admin users have admin role");
+        LOG.debug("Checking if admin users have admin role");
         Role adminRole = catalogService.getRole(Roles.ROLE_ADMIN)
                 .orElseGet(() -> {
                     Role admin = new Role();
@@ -102,7 +105,7 @@ public class DefaultStreamlineAuthorizer implements StreamlineAuthorizer {
                 .map(userName -> catalogService.getUser(userName))
                 .filter(user -> {
                     if (userHasRole(user, Roles.ROLE_ADMIN)) {
-                        LOG.info("user '{}' already has '{}'", user, Roles.ROLE_ADMIN);
+                        LOG.debug("user '{}' already has '{}'", user, Roles.ROLE_ADMIN);
                         return false;
                     } else {
                         return true;

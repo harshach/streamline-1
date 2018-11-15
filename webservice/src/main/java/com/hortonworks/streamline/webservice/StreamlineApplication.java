@@ -240,6 +240,7 @@ public class StreamlineApplication extends Application<StreamlineConfiguration> 
             Map<String, Object> authorizerConfig = new HashMap<>();
             authorizerConfig.put(DefaultStreamlineAuthorizer.CONF_CATALOG_SERVICE, securityCatalogService);
             authorizerConfig.put(DefaultStreamlineAuthorizer.CONF_ADMIN_PRINCIPALS, authorizerConf.getAdminPrincipals());
+            authorizerConfig.put(DefaultStreamlineAuthorizer.CONF_PRINCIPAL_DOMAIN, authorizerConf.getPrincipalDomain());
             authorizer.init(authorizerConfig);
             String filterClazzName = authorizerConf.getContainerRequestFilter();
             ContainerRequestFilter filter;

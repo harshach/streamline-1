@@ -166,10 +166,19 @@ logging:
 # ------------------------------------------------
 # Authorizer configuration
 # ------------------------------------------------
-#authorizerConfiguration:
-# className: "com.hortonworks.streamline.streams.security.impl.DefaultStreamlineAuthorizer"
-# adminPrincipals:
-#   - "root"
+authorizerConfiguration:
+ className: "com.hortonworks.streamline.streams.security.impl.DefaultStreamlineAuthorizer"
+ adminPrincipals:
+   - "akira"
+   - "amody"
+   - "bzzhang"
+   - "harshach"
+   - "jchun"
+   - "jianyong"
+   - "pawan"
+   - "root"
+ containerRequestFilter: "com.hortonworks.streamline.streams.security.authentication.StreamlineOpenIdAuthorizationRequestFilter"
+ principalDomain: "uber.com"
 
 # ------------------------------------------------
 # Truststore configuration

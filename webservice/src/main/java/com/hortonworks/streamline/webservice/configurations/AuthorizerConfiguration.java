@@ -28,6 +28,9 @@ public class AuthorizerConfiguration {
 
     private String containerRequestFilter;
 
+    @NotEmpty
+    private String principalDomain;
+
     public String getClassName() {
         return className;
     }
@@ -50,5 +53,13 @@ public class AuthorizerConfiguration {
 
     public void setContainerRequestFilter(String containerRequestFilter) {
         this.containerRequestFilter = containerRequestFilter;
+    }
+
+    public String getPrincipalDomain() {
+        return principalDomain;
+    }
+
+    public void setPrincipalDomain(String principalDomain) {
+        this.principalDomain = principalDomain;
     }
 }

@@ -139,7 +139,7 @@ logging:
   # Logger-specific levels.
   loggers:
     # Sets the level for 'com.example.app' to DEBUG.
-    com.hortonworks.streamline: DEBUG
+    com.hortonworks.streamline: INFO
   appenders:
     - type: console
     - type: file
@@ -159,10 +159,19 @@ logging:
 # ------------------------------------------------
 # Authorizer configuration
 # ------------------------------------------------
-#authorizerConfiguration:
-# className: "com.hortonworks.streamline.streams.security.impl.DefaultStreamlineAuthorizer"
-# adminPrincipals:
-#   - "root"
+authorizerConfiguration:
+ className: "com.hortonworks.streamline.streams.security.impl.DefaultStreamlineAuthorizer"
+ adminPrincipals:
+   - "akira"
+   - "amody"
+   - "bzzhang"
+   - "harshach"
+   - "jchun"
+   - "jianyong"
+   - "pawan"
+   - "root"
+ containerRequestFilter: "com.hortonworks.streamline.streams.security.authentication.StreamlineOpenIdAuthorizationRequestFilter"
+ principalDomain: "uber.com"
 
 # ------------------------------------------------
 # Truststore configuration

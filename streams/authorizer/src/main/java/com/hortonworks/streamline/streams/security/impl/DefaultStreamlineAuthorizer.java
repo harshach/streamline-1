@@ -55,7 +55,7 @@ public class DefaultStreamlineAuthorizer implements StreamlineAuthorizer {
         adminUsers = ((Set<String>) config.get(CONF_ADMIN_PRINCIPALS)).stream()
                 .map(SecurityUtil::getUserName)
                 .collect(Collectors.toSet());
-        prinicipalDomain = (String) config.get(CONF_ADMIN_PRINCIPALS);
+        prinicipalDomain = (String) config.get(CONF_PRINCIPAL_DOMAIN);
         LOG.debug("Admin users: {}", adminUsers);
         mayBeAddAdminUsers();
         mayBeAssignAdminRole();

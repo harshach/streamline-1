@@ -31,6 +31,15 @@ const TopologyREST = {
         return response.json();
       });
   },
+  getAllAvailableTopologies(options) {
+    options = options || {};
+    options.method = options.method || 'GET';
+    options.credentials = 'same-origin';
+    return fetch(baseUrl + 'topologies', options)
+      .then((response) => {
+        return response.json();
+      });
+  },
   getAllTopologyWithoutConfig(projectId, sort, options) {
     options = options || {};
     options.method = options.method || 'GET';

@@ -65,7 +65,7 @@ export default class UsersListingContainer extends Component {
     let promiseArr = [
       UserRoleREST.getAllUsers(),
       UserRoleREST.getAllRoles(),
-      TopologyREST.getAllTopologyWithoutConfig(),
+      TopologyREST.getAllAvailableTopologies(),
       ClusterREST.getAllClustersWithoutServiceDetail(),
       EnvironmentREST.getAllNameSpaceWithoutMappingDetail()
     ];

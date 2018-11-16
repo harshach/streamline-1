@@ -421,6 +421,8 @@ export class sql extends BaseField {
   }
   getField = () => {
     const {fieldJson} = this.props;
+    const width = fieldJson.width || '100%';
+    const height = fieldJson.height || '250px';
 
     return <div style={{position: 'relative'}}><CommonCodeMirror
       ref="codemirror"
@@ -429,8 +431,8 @@ export class sql extends BaseField {
       callBack={this.handleChange}
       placeHolder=" "
       editMode={true}
-      width={'100%'}
-      height={'200px'}
+      width={width}
+      height={height}
       editMode={false}
       modeOptions={{
         readOnly: this.context.Form.props.readOnly,

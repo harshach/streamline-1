@@ -301,23 +301,17 @@ public class TopologyCatalogResource {
     @Timed
     public Response listTopologies (@PathParam("projectId") Long projectId,
                                     @Context SecurityContext securityContext) {
-        Collection<Topology> topologies = catalogService.listTopologies(
-                com.hortonworks.streamline.common.QueryParam.params(Topology.PROJECTID, projectId.toString()));
-        boolean topologyUser = SecurityUtil.hasRole(authorizer, securityContext, Roles.ROLE_TOPOLOGY_USER);
-        if (topologyUser) {
-            LOG.debug("Returning all topologies since user has role: {}", Roles.ROLE_TOPOLOGY_USER);
-        } else {
-            topologies = SecurityUtil.filter(authorizer, securityContext, NAMESPACE, topologies, READ);
-        }
-        Response response;
-        if (topologies != null) {
-            response = WSUtils.respondEntities(topologies, OK);
-        } else {
-            response = WSUtils.respondEntities(Collections.emptyList(), OK);
-        }
 
-        return response;
+        return listTopologies(securityContext, projectId);
     }
+
+
+    @GET
+    @Path("/topologies")
+    @Timed
+    public Response listTopologies (@Context SecurityContext securityContext) {
+        return listTopologies(securityContext, null);
+        }
 
     @GET
     @Path("/topologies/{topologyId}")
@@ -654,6 +648,30 @@ public class TopologyCatalogResource {
             return WSUtils.respondEntity(catalogService.getComponentsToReconfigure(topology), OK);
         }
         throw EntityNotFoundException.byId(topologyId.toString());
+    }
+
+    private Response listTopologies(SecurityContext securityContext, Long projectId) {
+        boolean topologyUser = SecurityUtil.hasRole(authorizer, securityContext, Roles.ROLE_TOPOLOGY_USER);
+        Collection<Topology> topologies;
+        if (projectId != null)  {
+            topologies = catalogService.listTopologies(
+                    com.hortonworks.streamline.common.QueryParam.params(Topology.PROJECTID, projectId.toString()));
+        } else {
+            topologies = catalogService.listTopologies();
+        }
+
+        if (topologyUser) {
+            LOG.debug("Returning all topologies since user has role: {}", Roles.ROLE_TOPOLOGY_USER);
+        } else {
+            topologies = SecurityUtil.filter(authorizer, securityContext, NAMESPACE, topologies, READ);
+        }
+        Response response;
+        if (topologies != null) {
+            response = WSUtils.respondEntities(topologies, OK);
+        } else {
+            response = WSUtils.respondEntities(Collections.emptyList(), OK);
+        }
+        return response;
     }
 
 }

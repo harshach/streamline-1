@@ -83,12 +83,10 @@ public final class CatalogResourceUtil {
     static class TopologyRuntimeResponse {
         private final String runtimeTopologyId;
         private final TopologyMetrics.TopologyMetric metric;
-        private final List<Pair<String, Double>> latencyTopN;
 
-        public TopologyRuntimeResponse(String runtimeTopologyId, TopologyMetrics.TopologyMetric metric, List<Pair<String, Double>> latencyTopN) {
+        public TopologyRuntimeResponse(String runtimeTopologyId, TopologyMetrics.TopologyMetric metric) {
             this.runtimeTopologyId = runtimeTopologyId;
             this.metric = metric;
-            this.latencyTopN = latencyTopN;
         }
 
         public String getRuntimeTopologyId() {
@@ -99,9 +97,6 @@ public final class CatalogResourceUtil {
             return metric;
         }
 
-        public List<Pair<String, Double>> getLatencyTopN() {
-            return latencyTopN;
-        }
     }
 
     enum TopologyRunningStatus {
@@ -119,10 +114,6 @@ public final class CatalogResourceUtil {
         Stopwatch stopwatch = Stopwatch.createStarted();
 
         try {
-            if (latencyTopN == null) {
-                latencyTopN = DEFAULT_N_OF_TOP_N_LATENCY;
-            }
-
             TopologyDashboardResponse detailedResponse;
 
             String namespaceName = null;
@@ -134,10 +125,8 @@ public final class CatalogResourceUtil {
             try {
                 String runtimeTopologyId = actionsService.getRuntimeTopologyId(topology, asUser);
                 TopologyMetrics.TopologyMetric topologyMetric = metricsService.getTopologyMetric(topology, asUser);
-                List<Pair<String, Double>> latenciesTopN = metricsService.getTopNAndOtherComponentsLatency(topology, asUser, latencyTopN);
-
                 detailedResponse = new TopologyDashboardResponse(topology, TopologyRunningStatus.RUNNING, namespaceName);
-                detailedResponse.setRuntime(new TopologyRuntimeResponse(runtimeTopologyId, topologyMetric, latenciesTopN));
+                detailedResponse.setRuntime(new TopologyRuntimeResponse(runtimeTopologyId, topologyMetric));
             } catch (TopologyNotAliveException e) {
                 LOG.debug("Topology {} is not alive", topology.getId());
                 detailedResponse = new TopologyDashboardResponse(topology, TopologyRunningStatus.NOT_RUNNING, namespaceName);

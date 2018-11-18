@@ -207,6 +207,14 @@ export class TopologyEditorContainer extends Component {
         promiseArr.push(TopologyREST.getTopologyConfig(data.topology.engineId));
         promiseArr.push(ProjectREST.getProject(this.projectId));
         promiseArr.push(TopologyREST.getMetaInfo(this.topologyId, this.versionId));
+        /*promiseArr.push(TopologyREST.getTopologyActionStatus(this.topologyId).then((res) => {
+          this.actionStatus = res;
+        }, (err) => {
+          this.actionStatus = {
+            datacenters: []
+          };
+          console.error(err);
+        }));*/
 
         this.fetchNameSpace(isAppRunning, data);
 

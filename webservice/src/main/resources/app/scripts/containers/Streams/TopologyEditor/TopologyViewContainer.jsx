@@ -527,9 +527,10 @@ class TopologyViewContainer extends TopologyEditorContainer {
   fetchBatchTimeSeriesMetrics = () => {
     this.batchTimeseries = this.batchTimeseries || [];
 
-    let {viewModeData, startDate, endDate} = this.state;
-    const pipeline = '01950d73_9753_4e83_82eb_910bdd8f8642'; //this.actionStatus.runtimeWorkflowId;
-    const dc = 'dca1';//this.actionStatus.datacenters[0];
+    let {viewModeData, startDate, endDate, topologyData} = this.state;
+    const selectedDC = this.namespace;
+    const pipeline = this.runtimeObj.runtimeTopologyId;
+    const dc = selectedDC;
 
     const promiseArr = [];
     const template = _.find(app_state.enginesMetricsTemplates, (template) => {

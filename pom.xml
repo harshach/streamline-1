@@ -781,6 +781,11 @@
             </dependency>
             <dependency>
                 <groupId>com.hortonworks.streamline</groupId>
+                <artifactId>streamline-actions-athenax</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.hortonworks.streamline</groupId>
                 <artifactId>streamline-metrics</artifactId>
                 <version>${project.version}</version>
             </dependency>
@@ -854,6 +859,11 @@
             <dependency>
                 <groupId>com.hortonworks.streamline</groupId>
                 <artifactId>streamline-runners-piper</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.hortonworks.streamline</groupId>
+                <artifactId>streamline-runners-athenax</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>

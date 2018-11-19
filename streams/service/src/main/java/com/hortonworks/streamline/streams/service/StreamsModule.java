@@ -39,6 +39,7 @@ import com.hortonworks.streamline.streams.cluster.resource.ServiceBundleResource
 import com.hortonworks.streamline.streams.cluster.resource.ServiceCatalogResource;
 import com.hortonworks.streamline.streams.cluster.resource.ServiceConfigurationCatalogResource;
 import com.hortonworks.streamline.streams.cluster.service.EnvironmentService;
+import com.hortonworks.streamline.streams.layout.TopologyLayoutConstants;
 import com.hortonworks.streamline.streams.metrics.topology.service.TopologyCatalogHelperService;
 import com.hortonworks.streamline.streams.logsearch.topology.service.TopologyLogSearchService;
 import com.hortonworks.streamline.streams.metrics.topology.service.TopologyMetricsService;
@@ -52,7 +53,6 @@ import com.hortonworks.streamline.streams.service.metadata.HBaseMetadataResource
 import com.hortonworks.streamline.streams.service.metadata.HiveMetadataResource;
 import com.hortonworks.streamline.streams.service.metadata.KafkaMetadataResource;
 import com.hortonworks.streamline.streams.service.metadata.StormMetadataResource;
-import com.hortonworks.streamline.streams.actions.builder.mapping.MappedTopologyActionsBuilder;
 
 
 import java.util.ArrayList;
@@ -243,7 +243,7 @@ public class StreamsModule implements ModuleRegistration, StorageManagerAware, T
                     testNamespace = new Namespace();
                     testNamespace.setId(EnvironmentService.TEST_ENVIRONMENT_ID);
                     testNamespace.setName("Test Environment");
-                    testNamespace.setEngine(MappedTopologyActionsBuilder.STORM.name());
+                    testNamespace.setEngine(TopologyLayoutConstants.STORM_ENGINE);
                     // no metric service, no log search service
                     testNamespace.setDescription("Empty environment to test the topology which doesn't require external service.");
                     testNamespace.setInternal(true);

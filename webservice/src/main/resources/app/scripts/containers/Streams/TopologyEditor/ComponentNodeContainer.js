@@ -17,7 +17,7 @@ import PropTypes from 'prop-types';
 import update from 'react/lib/update';
 import ReactDOM, {findDOMNode} from 'react-dom';
 import {OverlayTrigger, Popover, Tooltip, Accordion, Panel, PanelGroup,Button} from 'react-bootstrap';
-import {ItemTypes, Components} from '../../../utils/Constants';
+import {ItemTypes, Components, iconsFrom} from '../../../utils/Constants';
 import {DragSource} from 'react-dnd';
 import NodeContainer from './NodeContainer';
 import state from '../../../app_state';
@@ -203,19 +203,19 @@ export default class ComponentNodeContainer extends Component {
     switch(nodeType) {
     case 'sources':
       entityTypeArr = this.state.datasources;
-      defaultImagePath = 'styles/img/icon-source.png';
+      defaultImagePath = 'styles/img/'+iconsFrom+'icon-source.png';
       break;
     case 'processors':
       entityTypeArr = this.state.processors;
-      defaultImagePath = 'styles/img/icon-processor.png';
+      defaultImagePath = 'styles/img/'+iconsFrom+'icon-processor.png';
       break;
     case 'sinks':
       entityTypeArr = this.state.sinks;
-      defaultImagePath = 'styles/img/icon-sink.png';
+      defaultImagePath = 'styles/img/'+iconsFrom+'icon-sink.png';
       break;
     case 'tasks':
       entityTypeArr = this.state.tasks;
-      defaultImagePath = 'styles/img/icon-task.png';
+      defaultImagePath = 'styles/img/'+iconsFrom+'icon-task.png';
       break;
     }
 
@@ -227,28 +227,28 @@ export default class ComponentNodeContainer extends Component {
       if(_.has(s, 'bundleId')){
         const source = _.find(entityTypeArr, {id: s.bundleId});
         nodeName = source.name.toUpperCase();
-        imgPath = "styles/img/icon-" + source.subType.toLowerCase() + ".png";
+        imgPath = "styles/img/"+iconsFrom+"icon-" + source.subType.toLowerCase() + ".png";
         subType = source.subType;
         if (source.subType === 'CUSTOM') {
           let config = source.topologyComponentUISpecification.fields,
             obj = _.find(config, {fieldName: "name"});
           nodeName = obj ? obj.defaultValue : 'Custom';
-          imgPath = "styles/img/icon-custom.png";
+          imgPath = "styles/img/"+iconsFrom+"icon-custom.png";
           subType = 'Custom';
         }
         return (<NodeContainer accepts={nodeType} dataArr={toolbarTypeArr} moveIcon={this.moveIcon.bind(this)} onDrop={this.onDrop.bind(this)} index={i} key={i} imgPath={imgPath} name={nodeName} type={source.type} nodeLable={nodeName} nodeType={subType} hideSourceOnDrag={false} topologyComponentBundleId={source.id} defaultImagePath={defaultImagePath} testRunActivated={testRunActivated} eventLogData/>);
       }else if(s && s.type == 'folder'){
-        return (<NodeContainer accepts={editToolbar ? nodeType : ''} onFolderNameChange={this.onFolderNameChange.bind(this)} editToolbar={editToolbar} data={s} dataArr={toolbarTypeArr} dropArr={s.children} moveIcon={this.moveIcon.bind(this)} onDrop={this.onDrop.bind(this)} index={i} viewType="folder" key={i} imgPath={"styles/img/icon-.png"} name={s.name} type={''} nodeLable={''} nodeType={''} hideSourceOnDrag={false} topologyComponentBundleId={999} defaultImagePath='' testRunActivated={testRunActivated}>{
+        return (<NodeContainer accepts={editToolbar ? nodeType : ''} onFolderNameChange={this.onFolderNameChange.bind(this)} editToolbar={editToolbar} data={s} dataArr={toolbarTypeArr} dropArr={s.children} moveIcon={this.moveIcon.bind(this)} onDrop={this.onDrop.bind(this)} index={i} viewType="folder" key={i} imgPath={"styles/img/"+iconsFrom+"/icon-.png"} name={s.name} type={''} nodeLable={''} nodeType={''} hideSourceOnDrag={false} topologyComponentBundleId={999} defaultImagePath='' testRunActivated={testRunActivated}>{
             s.children.map((child, i) => {
               const source = _.find(entityTypeArr, {id: child.bundleId});
               nodeName = source.name.toUpperCase();
-              imgPath = "styles/img/icon-" + source.subType.toLowerCase() + ".png";
+              imgPath = "styles/img/"+iconsFrom+"icon-" + source.subType.toLowerCase() + ".png";
               subType = source.subType;
               if (source.subType === 'CUSTOM') {
                 let config = source.topologyComponentUISpecification.fields,
                   obj = _.find(config, {fieldName: "name"});
                 nodeName = obj ? obj.defaultValue : 'Custom';
-                imgPath = "styles/img/icon-custom.png";
+                imgPath = "styles/img/"+iconsFrom+"icon-custom.png";
                 subType = 'Custom';
               }
               return (<NodeContainer accepts={nodeType} dataArr={s.children} isChildren={true} moveIcon={this.moveIcon.bind(this)} index={i} key={i} imgPath={imgPath} name={nodeName} type={source.type} nodeLable={nodeName} nodeType={subType} hideSourceOnDrag={false} topologyComponentBundleId={source.id} defaultImagePath={defaultImagePath} testRunActivated={testRunActivated} eventLogData={eventLogData}/>);

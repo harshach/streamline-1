@@ -14,6 +14,7 @@
 
 import React, {Component} from 'react';
 import Utils from '../utils/Utils';
+import {iconsFrom} from '../utils/Constants';
 import state from '../app_state';
 
 export default class SpotlightSearch extends Component {
@@ -232,9 +233,9 @@ export default class SpotlightSearch extends Component {
                           onClick={this.handleClickOnComponent.bind(this, item)}
                         >
                         <img
-                          src={"styles/img/icon-" + item.subType.toLowerCase() + ".png"}
+                          src={"styles/img/"+iconsFrom+"icon-" + item.subType.toLowerCase() + ".png"}
                           ref="img"
-                          onError={() => {this.refs.img.src = "styles/img/icon-source.png";}}
+                          onError={() => {this.refs.img.src = "styles/img/"+iconsFrom+"icon-source.png";}}
                         />
                       {item.name.toUpperCase()}
                     </li>);
@@ -254,9 +255,9 @@ export default class SpotlightSearch extends Component {
                             onClick={this.handleClickOnComponent.bind(this, item)}
                           >
                           <img
-                            src={"styles/img/icon-custom.png"}
+                            src={"styles/img/"+iconsFrom+"icon-custom.png"}
                             ref="img"
-                            onError={() => {this.refs.img.src = "styles/img/icon-processor.png";}}
+                            onError={() => {this.refs.img.src = "styles/img/"+iconsFrom+"icon-processor.png";}}
                           />
                         {name ? name.defaultValue.toUpperCase() : "CUSTOM"}
                       </li>);
@@ -267,9 +268,9 @@ export default class SpotlightSearch extends Component {
                             onClick={this.handleClickOnComponent.bind(this, item)}
                           >
                           <img
-                            src={"styles/img/icon-" + item.subType.toLowerCase() + ".png"}
+                            src={"styles/img/"+iconsFrom+"icon-" + item.subType.toLowerCase() + ".png"}
                             ref="img"
-                            onError={() => {this.refs.img.src = "styles/img/icon-processor.png";}}
+                            onError={() => {this.refs.img.src = "styles/img/"+iconsFrom+"icon-processor.png";}}
                           />
                         {item.name.toUpperCase()}
                       </li>);
@@ -287,9 +288,9 @@ export default class SpotlightSearch extends Component {
                           onClick={this.handleClickOnComponent.bind(this, item)}
                         >
                         <img
-                          src={"styles/img/icon-" + item.subType.toLowerCase() + ".png"}
+                          src={"styles/img/"+iconsFrom+"icon-" + item.subType.toLowerCase() + ".png"}
                           ref="img"
-                          onError={() => {this.refs.img.src = "styles/img/icon-sink.png";}}
+                          onError={() => {this.refs.img.src = "styles/img/"+iconsFrom+"icon-sink.png";}}
                         />
                       {item.name.toUpperCase()}
                     </li>);

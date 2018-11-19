@@ -13,7 +13,7 @@
 **/
 import React from 'react';
 import _ from 'lodash';
-import {Components, toastOpt} from './Constants';
+import {Components, toastOpt, iconsFrom} from './Constants';
 import d3 from 'd3';
 import TopologyREST from '../rest/TopologyREST';
 import FSReactToastr from '../components/FSReactToastr';
@@ -993,7 +993,7 @@ const generateNodeData = function(nodes, componentBundle, metadata, resultArr, r
       parentType: componentObj.type,
       currentType: currentType,
       uiname: nodes[i].name,
-      imageURL: 'styles/img/icon-' + componentObj.subType.toLowerCase() + '.png',
+      imageURL: 'styles/img/'+iconsFrom+'icon-' + componentObj.subType.toLowerCase() + '.png',
       isConfigured: configuredFlag,
       parallelismCount: nodes[i].config.properties.parallelism || 1,
       nodeLabel: nodeLabel,

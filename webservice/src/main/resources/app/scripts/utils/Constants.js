@@ -105,6 +105,8 @@ const sqlKeywords = ["AND","OR"];
 
 const binaryOperators = [">", "<", ">=", "<=", "=", "<>", "+", "-", "*", "/"];
 
+const iconsFrom = 'uWorc/';
+
 export {
   baseUrl,
   pageSize,
@@ -122,5 +124,6 @@ export {
   unknownAccessCode,
   schemaDataType,
   sqlKeywords,
-  binaryOperators
+  binaryOperators,
+  iconsFrom
 };

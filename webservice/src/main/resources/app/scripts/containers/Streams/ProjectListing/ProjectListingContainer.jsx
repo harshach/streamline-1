@@ -24,7 +24,7 @@ import FSReactToastr from '../../../components/FSReactToastr';
 import BaseContainer from '../../../containers/BaseContainer';
 import Utils from '../../../utils/Utils';
 import CommonNotification from '../../../utils/CommonNotification';
-import {toastOpt} from '../../../utils/Constants';
+import {toastOpt, iconsFrom} from '../../../utils/Constants';
 import Modal from '../../../components/FSModal';
 import AddProject from './AddProject';
 import NoData from '../../../components/NoData';
@@ -72,16 +72,16 @@ class ProjectCard extends Component {
                   let name = '';
                   switch(engineName.toLowerCase()){
                   case 'athenax':
-                    name = 'flink';
+                    name = 'athenax';
                     break;
                   case 'piper':
-                    name = 'airflow';
+                    name = 'piper';
                     break;
                   case 'storm':
                     name = 'storm';
                     break;
                   }
-                  return <li><img src={`styles/img/icon-`+name+`.png`}/></li>;
+                  return <li><img src={`styles/img/${iconsFrom}icon-`+name+`.png`}/></li>;
                 })}
               </ul>
               :

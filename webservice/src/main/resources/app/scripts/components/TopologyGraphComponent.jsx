@@ -15,7 +15,7 @@
 import React, {Component} from 'react';
 import PropTypes from 'prop-types';
 import ReactDOM, {findDOMNode, render} from 'react-dom';
-import {ItemTypes, Components, deleteNodeIdArr} from '../utils/Constants';
+import {ItemTypes, Components, deleteNodeIdArr, iconsFrom} from '../utils/Constants';
 import {DragDropContext, DropTarget} from 'react-dnd';
 import HTML5Backend from 'react-dnd-html5-backend';
 import d3 from 'd3';
@@ -1089,7 +1089,7 @@ export default class TopologyGraphComponent extends Component {
       thisGraph.rectangleMouseDown.call(thisGraph, d3.select(this.parentNode), d);
       thisGraph.rectangleMouseUp.call(thisGraph, d3.select(this.parentNode), d);
     }).on('error', function(d) {
-      d.imageURL = 'styles/img/icon-' + d.parentType.toLowerCase() + '.png';
+      d.imageURL = 'styles/img/'+iconsFrom+'icon-' + d.parentType.toLowerCase() + '.png';
       thisGraph.updateGraph();
     }).call(thisGraph.drag);
 

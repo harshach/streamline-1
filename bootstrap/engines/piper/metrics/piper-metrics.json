@@ -29,7 +29,7 @@
     },{
       "name": "Duration",
       "uiName": "Duration",
-      "metricKeyName": "taskDuration",
+      "metricKeyName": "duration",
       "metricPrevKeyName": "taskDuration",
       "valueFormat": "time",
       "defaultValue": ""

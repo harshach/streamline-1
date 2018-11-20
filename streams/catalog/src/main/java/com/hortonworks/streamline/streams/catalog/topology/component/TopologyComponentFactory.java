@@ -55,6 +55,7 @@ import com.hortonworks.streamline.streams.layout.component.impl.MultiLangProcess
 import com.hortonworks.streamline.streams.layout.component.impl.NotificationSink;
 import com.hortonworks.streamline.streams.layout.component.impl.RulesProcessor;
 import com.hortonworks.streamline.streams.layout.component.impl.JoinProcessor;
+import com.hortonworks.streamline.streams.layout.component.impl.SqlProcessor;
 import com.hortonworks.streamline.streams.layout.component.impl.model.ModelProcessor;
 import com.hortonworks.streamline.streams.layout.component.impl.normalization.NormalizationConfig;
 import com.hortonworks.streamline.streams.layout.component.impl.normalization.NormalizationProcessor;
@@ -86,9 +87,10 @@ import static com.hortonworks.streamline.common.ComponentTypes.PMML;
 import static com.hortonworks.streamline.common.ComponentTypes.PROJECTION;
 import static com.hortonworks.streamline.common.ComponentTypes.RULE;
 import static com.hortonworks.streamline.common.ComponentTypes.SPLIT;
+import static com.hortonworks.streamline.common.ComponentTypes.SQL;
 import static com.hortonworks.streamline.common.ComponentTypes.STAGE;
-import static com.hortonworks.streamline.common.ComponentTypes.WINDOW;
 import static com.hortonworks.streamline.common.ComponentTypes.TASK;
+import static com.hortonworks.streamline.common.ComponentTypes.WINDOW;
 import static java.util.AbstractMap.SimpleImmutableEntry;
 
 /**
@@ -250,6 +252,7 @@ public class TopologyComponentFactory {
         builder.put(multilangProcessorProvider());
         builder.put(modelProcessorProvider());
         builder.put(joinProcessorProvider());
+        builder.put(sqlProcessorProvider());
         return builder.build();
     }
 
@@ -343,11 +346,21 @@ public class TopologyComponentFactory {
         Provider<StreamlineSource> provider = new Provider<StreamlineSource>() {
             @Override
             public StreamlineSource create(TopologyComponent component) {
-
                 return new HdfsSource();
             }
         };
         return new SimpleImmutableEntry<>(HDFS, provider);
+    }
+
+    private Map.Entry<String, Provider<StreamlineProcessor>> sqlProcessorProvider() {
+        Provider<StreamlineProcessor> provider = new Provider<StreamlineProcessor>() {
+            @Override
+            public StreamlineProcessor create(TopologyComponent component) {
+                String sqlStatement = component.getConfig().getString(SqlProcessor.CONFIG_KEY_SQL, StringUtils.EMPTY);
+                return new SqlProcessor(sqlStatement);
+            }
+        };
+        return new SimpleImmutableEntry<>(SQL, provider);
     }
 
     private Map.Entry<String, Provider<StreamlineProcessor>> normalizationProcessorProvider() {

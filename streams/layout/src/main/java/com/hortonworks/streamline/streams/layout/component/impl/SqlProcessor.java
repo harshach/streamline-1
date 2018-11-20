@@ -17,31 +17,23 @@
 
 package com.hortonworks.streamline.streams.layout.component.impl;
 
-import com.google.common.base.Function;
-import com.google.common.collect.Collections2;
 import com.hortonworks.streamline.streams.layout.component.StreamlineProcessor;
-import com.hortonworks.streamline.streams.layout.component.Stream;
 import com.hortonworks.streamline.streams.layout.component.TopologyDagVisitor;
-import com.hortonworks.streamline.streams.layout.component.rule.Rule;
-import com.hortonworks.streamline.streams.layout.component.rule.action.Action;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
 
 /**
  * Represents a design time sql processor.
  * Note that derived classes should implement its copy constructor.
  */
 public class SqlProcessor extends StreamlineProcessor {
-  private static final Logger log = LoggerFactory.getLogger(SqlProcessor.class);
+  public static final String CONFIG_KEY_SQL = "sql";
 
   private String sqlStatement;
 
   public SqlProcessor() {
+  }
+
+  public SqlProcessor(String sqlStatement) {
+    this.sqlStatement = sqlStatement;
   }
 
   public SqlProcessor(SqlProcessor other) {

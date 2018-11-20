@@ -7,7 +7,7 @@
   "template": ["Blank"],
   "input": true,
   "output": true,
-  "transformationClass": "dummy",
+  "transformationClass": "com.hortonworks.streamline.streams.layout.component.impl.SqlProcessor",
   "topologyComponentUISpecification": {
     "fields": [
       {

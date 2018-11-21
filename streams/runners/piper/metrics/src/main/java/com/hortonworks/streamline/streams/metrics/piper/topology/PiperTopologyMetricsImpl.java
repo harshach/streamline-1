@@ -295,7 +295,7 @@ public class PiperTopologyMetricsImpl implements TopologyMetrics {
 
         if (components != null) {
             for (TopologyComponent component : components) {
-                Object metrics = metricsByTag.get(component.getName());
+                Object metrics = metricsByTag.get(component.getName().toLowerCase());  // M3 downcases all tags
                 results.put(component.getId(), metrics);
             }
         }

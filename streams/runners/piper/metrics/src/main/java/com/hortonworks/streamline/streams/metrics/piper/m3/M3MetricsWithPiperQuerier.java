@@ -8,7 +8,6 @@ import com.hortonworks.streamline.streams.cluster.catalog.ServiceConfiguration;
 import com.hortonworks.streamline.streams.metrics.AbstractTimeSeriesQuerier;
 import com.hortonworks.streamline.streams.metrics.topology.client.M3RestAPIClient;
 import com.hortonworks.streamline.streams.metrics.topology.service.TopologyCatalogHelperService;
-import com.hortonworks.streamline.streams.piper.common.PiperUtil;
 import org.apache.commons.lang3.text.StrSubstitutor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -21,6 +20,8 @@ import java.util.TreeMap;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class M3MetricsWithPiperQuerier extends AbstractTimeSeriesQuerier{
 
@@ -33,6 +34,11 @@ public class M3MetricsWithPiperQuerier extends AbstractTimeSeriesQuerier{
     private static final String TARGET_KEY = "target";
     private static final String DATAPOINTS_KEY = "datapoints";
     private static final String M3_ROOT_URL_KEY = "API_ROOT_URL";
+
+    private static final String DASH = "-";
+    private static final String UNDERSCORE = "_";
+    private static final String UUID_REGEX = "[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}";
+    private static final Pattern UUID_PATTERN = Pattern.compile(UUID_REGEX);
 
     private M3RestAPIClient client;
     private TopologyCatalogHelperService topologyCatalogHelperService;
@@ -61,6 +67,9 @@ public class M3MetricsWithPiperQuerier extends AbstractTimeSeriesQuerier{
     // FIXME new interface
     public Map<String, Object> getMetricsByTag(String metricQueryTemplate, Map<String, String> metricParams,
                                                long from, long to, String asUser) {
+
+        // M3 discourages UUIDs, Piper masks to prevent M3 from dropping
+        maskUUIDs(metricParams);
 
         // Substitute params into query
         String metricQuery = substitute(metricQueryTemplate, metricParams);
@@ -132,6 +141,20 @@ public class M3MetricsWithPiperQuerier extends AbstractTimeSeriesQuerier{
             throw new IllegalStateException(String.format("Query template has unsubstituted params: %s ", query));
         }
         return query;
+    }
+
+    public static String maskUUID(String uuid) {
+        return uuid.replaceAll(DASH, UNDERSCORE);
+    }
+
+    public static void maskUUIDs(Map<String,String> params) {
+        Matcher matcher = UUID_PATTERN.matcher("");
+        for (Map.Entry<String,String> entry : params.entrySet()) {
+            matcher.reset(entry.getValue());
+            if (matcher.matches()) {
+                params.put(entry.getKey(), maskUUID(entry.getValue()));
+            }
+        }
     }
 
     private long toSeconds(long value) {

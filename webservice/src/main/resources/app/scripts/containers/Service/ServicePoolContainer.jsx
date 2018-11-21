@@ -35,7 +35,7 @@ import FSReactToastr from '../../components/FSReactToastr';
 import BaseContainer from '../BaseContainer';
 import NoData from '../../components/NoData';
 import CommonNotification from '../../utils/CommonNotification';
-import {toastOpt, accessCapabilities} from '../../utils/Constants';
+import {toastOpt, accessCapabilities, iconsFrom} from '../../utils/Constants';
 import Paginate from '../../components/Paginate';
 import CommonLoaderSign from '../../components/CommonLoaderSign';
 import AddManualCluster from '../ManualCluster/AddManualCluster';
@@ -56,7 +56,7 @@ const ServiceItems = (props) => {
   return (
     item.manualClusterId
     ? <li><img src="styles/img/plus.png" alt="plus button" data-stest="plusBtn" onClick={props.addManualService} data-id={item.manualClusterId}/>Add New</li>
-    : <li><img src={`styles/img/icon-${item.name.toLowerCase()}.png`}/>{name}</li>
+    : <li><img src={`styles/img/${iconsFrom}icon-${item.name.toLowerCase()}.png`}/>{name}</li>
   );
 };
 

@@ -17,7 +17,7 @@ import ReactDOM from 'react-dom';
 import _ from 'lodash';
 import FSReactToastr from './FSReactToastr';
 import CommonNotification from '../utils/CommonNotification';
-import {toastOpt} from '../utils/Constants';
+import {toastOpt, iconsFrom} from '../utils/Constants';
 import ClusterREST from '../rest/ClusterREST';
 import EnvironmentREST from '../rest/EnvironmentREST';
 import {Confirm} from '../components/FSModal';
@@ -27,7 +27,7 @@ const ItemsMapping = (props) => {
   let name = item.name.replace('_', ' ');
   return (
     <li>
-      <div><img onClick={itemClicked} data-id={`${item.clusterId}@${item.name}`} data-service={item.name} className='' src={`styles/img/icon-${item.name.toLowerCase()}.png`}/></div>
+      <div><img onClick={itemClicked} data-id={`${item.clusterId}@${item.name}`} data-service={item.name} className='' src={`styles/img/${iconsFrom}icon-${item.name.toLowerCase()}.png`}/></div>
       {name}
     </li>
   );

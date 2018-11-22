@@ -32,6 +32,7 @@ import ProjectREST from '../../../rest/ProjectREST';
 import TopologyREST from '../../../rest/TopologyREST';
 import CommonLoaderSign from '../../../components/CommonLoaderSign';
 import app_state from '../../../app_state';
+import moment from 'moment';
 
 class ProjectCard extends Component {
   constructor(props){
@@ -44,13 +45,42 @@ class ProjectCard extends Component {
   render(){
     let {data} = this.props;
     const ellipseIcon = <i className="fa fa-ellipsis-v"></i>;
+
+    const applicationsGroup = _.groupBy(data.applicationEngines, (name) => {
+      return name;
+    });
+
+    const engineCounts = data.applicationEngines.length > 0 ?
+      <ul className="project-engines ">
+        {_.map(applicationsGroup, (arr, engineName)=>{
+          let name = '';
+          switch(engineName.toLowerCase()){
+          case 'athenax':
+            name = 'athenax';
+            break;
+          case 'piper':
+            name = 'piper';
+            break;
+          case 'storm':
+            name = 'storm';
+            break;
+          }
+          return <li className={name}>
+            <span className="engine-name">{engineName}</span>
+            <span className="badge">{arr.length}</span>
+          </li>;
+        })}
+      </ul>
+      :
+      <h3 className="empty-project">
+        No Application Found
+      </h3>;
+
     return (
       <div className="col-md-4">
-        <div className="service-box" data-id={data.id} ref={(ref) => this.projectRef = ref}>
+        <div className="service-box card" data-id={data.id} ref={(ref) => this.projectRef = ref}>
           <div className="service-head clearfix">
-            <h4 className="no-margin"><Link to={`projects/${data.id}/applications`}>{data.name}</Link>
-              <span className="display-block">{data.description}</span>
-            </h4>
+            {engineCounts}
             <div className="service-action-btn">
               <DropdownButton noCaret title={ellipseIcon} id="dropdown" bsStyle="link" className="dropdown-toggle" data-stest="project-actions">
                 <MenuItem onClick={this.onActionClick.bind(this, "edit/")} data-stest="edit-project">
@@ -65,30 +95,11 @@ class ProjectCard extends Component {
             </div>
           </div>
           <div className="service-body clearfix">
-            {data.applicationEngines.length > 0
-              ?
-              <ul className="service-components ">
-                {data.applicationEngines.map((engineName)=>{
-                  let name = '';
-                  switch(engineName.toLowerCase()){
-                  case 'athenax':
-                    name = 'athenax';
-                    break;
-                  case 'piper':
-                    name = 'piper';
-                    break;
-                  case 'storm':
-                    name = 'storm';
-                    break;
-                  }
-                  return <li><img src={`styles/img/${iconsFrom}icon-`+name+`.png`}/></li>;
-                })}
-              </ul>
-              :
-              <h3 className="empty-project">
-                No Application Found
-              </h3>
-            }
+            <h6 className="no-margin project-name">
+              <Link to={`projects/${data.id}/applications`}>{data.name}</Link>
+            </h6>
+            <span className="display-block project-description">{data.description}</span>
+            <span className="display-block project-timestamp">Created at {moment(data.timestamp).format('MMMM Do YYYY, h:mm:ss a')}</span>
           </div>
         </div>
       </div>
@@ -237,22 +248,21 @@ class ProjectListingContainer extends Component {
       <BaseContainer ref="BaseContainer" routes={this.props.routes} headerContent={this.props.routes[this.props.routes.length - 1].name}>
         <div className="row">
           <div className="page-title-box clearfix">
-            <div className="col-md-3 col-md-offset-8 text-right">
+            <div className="search-container">
               {((filterValue && filteredEntities.length === 0) || filteredEntities.length !== 0)
-                ? <FormGroup>
+                ? <FormGroup className="search-box">
                     <InputGroup>
-                    <FormControl data-stest="searchBox" type="text" placeholder="Search by name" onKeyUp={this.onFilterChange} className="" />
                       <InputGroup.Addon>
                         <i className="fa fa-search"></i>
                       </InputGroup.Addon>
+                      <FormControl data-stest="searchBox" type="text" placeholder="Search..." onKeyUp={this.onFilterChange} className="" />
                     </InputGroup>
                   </FormGroup>
-                : ''
-}
+                : ''}
             </div>
-            <div id="add-environment">
-              <a href="javascript:void(0);" className="hb lg success actionDropdown" data-target="#addEnvironment" onClick={this.handleAdd.bind(this)}>
-                <i className="fa fa-plus"></i>
+            <div className="add-btn text-center">
+              <a href="javascript:void(0);" className="success actionDropdown" data-target="#addEnvironment" onClick={this.handleAdd.bind(this)}>
+                <i className="fa fa-plus"></i> New Project
               </a>
             </div>
           </div>

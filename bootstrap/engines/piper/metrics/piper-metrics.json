@@ -9,13 +9,15 @@
       "metricKeyName": "status",
       "metricPrevKeyName": "status",
       "valueFormat": "string",
-      "defaultValue": ""
+      "defaultValue": "",
+      "comment": "Pipeline is active and not paused."
     },{
       "name": "latestRun",
       "uiName": "Latest Run",
       "metricKeyName": "latestExecutionDate",
       "valueFormat": "datetime",
-      "defaultValue": ""
+      "defaultValue": "",
+      "comment": "Identifier for this pipeline run (execution date)."
     },{
       "name": "latestRunResult",
       "uiName": "Latest Run Result",
@@ -46,26 +48,30 @@
       "uiName": "Pipeline Type",
       "metricKeyName": "pipelineType",
       "valueFormat": "string",
-      "defaultValue": ""
+      "defaultValue": "",
+      "comment": "scheduled or triggered"
     },{
       "name": "schedule",
       "uiName": "Schedule",
       "metricKeyName": "cadence",
       "metricPrevKeyName": "cadence",
       "valueFormat": "string",
-      "defaultValue": ""
+      "defaultValue": "",
+      "comment": "human readable string describing cadence of pipeline eg. daily at 12pm, only present for scheduled pipelines"
     },{
       "name": "runName",
       "uiName": "Run Name",
       "metricKeyName": "triggeredPipelineRunName",
       "valueFormat": "string",
-      "defaultValue": ""
+      "defaultValue": "",
+      "comment": "only present for triggered pipelines, run name"
     },{
       "name": "taskStatus",
       "uiName": "Status",
       "metricKeyName": "taskStatus",
       "valueFormat": "string",
-      "defaultValue": ""
+      "defaultValue": "",
+      "comment": "the metrics prefixed with task will need to be returned per task_id"
     },{
       "name": "startTime",
       "uiName": "Start Time",
@@ -91,12 +97,13 @@
       "metricKeyName": "retries",
       "metricPrevKeyName": "",
       "valueFormat": "datetime",
-      "defaultValue": ""
+      "defaultValue": "",
+      "comment": "if easy"
     }],
     "timeseries": [{
       "name": "taskDuration",
       "uiName": "Task Duration",
-      "metricKeyName": ["piperTaskDuration"],
+      "metricKeyName": ["task_duration"],
       "metricQuery": "fetch service:piper name:piper_task_duration pipeline:$pipeline env:$deployment timertype:upper | scale 1000 | aliasByTags task",
       "params": {
         "pipeline":"application_id",
@@ -106,7 +113,7 @@
     },{
       "name": "avgCPUUsage",
       "uiName": "Avg CPU Usage",
-      "metricKeyName": ["averageCpuUsage"],
+      "metricKeyName": ["task_monitoring"],
       "metricQuery": "fetch env:$deployment service:piper name:piper_task_monitoring reason:average_cpu_usage pipeline:$pipeline | sort avg desc | showTags true $legend_key | head $top_n",
       "params": {
         "pipeline":"application_id",
@@ -116,7 +123,7 @@
     },{
       "name": "memoryUsage",
       "uiName": "Memory Usage",
-      "metricKeyName": ["memoryUsage"],
+      "metricKeyName": ["task_monitoring"],
       "metricQuery": "fetch env:$deployment service:piper name:piper_task_monitoring reason:memory_usage pipeline:$pipeline | sort avg desc | showTags true $legend_key | head $top_n",
       "params": {
         "pipeline":"application_id",
@@ -125,13 +132,13 @@
       "interpoloate": "stepped"
     }],
     "layout":{
-      "listing": ["status", "latestExecutionDate", "latestExecutionStatus", "nextExecutionDate", "duration"],
+      "listing": ["status", "latestRun", "latestRunResult", "nextScheduledRun", "Duration"],
       "viewmode": {
         "DAG": {
           "metrics": {
             "topology": [],
             "task": {
-              "base_metrics": ["taskStatus", "taskStartDate", "taskEndDate", "taskDuration"],
+              "base_metrics": ["taskStatus", "taskStartDate", "taskEndDate", "Duration"],
               "component_metrics" : {}
             }
           },
@@ -154,7 +161,7 @@
           "timeseries": {
             "topology": [],
             "task": {
-              "baseMetrics": [],
+              "baseMetrics": ["taskDuration", "avgCPUUsage", "memoryUsage"],
               "component_metrics": {}
             }
           }

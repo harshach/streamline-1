@@ -20,6 +20,7 @@ import {
 import {
   CustomFetch
 } from '../utils/Overrides';
+import Utils from '../utils/Utils';
 
 const TopologyREST = {
   getAllTopology(projectId, sort, options) {
@@ -545,6 +546,14 @@ const TopologyREST = {
       .then((response) => {
         return response.json();
       });
+  },
+  getTopologyActionStatus(topologyId, options){
+    options = options || {};
+    options.method = options.method || 'GET';
+    options.credentials = 'same-origin';
+    const url = baseUrl + 'topologies/'+topologyId+'/actions/status';
+    return fetch(url, options)
+      .then(Utils.checkStatus);
   }
 };
 

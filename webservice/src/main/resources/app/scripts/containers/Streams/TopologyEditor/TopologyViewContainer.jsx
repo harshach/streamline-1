@@ -449,6 +449,9 @@ class TopologyViewContainer extends TopologyEditorContainer {
         const taskMetrics = [];
 
         _.each(selectedExecutionComponentsStatus, (compEx) => {
+          const timeSeriesMetricsData = _.find(this.batchTimeseries || [], (d) => {
+            return d.component.id == compEx.componentId;
+          });
           const compMetrics = {};
           compMetrics.component = {
             id: compEx.componentId
@@ -456,6 +459,7 @@ class TopologyViewContainer extends TopologyEditorContainer {
           compMetrics.overviewMetrics = {
             metrics: compEx
           };
+          compMetrics.timeSeriesMetrics = timeSeriesMetricsData.timeSeriesMetrics;
           taskMetrics.push(compMetrics);
         });
 
@@ -520,6 +524,66 @@ class TopologyViewContainer extends TopologyEditorContainer {
     });
   }
 
+  fetchBatchTimeSeriesMetrics = () => {
+    this.batchTimeseries = this.batchTimeseries || [];
+
+    let {viewModeData, startDate, endDate} = this.state;
+    const pipeline = '01950d73_9753_4e83_82eb_910bdd8f8642'; //this.actionStatus.runtimeWorkflowId;
+    const dc = 'dca1';//this.actionStatus.datacenters[0];
+
+    const promiseArr = [];
+    const template = _.find(app_state.enginesMetricsTemplates, (template) => {
+      return this.engine.name == template.engine;
+    });
+    const timeSeriesMetrics = template.metricsUISpec.timeseries;
+    _.each(timeSeriesMetrics, (m) => {
+      _.each(m.metricKeyName, (mKey) => {
+        let metricQuery = m.metricQuery;
+        metricQuery = metricQuery.replace('$pipeline', pipeline);
+        metricQuery = metricQuery.replace('$deployment', dc);
+
+        const queryParams = {
+          from: startDate.unix(),
+          to: endDate.unix(),
+          metricQuery: metricQuery,
+          dc: dc
+        };
+
+        const onSuccess = (res, mKey) => {
+          _.each(res, (timeseriesData, compId) => {
+            let compData = _.find(this.batchTimeseries, (d, id) => {
+              return compId == d.component.id;
+            });
+            if(!compData){
+              compData = {
+                component: {
+                  id:compId
+                },
+                timeSeriesMetrics: {
+                  metrics: {
+                    [mKey]: timeseriesData
+                  }
+                }
+              };
+              this.batchTimeseries.push(compData);
+            }else{
+              compData.timeSeriesMetrics.metrics[mKey] = timeseriesData;
+            }
+          });
+        };
+
+        const req = ViewModeREST.getBatchTimeseries(this.topologyId, mKey, queryParams).then((res) => {
+          onSuccess(res, mKey);
+        }, (err) => {
+          // onSuccess({"1":{"1539024600000":0,"1539028260000":0,"1539032700000":0,"1539037260000":0,"1539125040000":0,"1539208860000":0,"1539295500000":0,"1539381720000":0,"1539470580000":0,"1539554460000":0,"1539640920000":0,"1539727260000":0,"1539813660000":0,"1539900060000":0,"1539989820000":0,"1540072860000":0,"1540159620000":0,"1540245660000":0,"1540332720000":0,"1540799100000":0,"1541200500000":1,"1541282940000":0,"1541368860000":0,"1541455260000":0,"1541541660000":0,"1541628060000":0},"7":{"1539026820000":2180,"1539031980000":3708,"1539036720000":3984,"1539126540000":1478,"1539212100000":3217,"1539298320000":2779,"1539383520000":1733,"1539472320000":1650,"1539555540000":1062,"1539643800000":2616,"1539729600000":2324,"1539827340000":3666,"1539924000000":7244,"1540002420000":2322,"1540075920000":3013,"1540163700000":4066,"1540248600000":2353,"1540334040000":1302,"1540799700000":557,"1541201220000":157,"1541283180000":193,"1541369700000":381,"1541455500000":203,"1541543340000":1575,"1541628720000":533}}, mKey);
+          console.error(err);
+        });
+        promiseArr.push(req);
+      });
+    });
+    return promiseArr;
+  }
+
   fetchCatalogInfoAndMetrics(fromTime, toTime) {
     let {viewModeData, executionInfoPageSize, executionInfoPage} = this.state;
 
@@ -528,6 +592,8 @@ class TopologyViewContainer extends TopologyEditorContainer {
     if(this.engine.type == 'batch'){
       const req = this.fetchExecutions();
       promiseArr.push(req);
+      const timeseriesMetricReqs = this.fetchBatchTimeSeriesMetrics();
+      promiseArr.push.apply(promiseArr, [...timeseriesMetricReqs]);
     }else{
       promiseArr.push(ViewModeREST.getTopologyMetrics(this.topologyId, fromTime, toTime).then((res)=>{
         viewModeData.topologyMetrics = res;

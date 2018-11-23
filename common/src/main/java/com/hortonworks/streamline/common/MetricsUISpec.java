@@ -42,12 +42,14 @@ public class MetricsUISpec {
         private static final String METRIC_PREV_KEY_NAME = "metricPrevKeyName";
         private static final String VALUE_FORMAT = "valueFormat";
         private static final String DEFAULT_VALUE = "defaultValue";
+        private static final String COMMENT = "comment";
         private String name;
         private String uiName;
         private String metricKeyName;
         private String metricPrevKeyName;
         private String valueFormat;
         private String defaultValue;
+        private String comment;
 
         public MetricField () {}
 
@@ -58,6 +60,7 @@ public class MetricsUISpec {
             this.metricPrevKeyName = metricField.metricPrevKeyName;
             this.valueFormat = metricField.valueFormat;
             this.defaultValue = metricField.defaultValue;
+            this.comment = metricField.comment;
         }
         public String getName() {
             return name;
@@ -107,6 +110,14 @@ public class MetricsUISpec {
             this.defaultValue = defaultValue;
         }
 
+        public String getComment() {
+            return comment;
+        }
+
+        public void setComment(String comment) {
+            this.comment = comment;
+        }
+
         @Override
         public String toString() {
             return "MetricField{" +
@@ -116,6 +127,7 @@ public class MetricsUISpec {
                     ", metricPrevKeyName='" + metricPrevKeyName + '\'' +
                     ", valueFormat=" + valueFormat +
                     ", defaultValue='" + defaultValue + '\'' +
+                    ", comment='" + comment + '\'' +
                     '}';
         }
 
@@ -127,10 +139,14 @@ public class MetricsUISpec {
         private static final String UI_NAME = "uiName";
         private static final String METRIC_KEY_NAME = "metricKeyName";
         private static final String INTERPOLATE = "interpolate";
+        private static final String METRIC_QUERY = "metricQuery";
+        private static final String PARAMS = "params";
         private String name;
         private String uiName;
         private List<String> metricKeyName;
         private String interpolate;
+        private String metricQuery;
+        private Object params;
 
         public TimeseriesMetricField () {}
 
@@ -139,6 +155,8 @@ public class MetricsUISpec {
             this.uiName = timeseriesMetricField.uiName;
             this.metricKeyName = timeseriesMetricField.metricKeyName;
             this.interpolate = timeseriesMetricField.interpolate;
+            this.metricQuery = timeseriesMetricField.metricQuery;
+            this.params = timeseriesMetricField.params;
         }
         public String getName() {
             return name;
@@ -172,6 +190,22 @@ public class MetricsUISpec {
             this.interpolate = interpolate;
         }
 
+        public String getMetricQuery() {
+            return metricQuery;
+        }
+
+        public void setMetricQuery(String metricQuery) {
+            this.metricQuery = metricQuery;
+        }
+
+        public Object getParams() {
+            return params;
+        }
+
+        public void setParams(Object params) {
+            this.params = params;
+        }
+
         @Override
         public String toString() {
             return "MetricField{" +
@@ -179,6 +213,8 @@ public class MetricsUISpec {
                     ", uiName='" + uiName + '\'' +
                     ", valueKeys='" + metricKeyName + '\'' +
                     ", interpolate=" + interpolate +
+                    ", metricQuery=" + metricQuery +
+                    ", params=" + params +
                     '}';
         }
 

@@ -24,19 +24,21 @@ const sampleModeBaseUrl = '/api/v1/catalog/topologies';
 import Utils from '../utils/Utils';
 
 const ViewModeREST = {
-  getTopologyMetrics(id, fromTime, toTime, options) {
+  getTopologyMetrics(id, fromTime, toTime, options, isStream = true) {
     options = options || {};
     options.method = options.method || 'GET';
     options.credentials = 'same-origin';
-    const url = baseUrl + 'topologies/' + id + '/metrics?from='+fromTime+'&to='+toTime;
+    const streamBatch = isStream ? 'stream/' : 'batch/';
+    const url = baseUrl + streamBatch + 'topologies/' + id + '/metrics?from='+fromTime+'&to='+toTime;
     return fetch(url, options)
       .then(Utils.checkStatus);
   },
-  getComponentMetrics(id, compType, fromTime, toTime, options) {
+  getComponentMetrics(id, compType, fromTime, toTime, options, isStream = true) {
     options = options || {};
     options.method = options.method || 'GET';
     options.credentials = 'same-origin';
-    const url = baseUrl + 'topologies/' + id + '/'+compType+'/metrics?from='+fromTime+'&to='+toTime;
+    const stremaBatch = isStream ? 'stream/' : 'batch/';
+    const url = baseUrl + streamBatch + 'topologies/' + id + '/'+compType+'/metrics?from='+fromTime+'&to='+toTime;
     return fetch(url, options)
       .then(Utils.checkStatus);
   },
@@ -151,6 +153,15 @@ const ViewModeREST = {
       /*.then((res) => {
         return {"components":[{"taskRetryCount":1,"taskEndDate":"2018-10-29T22:11:06","taskRetries":0,"componentId":1,"taskDuration":1,"taskStartDate":"2018-10-29T22:11:05","executionDate":"2018-10-26T19:00:00","taskPool":"adhoc","taskStatus":"success"},{"taskRetryCount":1,"taskEndDate":"2018-10-29T22:10:50","taskRetries":0,"componentId":6,"taskDuration":0,"taskStartDate":"2018-10-29T22:10:50","executionDate":"2018-10-26T19:00:00","taskPool":"adhoc","taskStatus":"success"}]};
       });*/
+  },
+  getBatchTimeseries(topologyId, mKey, queryParams={}, options){
+    options = options || {};
+    options.method = options.method || 'GET';
+    options.credentials = 'same-origin';
+    const q_params = jQuery.param(queryParams, true);
+    const url = baseUrl+'batch/topologies/'+topologyId+'/metrics/'+ mKey +'?'+q_params;
+    return fetch(url, options)
+      .then(Utils.checkStatus);
   }
 };
 export default ViewModeREST;

@@ -219,7 +219,7 @@ class TopologyItems extends Component {
 
     return (
       <div className="col-sm-4">
-        <div className={`stream-box ${(this.checkRefId(topology.id))
+        <div className={`stream-box card ${(this.checkRefId(topology.id))
           ? ''
           : metricWrap.status || 'NOTRUNNING'}`} data-id={topology.id} ref={(ref) => this.streamRef = ref} onClick={this.streamBoxClick.bind(this, topology.id)}>
           <div className="stream-head clearfix">
@@ -670,10 +670,10 @@ class TopologyListingContainer extends Component {
     }
   }
   componentDidUpdate() {
-    this.btnClassChange();
+    // this.btnClassChange();
   }
   componentDidMount() {
-    this.btnClassChange();
+    // this.btnClassChange();
   }
   btnClassChange = () => {
     const actionMenu = document.querySelector('.actionDropdown');
@@ -837,7 +837,7 @@ class TopologyListingContainer extends Component {
       topologyData
     } = this.state;
     const splitData = _.chunk(entities, pageSize) || [];
-    const btnIcon = <i className="fa fa-plus"></i>;
+    const btnIcon = <span><i className="fa fa-plus"></i> New Workflow</span>;
     const sortTitle = <span>Sort:<span style={{
       color: "#006ea0"
     }}>&nbsp;{this.state.sorted.text}</span>
@@ -847,34 +847,21 @@ class TopologyListingContainer extends Component {
       <BaseContainer ref="BaseContainer" routes={this.props.routes} headerContent={this.getHeaderContent()}>
         {!fetchLoader
           ? <div>
-              {hasEditCapability(accessCapabilities.APPLICATION) ?
-                <div id="add-environment">
-                  <DropdownButton title={btnIcon} id="actionDropdown" className="actionDropdown hb lg success" noCaret>
-                    <MenuItem onClick={this.onActionMenuClicked.bind(this, "create")}>
-                      &nbsp;New Workflow
-                    </MenuItem>
-                    <MenuItem onClick={this.onActionMenuClicked.bind(this, "import")}>
-                      &nbsp;Import Workflow
-                    </MenuItem>
-                  </DropdownButton>
-                </div>
-                : null
-              }
               {((filterValue && splitData.length === 0) || splitData.length !== 0)
                 ? <div className="row">
                     <div className="page-title-box clearfix">
-                      <div className="col-md-3 col-md-offset-5 text-right">
-                        <FormGroup>
+                      <div className="search-container text-right">
+                        <FormGroup className="search-box">
                           <InputGroup>
-                          <FormControl data-stest="searchBox" type="text" placeholder="Search by name" onKeyUp={this.onFilterChange} className="" />
-                          <InputGroup.Addon>
-                            <i className="fa fa-search"></i>
-                          </InputGroup.Addon>
+                            <InputGroup.Addon>
+                              <i className="fa fa-search"></i>
+                            </InputGroup.Addon>
+                            <FormControl data-stest="searchBox" type="text" placeholder="Search by name" onKeyUp={this.onFilterChange} className="" />
                           </InputGroup>
                         </FormGroup>
                       </div>
 
-                      <div className="col-md-3 text-center">
+                      {/*<div className="col-md-3 text-center">
                         <DropdownButton title={sortTitle} id="sortDropdown" className="sortDropdown ">
                           <MenuItem active={this.state.sorted.key === "name" ? true : false } onClick={this.onSortByClicked.bind(this, "name")}>
                             &nbsp;Name
@@ -882,11 +869,21 @@ class TopologyListingContainer extends Component {
                           <MenuItem active={this.state.sorted.key === "last_updated" ? true : false } onClick={this.onSortByClicked.bind(this, "last_updated")}>
                             &nbsp;Last Update
                           </MenuItem>
-                          {/*<MenuItem active={this.state.sorted.key === "status" ? true : false } onClick={this.onSortByClicked.bind(this, "status")}>
-                            &nbsp;Status
-                          </MenuItem>*/}
                         </DropdownButton>
-                      </div>
+                      </div>*/}
+                      {hasEditCapability(accessCapabilities.APPLICATION) ?
+                        <div className="add-btn text-center">
+                          <DropdownButton title={btnIcon} id="actionDropdown" className="actionDropdown success" noCaret>
+                            <MenuItem onClick={this.onActionMenuClicked.bind(this, "create")}>
+                              &nbsp;New Workflow
+                            </MenuItem>
+                            <MenuItem onClick={this.onActionMenuClicked.bind(this, "import")}>
+                              &nbsp;Import Workflow
+                            </MenuItem>
+                          </DropdownButton>
+                        </div>
+                        : null
+                      }
                       <div className="col-md-1 col-sm-3 text-left"></div>
                     </div>
                   </div>

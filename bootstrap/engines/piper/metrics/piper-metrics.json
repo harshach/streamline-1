@@ -132,7 +132,33 @@
       "interpoloate": "stepped"
     }],
     "layout":{
-      "listing": ["status", "latestRun", "latestRunResult", "nextScheduledRun", "Duration"],
+      "listing": [{
+        "left": [{
+          "name": "dc",
+          "type": "title"
+        }],
+        "right": [{
+          "name": "status",
+          "type": "status"
+        }]
+      },{
+        "left": [{
+          "name": "latestRun",
+          "type": "labelValue"
+        }],
+        "right": [{
+          "name": "Duration",
+          "type": "duration"
+        },{
+          "name": "latestRunResult",
+          "type": "legendValue"
+        }]
+      },{
+        "left": [{
+          "name": "nextScheduledRun",
+          "type": "labelValue"
+        }]
+      }],
       "viewmode": {
         "DAG": {
           "metrics": {

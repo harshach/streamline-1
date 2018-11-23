@@ -2024,6 +2024,17 @@ span.version {
   border: 1px solid #E5E5E5;
   border-radius: 5px;
   box-shadow: none;
+  padding: 0;
+}
+.padding-24{
+  padding: 24px;
+}
+.card-content {
+  padding: 0 24px;
+}
+.card-footer {
+  padding: 24px;
+  background: #F7F7F7;
 }
 
 ul.project-engines{
@@ -2079,6 +2090,7 @@ ul.project-engines li.athenax .badge{
 }
 
 .project-name{
+  margin: 10px 0 0 0;
   line-height: 24px;
   font-size: 12px;
   font-weight: bold;
@@ -2094,6 +2106,94 @@ ul.project-engines li.athenax .badge{
   color: #B3B3B3;
   font-size: 12px;
   line-height: 16px;
+}
+
+.metric-container{
+  display: table;
+  width: 100%;
+  border-spacing: 0px 13px;
+  border-bottom: 1px solid #F0F0F0;
+}
+.metric-row{
+  display: table-row;
+  margin-bottom: 13px;
+}
+.metric-left{
+  display: table-cell;
+}
+.metric-right{
+  display: table-cell;
+}
+.metric-title{
+  font-size: 14px;
+  line-height: 20px;
+  font-weight: bold;
+}
+.metric-status{
+  font-size: 12px;
+  line-height: 20px;
+  font-weight: bold;
+  color:#276EF1;
+  float: right;
+}
+.metric-label{
+  display: block;
+  color: #979797;
+  font-size: 12px;
+  line-height: 16px;
+}
+.metric-value{
+  display: block;
+  color: #000000;
+  font-size: 12px;
+  line-height: 16px;
+}
+.metric-duration{
+  color: #276EF1;
+  font-size: 12px;
+  line-height: 16px;
+  display: block;
+}
+.metric-legend-status{
+  color: #000000;
+  font-size: 12px;
+  line-height: 16px;
+  display: block;
+}
+.display-table{
+  display: table;
+  width: 100%;
+}
+.app-name{
+  color:#276EF1;
+  font-size: 14px;
+  line-height: 20px;
+  font-weight: bold;
+  display: block;
+}
+.app-last-update-label{
+  color:  #B3B3B3;
+  font-size: 12px;
+  line-height: 16px;
+  margin: 0 5px 0 0;
+}
+.app-last-update-value{
+  color:  #666666;
+  font-size: 12px;
+  line-height: 16px;
+}
+.app-run-type{
+  color:#000000;
+  font-size: 12px;
+  line-height: 16px;
+  display: block;
+}
+.app-run-duration{
+  color:#999999;
+  font-size: 12px;
+  line-height: 16px;
+  display: block;
+  margin-top: 2px;
 }
 
 /* Service Pool */

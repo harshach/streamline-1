@@ -79,8 +79,8 @@ class ProjectCard extends Component {
     return (
       <div className="col-md-4">
         <div className="service-box card" data-id={data.id} ref={(ref) => this.projectRef = ref}>
-          <div className="service-head clearfix">
-            {engineCounts}
+          {/*<div className="service-head clearfix">
+            
             <div className="service-action-btn">
               <DropdownButton noCaret title={ellipseIcon} id="dropdown" bsStyle="link" className="dropdown-toggle" data-stest="project-actions">
                 <MenuItem onClick={this.onActionClick.bind(this, "edit/")} data-stest="edit-project">
@@ -93,8 +93,9 @@ class ProjectCard extends Component {
                 </MenuItem>
               </DropdownButton>
             </div>
-          </div>
-          <div className="service-body clearfix">
+          </div>*/}
+          <div className="clearfix padding-24">
+            {engineCounts}
             <h6 className="no-margin project-name">
               <Link to={`projects/${data.id}/applications`}>{data.name}</Link>
             </h6>

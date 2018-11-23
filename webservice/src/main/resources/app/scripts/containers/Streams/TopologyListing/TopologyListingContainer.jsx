@@ -164,26 +164,82 @@ class TopologyItems extends Component {
 
     const engine = Utils.getEngineById(topologyList.topology.engineId);
     const template = Utils.getListingMetricsTemplate(engine);
+    const layout = engine.metricsTemplate.metricsUISpec.layout.listing;
+
+    const getMetric = (name) => {
+      return _.find(engine.metricsTemplate.metricsUISpec.metrics, (m) => {
+        return m.name == name;
+      });
+    };
+
+    const designs = {
+      title: (metricName) => {
+        return <span className="metric-title">{topologyList.namespaceName}</span>;
+      },
+      status: (metricName) => {
+        const metric = getMetric(metricName);
+        return <span className="metric-status">{metricWrap[metric.metricKeyName]} &nbsp;</span>;
+      },
+      labelValue: (metricName) => {
+        const metric = getMetric(metricName);
+        const val = Utils[metric.valueFormat](metricWrap[metric.metricKeyName]);
+        return [
+          <span className="metric-label">{metric.uiName}</span>,
+          <span className="metric-value">{val.value} &nbsp;</span>
+        ];
+      },
+      duration: (metricName) => {
+        const metric = getMetric(metricName);
+        const oVal = metricWrap[metric.metricKeyName] || 0;
+        const val = Utils[metric.valueFormat](oVal);
+        return <span className="metric-duration">Duration {val.value + (val.prefix || '')}</span>;
+      },
+      legendValue: (metricName) => {
+        const metric = getMetric(metricName);
+        return <span className="metric-legend-status">{metricWrap[metric.metricKeyName]}</span>;
+      }
+    };
 
     const metrics = [];
 
-    _.each(template, (t, i) => {
-
-      const value = Utils[t.valueFormat](_.get(metricWrap, t.metricKeyName));
-
-      const component = <div className="stream-stats" key={i}>
-        <h6>{t.uiName}</h6>
-        <h5 className="color-stats">
-          {value.value || t.defaultValue}
-          <small>{value.suffix}</small>
-        </h5>
-      </div>;
-
-      metrics.push(component);
-
+    _.each(layout, (row) => {
+      const left = _.map(row.left, (m) => {
+        return designs[m.type](m.name);
+      });
+      const right = _.map(row.right, (m) => {
+        return designs[m.type](m.name);
+      });
+      metrics.push(<div className="metric-row">
+        <div className="metric-left">{left}</div>
+        <div className="metric-right text-right">{right}</div>
+      </div>);
     });
 
-    return metrics;
+    return <div className="metric-container">{metrics}</div>;
+  }
+  getFooter(){
+    const {topologyList} = this.props;
+    const {
+      topology,
+      runtime = {},
+      namespaceName
+    } = topologyList;
+    const {metric, latencyTopN} = runtime;
+    const metricWrap = metric ? metric.metrics : {};
+
+    return <div className="card-footer">
+      <div className="display-table">
+        <div className="metric-left">
+          <span className="app-name">{topologyList.topology.name}</span>
+          <span className="app-last-update-label">Last Updated on</span>
+          <span className="app-last-update-value">{Utils.datetime(topologyList.topology.timestamp).value}</span>
+        </div>
+        <div className="metric-right text-right">
+          <span className="app-run-type">{topologyList.running}</span>
+          {/*<span className="app-run-duration">Run every 1 day at 11:00:00</span>*/}
+        </div>
+      </div>
+    </div>;
   }
 
   render() {
@@ -217,84 +273,69 @@ class TopologyItems extends Component {
       rights_share = r_share;
     }
 
+    const dropdown = <div className="pull-right">
+      <div className="stream-actions">
+        <DropdownButton title={ellipseIcon} id="actionDropdown" className="dropdown-toggle" noCaret bsStyle="link">
+          <MenuItem title="Refresh" onClick={this.onActionClick.bind(this, "refresh/" + topology.id)}>
+            <i className="fa fa-refresh"></i>
+            &nbsp;Refresh
+          </MenuItem>
+          <MenuItem title="Edit" disabled={!permission} onClick={this.onActionClick.bind(this, "edit/" + topology.id)}>
+            <i className="fa fa-pencil"></i>
+            &nbsp;Edit
+          </MenuItem>
+          { !_.isEmpty(aclObject) || userInfo
+            ? <MenuItem title="Share" disabled={!rights_share} onClick={this.onActionClick.bind(this, "share/" + topology.id)}>
+                <i className="fa fa-share"></i>
+                &nbsp;Share
+              </MenuItem>
+            : ''
+          }
+          <MenuItem title="Clone" disabled={!permission}  onClick={this.onActionClick.bind(this, "clone/" + topology.id)}>
+            <i className="fa fa-clone"></i>
+            &nbsp;Clone
+          </MenuItem>
+          <MenuItem title="Export" disabled={!permission}  onClick={this.onActionClick.bind(this, "export/" + topology.id)}>
+            <i className="fa fa-share-square-o"></i>
+            &nbsp;Export
+          </MenuItem>
+          {metricWrap.status !== 'ACTIVE' && metricWrap.status !== 'INACTIVE' ?
+          <MenuItem title="Update Engine" disabled={!permission} onClick={this.onActionClick.bind(this, "update/" + topology.id)}>
+            <i className="fa fa-wrench"></i>
+            &nbsp;Update Engine
+          </MenuItem>
+          : null
+          }
+          <MenuItem title="Delete" disabled={!permission} onClick={this.onActionClick.bind(this, "delete/" + topology.id)}>
+            <i className="fa fa-trash"></i>
+            &nbsp;Delete
+          </MenuItem>
+        </DropdownButton>
+        {
+          aclObject.owner !== undefined
+          ? !permission
+            ? ''
+            : <a href="javascript:void(0)" title="Delete" className="close" onClick={this.onActionClick.bind(this, "delete/" + topology.id)}>
+                <i className="fa fa-times-circle"></i>
+              </a>
+          : <a href="javascript:void(0)" title="Delete" className="close" onClick={this.onActionClick.bind(this, "delete/" + topology.id)}>
+              <i className="fa fa-times-circle"></i>
+            </a>
+        }
+      </div>
+    </div>;
+
     return (
       <div className="col-sm-4">
-        <div className={`stream-box ${(this.checkRefId(topology.id))
+        <div className={`card ${(this.checkRefId(topology.id))
           ? ''
           : metricWrap.status || 'NOTRUNNING'}`} data-id={topology.id} ref={(ref) => this.streamRef = ref} onClick={this.streamBoxClick.bind(this, topology.id)}>
-          <div className="stream-head clearfix">
+          {/*<div className="stream-head clearfix">
             <div className="pull-left m-t-xs">
-              <Link to={`applications/${topology.id}/view`}>
-                <h4>
-                  <i className={`fa fa-exclamation-${ (metricWrap.status || 'NOTRUNNING') === "KILLED"
-                    ? 'circle KILLED'
-                    : (metricWrap.status || 'NOTRUNNING') === "NOTRUNNING"
-                      ? 'triangle NOTRUNNING'
-                      : ''} pull-left`}></i><div title={topology.name} className="pull-left app-name">{topology.name}</div>
-                  <div className="environment-name" title={namespaceName}><small>{namespaceName}</small></div>
-                </h4>
-              </Link>
-              <h5>
-                {(metricWrap.uptime === undefined)
-                  ? (topologyList.running === "NOT_RUNNING")
-                    ? "Not Running"
-                    : topologyList.running
-                  : "Uptime " + Utils.splitSeconds(metricWrap.uptime)
-}
-              </h5>
+              
             </div>
-            <div className="pull-right">
-              <div className="stream-actions">
-                <DropdownButton title={ellipseIcon} id="actionDropdown" className="dropdown-toggle" noCaret bsStyle="link">
-                  <MenuItem title="Refresh" onClick={this.onActionClick.bind(this, "refresh/" + topology.id)}>
-                    <i className="fa fa-refresh"></i>
-                    &nbsp;Refresh
-                  </MenuItem>
-                  <MenuItem title="Edit" disabled={!permission} onClick={this.onActionClick.bind(this, "edit/" + topology.id)}>
-                    <i className="fa fa-pencil"></i>
-                    &nbsp;Edit
-                  </MenuItem>
-                  { !_.isEmpty(aclObject) || userInfo
-                    ? <MenuItem title="Share" disabled={!rights_share} onClick={this.onActionClick.bind(this, "share/" + topology.id)}>
-                        <i className="fa fa-share"></i>
-                        &nbsp;Share
-                      </MenuItem>
-                    : ''
-                  }
-                  <MenuItem title="Clone" disabled={!permission}  onClick={this.onActionClick.bind(this, "clone/" + topology.id)}>
-                    <i className="fa fa-clone"></i>
-                    &nbsp;Clone
-                  </MenuItem>
-                  <MenuItem title="Export" disabled={!permission}  onClick={this.onActionClick.bind(this, "export/" + topology.id)}>
-                    <i className="fa fa-share-square-o"></i>
-                    &nbsp;Export
-                  </MenuItem>
-                  {metricWrap.status !== 'ACTIVE' && metricWrap.status !== 'INACTIVE' ?
-                  <MenuItem title="Update Engine" disabled={!permission} onClick={this.onActionClick.bind(this, "update/" + topology.id)}>
-                    <i className="fa fa-wrench"></i>
-                    &nbsp;Update Engine
-                  </MenuItem>
-                  : null
-                  }
-                  <MenuItem title="Delete" disabled={!permission} onClick={this.onActionClick.bind(this, "delete/" + topology.id)}>
-                    <i className="fa fa-trash"></i>
-                    &nbsp;Delete
-                  </MenuItem>
-                </DropdownButton>
-                {
-                  aclObject.owner !== undefined
-                  ? !permission
-                    ? ''
-                    : <a href="javascript:void(0)" title="Delete" className="close" onClick={this.onActionClick.bind(this, "delete/" + topology.id)}>
-                        <i className="fa fa-times-circle"></i>
-                      </a>
-                  : <a href="javascript:void(0)" title="Delete" className="close" onClick={this.onActionClick.bind(this, "delete/" + topology.id)}>
-                      <i className="fa fa-times-circle"></i>
-                    </a>
-                }
-              </div>
-            </div>
-          </div>
+            {dropdown}
+          </div>*/}
           {(this.checkRefId(topology.id))
             ? <div className="stream-body">
                 <div className="loading-img text-center">
@@ -303,48 +344,14 @@ class TopologyItems extends Component {
                   }}/>
                 </div>
               </div>
-            : <div className="stream-body">
-              <div className="row">
-                <div className="stream-components col-md-4">
-                  {unitLeft.map((d, v) => {
-                    return <h5 className="text-left" title={Object.keys(d)[0]} key={v}>
-                      <i className="fa fa-square boxGap" style={{
-                        color: PieChartColor[v]
-                      }}></i>
-                      {Utils.secToMinConverter(d[Object.keys(d)[0]], "list")}
-                      <span>&nbsp;</span>
-                      {Utils.ellipses(Object.keys(d)[0], 8)}</h5>;
-                  })
-}
-                </div>
-                <div className="latency-chart">
-                  {(graphData.length && graphVal !== 0)
-                    ? <CustPieChart data={graphData} latency={metricWrap.latency || 0} innerRadius={5} color={d3.scale.category20c().range(PieChartColor)}/>
-                    : <CustPieChart data={[{
-                      name: 'none',
-                      value: 1
-                    }
-                    ]} empty={true} latency={metricWrap.latency || 0} innerRadius={5} color={d3.scale.category20c().range(['#a7a9ac'])}/>
-}
-                </div>
-                <div className="stream-components col-md-4 col-md-offset-4">
-                  {unitRight.map((d, v) => {
-                    return <h5 className="text-right" title={Object.keys(d)[0]} key={v}>
-                      <i className="fa fa-square boxGap" style={{
-                        color: PieChartColor[unitLeft.length + v]
-                      }}></i>
-                      {Utils.secToMinConverter(d[Object.keys(d)[0]], "list")}
-                      <span>&nbsp;</span>
-                      {Utils.ellipses(Object.keys(d)[0], 9)}</h5>;
-                  })
-}
-                </div>
-              </div>
-              <div className="row row-margin-top">
+            : 
+            <div className="stream-body">
+              <div className="card-content">
                 {this.getMetrics()}
               </div>
+              {this.getFooter()}
             </div>
-}
+          }
 
         </div>
       </div>
@@ -670,10 +677,10 @@ class TopologyListingContainer extends Component {
     }
   }
   componentDidUpdate() {
-    this.btnClassChange();
+    // this.btnClassChange();
   }
   componentDidMount() {
-    this.btnClassChange();
+    // this.btnClassChange();
   }
   btnClassChange = () => {
     const actionMenu = document.querySelector('.actionDropdown');
@@ -837,7 +844,7 @@ class TopologyListingContainer extends Component {
       topologyData
     } = this.state;
     const splitData = _.chunk(entities, pageSize) || [];
-    const btnIcon = <i className="fa fa-plus"></i>;
+    const btnIcon = <span><i className="fa fa-plus"></i> New Workflow</span>;
     const sortTitle = <span>Sort:<span style={{
       color: "#006ea0"
     }}>&nbsp;{this.state.sorted.text}</span>
@@ -847,34 +854,21 @@ class TopologyListingContainer extends Component {
       <BaseContainer ref="BaseContainer" routes={this.props.routes} headerContent={this.getHeaderContent()}>
         {!fetchLoader
           ? <div>
-              {hasEditCapability(accessCapabilities.APPLICATION) ?
-                <div id="add-environment">
-                  <DropdownButton title={btnIcon} id="actionDropdown" className="actionDropdown hb lg success" noCaret>
-                    <MenuItem onClick={this.onActionMenuClicked.bind(this, "create")}>
-                      &nbsp;New Workflow
-                    </MenuItem>
-                    <MenuItem onClick={this.onActionMenuClicked.bind(this, "import")}>
-                      &nbsp;Import Workflow
-                    </MenuItem>
-                  </DropdownButton>
-                </div>
-                : null
-              }
               {((filterValue && splitData.length === 0) || splitData.length !== 0)
                 ? <div className="row">
                     <div className="page-title-box clearfix">
-                      <div className="col-md-3 col-md-offset-5 text-right">
-                        <FormGroup>
+                      <div className="search-container text-right">
+                        <FormGroup className="search-box">
                           <InputGroup>
-                          <FormControl data-stest="searchBox" type="text" placeholder="Search by name" onKeyUp={this.onFilterChange} className="" />
-                          <InputGroup.Addon>
-                            <i className="fa fa-search"></i>
-                          </InputGroup.Addon>
+                            <InputGroup.Addon>
+                              <i className="fa fa-search"></i>
+                            </InputGroup.Addon>
+                            <FormControl data-stest="searchBox" type="text" placeholder="Search by name" onKeyUp={this.onFilterChange} className="" />
                           </InputGroup>
                         </FormGroup>
                       </div>
 
-                      <div className="col-md-3 text-center">
+                      {/*<div className="col-md-3 text-center">
                         <DropdownButton title={sortTitle} id="sortDropdown" className="sortDropdown ">
                           <MenuItem active={this.state.sorted.key === "name" ? true : false } onClick={this.onSortByClicked.bind(this, "name")}>
                             &nbsp;Name
@@ -882,11 +876,21 @@ class TopologyListingContainer extends Component {
                           <MenuItem active={this.state.sorted.key === "last_updated" ? true : false } onClick={this.onSortByClicked.bind(this, "last_updated")}>
                             &nbsp;Last Update
                           </MenuItem>
-                          {/*<MenuItem active={this.state.sorted.key === "status" ? true : false } onClick={this.onSortByClicked.bind(this, "status")}>
-                            &nbsp;Status
-                          </MenuItem>*/}
                         </DropdownButton>
-                      </div>
+                      </div>*/}
+                      {hasEditCapability(accessCapabilities.APPLICATION) ?
+                        <div className="add-btn text-center">
+                          <DropdownButton title={btnIcon} id="actionDropdown" className="actionDropdown success" noCaret>
+                            <MenuItem onClick={this.onActionMenuClicked.bind(this, "create")}>
+                              &nbsp;New Workflow
+                            </MenuItem>
+                            <MenuItem onClick={this.onActionMenuClicked.bind(this, "import")}>
+                              &nbsp;Import Workflow
+                            </MenuItem>
+                          </DropdownButton>
+                        </div>
+                        : null
+                      }
                       <div className="col-md-1 col-sm-3 text-left"></div>
                     </div>
                   </div>

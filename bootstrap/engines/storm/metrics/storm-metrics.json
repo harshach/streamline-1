@@ -123,7 +123,30 @@
         "interpolate": "step-before"
     }],
     "layout":{
-            "listing": ["Emitted", "Transferred", "Errors", "Workers", "Executors"],
+            "listing": [{
+                "left": [{
+                    "name": "dc",
+                    "type": "title"
+                }]
+            },{
+                "left": [{
+                    "name": "Emitted",
+                    "type": "labelValue"
+                }],
+                "right": [{
+                    "name": "Transferred",
+                    "type": "labelValue"
+                }]
+            },{
+                "left": [{
+                    "name": "Errors",
+                    "type": "labelValue"
+                }],
+                "right": [{
+                    "name": "Workers",
+                    "type": "labelValue"
+                }]
+            }],
             "viewmode": {
                 "DAG": {
                     "metrics": {

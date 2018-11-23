@@ -30,7 +30,7 @@
 /* Generic */
 
 body {
-  background-color: #ececec;
+  background-color: #FFFFFF;
   font-family: 'Roboto', sans-serif;
   -webkit-font-smoothing: antialiased;
   /*padding-bottom: 30px;*/
@@ -769,8 +769,8 @@ label {
 }
 
 .actionDropdown~ul.dropdown-menu {
-  top: 28px;
-  left: -70px;
+  top: 40px;
+  left: 0px;
 }
 
 #actionProfileDropdown {
@@ -1975,6 +1975,238 @@ span.version {
   margin-top: 10px;
 }
 
+.search-container{
+  float: left;
+  width: calc(100% - 181px);
+}
+.add-btn{
+  float: right;
+  display: inline-block;
+  width: 166px;
+  height: 40px;
+  background: #276EF1;
+}
+.add-btn a{
+  color: #fff;
+  font-size: 16px;
+  line-height: 40px;
+}
+.add-btn a:hover{
+  color: white;
+}
+.add-btn .dropdown{
+  width: 100%;
+}
+.add-btn button.actionDropdown{
+  width: 100%;
+  color: #fff;
+  font-size: 16px;
+  line-height: 30px;
+  background: transparent;
+  color:white;
+  border: none;
+}
+.add-btn > .open > .dropdown-toggle.btn-default, .add-btn > .open > .dropdown-toggle.btn-default{
+  color: white !important;
+  background: transparent !important;
+  box-shadow:none;
+}
+.add-btn button.actionDropdown:hover{
+  color: white;
+}
+
+.search-box{
+  font-size: 14px;
+}
+.search-box .fa-search{
+  color: #B3B3B3;
+}
+.search-box .input-group-addon, .search-box input{
+  background-color: #F6F6F6;
+  border-radius: 0px;
+  border: none;
+  height: 40px;
+}
+
+.search-box input:focus{
+  box-shadow: none;
+}
+
+.card {
+  border: 1px solid #E5E5E5;
+  border-radius: 5px;
+  box-shadow: none;
+  padding: 0;
+}
+.padding-24{
+  padding: 24px;
+}
+.card-content {
+  padding: 0 24px;
+}
+.card-footer {
+  padding: 24px;
+  background: #F7F7F7;
+}
+
+ul.project-engines{
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  font-size: 12px;
+}
+
+ul.project-engines li{
+  display: inline-block;
+  height: 20px;
+  border-radius: 10px;
+  padding: 0px 12px;
+  margin-right: 10px;
+}
+ul.project-engines li .engine-name{
+  line-height: 20px;
+}
+
+ul.project-engines li .badge{
+  font-size: 10px;
+  margin-left: 5px;
+  margin-top: -2px;
+  border-radius: 5px;
+  padding: 2px 5px;
+  font-weight: normal;
+}
+
+ul.project-engines li.storm{
+  color: #276EF1;
+  background: #EDF3FE;
+}
+ul.project-engines li.storm .badge{
+  background: #D3E1FF;
+  color: #1E54B7;
+}
+ul.project-engines li.piper{
+  color: #276EF1;
+  background: #EDF3FE;
+}
+ul.project-engines li.piper .badge{
+  background: #D3E1FF;
+  color: #1E54B7;
+}
+ul.project-engines li.athenax{
+  color: #F19248;
+  background: #FEF3EC;
+}
+ul.project-engines li.athenax .badge{
+  background: #fde1cb;
+  color: #F19248;
+}
+
+.project-name{
+  margin: 10px 0 0 0;
+  line-height: 24px;
+  font-size: 12px;
+  font-weight: bold;
+}
+
+.project-description{
+  line-height: 16px;
+  font-size: 12px;
+}
+
+.project-timestamp{
+  margin: 16px 0 0 0;
+  color: #B3B3B3;
+  font-size: 12px;
+  line-height: 16px;
+}
+
+.metric-container{
+  display: table;
+  width: 100%;
+  border-spacing: 0px 13px;
+  border-bottom: 1px solid #F0F0F0;
+}
+.metric-row{
+  display: table-row;
+  margin-bottom: 13px;
+}
+.metric-left{
+  display: table-cell;
+}
+.metric-right{
+  display: table-cell;
+}
+.metric-title{
+  font-size: 14px;
+  line-height: 20px;
+  font-weight: bold;
+}
+.metric-status{
+  font-size: 12px;
+  line-height: 20px;
+  font-weight: bold;
+  color:#276EF1;
+  float: right;
+}
+.metric-label{
+  display: block;
+  color: #979797;
+  font-size: 12px;
+  line-height: 16px;
+}
+.metric-value{
+  display: block;
+  color: #000000;
+  font-size: 12px;
+  line-height: 16px;
+}
+.metric-duration{
+  color: #276EF1;
+  font-size: 12px;
+  line-height: 16px;
+  display: block;
+}
+.metric-legend-status{
+  color: #000000;
+  font-size: 12px;
+  line-height: 16px;
+  display: block;
+}
+.display-table{
+  display: table;
+  width: 100%;
+}
+.app-name{
+  color:#276EF1;
+  font-size: 14px;
+  line-height: 20px;
+  font-weight: bold;
+  display: block;
+}
+.app-last-update-label{
+  color:  #B3B3B3;
+  font-size: 12px;
+  line-height: 16px;
+  margin: 0 5px 0 0;
+}
+.app-last-update-value{
+  color:  #666666;
+  font-size: 12px;
+  line-height: 16px;
+}
+.app-run-type{
+  color:#000000;
+  font-size: 12px;
+  line-height: 16px;
+  display: block;
+}
+.app-run-duration{
+  color:#999999;
+  font-size: 12px;
+  line-height: 16px;
+  display: block;
+  margin-top: 2px;
+}
 
 /* Service Pool */
 

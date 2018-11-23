@@ -18,7 +18,7 @@ import {observer} from 'mobx-react';
 import {observable} from 'mobx';
 import {DragDropContext, DropTarget} from 'react-dnd';
 import HTML5Backend from 'react-dnd-html5-backend';
-import {ItemTypes, Components} from '../utils/Constants';
+import {ItemTypes, Components, iconsFrom} from '../utils/Constants';
 import ComponentNodeContainer, {
   PiperComponentNodeContainer,
   AthenaXComponentNodeContainer,
@@ -89,7 +89,7 @@ class EditorGraph extends Component {
   addComponent(item) {
     let obj = {
       type: item.type,
-      imgPath: 'styles/img/icon-' + item.subType.toLowerCase() + '.png',
+      imgPath: 'styles/img/'+iconsFrom+'icon-' + item.subType.toLowerCase() + '.png',
       name: item.subType,
       nodeLabel: item.subType,
       nodeType: item.subType,

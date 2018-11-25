@@ -893,16 +893,6 @@ export default class TopologyGraphComponent extends Component {
         classArr.push('reconfig-node');
       }
 
-      const componentsStatus = thisGraph.props.selectedExecutionComponentsStatus;
-      if(componentsStatus.length){
-        const comp = _.find(componentsStatus, (compStatus) => {
-          return compStatus.componentId == d.nodeId;
-        });
-        if(comp && comp.taskStatus == 'failed'){
-          classArr.push('error-node');
-        }
-      }
-
       return classArr.join(' ');
     }).attr("filter", function(d) {
       if (!d.isConfigured) {
@@ -1059,8 +1049,19 @@ export default class TopologyGraphComponent extends Component {
       .classed('left-bar', true)
       .attr({
         width: '4px',
-        height: '52px',
-        fill: '#E54937'
+        height: '52px'
+      }).attr('fill', () => {
+        let fill = "white";
+        const componentsStatus = thisGraph.props.selectedExecutionComponentsStatus;
+        if(componentsStatus.length){
+          const comp = _.find(componentsStatus, (compStatus) => {
+            return compStatus.componentId == d.nodeId;
+          });
+          if(comp && comp.taskStatus == 'failed'){
+            fill = red;
+          }
+        }
+        return fill;
       });
 
     //Icon background

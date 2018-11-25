@@ -1366,7 +1366,7 @@ export class TopologyEditorContainer extends Component {
         {/* NodeModal for Development Mode for source*/}
         <Modal ref="NodeModal" onKeyPress={this.handleKeyPress.bind(this)} bsSize={this.processorNode && nodeType.toLowerCase() !== 'join'
           ? "large"
-          : null} dialogClassName={nodeType.toLowerCase() === 'join' || nodeType.toLowerCase() === 'window' || nodeType.toLowerCase() === 'projection' || nodeType.toLowerCase() === 'rt-join'
+          : null} dialogClassName={nodeType.toLowerCase() === 'join' || nodeType.toLowerCase() === 'window' || nodeType.toLowerCase() === 'projection' || nodeType.toLowerCase() === 'rt-join' || nodeType.toLowerCase() === 'sql'
           ? "modal-xl"
           : "modal-fixed-height"} btnOkDisabled={this.state.testRunActivated} data-title={<Editable ref="editableNodeName" inline={true}
         resolve={this.handleSaveNodeName.bind(this)}

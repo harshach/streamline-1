@@ -254,6 +254,8 @@ export default class SqlProcessorNodeForm extends Component {
 
       uiSpec[0].hintOptions = this.hintOptions;
       uiSpec[0].onChange = this.onSqlChange;
+      uiSpec[0].width = '100%';
+      uiSpec[0].height = '350px';
     }
 
     let fields = Utils.genFields(uiSpec, [], formData,[], securityType, hasSecurity,'');

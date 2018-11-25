@@ -93,7 +93,7 @@ export default class Sidebar extends Component {
                 ? 'active'
                 : ''} onClick={this.handleClick.bind(this, 1)}>
                 <Link to="/">
-                  <i className="fa fa-sitemap"></i>
+                  <img src="/styles/img/uWorc/overview.png"/>
                   <span>My Projects</span>
                 </Link>
               </li>
@@ -104,7 +104,7 @@ export default class Sidebar extends Component {
                 ? 'active'
                 : ''} onClick={this.handleClickOnDashboard.bind(this, 4)}>
                 <a href={config.dashboard.url} target="_blank">
-                  <i className="fa fa-dashboard"></i>
+                  <img src="/styles/img/uWorc/chart.png"/>
                   <span>Dashboard</span>
                 </a>
               </li>
@@ -115,7 +115,7 @@ export default class Sidebar extends Component {
                 ? 'active'
                 : ''} onClick={this.handleClickOnRegistry.bind(this, 2)}>
                 <a href={registryURL} target="_blank">
-                  <i className="fa fa-file-code-o"></i>
+                  <img src="/styles/img/uWorc/sr.png"/>
                   <span>Schema Registry</span>
                 </a>
               </li>
@@ -126,7 +126,7 @@ export default class Sidebar extends Component {
                 ? 'active'
                 : ''} onClick={this.handleClick.bind(this, 5)}>
                 <Link to="/model-registry">
-                  <i className="fa fa-cube"></i>
+                  <img src="/styles/img/uWorc/mr.png"/>
                   <span>Model Registry</span>
                 </Link>
               </li>
@@ -138,7 +138,7 @@ export default class Sidebar extends Component {
                 ? 'treeview active'
                 : 'treeview'}>
                 <a href="javascript:void(0);" onClick={this.toggleMenu.bind(this)}>
-                  <i className="fa fa-wrench"></i>
+                  <img src="/styles/img/uWorc/config.png"/>
                   <span>Configuration</span>
                   <span className="pull-right-container">
                     <i className={app_state.sidebar_toggleFlag

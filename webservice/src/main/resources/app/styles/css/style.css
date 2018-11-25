@@ -187,7 +187,7 @@ a.dropdown-toggle~ul.dropdown-menu {
   font-size: 20px;
   line-height: 60px;
   text-align: center;
-  width: 230px;
+  width: 253px;
   padding: 0 15px;
   font-weight: 300;
   overflow: hidden;
@@ -216,7 +216,7 @@ a.dropdown-toggle~ul.dropdown-menu {
   -o-transition: margin-left 0.3s ease-in-out;
   transition: margin-left 0.3s ease-in-out;
   margin-bottom: 0;
-  margin-left: 230px;
+  margin-left: 253px;
   padding-right: 15px;
   border: none;
   min-height: 50px;
@@ -1179,7 +1179,7 @@ label {
   height: auto;
   width: 80px;
   top: 60px;
-  margin-left: -70px;
+  margin-left: -47px;
   background-color: #fff;
   /*padding: 0 10px;*/
   font-size: 0.875em;
@@ -2496,7 +2496,7 @@ rect.extent {
   left: 0;
   padding-top: 60px;
   min-height: 100%;
-  width: 230px;
+  width: 253px;
   z-index: 810;
   background-color: #333645;
   -webkit-transition: -webkit-transform .3s ease-in-out, width .3s ease-in-out;
@@ -2655,6 +2655,17 @@ rect.extent {
   width: auto;
 }
 
+.sidebar-menu img{
+  opacity: 0.25;
+  margin: 0 0 0 4px;
+}
+.sidebar-menu .active img{
+  opacity: 1;
+}
+.sidebar-menu span{
+  margin: 0 0 0 9px;
+}
+
 @media (min-width: 768px) {
   .sidebar-mini.sidebar-collapse .content-wrapper, .sidebar-mini.sidebar-collapse .right-side, .sidebar-mini.sidebar-collapse .main-footer {
     margin-left: 50px !important;
@@ -2669,7 +2680,7 @@ rect.extent {
     -ms-transform: translate(0, 0);
     -o-transform: translate(0, 0);
     transform: translate(0, 0);
-    width: 50px !important;
+    width: 72px !important;
     z-index: 850;
   }
   .sidebar-mini.sidebar-collapse .sidebar-menu>li {
@@ -2719,12 +2730,14 @@ rect.extent {
     -webkit-transform: translateZ(0);
   }
   .sidebar-mini.sidebar-collapse .main-header .logo {
-    width: 50px;
+    width: 72px;
+    background: #1B6DE0;
+
   }
   .sidebar-mini.sidebar-collapse .main-header .logo>.logo-mini {
     display: block;
-    margin-left: -15px;
-    margin-right: -15px;
+    margin-left: 3px;
+    margin-right: -8px;
     font-size: 18px;
     text-align: left;
   }
@@ -2732,7 +2745,7 @@ rect.extent {
     display: none;
   }
   .sidebar-mini.sidebar-collapse .main-header .navbar {
-    margin-left: 50px;
+    margin-left: 72px;
   }
 }
 
@@ -3204,6 +3217,11 @@ input[type="checkbox"]:focus {
   height: 40px;
   padding-top: 9px;
   margin: 0px 5px 0 5px;
+  width: 44px;
+  height: 44px;
+  border-radius: 3px;
+  border: 1px solid #E5E5E5;
+  margin: 9px;
 }
 
 .highlight > div, .highlight .nodeContainerFolder {

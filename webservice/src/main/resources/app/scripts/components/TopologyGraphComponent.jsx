@@ -150,8 +150,8 @@ export default class TopologyGraphComponent extends Component {
     ESCAPE_KEY: 27,
     TAB_KEY: 9,
     ENTER_KEY: 13,
-    rectangleWidth: 184,
-    rectangleHeight: 40,
+    rectangleWidth: 208,
+    rectangleHeight: 52,
     testDataRectHeight: 210,
     testNoDataRectHeight: 75
   };
@@ -929,7 +929,7 @@ export default class TopologyGraphComponent extends Component {
       });
 
     thisGraph.rectangles.selectAll('image').attr("filter", function(d) {
-      return "url(#grayscale)";
+      return "url(#white-wash)";
     }).attr("xlink:href", function(d) {
       return that.deleteNodePool(d.nodeId)
         ? "styles/img/start-loader.gif"
@@ -1054,17 +1054,39 @@ export default class TopologyGraphComponent extends Component {
       thisGraph.rectangleMouseUp.call(thisGraph, d3.select(this.parentNode), d);
     }).call(thisGraph.drag);
 
+    //Icon background
+    newGs.append("rect")
+      .classed('left-bar', true)
+      .attr({
+        width: '4px',
+        height: '52px',
+        fill: '#E54937'
+      });
+
+    //Icon background
+    newGs.append("rect")
+      .classed('icon-background', true)
+      .attr({
+        width: '33px',
+        height: '33px',
+        x: '17px',
+        y: '10px',
+        fill: '#1B6DE0',
+        rx: 2,
+        ry: 2
+      });
+
     //Image
     newGs.append("image").attr("xlink:href", function(d) {
       return d.nodeId
         ? d.imageURL
         : "styles/img/start-loader.gif";
     }).attr("width", function(d){
-      return GraphUtils.getSpecificNodeBboxData.call(thisGraph,d).height - 15;
+      return GraphUtils.getSpecificNodeBboxData.call(thisGraph,d).height - 30;
     }).attr("height", function(d){
-      return GraphUtils.getSpecificNodeBboxData.call(thisGraph,d).height - 15;
-    }).attr("x", 8).attr("y", 7).attr("filter", function(d) {
-      return "url(#grayscale)";
+      return GraphUtils.getSpecificNodeBboxData.call(thisGraph,d).height - 30;
+    }).attr("x", 23).attr("y", 15).attr("filter", function(d) {
+      return "url(#white-wash)";
     }).on("mouseover", function(d) {
       if (thisGraph.editMode) {
         d3.select(this.parentElement).select('text.fa.fa-times').style('display', thisGraph.testRunActivated ? 'none' : 'block');
@@ -1234,9 +1256,9 @@ export default class TopologyGraphComponent extends Component {
           return "";
         }
       }).attr("dx", function(d) {
-        return (constants.rectangleHeight);
+        return (constants.rectangleHeight) + 8;
       }).attr("dy", function(d) {
-        return ((constants.rectangleHeight / 2) - 2);
+        return ((constants.rectangleHeight / 2) - 5);
       }).on("mouseover", function(d) {
         if (thisGraph.editMode) {
           !thisGraph.testRunActivated && nodeTitle.trim().length > 11 ? GraphUtils.showNodeTypeToolTip.call(thisGraph,d, this) : '';
@@ -1285,9 +1307,9 @@ export default class TopologyGraphComponent extends Component {
           return "";
         }
       }).attr("dx", function(d) {
-        return (constants.rectangleHeight);
+        return (constants.rectangleHeight) + 8;
       }).attr("dy", function(d) {
-        return ((constants.rectangleHeight - 7));
+        return ((constants.rectangleHeight - 17));
       }).on("mouseover", function(d) {
         if (thisGraph.editMode) {
           d3.select(this.parentElement).select('text.fa.fa-times').style('display', thisGraph.testRunActivated ? 'none' : 'block');

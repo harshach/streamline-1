@@ -250,7 +250,7 @@ class PoolItemsCard extends Component {
 
     return (
       <div className="col-md-4">
-        <div className="service-box" data-id={cluster.id} ref={(ref) => this.clusterRef = ref}>
+        <div className="service-box card" data-id={cluster.id} ref={(ref) => this.clusterRef = ref}>
           <div className="service-head clearfix">
             <h4 className="no-margin">{cluster.name}
               <span className="display-block">{cluster.ambariImportUrl ? cluster.ambariImportUrl : cluster.description}</span>

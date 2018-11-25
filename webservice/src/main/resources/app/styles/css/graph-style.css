@@ -267,8 +267,9 @@ circle.source, circle.processor, circle.datasink, circle.task {
 }
 
 text.node-title {
-  font-size: 16px;
-  fill: #666;
+  font-size: 12px;
+  fill: #000000;
+  font-weight: 500;
 }
 
 @supports (-ms-ime-align:auto) {
@@ -278,8 +279,8 @@ text.node-title {
 }
 
 text.node-type-label {
-  fill: #a9a9a9;
-  font-size: 12px;
+  fill: #999999;
+  font-size: 10px;
 }
 
 svg>foreignObject>p {

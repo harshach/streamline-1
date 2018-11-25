@@ -413,8 +413,15 @@ export class sql extends BaseField {
     Form.setState(Form.state);
     this.validate();
     if(fieldJson.onChange){
-      fieldJson.onChange(value);
+      if(!this.onChangeDebounce){
+        this.onChangeDebounce = _.debounce(this.onChange , 1000, { 'maxWait': 1000 });
+      }
+      this.onChangeDebounce();
     }
+  }
+  onChange(){
+    const {fieldJson} = this.props;
+    fieldJson.onChange(this.props.data[this.props.value]);
   }
   validate() {
     return super.validate(this.props.data[this.props.value]);

@@ -334,8 +334,9 @@ class TopologyItems extends Component {
             <div className="pull-left m-t-xs">
               
             </div>
-            {dropdown}
+            
           </div>*/}
+          {dropdown}
           {(this.checkRefId(topology.id))
             ? <div className="stream-body">
                 <div className="loading-img text-center">
@@ -854,48 +855,45 @@ class TopologyListingContainer extends Component {
       <BaseContainer ref="BaseContainer" routes={this.props.routes} headerContent={this.getHeaderContent()}>
         {!fetchLoader
           ? <div>
-              {((filterValue && splitData.length === 0) || splitData.length !== 0)
-                ? <div className="row">
-                    <div className="page-title-box clearfix">
-                      <div className="search-container text-right">
-                        <FormGroup className="search-box">
-                          <InputGroup>
-                            <InputGroup.Addon>
-                              <i className="fa fa-search"></i>
-                            </InputGroup.Addon>
-                            <FormControl data-stest="searchBox" type="text" placeholder="Search by name" onKeyUp={this.onFilterChange} className="" />
-                          </InputGroup>
-                        </FormGroup>
-                      </div>
-
-                      {/*<div className="col-md-3 text-center">
-                        <DropdownButton title={sortTitle} id="sortDropdown" className="sortDropdown ">
-                          <MenuItem active={this.state.sorted.key === "name" ? true : false } onClick={this.onSortByClicked.bind(this, "name")}>
-                            &nbsp;Name
-                          </MenuItem>
-                          <MenuItem active={this.state.sorted.key === "last_updated" ? true : false } onClick={this.onSortByClicked.bind(this, "last_updated")}>
-                            &nbsp;Last Update
-                          </MenuItem>
-                        </DropdownButton>
-                      </div>*/}
-                      {hasEditCapability(accessCapabilities.APPLICATION) ?
-                        <div className="add-btn text-center">
-                          <DropdownButton title={btnIcon} id="actionDropdown" className="actionDropdown success" noCaret>
-                            <MenuItem onClick={this.onActionMenuClicked.bind(this, "create")}>
-                              &nbsp;New Workflow
-                            </MenuItem>
-                            <MenuItem onClick={this.onActionMenuClicked.bind(this, "import")}>
-                              &nbsp;Import Workflow
-                            </MenuItem>
-                          </DropdownButton>
-                        </div>
-                        : null
-                      }
-                      <div className="col-md-1 col-sm-3 text-left"></div>
-                    </div>
+              <div className="row">
+                <div className="page-title-box clearfix">
+                  <div className="search-container text-right">
+                    <FormGroup className="search-box">
+                      <InputGroup>
+                        <InputGroup.Addon>
+                          <i className="fa fa-search"></i>
+                        </InputGroup.Addon>
+                        <FormControl data-stest="searchBox" type="text" placeholder="Search by name" onKeyUp={this.onFilterChange} className="" />
+                      </InputGroup>
+                    </FormGroup>
                   </div>
-                : ''
-}
+
+                  {/*<div className="col-md-3 text-center">
+                    <DropdownButton title={sortTitle} id="sortDropdown" className="sortDropdown ">
+                      <MenuItem active={this.state.sorted.key === "name" ? true : false } onClick={this.onSortByClicked.bind(this, "name")}>
+                        &nbsp;Name
+                      </MenuItem>
+                      <MenuItem active={this.state.sorted.key === "last_updated" ? true : false } onClick={this.onSortByClicked.bind(this, "last_updated")}>
+                        &nbsp;Last Update
+                      </MenuItem>
+                    </DropdownButton>
+                  </div>*/}
+                  {hasEditCapability(accessCapabilities.APPLICATION) ?
+                    <div className="add-btn text-center">
+                      <DropdownButton title={btnIcon} id="actionDropdown" className="actionDropdown success" noCaret>
+                        <MenuItem onClick={this.onActionMenuClicked.bind(this, "create")}>
+                          &nbsp;New Workflow
+                        </MenuItem>
+                        <MenuItem onClick={this.onActionMenuClicked.bind(this, "import")}>
+                          &nbsp;Import Workflow
+                        </MenuItem>
+                      </DropdownButton>
+                    </div>
+                    : null
+                  }
+                  <div className="col-md-1 col-sm-3 text-left"></div>
+                </div>
+              </div>
             </div>
           : ''
 }

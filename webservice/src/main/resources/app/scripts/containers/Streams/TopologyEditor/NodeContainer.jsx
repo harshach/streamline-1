@@ -166,7 +166,7 @@ export default class NodeContainer extends Component {
       <li className={className.join(' ')}>
         { viewType != 'folder'
         ?
-        <div className="nodeContainer"><img src={imgPath} ref="img" onError={() => {
+        <div className="nodeContainer"><img src={imgPath} ref="img" style={{filter: 'url(#blue-wash)'}} onError={() => {
           this.refs.img.src = defaultImagePath;
         }}/></div>
         :
@@ -178,13 +178,13 @@ export default class NodeContainer extends Component {
           </div>
         </OverlayTrigger>
         }
-        {
+        {/*
           viewType === 'folder'
           ? name
           : <OverlayTrigger trigger={['hover']} placement="right" overlay={<Popover id="popover-trigger-hover">{name}</Popover>}>
               <span>{name}</span>
             </OverlayTrigger>
-        }
+        */}
       </li>
     ));
   }

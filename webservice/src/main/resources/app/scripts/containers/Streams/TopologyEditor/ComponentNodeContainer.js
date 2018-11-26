@@ -349,6 +349,13 @@ export default class ComponentNodeContainer extends Component {
             </Scrollbars>
           </div>
       }
+      <svg>
+        <defs>
+          <filter id="blue-wash">
+            <feColorMatrix type="matrix" values="1 0 0 0 0 0 1 0 0 0 0 0 1 0 3 0 0 0 1 0"/>
+          </filter>
+        </defs>
+      </svg>
       </div>
     );
   }

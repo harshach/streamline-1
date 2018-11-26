@@ -149,7 +149,7 @@ class EnvironmentCards extends Component {
 
     return (
       <div className="col-environment">
-        <div className="service-box environment-box" data-id={namespace.id} ref={(ref) => this.nameSpaceRef = ref}>
+        <div className="service-box card environment-box" data-id={namespace.id} ref={(ref) => this.nameSpaceRef = ref}>
           <div className="service-head clearfix">
             <h4 className="pull-left no-margin" title={namespace.name}>{Utils.ellipses(namespace.name, 15)}</h4>
               <div className="pull-right">

@@ -37,7 +37,7 @@ const ViewModeREST = {
     options = options || {};
     options.method = options.method || 'GET';
     options.credentials = 'same-origin';
-    const stremaBatch = isStream ? 'stream/' : 'batch/';
+    const streamBatch = isStream ? 'stream/' : 'batch/';
     const url = baseUrl + streamBatch + 'topologies/' + id + '/'+compType+'/metrics?from='+fromTime+'&to='+toTime;
     return fetch(url, options)
       .then(Utils.checkStatus);

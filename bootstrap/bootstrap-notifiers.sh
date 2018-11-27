@@ -38,7 +38,7 @@ curl -i --negotiate -u:anyUser  -b /tmp/cookiejar.txt -c /tmp/cookiejar.txt -X P
   "builtin": true,
   "properties": {},
   "fieldValues": {}
-};type=application/json'
+};type=application/json' "${HTTP_HEADERS_FOR_CURL}"
 
 echo
 

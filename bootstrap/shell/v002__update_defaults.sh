@@ -58,7 +58,7 @@ function getId {
 }
 
 function getAdminRoleId {
-  cmd="curl -i --negotiate -u:anyUser  -b /tmp/cookiejar.txt -c /tmp/cookiejar.txt -sS -X GET ${CATALOG_ROOT_URL}/roles?name=ROLE_ADMIN -H 'Content-Type: application/json'"
+  cmd="curl -i --negotiate -u:anyUser  -b /tmp/cookiejar.txt -c /tmp/cookiejar.txt -sS -X GET ${CATALOG_ROOT_URL}/roles?name=ROLE_ADMIN -H 'Content-Type: application/json' ${HTTP_HEADERS_FOR_CURL}"
   response=$(eval $cmd)
   getId "$response"
 }
@@ -66,7 +66,7 @@ function getAdminRoleId {
 function put {
   uri=$1/$2
   data=$3
-  cmd="curl -i --negotiate -u:anyUser  -b /tmp/cookiejar.txt -c /tmp/cookiejar.txt -sS -X PUT ${CATALOG_ROOT_URL}$uri --data @$data -H 'Content-Type: application/json'"
+  cmd="curl -i --negotiate -u:anyUser  -b /tmp/cookiejar.txt -c /tmp/cookiejar.txt -sS -X PUT ${CATALOG_ROOT_URL}$uri --data @$data -H 'Content-Type: application/json' ${HTTP_HEADERS_FOR_CURL}"
   echo "PUT $data"
   run_cmd $cmd
 }
@@ -74,21 +74,21 @@ function put {
 function post {
   uri=$1
   data=$2
-  cmd="curl -i --negotiate -u:anyUser  -b /tmp/cookiejar.txt -c /tmp/cookiejar.txt -sS -X POST ${CATALOG_ROOT_URL}$uri --data @$data -H 'Content-Type: application/json'"
+  cmd="curl -i --negotiate -u:anyUser  -b /tmp/cookiejar.txt -c /tmp/cookiejar.txt -sS -X POST ${CATALOG_ROOT_URL}$uri --data @$data -H 'Content-Type: application/json' ${HTTP_HEADERS_FOR_CURL}"
   echo "POST $data"
   run_cmd $cmd
 }
 
 function add_sample_topology_component_bundle {
   echo "POST sample_bundle"
-  cmd="curl -i --negotiate -u:anyUser  -b /tmp/cookiejar.txt -c /tmp/cookiejar.txt -sS -X POST -i -F topologyComponentBundle=@$bootstrap_dir/kafka-topology-bundle ${CATALOG_ROOT_URL}/streams/componentbundles/SOURCE/"
+  cmd="curl -i --negotiate -u:anyUser  -b /tmp/cookiejar.txt -c /tmp/cookiejar.txt -sS -X POST -i -F topologyComponentBundle=@$bootstrap_dir/kafka-topology-bundle ${CATALOG_ROOT_URL}/streams/componentbundles/SOURCE/ ${HTTP_HEADERS_FOR_CURL}"
   run_cmd $cmd
 }
 
 function add_topology_component_bundle {
   uri=$1
   data=$2
-  cmd="curl -i --negotiate -u:anyUser  -b /tmp/cookiejar.txt -c /tmp/cookiejar.txt -sS -X POST -i -F topologyComponentBundle=@$data ${CATALOG_ROOT_URL}$uri"
+  cmd="curl -i --negotiate -u:anyUser  -b /tmp/cookiejar.txt -c /tmp/cookiejar.txt -sS -X POST -i -F topologyComponentBundle=@$data ${CATALOG_ROOT_URL}$uri ${HTTP_HEADERS_FOR_CURL}"
   echo "POST $data"
   run_cmd $cmd
 }
@@ -97,9 +97,9 @@ function put_topology_component_bundle {
   uri=$1
   data=$2
   subType=$3
-  out=$(curl -i --negotiate -u:anyUser  -b /tmp/cookiejar.txt -c /tmp/cookiejar.txt -s -X GET -H "Content-Type: application/json" -H "Cache-Control: no-cache" "${CATALOG_ROOT_URL}$uri?subType=${subType}&engine=STORM")
+  out=$(curl -i --negotiate -u:anyUser  -b /tmp/cookiejar.txt -c /tmp/cookiejar.txt -s -X GET -H "Content-Type: application/json" -H "Cache-Control: no-cache" "${CATALOG_ROOT_URL}$uri?subType=${subType}&engine=STORM" ${HTTP_HEADERS_FOR_CURL})
   bundleId=$(getId $out)
-  cmd="curl -i --negotiate -u:anyUser  -b /tmp/cookiejar.txt -c /tmp/cookiejar.txt -sS -X PUT -i -F topologyComponentBundle=@$data ${CATALOG_ROOT_URL}$uri/$bundleId"
+  cmd="curl -i --negotiate -u:anyUser  -b /tmp/cookiejar.txt -c /tmp/cookiejar.txt -sS -X PUT -i -F topologyComponentBundle=@$data ${CATALOG_ROOT_URL}$uri/$bundleId ${HTTP_HEADERS_FOR_CURL}"
   echo "PUT $data"
   run_cmd $cmd
 }
@@ -107,7 +107,7 @@ function put_topology_component_bundle {
 function put_service_bundle {
   uri=$1
   data=$2
-  cmd="curl -i --negotiate -u:anyUser  -b /tmp/cookiejar.txt -c /tmp/cookiejar.txt -sS -X PUT ${CATALOG_ROOT_URL}$uri --data @$data -H 'Content-Type: application/json'"
+  cmd="curl -i --negotiate -u:anyUser  -b /tmp/cookiejar.txt -c /tmp/cookiejar.txt -sS -X PUT ${CATALOG_ROOT_URL}$uri --data @$data -H 'Content-Type: application/json' ${HTTP_HEADERS_FOR_CURL}"
   echo "PUT $data"
   run_cmd $cmd
 
@@ -116,7 +116,7 @@ function put_service_bundle {
 function update_custom_processors_with_digest {
   echo "Running update script to update all custom processors with digests"
   cp_upgrade_uri_suffix="/streams/componentbundles/PROCESSOR/custom/upgrade"
-  cmd="curl -i --negotiate -u:anyUser  -b /tmp/cookiejar.txt -c /tmp/cookiejar.txt -sS -X PUT ${CATALOG_ROOT_URL}$cp_upgrade_uri_suffix -H 'Content-Type: application/json'"
+  cmd="curl -i --negotiate -u:anyUser  -b /tmp/cookiejar.txt -c /tmp/cookiejar.txt -sS -X PUT ${CATALOG_ROOT_URL}$cp_upgrade_uri_suffix -H 'Content-Type: application/json' ${HTTP_HEADERS_FOR_CURL}"
   run_cmd $cmd
 }
 
@@ -198,83 +198,83 @@ function add_udfs {
         fi
 
         echo "  - variance"
-        curl -i --negotiate -u:anyUser  -b /tmp/cookiejar.txt -c /tmp/cookiejar.txt  -s -X POST "${CATALOG_ROOT_URL}/streams/udfs" -F udfJarFile=@${jarFile} -F udfConfig='{"name":"VARIANCE_FN", "displayName": "VARIANCE", "description": "Variance", "type":"AGGREGATE", "className":"com.hortonworks.streamline.streams.udaf.Variance", "builtin":true};type=application/json'
+        curl -i --negotiate -u:anyUser  -b /tmp/cookiejar.txt -c /tmp/cookiejar.txt  -s -X POST "${CATALOG_ROOT_URL}/streams/udfs" -F udfJarFile=@${jarFile} -F udfConfig='{"name":"VARIANCE_FN", "displayName": "VARIANCE", "description": "Variance", "type":"AGGREGATE", "className":"com.hortonworks.streamline.streams.udaf.Variance", "builtin":true};type=application/json' "${HTTP_HEADERS_FOR_CURL}"
 
         echo "  - variancep"
-        curl -i --negotiate -u:anyUser  -b /tmp/cookiejar.txt -c /tmp/cookiejar.txt -s -X POST "${CATALOG_ROOT_URL}/streams/udfs" -F udfJarFile=@${jarFile} -F udfConfig='{"name":"VARIANCEP_FN", "displayName": "VARIANCEP", "description": "Population variance", "type":"AGGREGATE", "className":"com.hortonworks.streamline.streams.udaf.Variancep", "builtin":true};type=application/json'
+        curl -i --negotiate -u:anyUser  -b /tmp/cookiejar.txt -c /tmp/cookiejar.txt -s -X POST "${CATALOG_ROOT_URL}/streams/udfs" -F udfJarFile=@${jarFile} -F udfConfig='{"name":"VARIANCEP_FN", "displayName": "VARIANCEP", "description": "Population variance", "type":"AGGREGATE", "className":"com.hortonworks.streamline.streams.udaf.Variancep", "builtin":true};type=application/json' "${HTTP_HEADERS_FOR_CURL}"
 
         echo "  - stddev"
-        curl -i --negotiate -u:anyUser  -b /tmp/cookiejar.txt -c /tmp/cookiejar.txt -s -X POST "${CATALOG_ROOT_URL}/streams/udfs" -F udfJarFile=@${jarFile} -F udfConfig='{"name":"STDDEV_FN", "displayName": "STDDEV", "description": "Standard deviation", "type":"AGGREGATE", "className":"com.hortonworks.streamline.streams.udaf.Stddev", "builtin":true};type=application/json'
+        curl -i --negotiate -u:anyUser  -b /tmp/cookiejar.txt -c /tmp/cookiejar.txt -s -X POST "${CATALOG_ROOT_URL}/streams/udfs" -F udfJarFile=@${jarFile} -F udfConfig='{"name":"STDDEV_FN", "displayName": "STDDEV", "description": "Standard deviation", "type":"AGGREGATE", "className":"com.hortonworks.streamline.streams.udaf.Stddev", "builtin":true};type=application/json' "${HTTP_HEADERS_FOR_CURL}"
 
         echo "  - stddevp"
-        curl -i --negotiate -u:anyUser  -b /tmp/cookiejar.txt -c /tmp/cookiejar.txt  -s -X POST "${CATALOG_ROOT_URL}/streams/udfs" -F udfJarFile=@${jarFile} -F udfConfig='{"name":"STDDEVP_FN", "displayName": "STDDEVP", "description": "Population standard deviation", "type":"AGGREGATE", "className":"com.hortonworks.streamline.streams.udaf.Stddevp", "builtin":true};type=application/json'
+        curl -i --negotiate -u:anyUser  -b /tmp/cookiejar.txt -c /tmp/cookiejar.txt  -s -X POST "${CATALOG_ROOT_URL}/streams/udfs" -F udfJarFile=@${jarFile} -F udfConfig='{"name":"STDDEVP_FN", "displayName": "STDDEVP", "description": "Population standard deviation", "type":"AGGREGATE", "className":"com.hortonworks.streamline.streams.udaf.Stddevp", "builtin":true};type=application/json' "${HTTP_HEADERS_FOR_CURL}"
 
         echo "  - concat"
-        curl -i --negotiate -u:anyUser  -b /tmp/cookiejar.txt -c /tmp/cookiejar.txt -s -X POST "${CATALOG_ROOT_URL}/streams/udfs" -F udfJarFile=@${jarFile} -F udfConfig='{"name":"CONCAT_FN", "displayName": "CONCAT", "description": "Concatenate", "type":"FUNCTION", "className":"com.hortonworks.streamline.streams.udf.Concat", "builtin":true};type=application/json'
+        curl -i --negotiate -u:anyUser  -b /tmp/cookiejar.txt -c /tmp/cookiejar.txt -s -X POST "${CATALOG_ROOT_URL}/streams/udfs" -F udfJarFile=@${jarFile} -F udfConfig='{"name":"CONCAT_FN", "displayName": "CONCAT", "description": "Concatenate", "type":"FUNCTION", "className":"com.hortonworks.streamline.streams.udf.Concat", "builtin":true};type=application/json' "${HTTP_HEADERS_FOR_CURL}"
 
         echo "  - count"
-        curl -i --negotiate -u:anyUser  -b /tmp/cookiejar.txt -c /tmp/cookiejar.txt -s -X POST "${CATALOG_ROOT_URL}/streams/udfs" -F udfJarFile=@${jarFile} -F udfConfig='{"name":"COUNT_FN", "displayName": "COUNT","description": "Count", "type":"AGGREGATE", "className":"com.hortonworks.streamline.streams.udaf.LongCount", "builtin":true};type=application/json'
+        curl -i --negotiate -u:anyUser  -b /tmp/cookiejar.txt -c /tmp/cookiejar.txt -s -X POST "${CATALOG_ROOT_URL}/streams/udfs" -F udfJarFile=@${jarFile} -F udfConfig='{"name":"COUNT_FN", "displayName": "COUNT","description": "Count", "type":"AGGREGATE", "className":"com.hortonworks.streamline.streams.udaf.LongCount", "builtin":true};type=application/json' "${HTTP_HEADERS_FOR_CURL}"
 
         echo "  - substring"
-        curl -i --negotiate -u:anyUser  -b /tmp/cookiejar.txt -c /tmp/cookiejar.txt -s -X POST "${CATALOG_ROOT_URL}/streams/udfs" -F udfJarFile=@${jarFile} -F udfConfig='{"name":"SUBSTRING_FN", "displayName": "SUBSTRING", "description": "Returns sub-string of a string starting at some position", "type":"FUNCTION", "className":"com.hortonworks.streamline.streams.udf.Substring", "builtin":true};type=application/json'
+        curl -i --negotiate -u:anyUser  -b /tmp/cookiejar.txt -c /tmp/cookiejar.txt -s -X POST "${CATALOG_ROOT_URL}/streams/udfs" -F udfJarFile=@${jarFile} -F udfConfig='{"name":"SUBSTRING_FN", "displayName": "SUBSTRING", "description": "Returns sub-string of a string starting at some position", "type":"FUNCTION", "className":"com.hortonworks.streamline.streams.udf.Substring", "builtin":true};type=application/json' "${HTTP_HEADERS_FOR_CURL}"
 
         echo "  - substring"
-        curl -i --negotiate -u:anyUser  -b /tmp/cookiejar.txt -c /tmp/cookiejar.txt -s -X POST "${CATALOG_ROOT_URL}/streams/udfs" -F udfJarFile=@${jarFile} -F udfConfig='{"name":"SUBSTRING_FN", "displayName": "SUBSTRING", "description": "Returns a sub-string of a string starting at some position and is of given length", "type":"FUNCTION", "className":"com.hortonworks.streamline.streams.udf.Substring2", "builtin":true};type=application/json'
+        curl -i --negotiate -u:anyUser  -b /tmp/cookiejar.txt -c /tmp/cookiejar.txt -s -X POST "${CATALOG_ROOT_URL}/streams/udfs" -F udfJarFile=@${jarFile} -F udfConfig='{"name":"SUBSTRING_FN", "displayName": "SUBSTRING", "description": "Returns a sub-string of a string starting at some position and is of given length", "type":"FUNCTION", "className":"com.hortonworks.streamline.streams.udf.Substring2", "builtin":true};type=application/json' "${HTTP_HEADERS_FOR_CURL}"
 
         echo "  - position"
-        curl -i --negotiate -u:anyUser  -b /tmp/cookiejar.txt -c /tmp/cookiejar.txt -s -X POST "${CATALOG_ROOT_URL}/streams/udfs" -F udfJarFile=@${jarFile} -F udfConfig='{"name":"POSITION_FN", "displayName": "POSITION", "description": "Returns the position of the first occurrence of sub-string in  a string", "type":"FUNCTION", "className":"com.hortonworks.streamline.streams.udf.Position", "builtin":true};type=application/json'
+        curl -i --negotiate -u:anyUser  -b /tmp/cookiejar.txt -c /tmp/cookiejar.txt -s -X POST "${CATALOG_ROOT_URL}/streams/udfs" -F udfJarFile=@${jarFile} -F udfConfig='{"name":"POSITION_FN", "displayName": "POSITION", "description": "Returns the position of the first occurrence of sub-string in  a string", "type":"FUNCTION", "className":"com.hortonworks.streamline.streams.udf.Position", "builtin":true};type=application/json' "${HTTP_HEADERS_FOR_CURL}"
 
         echo "  - position"
-        curl -i --negotiate -u:anyUser  -b /tmp/cookiejar.txt -c /tmp/cookiejar.txt -s -X POST "${CATALOG_ROOT_URL}/streams/udfs" -F udfJarFile=@${jarFile} -F udfConfig='{"name":"POSITION_FN", "displayName": "POSITION", "description": "Returns the position of the first occurrence of sub-string in  a string starting the search from an index", "type":"FUNCTION", "className":"com.hortonworks.streamline.streams.udf.Position2", "builtin":true};type=application/json'
+        curl -i --negotiate -u:anyUser  -b /tmp/cookiejar.txt -c /tmp/cookiejar.txt -s -X POST "${CATALOG_ROOT_URL}/streams/udfs" -F udfJarFile=@${jarFile} -F udfConfig='{"name":"POSITION_FN", "displayName": "POSITION", "description": "Returns the position of the first occurrence of sub-string in  a string starting the search from an index", "type":"FUNCTION", "className":"com.hortonworks.streamline.streams.udf.Position2", "builtin":true};type=application/json' "${HTTP_HEADERS_FOR_CURL}"
 
         echo "  - avg"
-        curl -i --negotiate -u:anyUser  -b /tmp/cookiejar.txt -c /tmp/cookiejar.txt -s -X POST "${CATALOG_ROOT_URL}/streams/udfs" -F udfJarFile=@${jarFile} -F udfConfig='{"name":"AVG_FN", "displayName": "AVG","description": "Average", "type":"AGGREGATE", "className":"com.hortonworks.streamline.streams.udaf.Mean", "builtin":true};type=application/json'
+        curl -i --negotiate -u:anyUser  -b /tmp/cookiejar.txt -c /tmp/cookiejar.txt -s -X POST "${CATALOG_ROOT_URL}/streams/udfs" -F udfJarFile=@${jarFile} -F udfConfig='{"name":"AVG_FN", "displayName": "AVG","description": "Average", "type":"AGGREGATE", "className":"com.hortonworks.streamline.streams.udaf.Mean", "builtin":true};type=application/json' "${HTTP_HEADERS_FOR_CURL}"
 
         echo "  - trim"
-        curl -i --negotiate -u:anyUser  -b /tmp/cookiejar.txt -c /tmp/cookiejar.txt -s -X POST "${CATALOG_ROOT_URL}/streams/udfs" -F udfJarFile=@${jarFile} -F udfConfig='{"name":"TRIM_FN", "displayName": "TRIM", "description": "Returns a string with any leading and trailing whitespaces removed", "type":"FUNCTION", "className":"com.hortonworks.streamline.streams.udf.Trim", "builtin":true};type=application/json'
+        curl -i --negotiate -u:anyUser  -b /tmp/cookiejar.txt -c /tmp/cookiejar.txt -s -X POST "${CATALOG_ROOT_URL}/streams/udfs" -F udfJarFile=@${jarFile} -F udfConfig='{"name":"TRIM_FN", "displayName": "TRIM", "description": "Returns a string with any leading and trailing whitespaces removed", "type":"FUNCTION", "className":"com.hortonworks.streamline.streams.udf.Trim", "builtin":true};type=application/json' "${HTTP_HEADERS_FOR_CURL}"
 
         echo "  - trim2"
-        curl -i --negotiate -u:anyUser  -b /tmp/cookiejar.txt -c /tmp/cookiejar.txt -s -X POST "${CATALOG_ROOT_URL}/streams/udfs" -F udfJarFile=@${jarFile} -F udfConfig='{"name":"TRIM_FN", "displayName": "TRIM2", "description": "Returns a string with specified leading and trailing character removed", "type":"FUNCTION", "className":"com.hortonworks.streamline.streams.udf.Trim2", "builtin":true};type=application/json'
+        curl -i --negotiate -u:anyUser  -b /tmp/cookiejar.txt -c /tmp/cookiejar.txt -s -X POST "${CATALOG_ROOT_URL}/streams/udfs" -F udfJarFile=@${jarFile} -F udfConfig='{"name":"TRIM_FN", "displayName": "TRIM2", "description": "Returns a string with specified leading and trailing character removed", "type":"FUNCTION", "className":"com.hortonworks.streamline.streams.udf.Trim2", "builtin":true};type=application/json' "${HTTP_HEADERS_FOR_CURL}"
 
         echo "  - ltrim"
-        curl -i --negotiate -u:anyUser  -b /tmp/cookiejar.txt -c /tmp/cookiejar.txt -s -X POST "${CATALOG_ROOT_URL}/streams/udfs" -F udfJarFile=@${jarFile} -F udfConfig='{"name":"LTRIM_FN", "displayName": "LTRIM", "description": "Removes leading whitespaces from the input", "type":"FUNCTION", "className":"com.hortonworks.streamline.streams.udf.Ltrim", "builtin":true};type=application/json'
+        curl -i --negotiate -u:anyUser  -b /tmp/cookiejar.txt -c /tmp/cookiejar.txt -s -X POST "${CATALOG_ROOT_URL}/streams/udfs" -F udfJarFile=@${jarFile} -F udfConfig='{"name":"LTRIM_FN", "displayName": "LTRIM", "description": "Removes leading whitespaces from the input", "type":"FUNCTION", "className":"com.hortonworks.streamline.streams.udf.Ltrim", "builtin":true};type=application/json' "${HTTP_HEADERS_FOR_CURL}"
 
         echo "  - ltrim2"
-        curl -i --negotiate -u:anyUser  -b /tmp/cookiejar.txt -c /tmp/cookiejar.txt -s -X POST "${CATALOG_ROOT_URL}/streams/udfs" -F udfJarFile=@${jarFile} -F udfConfig='{"name":"LTRIM_FN", "displayName": "LTRIM", "description": "Removes specified leading character from the input", "type":"FUNCTION", "className":"com.hortonworks.streamline.streams.udf.Ltrim2", "builtin":true};type=application/json'
+        curl -i --negotiate -u:anyUser  -b /tmp/cookiejar.txt -c /tmp/cookiejar.txt -s -X POST "${CATALOG_ROOT_URL}/streams/udfs" -F udfJarFile=@${jarFile} -F udfConfig='{"name":"LTRIM_FN", "displayName": "LTRIM", "description": "Removes specified leading character from the input", "type":"FUNCTION", "className":"com.hortonworks.streamline.streams.udf.Ltrim2", "builtin":true};type=application/json' "${HTTP_HEADERS_FOR_CURL}"
 
         echo "  - rtrim"
-        curl -i --negotiate -u:anyUser  -b /tmp/cookiejar.txt -c /tmp/cookiejar.txt -s -X POST "${CATALOG_ROOT_URL}/streams/udfs" -F udfJarFile=@${jarFile} -F udfConfig='{"name":"RTRIM_FN", "displayName": "RTRIM", "description": "Removes trailing whitespaces from the input", "type":"FUNCTION", "className":"com.hortonworks.streamline.streams.udf.Rtrim", "builtin":true};type=application/json'
+        curl -i --negotiate -u:anyUser  -b /tmp/cookiejar.txt -c /tmp/cookiejar.txt -s -X POST "${CATALOG_ROOT_URL}/streams/udfs" -F udfJarFile=@${jarFile} -F udfConfig='{"name":"RTRIM_FN", "displayName": "RTRIM", "description": "Removes trailing whitespaces from the input", "type":"FUNCTION", "className":"com.hortonworks.streamline.streams.udf.Rtrim", "builtin":true};type=application/json' "${HTTP_HEADERS_FOR_CURL}"
 
         echo "  - rtrim2"
-        curl -i --negotiate -u:anyUser  -b /tmp/cookiejar.txt -c /tmp/cookiejar.txt -s -X POST "${CATALOG_ROOT_URL}/streams/udfs" -F udfJarFile=@${jarFile} -F udfConfig='{"name":"RTRIM_FN", "displayName": "RTRIM", "description": "Removes specified trailing character from the input", "type":"FUNCTION", "className":"com.hortonworks.streamline.streams.udf.Rtrim2", "builtin":true};type=application/json'
+        curl -i --negotiate -u:anyUser  -b /tmp/cookiejar.txt -c /tmp/cookiejar.txt -s -X POST "${CATALOG_ROOT_URL}/streams/udfs" -F udfJarFile=@${jarFile} -F udfConfig='{"name":"RTRIM_FN", "displayName": "RTRIM", "description": "Removes specified trailing character from the input", "type":"FUNCTION", "className":"com.hortonworks.streamline.streams.udf.Rtrim2", "builtin":true};type=application/json' "${HTTP_HEADERS_FOR_CURL}"
 
         echo "  - overlay"
-        curl -i --negotiate -u:anyUser  -b /tmp/cookiejar.txt -c /tmp/cookiejar.txt -s -X POST "${CATALOG_ROOT_URL}/streams/udfs" -F udfJarFile=@${jarFile} -F udfConfig='{"name":"OVERLAY_FN", "displayName": "OVERLAY", "description": "Replaces a substring of a string with a replacement string", "type":"FUNCTION", "className":"com.hortonworks.streamline.streams.udf.Overlay", "builtin":true};type=application/json'
+        curl -i --negotiate -u:anyUser  -b /tmp/cookiejar.txt -c /tmp/cookiejar.txt -s -X POST "${CATALOG_ROOT_URL}/streams/udfs" -F udfJarFile=@${jarFile} -F udfConfig='{"name":"OVERLAY_FN", "displayName": "OVERLAY", "description": "Replaces a substring of a string with a replacement string", "type":"FUNCTION", "className":"com.hortonworks.streamline.streams.udf.Overlay", "builtin":true};type=application/json' "${HTTP_HEADERS_FOR_CURL}"
 
         echo "  - overlay"
-        curl -i --negotiate -u:anyUser  -b /tmp/cookiejar.txt -c /tmp/cookiejar.txt -s -X POST "${CATALOG_ROOT_URL}/streams/udfs" -F udfJarFile=@${jarFile} -F udfConfig='{"name":"OVERLAY_FN", "displayName": "OVERLAY", "description": "Replaces a substring of a string with a replacement string", "type":"FUNCTION", "className":"com.hortonworks.streamline.streams.udf.Overlay2", "builtin":true};type=application/json'
+        curl -i --negotiate -u:anyUser  -b /tmp/cookiejar.txt -c /tmp/cookiejar.txt -s -X POST "${CATALOG_ROOT_URL}/streams/udfs" -F udfJarFile=@${jarFile} -F udfConfig='{"name":"OVERLAY_FN", "displayName": "OVERLAY", "description": "Replaces a substring of a string with a replacement string", "type":"FUNCTION", "className":"com.hortonworks.streamline.streams.udf.Overlay2", "builtin":true};type=application/json' "${HTTP_HEADERS_FOR_CURL}"
 
         echo "  - divide"
-        curl -i --negotiate -u:anyUser  -b /tmp/cookiejar.txt -c /tmp/cookiejar.txt -s -X POST "${CATALOG_ROOT_URL}/streams/udfs" -F udfJarFile=@${jarFile} -F udfConfig='{"name":"DIVIDE_FN", "displayName": "DIVIDE", "description": "Divides input with given divisor", "type":"FUNCTION", "className":"com.hortonworks.streamline.streams.udf.Divide", "builtin":true};type=application/json'
+        curl -i --negotiate -u:anyUser  -b /tmp/cookiejar.txt -c /tmp/cookiejar.txt -s -X POST "${CATALOG_ROOT_URL}/streams/udfs" -F udfJarFile=@${jarFile} -F udfConfig='{"name":"DIVIDE_FN", "displayName": "DIVIDE", "description": "Divides input with given divisor", "type":"FUNCTION", "className":"com.hortonworks.streamline.streams.udf.Divide", "builtin":true};type=application/json' "${HTTP_HEADERS_FOR_CURL}"
 
         echo "  - exists"
-        curl -i --negotiate -u:anyUser  -b /tmp/cookiejar.txt -c /tmp/cookiejar.txt -s -X POST "${CATALOG_ROOT_URL}/streams/udfs" -F udfJarFile=@${jarFile} -F udfConfig='{"name":"EXISTS_FN", "displayName": "EXISTS", "description": "returns 1 if input is not null otherwise returns 0", "type":"FUNCTION", "className":"com.hortonworks.streamline.streams.udf.Exists", "builtin":true};type=application/json'
+        curl -i --negotiate -u:anyUser  -b /tmp/cookiejar.txt -c /tmp/cookiejar.txt -s -X POST "${CATALOG_ROOT_URL}/streams/udfs" -F udfJarFile=@${jarFile} -F udfConfig='{"name":"EXISTS_FN", "displayName": "EXISTS", "description": "returns 1 if input is not null otherwise returns 0", "type":"FUNCTION", "className":"com.hortonworks.streamline.streams.udf.Exists", "builtin":true};type=application/json' "${HTTP_HEADERS_FOR_CURL}"
 
         echo "  - sum"
-        curl -i --negotiate -u:anyUser  -b /tmp/cookiejar.txt -c /tmp/cookiejar.txt -s -X POST "${CATALOG_ROOT_URL}/streams/udfs" -F udfJarFile=@${jarFile} -F udfConfig='{"name":"SUM_FN", "displayName": "SUM","description": "Sum", "type":"AGGREGATE", "className":"com.hortonworks.streamline.streams.udaf.NumberSum", "builtin":true};type=application/json'
+        curl -i --negotiate -u:anyUser  -b /tmp/cookiejar.txt -c /tmp/cookiejar.txt -s -X POST "${CATALOG_ROOT_URL}/streams/udfs" -F udfJarFile=@${jarFile} -F udfConfig='{"name":"SUM_FN", "displayName": "SUM","description": "Sum", "type":"AGGREGATE", "className":"com.hortonworks.streamline.streams.udaf.NumberSum", "builtin":true};type=application/json' "${HTTP_HEADERS_FOR_CURL}"
 
         # Dummy entries for built in functions so that it shows up in the UI
-        curl -i --negotiate -u:anyUser  -b /tmp/cookiejar.txt -c /tmp/cookiejar.txt -s -X POST "${CATALOG_ROOT_URL}/streams/udfs" -F udfConfig='{"name":"POWER", "displayName": "POWER", "description": "First argument raised to the power of the second argument", "type":"FUNCTION", "argTypes":["BYTE|SHORT|INTEGER|LONG|FLOAT|DOUBLE", "BYTE|SHORT|INTEGER|LONG|FLOAT|DOUBLE"], "returnType": "DOUBLE", "className":"builtin", "builtin":true};type=application/json' -F builtin=true
-        curl -i --negotiate -u:anyUser  -b /tmp/cookiejar.txt -c /tmp/cookiejar.txt -s -X POST "${CATALOG_ROOT_URL}/streams/udfs" -F udfConfig='{"name":"ABS", "displayName": "ABS", "description": "Returns the absolute value", "type":"FUNCTION", "argTypes":["BYTE|SHORT|INTEGER|LONG|FLOAT|DOUBLE"], "className":"builtin", "builtin":true};type=application/json' -F builtin=true
-        curl -i --negotiate -u:anyUser  -b /tmp/cookiejar.txt -c /tmp/cookiejar.txt -s -X POST "${CATALOG_ROOT_URL}/streams/udfs" -F udfConfig='{"name":"MOD", "displayName": "MOD", "description": "Returns the remainder", "type":"FUNCTION", "argTypes":["BYTE|SHORT|INTEGER|LONG", "BYTE|SHORT|INTEGER|LONG"], "className":"builtin", "builtin":true};type=application/json' -F builtin=true
-        curl -i --negotiate -u:anyUser  -b /tmp/cookiejar.txt -c /tmp/cookiejar.txt -s -X POST "${CATALOG_ROOT_URL}/streams/udfs" -F udfConfig='{"name":"SQRT", "displayName": "SQRT", "description": "Returns the square root", "type":"FUNCTION", "argTypes":["BYTE|SHORT|INTEGER|LONG|FLOAT|DOUBLE"], "returnType": "DOUBLE", "className":"builtin", "builtin":true};type=application/json' -F builtin=true
-        curl -i --negotiate -u:anyUser  -b /tmp/cookiejar.txt -c /tmp/cookiejar.txt -s -X POST "${CATALOG_ROOT_URL}/streams/udfs" -F udfConfig='{"name":"LN", "displayName": "LN", "description": "Returns the natural logarithm", "type":"FUNCTION", "argTypes":["BYTE|SHORT|INTEGER|LONG|FLOAT|DOUBLE"], "returnType": "DOUBLE", "className":"builtin", "builtin":true};type=application/json' -F builtin=true
-        curl -i --negotiate -u:anyUser  -b /tmp/cookiejar.txt -c /tmp/cookiejar.txt -s -X POST "${CATALOG_ROOT_URL}/streams/udfs" -F udfConfig='{"name":"LOG10", "displayName": "LOG10", "description": "Returns the base 10 logarithm", "type":"FUNCTION", "argTypes":["BYTE|SHORT|INTEGER|LONG|FLOAT|DOUBLE"], "returnType": "DOUBLE", "className":"builtin", "builtin":true};type=application/json' -F builtin=true
-        curl -i --negotiate -u:anyUser  -b /tmp/cookiejar.txt -c /tmp/cookiejar.txt -s -X POST "${CATALOG_ROOT_URL}/streams/udfs" -F udfConfig='{"name":"EXP", "displayName": "EXP", "description": "Returns e raised to the power of the argument", "type":"FUNCTION", "argTypes":["BYTE|SHORT|INTEGER|LONG|FLOAT|DOUBLE"], "returnType": "DOUBLE", "className":"builtin", "builtin":true};type=application/json' -F builtin=true
-        curl -i --negotiate -u:anyUser  -b /tmp/cookiejar.txt -c /tmp/cookiejar.txt -s -X POST "${CATALOG_ROOT_URL}/streams/udfs" -F udfConfig='{"name":"CEIL", "displayName": "CEIL", "description": "Rounds up, returning the smallest integer that is greater than or equal to the argument", "type":"FUNCTION", "argTypes":["FLOAT|DOUBLE"], "returnType": "DOUBLE", "className":"builtin", "builtin":true};type=application/json' -F builtin=true
-        curl -i --negotiate -u:anyUser  -b /tmp/cookiejar.txt -c /tmp/cookiejar.txt -s -X POST "${CATALOG_ROOT_URL}/streams/udfs" -F udfConfig='{"name":"FLOOR", "displayName": "FLOOR", "description": "Rounds down, returning the largest integer that is less than or equal to the argument", "type":"FUNCTION", "argTypes":["FLOAT|DOUBLE"], "returnType": "DOUBLE", "className":"builtin", "builtin":true};type=application/json' -F builtin=true
-        curl -i --negotiate -u:anyUser  -b /tmp/cookiejar.txt -c /tmp/cookiejar.txt -s -X POST "${CATALOG_ROOT_URL}/streams/udfs" -F udfConfig='{"name":"RAND", "displayName": "RAND", "description": "Generates a random double between 0 and 1 (inclusive)", "type":"FUNCTION", "returnType": "DOUBLE", "className":"builtin", "builtin":true};type=application/json' -F builtin=true
-        curl -i --negotiate -u:anyUser  -b /tmp/cookiejar.txt -c /tmp/cookiejar.txt -s -X POST "${CATALOG_ROOT_URL}/streams/udfs" -F udfConfig='{"name":"RAND_INTEGER", "displayName": "RAND_INTEGER", "description": "Generates a random integer between 0 and the argument (exclusive)", "type":"FUNCTION", "argTypes":["BYTE|SHORT|INTEGER|LONG"], "returnType": "INTEGER", "className":"builtin", "builtin":true};type=application/json' -F builtin=true
+        curl -i --negotiate -u:anyUser  -b /tmp/cookiejar.txt -c /tmp/cookiejar.txt -s -X POST "${CATALOG_ROOT_URL}/streams/udfs" -F udfConfig='{"name":"POWER", "displayName": "POWER", "description": "First argument raised to the power of the second argument", "type":"FUNCTION", "argTypes":["BYTE|SHORT|INTEGER|LONG|FLOAT|DOUBLE", "BYTE|SHORT|INTEGER|LONG|FLOAT|DOUBLE"], "returnType": "DOUBLE", "className":"builtin", "builtin":true};type=application/json' -F builtin=true "${HTTP_HEADERS_FOR_CURL}"
+        curl -i --negotiate -u:anyUser  -b /tmp/cookiejar.txt -c /tmp/cookiejar.txt -s -X POST "${CATALOG_ROOT_URL}/streams/udfs" -F udfConfig='{"name":"ABS", "displayName": "ABS", "description": "Returns the absolute value", "type":"FUNCTION", "argTypes":["BYTE|SHORT|INTEGER|LONG|FLOAT|DOUBLE"], "className":"builtin", "builtin":true};type=application/json' -F builtin=true "${HTTP_HEADERS_FOR_CURL}"
+        curl -i --negotiate -u:anyUser  -b /tmp/cookiejar.txt -c /tmp/cookiejar.txt -s -X POST "${CATALOG_ROOT_URL}/streams/udfs" -F udfConfig='{"name":"MOD", "displayName": "MOD", "description": "Returns the remainder", "type":"FUNCTION", "argTypes":["BYTE|SHORT|INTEGER|LONG", "BYTE|SHORT|INTEGER|LONG"], "className":"builtin", "builtin":true};type=application/json' -F builtin=true "${HTTP_HEADERS_FOR_CURL}"
+        curl -i --negotiate -u:anyUser  -b /tmp/cookiejar.txt -c /tmp/cookiejar.txt -s -X POST "${CATALOG_ROOT_URL}/streams/udfs" -F udfConfig='{"name":"SQRT", "displayName": "SQRT", "description": "Returns the square root", "type":"FUNCTION", "argTypes":["BYTE|SHORT|INTEGER|LONG|FLOAT|DOUBLE"], "returnType": "DOUBLE", "className":"builtin", "builtin":true};type=application/json' -F builtin=true "${HTTP_HEADERS_FOR_CURL}"
+        curl -i --negotiate -u:anyUser  -b /tmp/cookiejar.txt -c /tmp/cookiejar.txt -s -X POST "${CATALOG_ROOT_URL}/streams/udfs" -F udfConfig='{"name":"LN", "displayName": "LN", "description": "Returns the natural logarithm", "type":"FUNCTION", "argTypes":["BYTE|SHORT|INTEGER|LONG|FLOAT|DOUBLE"], "returnType": "DOUBLE", "className":"builtin", "builtin":true};type=application/json' -F builtin=true "${HTTP_HEADERS_FOR_CURL}"
+        curl -i --negotiate -u:anyUser  -b /tmp/cookiejar.txt -c /tmp/cookiejar.txt -s -X POST "${CATALOG_ROOT_URL}/streams/udfs" -F udfConfig='{"name":"LOG10", "displayName": "LOG10", "description": "Returns the base 10 logarithm", "type":"FUNCTION", "argTypes":["BYTE|SHORT|INTEGER|LONG|FLOAT|DOUBLE"], "returnType": "DOUBLE", "className":"builtin", "builtin":true};type=application/json' -F builtin=true "${HTTP_HEADERS_FOR_CURL}"
+        curl -i --negotiate -u:anyUser  -b /tmp/cookiejar.txt -c /tmp/cookiejar.txt -s -X POST "${CATALOG_ROOT_URL}/streams/udfs" -F udfConfig='{"name":"EXP", "displayName": "EXP", "description": "Returns e raised to the power of the argument", "type":"FUNCTION", "argTypes":["BYTE|SHORT|INTEGER|LONG|FLOAT|DOUBLE"], "returnType": "DOUBLE", "className":"builtin", "builtin":true};type=application/json' -F builtin=true "${HTTP_HEADERS_FOR_CURL}"
+        curl -i --negotiate -u:anyUser  -b /tmp/cookiejar.txt -c /tmp/cookiejar.txt -s -X POST "${CATALOG_ROOT_URL}/streams/udfs" -F udfConfig='{"name":"CEIL", "displayName": "CEIL", "description": "Rounds up, returning the smallest integer that is greater than or equal to the argument", "type":"FUNCTION", "argTypes":["FLOAT|DOUBLE"], "returnType": "DOUBLE", "className":"builtin", "builtin":true};type=application/json' -F builtin=true "${HTTP_HEADERS_FOR_CURL}"
+        curl -i --negotiate -u:anyUser  -b /tmp/cookiejar.txt -c /tmp/cookiejar.txt -s -X POST "${CATALOG_ROOT_URL}/streams/udfs" -F udfConfig='{"name":"FLOOR", "displayName": "FLOOR", "description": "Rounds down, returning the largest integer that is less than or equal to the argument", "type":"FUNCTION", "argTypes":["FLOAT|DOUBLE"], "returnType": "DOUBLE", "className":"builtin", "builtin":true};type=application/json' -F builtin=true "${HTTP_HEADERS_FOR_CURL}"
+        curl -i --negotiate -u:anyUser  -b /tmp/cookiejar.txt -c /tmp/cookiejar.txt -s -X POST "${CATALOG_ROOT_URL}/streams/udfs" -F udfConfig='{"name":"RAND", "displayName": "RAND", "description": "Generates a random double between 0 and 1 (inclusive)", "type":"FUNCTION", "returnType": "DOUBLE", "className":"builtin", "builtin":true};type=application/json' -F builtin=true "${HTTP_HEADERS_FOR_CURL}"
+        curl -i --negotiate -u:anyUser  -b /tmp/cookiejar.txt -c /tmp/cookiejar.txt -s -X POST "${CATALOG_ROOT_URL}/streams/udfs" -F udfConfig='{"name":"RAND_INTEGER", "displayName": "RAND_INTEGER", "description": "Generates a random integer between 0 and the argument (exclusive)", "type":"FUNCTION", "argTypes":["BYTE|SHORT|INTEGER|LONG"], "returnType": "INTEGER", "className":"builtin", "builtin":true};type=application/json' -F builtin=true "${HTTP_HEADERS_FOR_CURL}"
 
 }
 

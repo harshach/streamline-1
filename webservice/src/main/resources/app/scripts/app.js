@@ -119,13 +119,17 @@ class App extends Component {
     if(errorPage){
       app_state.unKnownUser = unknownAccessCode.unknownUser;
     }
-    err.response.then((res) => {
-      res.responseMessage.indexOf('user database') === -1
-      ? res.responseMessage.indexOf('Not authorized') === -1
-        ? FSReactToastr.error(<CommonNotification flag="error" content={res.responseMessage}/>, '', toastOpt)
-        : ''
-      : '';
-    });
+    if(err.response){
+      err.response.then((res) => {
+        res.responseMessage.indexOf('user database') === -1
+        ? res.responseMessage.indexOf('Not authorized') === -1
+          ? FSReactToastr.error(<CommonNotification flag="error" content={res.responseMessage}/>, '', toastOpt)
+          : ''
+        : '';
+      });
+    }else{
+      console.error(err);
+    }
   }
 
   syncSidebarMenu(roles) {

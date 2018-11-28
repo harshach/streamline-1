@@ -29,6 +29,46 @@ import moment from 'moment';
 import Modal from '../../../components/FSModal';
 import DateTimePickerDropdown from '../../../components/DateTimePickerDropdown';
 
+@observer
+export class EditorFooter extends Component{
+  constructor(props) {
+    super(props);
+    this.state = {
+      showMetrics: false
+    };
+  }
+  render(){
+    const {getHeader, getBody} = this.props;
+    const {entering} = this.state;
+
+    const headerWithChevron = <div className="editorfooter-header-container">
+      {getHeader()}
+      <div className="topology-foot-action chevron" onClick={()=>{this.setState({showMetrics: !this.state.showMetrics});}}>
+        {this.state.showMetrics ?
+          <span><i className="fa fa-chevron-down"></i></span>
+        : <span><i className="fa fa-chevron-up"></i></span>
+        }
+      </div>
+    </div>;
+
+    return <div className="topology-metrics-container" style={app_state.sidebar_isCollapsed ? {} : {paddingLeft: '252px'}}>
+      <Panel
+        header={headerWithChevron}
+        collapsible
+        expanded={this.state.showMetrics}
+        onEnter={()=>{this.setState({entering: true});}}
+        onEntered={()=>{this.setState({entering: false});}}
+      >
+        {this.state.showMetrics && !entering ?
+        [<div className="row" key={1}>
+          {getBody()}  
+        </div>]
+        : null}
+      </Panel>
+    </div>;
+  }
+}
+
 @observer class TopologyViewModemetrics extends Component {
   constructor(props) {
     super();
@@ -152,7 +192,7 @@ import DateTimePickerDropdown from '../../../components/DateTimePickerDropdown';
 
     return metrics;
   }
-  getTimeseriesMetrics(){
+  getTimeseriesMetrics = () => {
     const {
       topologyMetric,
       components,
@@ -167,7 +207,7 @@ import DateTimePickerDropdown from '../../../components/DateTimePickerDropdown';
     let template = Utils.getViewModeTimeseriesMetricsTemplate(engine, componentType, selectedComponent.currentType);
 
     const metrics = [];
-    if(!_.isUndefined(viewModeData.timeSeriesMetrics)){
+    if(!_.isUndefined(viewModeData.timeSeriesMetrics) && !_.isEmpty(viewModeData.timeSeriesMetrics)){
       const timeSeriesMetrics = viewModeData.timeSeriesMetrics.metrics;
 
       const loader = <img src="styles/img/start-loader.gif" alt="loading" style={{
@@ -324,13 +364,6 @@ import DateTimePickerDropdown from '../../../components/DateTimePickerDropdown';
           </div>
 
           {this.getMetrics()}
-
-          <div className="topology-foot-action" onClick={()=>{this.setState({showMetrics: !this.state.showMetrics});}}>
-            {this.state.showMetrics ?
-              <span>Hide Metrics <i className="fa fa-chevron-down"></i></span>
-            : <span>Show Metrics <i className="fa fa-chevron-up"></i></span>
-            }
-          </div>
         </div>
       </div>
     );
@@ -367,21 +400,11 @@ import DateTimePickerDropdown from '../../../components/DateTimePickerDropdown';
       return content;
     };
     return (
-      <div className="topology-metrics-container" style={app_state.sidebar_isCollapsed ? {} : {paddingLeft: '230px'}}>
-        <Panel
-          header={topologyFooter}
-          collapsible
-          expanded={this.state.showMetrics}
-          onEnter={()=>{this.setState({loadingRecord: true});}}
-          onEntered={()=>{this.setState({loadingRecord: false});}}
-        >
-          {this.state.showMetrics ?
-          [<div className="row" key={1}>
-            {this.getTimeseriesMetrics()}
-            
-          </div>]
-          : null}
-        </Panel>
+      <div>
+        <EditorFooter 
+          getHeader={() => {return topologyFooter; }}
+          getBody={this.getTimeseriesMetrics}
+        />
         <Modal
           dialogClassName="modal-xl"
           ref={(ref) => this.graphModalRef = ref}

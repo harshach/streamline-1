@@ -4382,9 +4382,11 @@ ul.custom-pagination li.active{
   position: relative;
   float: left;
 }
-.topology-foot-top > div:last-child {
-  margin-right: 20px;
-  float: right;
+.topology-foot-action.chevron {
+  position: absolute;
+  right: 15px;
+  bottom: -2px;
+  z-index: 9999;
 }
 .topology-foot-component {
   padding-right: 20px;
@@ -4397,8 +4399,8 @@ ul.custom-pagination li.active{
   color: #94d2e7;
 }
 #component-dropdown {
-  background-color: #6d6e72;
-  color: #94d2e7;
+  background-color: #FFFFFF;
+  color: #666666;
   padding: 0;
   margin: 5px 5px 0 10px;
 }
@@ -4414,14 +4416,14 @@ ul.custom-pagination li.active{
   text-align: left;
 }
 .topology-foot-widget h6 {
-  color: #fff;
+  color: #666666;
   margin: 0;
   font-size: 13px;
   text-transform: uppercase;
 }
 .topology-foot-widget h6 big {
   margin-left: 5px;
-  color: #ceeaf5;
+  color: #666666;
   font-size: 18px;
 }
 .topology-foot-widget h6 big i.fa-arrow-up {
@@ -4431,18 +4433,18 @@ ul.custom-pagination li.active{
   transform: rotate(-45deg);
 }
 .topology-foot-widget h4 {
-  color: #fff;
+  color: #666666;
   margin: 0;
   font-size: 16px;
   text-transform: uppercase;
 }
 .topology-foot-widget h4 small {
   margin-left: 5px;
-  color: #ceeaf5;
+  color: #666666;
 }
 .topology-foot-action {
   display: inline-block;
-  color: #95d6ec;
+  color: #CCCCCC;
   font-size: 18px;
   line-height: 42px;
   text-decoration: none;
@@ -4457,14 +4459,14 @@ ul.custom-pagination li.active{
   position: fixed;
   bottom: 0;
   left: 0px;
-  padding: 0 0 0 50px;
-  background-color: #6d6e72;
+  padding: 0 0 0 72px;
+  z-index: 999;
 }
 .topology-metrics-container .panel-default .panel-heading {
-  background-color: #6d6e72;
+  background-color: #FFFFFF;
   color: #fff;
   position: relative;
-  border-bottom: none;
+  border-bottom: 1px solid #F0F0F0;
   padding: 0;
   margin: 0px;
 }
@@ -4481,7 +4483,67 @@ ul.custom-pagination li.active{
   padding: 10px 15px;
 }
 .topology-metrics-container .panel-body {
-  background-color: #6d6e72;
+  background-color: #FFFFFF;
+}
+.version-control-title{
+  padding: 10px 0 5px 15px;
+  font-size: 16px;
+  line-height: 24px;
+  font-weight: 500;
+  color: #666666;
+}
+.version-control-set-current{
+  padding: 10px 0 5px 15px;
+  font-size: 16px;
+  line-height: 24px;
+  font-weight: 500;
+  color: #666666;
+  margin-right: 40px;
+}
+.version-container{
+  display: inline-block;
+  width: 195px;
+  height: 133px;
+  text-align: left;
+  cursor: pointer;
+  border-radius: 5px;
+  overflow: hidden;
+}
+.version-thumb{
+  display: block;
+  width: 195px;
+  height: 92px;
+  background: #333333;
+  cursor: pointer;
+}
+.version-thumb > svg{
+  cursor: pointer;
+}
+.selected .version-thumb{
+  background: #CCCCCC;
+}
+.version-info{
+  width: 195px;
+  height: 41px;
+  background: #F7F7F7;
+  padding: 10px;
+}
+.version-name{
+  display: block;
+  font-size: 10px;
+  line-height: 10px;
+  font-weight: 500;
+  color:#276EF1;
+}
+.version-updated-label{
+  font-size: 10px;
+  line-height: 16px;
+  color: #B3B3B3;
+}
+.version-updated-value{
+  font-size: 10px;
+  line-height: 16px;
+  color: #666666;
 }
 #log-duration-dropdown {
   border-radius: 4px;

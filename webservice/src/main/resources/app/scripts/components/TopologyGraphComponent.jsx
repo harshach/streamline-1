@@ -1403,7 +1403,7 @@ export default class TopologyGraphComponent extends Component {
           .attr("width", 180)
           .attr("height", 100)
           .attr('x', function(d){return 0;})
-          .attr('y', function(d){return 40;});
+          .attr('y', function(d){return 52;});
         // ReactDOM render method
         render(<TopologyComponentMetrics topologyId={thisGraph.topologyId} compData={data[0]} viewModeData={thisGraph.props.viewModeData} startDate={thisGraph.props.startDate} endDate={thisGraph.props.endDate} engine={engine}/>, compMetrics.node());
       });

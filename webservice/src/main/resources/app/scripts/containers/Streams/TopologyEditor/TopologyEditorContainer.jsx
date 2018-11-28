@@ -39,6 +39,7 @@ import CommonLoaderSign from '../../../components/CommonLoaderSign';
 import TestSourceNodeModal from '../TestRunComponents/TestSourceNodeModal';
 import TestSinkNodeModal from '../TestRunComponents/TestSinkNodeModel';
 import ZoomPanelComponent from '../../../components/ZoomPanelComponent';
+import VersionControl from '../../../components/VersionControl';
 import {
   StreamEditorGraph,
   BatchEditorGraph
@@ -290,7 +291,9 @@ export class TopologyEditorContainer extends Component {
             this.setState({deployStatus : topologyState.name}, () => {
               const clearTimer = setTimeout(() => {
                 clearInterval(this.interval);
-                this.refs.deployLoadingModal.hide();
+                if(this.refs.deployLoadingModal){
+                  this.refs.deployLoadingModal.hide();
+                }
                 if(topology) {
                   this.saveTopologyVersion(topology.timestamp);
                 } else {
@@ -560,9 +563,11 @@ export class TopologyEditorContainer extends Component {
     this.setState({
       altFlag: !this.state.altFlag
     });
+    const thumbElStr = this.refs.EditorGraph.child.decoratedComponentInstance.refs.TopologyGraph.decoratedComponentInstance.svg.node().outerHTML;
     let versionData = {
       name: 'V' + this.state.topologyVersion,
-      description: 'version description auto generated'
+      description: 'version description auto generated',
+      dagThumbnail: thumbElStr
     };
     TopologyREST.saveTopologyVersion(this.topologyId, {body: JSON.stringify(versionData)}).then((versionResponse) => {
       let versions = this.state.versionsArr;
@@ -1274,6 +1279,25 @@ export class TopologyEditorContainer extends Component {
   getEditorProps = () => {
     return {}; /*Required for view mode*/
   }
+  handleVersionChange = (value) => {
+    this.fetchData(value);
+  }
+  setCurrentVersion = () => {
+    this.refs.BaseContainer.refs.Confirm.show({title: 'Are you sure you want to set this version as your current one?'}).then((confirmBox) => {
+      TopologyREST.activateTopologyVersion(this.topologyId, this.versionId).then(result => {
+        if (result.responseMessage !== undefined) {
+          FSReactToastr.error(
+            <CommonNotification flag="error" content={result.responseMessage}/>, '', toastOpt);
+        } else {
+          FSReactToastr.success(
+            <strong>Version switched successfully</strong>
+          );
+          this.fetchData();
+        }
+      });
+      confirmBox.cancel();
+    }, () => {});
+  }
 
   render() {
     const {progressCount, progressBarColor, fetchLoader, mapTopologyConfig,deployStatus,testRunActivated,testCaseList,selectedTestObj,testCaseLoader,testRunCurrentEdges,testResult,nodeData,testName,showError,testSinkConfigure,nodeListArr,hideEventLog,eventLogData,testHistory,testCompleted,deployFlag,testRunningMode,abortTestCase,notifyCheck,activePage,activePageList, topologyData} = this.state;
@@ -1360,6 +1384,12 @@ export class TopologyEditorContainer extends Component {
 }
           </div>
         </div>
+        <VersionControl
+          versions={this.state.versionsArr}
+          handleVersionChange={this.handleVersionChange}
+          selectedVersionName={this.versionName}
+          setCurrentVersion={this.setCurrentVersion}
+        />
         <Modal ref="TopologyConfigModal" data-title={deployFlag ? "Are you sure want to continue with this configuration?" : "Application Configuration"}  onKeyPress={this.handleKeyPress.bind(this)} data-resolve={this.handleSaveConfig.bind(this)} data-reject={this.handleCancelConfig.bind(this)}>
           <TopologyConfig ref="topologyConfig" topologyData={topologyData} projectId={this.projectId} topologyId={this.topologyId} versionId={this.versionId} data={mapTopologyConfig} topologyName={this.state.topologyName} uiConfigFields={this.topologyConfigData} testRunActivated={this.state.testRunActivated} topologyNodes={this.graphData.nodes}/>
         </Modal>

@@ -266,6 +266,7 @@ public class StreamsModule implements ModuleRegistration, StorageManagerAware, T
                     topologyVersion.setTopologyId(StreamCatalogService.PLACEHOLDER_ID);
                     topologyVersion.setName("PLACEHOLDER_VERSIONINFO");
                     topologyVersion.setDescription("PLACEHOLDER_VERSIONINFO");
+                    topologyVersion.setDagThumbnail("PLACEHOLDER_DAG");
                     topologyVersion.setTimestamp(System.currentTimeMillis());
                     catalogService.addOrUpdateTopologyVersionInfo(StreamCatalogService.PLACEHOLDER_ID, topologyVersion);
                 }

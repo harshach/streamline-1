@@ -29,8 +29,8 @@ class VersionThumbnail extends Component{
     this.renderGraph();
   }
   renderGraph(){
-    const {data} = this.props;
-    const graphStr = data.dagThumbnail;
+    const {data, currentVersionDagThumbnail} = this.props;
+    const graphStr = data.name == 'CURRENT' ? currentVersionDagThumbnail : data.dagThumbnail;
     if(graphStr){
       const container = d3.select(this.refs.thumbContainer);
       container.html(graphStr);
@@ -101,7 +101,7 @@ export default class VersionControl extends Component{
   }
   getBody = () => {
     const {sliderSettings} = this.state;
-    const {versions, handleVersionChange, selectedVersionName} = this.props;
+    const {versions, handleVersionChange, selectedVersionName, currentVersionDagThumbnail} = this.props;
     const footTop = document.querySelector('.topology-foot-top');
     if(footTop){
       const trackWidth = footTop.clientWidth-160;
@@ -114,6 +114,7 @@ export default class VersionControl extends Component{
           data={v}
           onClick={handleVersionChange}
           selectedVersionName={selectedVersionName}
+          currentVersionDagThumbnail={currentVersionDagThumbnail}
         />
       </div>;
     });

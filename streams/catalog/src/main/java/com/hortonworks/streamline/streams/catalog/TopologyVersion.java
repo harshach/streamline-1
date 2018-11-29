@@ -39,6 +39,7 @@ public class TopologyVersion extends AbstractStorable {
     private Long topologyId;
     private String name;
     private String description;
+    private String dagThumbnail;
     private Long timestamp;
 
     public TopologyVersion() {
@@ -50,6 +51,7 @@ public class TopologyVersion extends AbstractStorable {
             setTopologyId(other.getTopologyId());
             setName(other.getName());
             setDescription(other.getDescription());
+            setDagThumbnail(other.getDagThumbnail());
             setTimestamp(other.getTimestamp());
         }
     }
@@ -106,6 +108,10 @@ public class TopologyVersion extends AbstractStorable {
         this.description = description;
     }
 
+    public String getDagThumbnail() { return dagThumbnail; }
+
+    public void setDagThumbnail(String dagThumbnail) { this.dagThumbnail = dagThumbnail; }
+
     public Long getTimestamp() {
         return timestamp;
     }
@@ -145,6 +151,7 @@ public class TopologyVersion extends AbstractStorable {
                 ", topologyId=" + topologyId +
                 ", name='" + name + '\'' +
                 ", description='" + description + '\'' +
+                ", dagThumbnail='" + dagThumbnail + '\'' +
                 ", timestamp=" + timestamp +
                 "}";
     }

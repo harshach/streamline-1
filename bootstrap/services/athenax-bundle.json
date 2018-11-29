@@ -1,0 +1,22 @@
+{
+    "name": "ATHENAX",
+    "registerClass": "com.hortonworks.streamline.streams.cluster.register.impl.AthenaxServiceRegistrar",
+    "serviceUISpecification": {
+        "fields": [
+            {
+                "uiName": "AthenaX REST API Host",
+                "fieldName": "athenax.service.host",
+                "isOptional": false,
+                "tooltip": "A AthenaX Host for REST API",
+                "type": "string"
+            },
+            {
+                "uiName": "AthenaX REST API Port",
+                "fieldName": "athenax.service.port",
+                "isOptional": false,
+                "tooltip": "A Port for REST API",
+                "type": "number"
+            }
+        ]
+    }
+}

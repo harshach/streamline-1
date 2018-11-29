@@ -807,11 +807,10 @@ public class StreamCatalogService {
         queryParams.add(new QueryParam(TopologyComponentBundle.ENGINE, engine.getName()));
         queryParams.add(new QueryParam(TopologyComponentBundle.TEMPLATE, template.getName()));
         Collection<TopologyComponentBundle> bundles = listTopologyComponentBundlesForTypeWithFilter(type, queryParams);
-        if (bundles.size() != 1) {
-            throw new IllegalStateException("Not able to find topology component bundle for type " + type
-            + " sub type " + subType);
+        if (bundles.size() >= 1) {
+            return bundles.iterator().next();
         }
-        return bundles.iterator().next();
+        return null;
     }
 
     private Topology doImportTopology(Topology newTopology, TopologyData topologyData) throws Exception {
@@ -2325,17 +2324,33 @@ public class StreamCatalogService {
         Map<Long, BiFunction<TopologyProcessor, Long, BaseTopologyRule>> bundles = new HashMap<>();
         TopologyComponentBundle bundle = getCurrentTopologyComponentBundle(TopologyComponentBundle.TopologyComponentType.PROCESSOR,
                                                                            ComponentTypes.RULE, topology.getEngineId(), topology.getTemplateId());
-        bundles.put(bundle.getId(), (p, r) -> getRule(p.getTopologyId(), r, p.getVersionId()));
+        if (bundle != null) {
+            bundles.put(bundle.getId(), (p, r) -> getRule(p.getTopologyId(), r, p.getVersionId()));
+        }
+
         bundle = getCurrentTopologyComponentBundle(TopologyComponentBundle.TopologyComponentType.PROCESSOR,
                                                    ComponentTypes.BRANCH, topology.getEngineId(), topology.getTemplateId());
-        bundles.put(bundle.getId(), (p, r) -> getBranchRule(p.getTopologyId(), r, p.getVersionId()));
+        if (bundle != null) {
+            bundles.put(bundle.getId(), (p, r) -> getBranchRule(p.getTopologyId(), r, p.getVersionId()));
+        }
         bundle = getCurrentTopologyComponentBundle(TopologyComponentBundle.TopologyComponentType.PROCESSOR,
                                                   ComponentTypes.PROJECTION, topology.getEngineId(), topology.getTemplateId());
-        bundles.put(bundle.getId(), (p, r) -> getRule(p.getTopologyId(), r, p.getVersionId()));
+        if (bundle != null) {
+            bundles.put(bundle.getId(), (p, r) -> getRule(p.getTopologyId(), r, p.getVersionId()));
+        }
         bundle = getCurrentTopologyComponentBundle(TopologyComponentBundle.TopologyComponentType.PROCESSOR,
                                                    ComponentTypes.WINDOW, topology.getEngineId(), topology.getTemplateId());
-        bundles.put(bundle.getId(), (p, r) -> getWindow(p.getTopologyId(), r, p.getVersionId()));
+        if (bundle != null) {
+            bundles.put(bundle.getId(), (p, r) -> getWindow(p.getTopologyId(), r, p.getVersionId()));
+        }
 
+        bundle = getCurrentTopologyComponentBundle(TopologyComponentBundle.TopologyComponentType.PROCESSOR,
+                ComponentTypes.SQL, topology.getEngineId(), topology.getTemplateId());
+        if (bundle != null) {
+            bundles.put(bundle.getId(), (p, r) -> getWindow(p.getTopologyId(), r, p.getVersionId()));
+        }
+
+        
         Set<String> affectedStreamIds = affectedStreams.stream().map(TopologyStream::getStreamId).collect(Collectors.toSet());
         for (TopologyProcessor processor : processors) {
             BiFunction<TopologyProcessor, Long, BaseTopologyRule> function;

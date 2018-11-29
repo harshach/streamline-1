@@ -53,6 +53,7 @@
     "fuzzy": "^0.1.1",
     "http-proxy-middleware": "^0.17.3",
     "isomorphic-fetch": "^2.2.1",
+    "js-sql-parser": "^1.0.7",
     "jshint": "^2.9.2",
     "json-loader": "^0.5.4",
     "jsonlint": "^1.6.2",

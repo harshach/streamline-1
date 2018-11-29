@@ -33,7 +33,7 @@ import BranchNodeForm from '../containers/Streams/TopologyEditor/BranchNodeForm'
 import ModelNodeForm from '../containers/Streams/TopologyEditor/ModelNodeForm';
 import ProjectionProcessorContainer from '../containers/Streams/TopologyEditor/ProjectionProcessorContainer';
 import RealTimeJoinNodeProcessor from '../containers/Streams/TopologyEditor/RealTimeJoinNodeProcessor';
-import ProcessorNodeFormFields from '../containers/Streams/TopologyEditor/ProcessorNodeFormFields';
+import SqlProcessorNodeForm from '../containers/Streams/TopologyEditor/SqlProcessorNodeForm';
 //Sinks
 import SinkNodeForm from '../containers/Streams/TopologyEditor/SinkNodeForm';
 import CommonNotification from './CommonNotification';
@@ -790,10 +790,11 @@ const getConfigContainer = function(node, configData, editMode, topologyId, vers
         return <RealTimeJoinNodeProcessor  ref="ProcessorChildElement" nodeData={node} configData={configData} editMode={editMode} testRunActivated={testRunActivated} nodeType={nodeType} topologyId={topologyId} versionId={versionId} sourceNode={sourceNodes[0]} targetNodes={targetNodes} linkShuffleOptions={linkShuffleOptions} currentEdges={currentEdges}/>;
       };
       break;
-    default:
+    case 'SQL':
       childElement = () => {
-        return <ProcessorNodeFormFields  ref="ProcessorChildElement" nodeData={node} configData={configData} editMode={editMode} testRunActivated={testRunActivated} nodeType={nodeType} topologyId={topologyId} versionId={versionId} sourceNode={sourceNodes[0]} targetNodes={targetNodes} linkShuffleOptions={linkShuffleOptions} currentEdges={currentEdges}/>;
+        return <SqlProcessorNodeForm  ref="ProcessorChildElement" nodeData={node} configData={configData} editMode={editMode} testRunActivated={testRunActivated} nodeType={nodeType} topologyId={topologyId} versionId={versionId} sourceNode={sourceNodes[0]} targetNodes={targetNodes} linkShuffleOptions={linkShuffleOptions} currentEdges={currentEdges}/>;
       };
+      break;
     }
     return () => {
       return <ProcessorNodeForm ref="ConfigModal" nodeData={node} editMode={editMode} testRunActivated={testRunActivated} nodeType={nodeType} topologyId={topologyId} versionId={versionId} sourceNodes={sourceNodes} getChildElement={childElement}/>;

@@ -11,19 +11,11 @@
   "topologyComponentUISpecification": {
     "fields": [
       {
-        "uiName": "Types",
-        "fieldName": "types",
+        "uiName": "SQL",
+        "fieldName": "sql",
         "isOptional": false,
         "tooltip": "sql statement",
-        "type": "SQL"
-      },
-      {
-        "uiName": "Parallelism",
-        "fieldName": "parallelism",
-        "isOptional": true,
-        "tooltip": "Parallelism hint for sql processing",
-        "type": "number",
-        "defaultValue": 1
+        "type": "sql"
       }
     ]
   }

@@ -274,17 +274,6 @@ class TopologyViewMode extends Component {
             </DropdownButton>
           </div>
           }
-          {/*<div className="col-sm-3">
-            <div className="filter-label">
-              <span className="text-muted">Version:</span>
-              <DropdownButton bsStyle="link" title={versionName || ''} pullRight id="version-dropdown" onSelect={this.handleSelectVersion.bind(this)} >
-                {versionsArr.map((v, i) => {
-                  return <MenuItem active={versionName === v.name ? true : false} eventKey={i} key={i} data-version-id={v.id}>{v.name}</MenuItem>;
-                })
-              }
-              </DropdownButton>
-            </div>
-          </div>*/}
           { engine.type == 'stream' &&
           <div className="col-sm-4 text-right">
             <div>

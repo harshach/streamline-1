@@ -13,7 +13,7 @@
 **/
 import React from 'react';
 import _ from 'lodash';
-import {Components, toastOpt} from './Constants';
+import {Components, toastOpt, iconsFrom} from './Constants';
 import d3 from 'd3';
 import TopologyREST from '../rest/TopologyREST';
 import FSReactToastr from '../components/FSReactToastr';
@@ -50,6 +50,7 @@ const defineMarkers = function(svg) {
 
   // define filter for gray(unconfigured) icons
   defs.append('svg:filter').attr('id', 'grayscale').append('feColorMatrix').attr('type', 'saturate').attr('values', '0');
+  defs.append('svg:filter').attr('id', 'white-wash').append('feColorMatrix').attr('type', 'matrix').attr('values', '3 3 3 0 3 3 3 3 0 3 3 3 3 0 3 3 3 3 1 0');
 
   // define filter for node shadow
   var filter = defs.append('svg:filter').attr('id', 'dropshadow').attr('x', 0).attr('y', 0).attr('width', '200%').attr('height', '200%');
@@ -994,7 +995,7 @@ const generateNodeData = function(nodes, componentBundle, metadata, resultArr, r
       parentType: componentObj.type,
       currentType: currentType,
       uiname: nodes[i].name,
-      imageURL: 'styles/img/icon-' + componentObj.subType.toLowerCase() + '.png',
+      imageURL: 'styles/img/'+iconsFrom+'icon-' + componentObj.subType.toLowerCase() + '.png',
       isConfigured: configuredFlag,
       parallelismCount: nodes[i].config.properties.parallelism || 1,
       nodeLabel: nodeLabel,

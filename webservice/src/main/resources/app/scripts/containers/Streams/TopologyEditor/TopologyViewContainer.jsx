@@ -107,170 +107,6 @@ class TopologyViewContainer extends TopologyEditorContainer {
     selectedExecutionComponentsStatus: []
   };
   getDeploymentState(){}
-  /*fetchData(versionId) {
-    const projectId = this.props.params.projectId;
-    let promiseArr = [];
-
-    TopologyREST.getTopology(this.topologyId, versionId).then((result) => {
-      if (result.responseMessage !== undefined) {
-        FSReactToastr.error(
-          <CommonNotification flag="error" content={result.responseMessage}/>, '', toastOpt);
-      } else {
-        var data = result;
-        this.nameSpace = data.namespaceName;
-        this.namespaceId = data.topology.namespaceId;
-        if (!versionId) {
-          versionId = data.topology.versionId;
-        }
-
-        promiseArr.push(TopologyREST.getSourceComponent());
-        promiseArr.push(TopologyREST.getProcessorComponent());
-        promiseArr.push(TopologyREST.getSinkComponent());
-        promiseArr.push(TopologyREST.getLinkComponent());
-        promiseArr.push(TopologyREST.getAllNodes(this.topologyId, versionId, 'sources'));
-        promiseArr.push(TopologyREST.getAllNodes(this.topologyId, versionId, 'processors'));
-        promiseArr.push(TopologyREST.getAllNodes(this.topologyId, versionId, 'sinks'));
-        promiseArr.push(TopologyREST.getAllNodes(this.topologyId, versionId, 'edges'));
-        promiseArr.push(TopologyREST.getMetaInfo(this.topologyId, versionId));
-        promiseArr.push(TopologyREST.getAllVersions(this.topologyId));
-        promiseArr.push(EnvironmentREST.getNameSpace(data.topology.namespaceId));
-        promiseArr.push(ProjectREST.getProject(projectId));
-
-        if(app_state.streamline_config.secureMode){
-          promiseArr.push(UserRoleREST.getAllACL('topology',app_state.user_profile.id,'USER'));
-        }
-
-        Promise.all(promiseArr).then((resultsArr) => {
-          let allNodes = [];
-          this.topologyName = data.topology.name;
-          this.topologyConfig = JSON.parse(data.topology.config);
-          this.topologyMetric = data.runtime || {
-            metric: ''
-          };
-          // this.topologyMetric = this.runtimeObj.metric || {misc : (this.runtimeObj.metric === undefined) ? '' : this.runtimeObj.metric.misc};
-
-          let unknown = data.running;
-          let isAppRunning = false;
-          let status = '';
-          if (this.topologyMetric.metric.status) {
-            status = this.topologyMetric.metric.status;
-            if (status === 'ACTIVE' || status === 'INACTIVE') {
-              isAppRunning = true;
-            }
-          }
-
-          this.sourceConfigArr = resultsArr[0].entities;
-          this.processorConfigArr = resultsArr[1].entities;
-          this.sinkConfigArr = resultsArr[2].entities;
-          this.linkConfigArr = resultsArr[3].entities;
-
-          this.graphData.linkShuffleOptions = TopologyUtils.setShuffleOptions(this.linkConfigArr);
-
-          let sourcesNode = resultsArr[4].entities || [];
-          let processorsNode = resultsArr[5].entities || [];
-          let sinksNode = resultsArr[6].entities || [];
-          let edgesArr = resultsArr[7].entities || [];
-
-          this.graphData.metaInfo = JSON.parse(resultsArr[8].data);
-
-          let versions = resultsArr[9].entities || [];
-          Utils.sortArray(versions, 'name', false);
-          //Moving last element from array to first ("CURRENT" version needs to come first)
-          versions.splice(0, 0, versions.splice(versions.length - 1, 1)[0]);
-
-          let namespaceData = resultsArr[10];
-          if(namespaceData.responseMessage !== undefined){
-            this.checkAuth = false;
-          } else {
-            if (namespaceData.mappings.length) {
-              let mapObj = namespaceData.mappings.find((m) => {
-                return m.serviceName.toLowerCase() === 'storm';
-              });
-              if (mapObj) {
-                this.stormClusterId = mapObj.clusterId;
-              }
-              let infraObj = namespaceData.mappings.find((m) => {
-                return m.serviceName.toLowerCase() === 'ambari_infra_solr';
-              });
-              if (infraObj) {
-                this.showLogSearch = true;
-              }
-            }
-          }
-          this.projectData = resultsArr[11];
-
-          // If the application is in secure mode result[12]
-          if(resultsArr[12]){
-            this.allACL = resultsArr[12].entities;
-          }
-
-          this.graphData.nodes = TopologyUtils.syncNodeData(sourcesNode, processorsNode, sinksNode, this.graphData.metaInfo, this.sourceConfigArr, this.processorConfigArr, this.sinkConfigArr);
-          this.fetchComponentLevelDetails(this.graphData.nodes);
-
-          this.graphData.uinamesList = [];
-          this.graphData.nodes.map(node => {
-            this.graphData.uinamesList.push(node.uiname);
-          });
-
-          this.graphData.edges = TopologyUtils.syncEdgeData(edgesArr, this.graphData.nodes);
-          this.versionId = versionId
-            ? versionId
-            : data.topology.versionId;
-          this.versionName = versions.find((o) => {
-            return o.id == this.versionId;
-          }).name;
-
-          this.setState({
-            timestamp: data.topology.timestamp,
-            topologyName: this.topologyName,
-            topologyMetric: this.topologyMetric,
-            isAppRunning: isAppRunning,
-            topologyStatus: status,
-            topologyVersion: this.versionId,
-            stormClusterId: this.stormClusterId,
-            versionsArr: versions,
-            availableTimeSeriesDb: namespaceData.namespace !== undefined
-              ? namespaceData.namespace.timeSeriesDB
-                ? true
-                : false
-              : false,
-            bundleArr: {
-              sourceBundle: this.sourceConfigArr,
-              processorsBundle: this.processorConfigArr,
-              sinksBundle: this.sinkConfigArr
-            },
-            fetchLoader: false,
-            unknown,
-            allACL : this.allACL || [],
-            projectData: this.projectData
-          });
-          this.customProcessors = this.getCustomProcessors();
-          if(isAppRunning) {
-            this.fetchCatalogInfoAndMetrics(this.state.startDate.toDate().getTime(), this.state.endDate.toDate().getTime());
-          }
-        });
-        this.fetchTopologyLevelSampling();
-      }
-    });
-
-    this.graphData = {
-      nodes: [],
-      edges: [],
-      uinamesList: [],
-      linkShuffleOptions: [],
-      metaInfo: {
-        sources: [],
-        processors: [],
-        sinks: [],
-        graphTransforms: {
-          dragCoords: [
-            0, 0
-          ],
-          zoomScale: 0.8
-        }
-      }
-    };
-  }*/
 
   fetchNameSpace(isAppRunning, data){
     if(isAppRunning){
@@ -449,6 +285,9 @@ class TopologyViewContainer extends TopologyEditorContainer {
         const taskMetrics = [];
 
         _.each(selectedExecutionComponentsStatus, (compEx) => {
+          const timeSeriesMetricsData = _.find(this.batchTimeseries || [], (d) => {
+            return d.component.id == compEx.componentId;
+          });
           const compMetrics = {};
           compMetrics.component = {
             id: compEx.componentId
@@ -456,6 +295,7 @@ class TopologyViewContainer extends TopologyEditorContainer {
           compMetrics.overviewMetrics = {
             metrics: compEx
           };
+          compMetrics.timeSeriesMetrics = timeSeriesMetricsData.timeSeriesMetrics;
           taskMetrics.push(compMetrics);
         });
 
@@ -520,6 +360,67 @@ class TopologyViewContainer extends TopologyEditorContainer {
     });
   }
 
+  fetchBatchTimeSeriesMetrics = () => {
+    this.batchTimeseries = this.batchTimeseries || [];
+
+    let {viewModeData, startDate, endDate, topologyData} = this.state;
+    const selectedDC = _.keys(topologyData.namespaces)[0];
+    const pipeline = topologyData.namespaces[selectedDC].runtimeTopologyId;
+    const dc = selectedDC;
+
+    const promiseArr = [];
+    const template = _.find(app_state.enginesMetricsTemplates, (template) => {
+      return this.engine.name == template.engine;
+    });
+    const timeSeriesMetrics = template.metricsUISpec.timeseries;
+    _.each(timeSeriesMetrics, (m) => {
+      _.each(m.metricKeyName, (mKey) => {
+        let metricQuery = m.metricQuery;
+        metricQuery = metricQuery.replace('$pipeline', pipeline);
+        metricQuery = metricQuery.replace('$deployment', dc);
+
+        const queryParams = {
+          from: startDate.unix(),
+          to: endDate.unix(),
+          metricQuery: metricQuery,
+          dc: dc
+        };
+
+        const onSuccess = (res, mKey) => {
+          _.each(res, (timeseriesData, compId) => {
+            let compData = _.find(this.batchTimeseries, (d, id) => {
+              return compId == d.component.id;
+            });
+            if(!compData){
+              compData = {
+                component: {
+                  id:compId
+                },
+                timeSeriesMetrics: {
+                  metrics: {
+                    [mKey]: timeseriesData
+                  }
+                }
+              };
+              this.batchTimeseries.push(compData);
+            }else{
+              compData.timeSeriesMetrics.metrics[mKey] = timeseriesData;
+            }
+          });
+        };
+
+        const req = ViewModeREST.getBatchTimeseries(this.topologyId, mKey, queryParams).then((res) => {
+          onSuccess(res, mKey);
+        }, (err) => {
+          // onSuccess({"1":{"1539024600000":0,"1539028260000":0,"1539032700000":0,"1539037260000":0,"1539125040000":0,"1539208860000":0,"1539295500000":0,"1539381720000":0,"1539470580000":0,"1539554460000":0,"1539640920000":0,"1539727260000":0,"1539813660000":0,"1539900060000":0,"1539989820000":0,"1540072860000":0,"1540159620000":0,"1540245660000":0,"1540332720000":0,"1540799100000":0,"1541200500000":1,"1541282940000":0,"1541368860000":0,"1541455260000":0,"1541541660000":0,"1541628060000":0},"7":{"1539026820000":2180,"1539031980000":3708,"1539036720000":3984,"1539126540000":1478,"1539212100000":3217,"1539298320000":2779,"1539383520000":1733,"1539472320000":1650,"1539555540000":1062,"1539643800000":2616,"1539729600000":2324,"1539827340000":3666,"1539924000000":7244,"1540002420000":2322,"1540075920000":3013,"1540163700000":4066,"1540248600000":2353,"1540334040000":1302,"1540799700000":557,"1541201220000":157,"1541283180000":193,"1541369700000":381,"1541455500000":203,"1541543340000":1575,"1541628720000":533}}, mKey);
+          console.error(err);
+        });
+        promiseArr.push(req);
+      });
+    });
+    return promiseArr;
+  }
+
   fetchCatalogInfoAndMetrics(fromTime, toTime) {
     let {viewModeData, executionInfoPageSize, executionInfoPage} = this.state;
 
@@ -528,6 +429,8 @@ class TopologyViewContainer extends TopologyEditorContainer {
     if(this.engine.type == 'batch'){
       const req = this.fetchExecutions();
       promiseArr.push(req);
+      const timeseriesMetricReqs = this.fetchBatchTimeSeriesMetrics();
+      promiseArr.push.apply(promiseArr, [...timeseriesMetricReqs]);
     }else{
       promiseArr.push(ViewModeREST.getTopologyMetrics(this.topologyId, fromTime, toTime).then((res)=>{
         viewModeData.topologyMetrics = res;
@@ -649,92 +552,6 @@ class TopologyViewContainer extends TopologyEditorContainer {
       }
     });
   }
-  /*getModalScope(node) {
-    let obj = {
-        editMode: !this.viewMode,
-        topologyId: this.topologyId,
-        versionId: this.versionId,
-        namespaceId: this.namespaceId
-      },
-      config = [];
-    switch (node.parentType) {
-    case 'SOURCE':
-      config = this.sourceConfigArr.filter((o) => {
-        return o.subType === node.currentType.toUpperCase();
-      });
-      if (config.length > 0) {
-        config = config[0];
-      }
-      obj.configData = config;
-      break;
-    case 'PROCESSOR':
-      config = this.processorConfigArr.filter((o) => {
-        return o.subType === node.currentType.toUpperCase();
-      });
-      //Check for custom processor
-      if (node.currentType.toLowerCase() === 'custom') {
-        let index = null;
-        let customNames = this.graphData.metaInfo.customNames;
-        let customNameObj = _.find(customNames, {uiname: node.uiname});
-        config.map((c, i) => {
-          let configArr = c.topologyComponentUISpecification.fields;
-          configArr.map(o => {
-            if (o.fieldName === 'name' && o.defaultValue === customNameObj.customProcessorName) {
-              index = i;
-            }
-          });
-        });
-        if (index !== null) {
-          config = config[index];
-        } else {
-          console.error("Not able to get Custom Processor Configurations");
-        }
-      } else {
-        //For all the other processors except CP
-        if (config.length > 0) {
-          config = config[0];
-        }
-      }
-      obj.configData = config;
-      break;
-    case 'SINK':
-      config = this.sinkConfigArr.filter((o) => {
-        return o.subType === node.currentType.toUpperCase();
-      });
-      if (config.length > 0) {
-        config = config[0];
-      }
-      obj.configData = config;
-      break;
-    }
-    return obj;
-  }*/
-  /*killTopology() {
-    this.refs.BaseContainer.refs.Confirm.show({title: 'Are you sure you want to stop this Application?'}).then((confirmBox) => {
-      this.setState({topologyStatus: 'KILLING...'});
-      TopologyREST.killTopology(this.topologyId).then(topology => {
-        if (topology.responseMessage !== undefined) {
-          FSReactToastr.error(
-            <CommonNotification flag="error" content={topology.responseMessage}/>, '', toastOpt);
-          let status = this.topologyMetric.metric.status || 'NOT RUNNING';
-          this.setState({topologyStatus: status});
-        } else {
-          FSReactToastr.success(
-            <strong>Application Stopped Successfully</strong>
-          );
-          TopologyREST.getTopology(this.topologyId, this.versionId).then((result) => {
-            let data = result;
-            this.topologyMetric = data.runtime || {
-              metric: ''
-            };
-            let status = this.topologyMetric.metric.status || '';
-            this.setState({topologyMetric: this.topologyMetric, isAppRunning: false, topologyStatus: status});
-          });
-        }
-      });
-      confirmBox.cancel();
-    }, () => {});
-  }*/
   setModalContent(node, updateGraphMethod, content) {
     if (typeof content === 'function') {
       this.modalContent = content;

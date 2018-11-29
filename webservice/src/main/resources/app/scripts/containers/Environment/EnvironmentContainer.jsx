@@ -35,7 +35,7 @@ import FSReactToastr from '../../components/FSReactToastr';
 import BaseContainer from '../BaseContainer';
 import NoData from '../../components/NoData';
 import CommonNotification from '../../utils/CommonNotification';
-import {toastOpt, accessCapabilities} from '../../utils/Constants';
+import {toastOpt, accessCapabilities, iconsFrom} from '../../utils/Constants';
 import Paginate from '../../components/Paginate';
 import AddEnvironment from '../../components/AddEnvironment';
 import CommonLoaderSign from '../../components/CommonLoaderSign';
@@ -47,7 +47,7 @@ const MappingItem = (props) => {
   const {item} = props;
   const name = item.serviceName.replace('_', ' ');
   return (
-    <li><img src={`styles/img/icon-${item.serviceName.toLowerCase()}.png`}/>{name}</li>
+    <li><img src={`styles/img/${iconsFrom}icon-${item.serviceName.toLowerCase()}.png`}/>{name}</li>
   );
 };
 
@@ -149,7 +149,7 @@ class EnvironmentCards extends Component {
 
     return (
       <div className="col-environment">
-        <div className="service-box environment-box" data-id={namespace.id} ref={(ref) => this.nameSpaceRef = ref}>
+        <div className="service-box card environment-box" data-id={namespace.id} ref={(ref) => this.nameSpaceRef = ref}>
           <div className="service-head clearfix">
             <h4 className="pull-left no-margin" title={namespace.name}>{Utils.ellipses(namespace.name, 15)}</h4>
               <div className="pull-right">

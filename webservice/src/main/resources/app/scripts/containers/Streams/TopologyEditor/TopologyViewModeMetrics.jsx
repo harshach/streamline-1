@@ -49,11 +49,6 @@ import DateTimePickerDropdown from '../../../components/DateTimePickerDropdown';
       interpolation: ''
     };
   }
-  componentWillReceiveProps(props) {
-    /*if(props.viewModeData.selectedComponentId !== '') {
-      this.setState({showMetrics: true});
-    }*/
-  }
   getGraph(name, data, interpolation, graphHeight) {
     const self = this;
     return <div style={graphHeight ? {height: graphHeight} : {height: this.state.graphHeight}}><TimeSeriesChart color={d3.scale.category20c().range(['#44abc0', '#8b4ea6'])} ref={name} data={data} interpolation={interpolation} height={graphHeight ? graphHeight : this.state.graphHeight} setXDomain={function() {
@@ -273,11 +268,6 @@ import DateTimePickerDropdown from '../../../components/DateTimePickerDropdown';
       components,
       viewModeData
     } = this.props;
-    /*const {metric} = topologyMetric || {
-      metric: (topologyMetric === '')
-        ? ''
-        : topologyMetric.metric
-    };*/
     const metricWrap = topologyMetric;
     const appMisc = metricWrap.misc || null;
     const workersTotal = appMisc? appMisc.workersTotal : 0, executorsTotal = appMisc ? appMisc.executorsTotal : 0;

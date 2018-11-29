@@ -519,6 +519,9 @@ public class TopologyCatalogResource {
             if (versionInfo.getDescription() == null) {
                 versionInfo.setDescription("");
             }
+            if (versionInfo.getDagThumbnail() == null) {
+                versionInfo.setDagThumbnail("");
+            }
             TopologyVersion savedVersion = catalogService.addOrUpdateTopologyVersionInfo(
                     currentVersion.get().getId(), versionInfo);
             catalogService.cloneTopologyVersion(topologyId, savedVersion.getId());

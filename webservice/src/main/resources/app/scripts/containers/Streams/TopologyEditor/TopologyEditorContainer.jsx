@@ -1272,6 +1272,7 @@ export class TopologyEditorContainer extends Component {
       viewModeData={this.state.viewModeData || {}}
       isAppRunning={isAppRunning}
       compSelectCallback={this.compSelectCallback}
+      versionName={this.versionName}
       {...this.getEditorProps()}
     />;
   }
@@ -1389,6 +1390,7 @@ export class TopologyEditorContainer extends Component {
           handleVersionChange={this.handleVersionChange}
           selectedVersionName={this.versionName}
           setCurrentVersion={this.setCurrentVersion}
+          currentVersionDagThumbnail={this.refs.EditorGraph ? this.refs.EditorGraph.child.decoratedComponentInstance.refs.TopologyGraph.decoratedComponentInstance.svg.node().outerHTML : ''}
         />
         <Modal ref="TopologyConfigModal" data-title={deployFlag ? "Are you sure want to continue with this configuration?" : "Application Configuration"}  onKeyPress={this.handleKeyPress.bind(this)} data-resolve={this.handleSaveConfig.bind(this)} data-reject={this.handleCancelConfig.bind(this)}>
           <TopologyConfig ref="topologyConfig" topologyData={topologyData} projectId={this.projectId} topologyId={this.topologyId} versionId={this.versionId} data={mapTopologyConfig} topologyName={this.state.topologyName} uiConfigFields={this.topologyConfigData} testRunActivated={this.state.testRunActivated} topologyNodes={this.graphData.nodes}/>

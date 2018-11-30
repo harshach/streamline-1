@@ -80,12 +80,12 @@ export default class VersionControl extends Component{
     const slickPrev = slickSlider.querySelector('.slick-prev');
     if(!slickPrev){
       d3.select(slickSlider).append('button')
-        .classed('slick-arrow slick-prev', true);
+        .classed('slick-arrow slick-prev disabled', true);
     }
     const slickNext = slickSlider.querySelector('.slick-next');
     if(!slickNext){      
       d3.select(slickSlider).append('button')
-        .classed('slick-arrow slick-next', true);
+        .classed('slick-arrow slick-next disabled', true);
     }
   }
   getHeader = () => {

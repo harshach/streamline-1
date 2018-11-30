@@ -25,8 +25,6 @@ public class DeployRequest {
   @JsonProperty
   private String cluster;
   @JsonProperty
-  private String yarnQueue;
-  @JsonProperty
   private Boolean isBackfill = DEFAULT_BACKFILL_VALUE;
   @JsonProperty
   private String jobType;
@@ -55,10 +53,6 @@ public class DeployRequest {
     this.cluster = cluster;
   }
 
-  public void setYarnQueue(String yarnQueue) {
-    this.yarnQueue = yarnQueue;
-  }
-
   public void setBackfill(Boolean backfill) {
     isBackfill = backfill;
     jobType = isBackfill ? BATCH_JOB_TYPE : STREAM_JOB_TYPE;
@@ -78,10 +72,6 @@ public class DeployRequest {
 
   public int yarnMemoryPerContainerInMB() {
     return yarnMemoryPerContainerInMB;
-  }
-
-  public String yarnQueue() {
-    return yarnQueue;
   }
 
   public String dataCenter() {

@@ -34,16 +34,21 @@ import java.util.Optional;
 public class AthenaxTopologyActionsImpl implements TopologyActions {
 
 	private static final Logger LOG = LoggerFactory.getLogger(AthenaxTopologyActionsImpl.class);
-	private static final String ATHENAX_MUTTLEY_URL = "http://127.0.0.1:5436";
 	private static final String YARN_APPLICATION_STATE = "yarnApplicationState";
 	private static final String FINAL_APPLICATION_STATUS = "finalApplicationStatus";
 	private static final String FINISH_TIME = "finishTime";
 
 	private AthenaXRestAPIClient client;
+	private String dataCenter;
+	private String cluster;
 
 	@Override
 	public void init(Map<String, Object> conf, TopologyActionsService topologyActionsService) {
-		this.client = new AthenaXRestAPIClient(ATHENAX_MUTTLEY_URL, null/*subject*/);
+		String athenaxServiceRootUrl = (String) conf.get(AthenaxConstants.ATHENAX_SERVICE_ROOT_URL_KEY);
+		client = new AthenaXRestAPIClient(athenaxServiceRootUrl, null/*subject*/);
+
+		dataCenter = (String) conf.get(AthenaxConstants.ATHENAX_YARN_DATA_CENTER_KEY);
+		cluster = (String) conf.get(AthenaxConstants.ATHENAX_YARN_CLUSTER_KEY);
 	}
 
   @Override
@@ -54,7 +59,7 @@ public class AthenaxTopologyActionsImpl implements TopologyActions {
 		topologyDag.traverse(requestGenerator);
 
 		// extract AthenaX deploy job request
-		DeployRequest request = requestGenerator.extractDeployJobRequest();
+		DeployRequest request = requestGenerator.extractDeployJobRequest(dataCenter, cluster);
 
 		// submit job via Athenax-vm API
 		return this.client.deployJob(JsonClientUtil.convertRequestToJson(request));
@@ -66,7 +71,7 @@ public class AthenaxTopologyActionsImpl implements TopologyActions {
 		AthenaxJobGraphGenerator requestGenerator = new AthenaxJobGraphGenerator(topology, null, asUser);
 
 		// extract job status request
-		JobStatusRequest request = requestGenerator.extractJobStatusRequest(applicationId);
+		JobStatusRequest request = requestGenerator.extractJobStatusRequest(applicationId, dataCenter, cluster);
 
 		// send request via Athenax-vm API
 		String response = client.jobStatus(JsonClientUtil.convertRequestToJson(request));
@@ -104,7 +109,7 @@ public class AthenaxTopologyActionsImpl implements TopologyActions {
 		AthenaxJobGraphGenerator requestGenerator = new AthenaxJobGraphGenerator(topology, null, asUser);
 
 		// extract kill job request
-		StopJobRequest request = requestGenerator.extractStopJobRequest(applicationId);
+		StopJobRequest request = requestGenerator.extractStopJobRequest(applicationId, dataCenter, cluster);
 
 		// send request via Athenax-vm API
 		client.stopJob(JsonClientUtil.convertRequestToJson(request));

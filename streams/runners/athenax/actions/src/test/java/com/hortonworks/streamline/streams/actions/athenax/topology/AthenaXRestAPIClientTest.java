@@ -106,7 +106,6 @@ public class AthenaXRestAPIClientTest {
     request.setSlotPerYarnContainer(1);
     request.setYarnContainerCount(2);
     request.setYarnMemoryPerContainerInMB(2048);
-    request.setYarnQueue("athenax-default");
 
     // convert to json format
     return JsonClientUtil.convertRequestToJson(request);

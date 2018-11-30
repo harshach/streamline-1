@@ -3,7 +3,6 @@ package com.hortonworks.streamline.streams.actions.athenax.topology;
 import com.hortonworks.streamline.common.Config;
 import com.hortonworks.streamline.streams.actions.TopologyActionContext;
 import com.hortonworks.streamline.streams.actions.athenax.topology.entity.*;
-import com.hortonworks.streamline.streams.actions.topology.service.TopologyActionsService;
 import com.hortonworks.streamline.streams.layout.component.*;
 import com.hortonworks.streamline.streams.layout.component.impl.KafkaSink;
 import com.hortonworks.streamline.streams.layout.component.impl.KafkaSource;
@@ -20,9 +19,6 @@ public class AthenaxJobGraphGenerator extends TopologyDagVisitor {
 	private static final Logger LOG = LoggerFactory.getLogger(AthenaxJobGraphGenerator.class);
 
 	private static String ATHENAX_SERVICE_NAME = "athenax";
-	private static String DATA_CENTER = "dataCenter";
-	private static String CLUSTER = "cluster";
-	private static String YARN_QUEUE = "yarnQueue";
 	private static String YARN_CONTAINER_COUNT = "yarnContainerCount";
 	private static String SLOT_PER_YARN_CONTAINER = "slotPerYarnContainer";
 	private static String YARN_MEMORY_PER_CONTAINER_IN_MB = "yarnMemoryPerContainerInMB";
@@ -126,40 +122,35 @@ public class AthenaxJobGraphGenerator extends TopologyDagVisitor {
 		return jobDef;
 	}
 
-	public DeployRequest extractDeployJobRequest() throws Exception {
+	public DeployRequest extractDeployJobRequest(String dataCenter, String cluster) throws Exception {
 		DeployRequest request = new DeployRequest();
 
 		request.setJobDefinition(extractJobDefinition());
 		request.setBackfill(false);
 
 		// extract env settings from config
-    Config cfg = topology.getConfig();
-		request.setDataCenter(cfg.getString(DATA_CENTER));
-		request.setCluster(cfg.getString(CLUSTER));
-		request.setYarnQueue(cfg.getString(YARN_QUEUE));
+		Config cfg = topology.getConfig();
+		request.setDataCenter(dataCenter);
+		request.setCluster(cluster);
 		request.setYarnContainerCount(cfg.getInt(YARN_CONTAINER_COUNT, 1));
-    request.setSlotPerYarnContainer(cfg.getInt(SLOT_PER_YARN_CONTAINER, 1));
-    request.setYarnMemoryPerContainerInMB(cfg.getInt(YARN_MEMORY_PER_CONTAINER_IN_MB, 1024));
+		request.setSlotPerYarnContainer(cfg.getInt(SLOT_PER_YARN_CONTAINER, 1));
+		request.setYarnMemoryPerContainerInMB(cfg.getInt(YARN_MEMORY_PER_CONTAINER_IN_MB, 1024));
 
 		return request;
 	}
 
-  public StopJobRequest extractStopJobRequest(String applicationId) {
+	public StopJobRequest extractStopJobRequest(String applicationId, String dataCenter, String cluster) {
 		StopJobRequest request = new StopJobRequest();
-
-		Config cfg = topology.getConfig();
-		request.setDataCenter(cfg.getString(DATA_CENTER));
-		request.setCluster(cfg.getString(CLUSTER));
+		request.setDataCenter(dataCenter);
+		request.setCluster(cluster);
 		request.setAppId(applicationId);
 		return request;
-  }
+	}
 
-	public JobStatusRequest extractJobStatusRequest(String applicationId){
+	public JobStatusRequest extractJobStatusRequest(String applicationId, String dataCenter, String cluster){
 		JobStatusRequest request = new JobStatusRequest();
-
-		Config cfg = topology.getConfig();
-		request.setDataCenter(cfg.getString(DATA_CENTER));
-		request.setCluster(cfg.getString(CLUSTER));
+		request.setDataCenter(dataCenter);
+		request.setCluster(cluster);
 		request.setYarnApplicationId(applicationId);
 		return request;
 	}
@@ -181,7 +172,7 @@ public class AthenaxJobGraphGenerator extends TopologyDagVisitor {
 			kafkaProperties.put(BOOTSTRAP_SERVERS, kafkaSource.getConfig().get("bootstrapServers"));
 			kafkaProperties.put(GROUP_ID, kafkaSource.getConfig().get("consumerGroupId"));
 
-			kafkaProperties.put(ENABLE_AUTO_COMMIT, false);
+			kafkaProperties.put(ENABLE_AUTO_COMMIT, "false");
 			kafkaProperties.put(HEATPIPE_APP_ID, topology.getName());
 			kafkaProperties.put(HEATPIPE_KAFKA_HOST_PORT, "localhost:18083");
 			kafkaProperties.put(HEATPIPE_SCHEMA_SERVICE_HOST_PORT, "localhost:14040");

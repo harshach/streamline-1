@@ -15,8 +15,10 @@ import java.util.Map;
 
 public class AthenaxServiceRegistrar extends AbstractServiceRegistrar {
 
-    public static final String PARAM_ATHENAX_UI_HOST = "athenax.service.host";
-    public static final String PARAM_ATHENAX_UI_PORT= "athenax.service.port";
+    public static final String ATHENAX_SERVICE_HOST_KEY = "athenax.service.host";
+    public static final String ATHENAX_SERVICE_PORT_KEY= "athenax.service.port";
+    public static final String ATHENAX_YARN_DATA_CENTER_KEY = "athenax.yarn.dataCenter";
+    public static final String ATHENAX_YARN_CLUSTER_KEY = "athenax.yarn.cluster";
     public static final String SERVICE_NAME = "athenax";
     public static final String CONF_TYPE_PROPERTIES = "properties";
 
@@ -37,8 +39,10 @@ public class AthenaxServiceRegistrar extends AbstractServiceRegistrar {
         serviceConfiguration.setName(CONF_TYPE_PROPERTIES);
 
         Map<String, String> confMap = new HashMap<>();
-        confMap.put(PARAM_ATHENAX_UI_HOST, config.get(PARAM_ATHENAX_UI_HOST));
-        confMap.put(PARAM_ATHENAX_UI_PORT, String.valueOf((Integer) config.getAny(PARAM_ATHENAX_UI_PORT)));
+        confMap.put(ATHENAX_SERVICE_HOST_KEY, config.get(ATHENAX_SERVICE_HOST_KEY));
+        confMap.put(ATHENAX_SERVICE_PORT_KEY, String.valueOf((Integer) config.getAny(ATHENAX_SERVICE_PORT_KEY)));
+        confMap.put(ATHENAX_YARN_DATA_CENTER_KEY, config.get(ATHENAX_YARN_DATA_CENTER_KEY));
+        confMap.put(ATHENAX_YARN_CLUSTER_KEY, config.get(ATHENAX_YARN_CLUSTER_KEY));
 
         ObjectMapper objectMapper = new ObjectMapper();
         try {

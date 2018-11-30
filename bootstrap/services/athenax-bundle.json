@@ -16,6 +16,20 @@
                 "isOptional": false,
                 "tooltip": "A Port for REST API",
                 "type": "number"
+            },
+            {
+                "uiName": "Yarn Data Center",
+                "fieldName": "athenax.yarn.dataCenter",
+                "isOptional": false,
+                "tooltip": "Data center for the target Yarn cluster",
+                "type": "string"
+            },
+            {
+                "uiName": "Yarn Cluster",
+                "fieldName": "athenax.yarn.cluster",
+                "isOptional": false,
+                "tooltip": "Cluster for the target Yarn cluster",
+                "type": "string"
             }
         ]
     }

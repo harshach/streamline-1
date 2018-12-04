@@ -28,7 +28,7 @@ import FSReactToastr from '../../../components/FSReactToastr';
 import CommonNotification from '../../../utils/CommonNotification';
 import {toastOpt} from '../../../utils/Constants';
 import {Scrollbars} from 'react-custom-scrollbars';
-import SqlParser from 'js-sql-parser';
+import SqliteParser from 'sqlite-parser';
 
 export default class SqlProcessorNodeForm extends Component {
   constructor(props) {
@@ -138,85 +138,84 @@ export default class SqlProcessorNodeForm extends Component {
     const sqlStr = valStr.replace(regex, '()');
 
     let error = '';
-    try{
-      const ast = SqlParser.parse(sqlStr);
-      const AV = ast.value;
-
-      const tableName = AV.from.value[0].value.value.value;
-      const columns =AV.selectItems.value;
-
-      const inputstream = _.find(inputStreamOptions, (stream) => {
-        const regex = new RegExp(tableName);
-        const streamIdWOId = stream.streamId.split('_');
-        streamIdWOId.splice(streamIdWOId.length-1, 1);
-        // return streamIdWOId.join('_').toLowerCase() == tableName.toLowerCase();
-        return tableName.toLowerCase().match(streamIdWOId.join('_').toLowerCase());
-      });
-
-      if(!inputstream){
-        error = `Invalid Table "${tableName}"`;
+    SqliteParser(sqlStr, (err, parsed) => {
+      if(err){
+        error = err.message;
       }else{
-        _.each(columns, (res) => {
-
-          let namePath;
-
-          if(res.value && res.value == '*'){
-            _.each(inputstream.fields, (inp) => {
-              outputStreamsFields.push({
-                name: inp.name,
-                type: inp.type
-              });
-            });
+        _.each(parsed.statement, (statement) => {
+          if(!statement.from){
+            return;
           }
-          else if(res.type == 'FunctionCall'){
-            const name = res.name;
-
-            let type = 'STRING';
-            const udf = _.find(this.udfList, (f) => {
-              return f.name == name.toUpperCase();
-            });
-            if(udf){
-              type = udf.returnType;
-              outputStreamsFields.push({
-                name: res.alias || name,
-                type: type
-              });
-            }else{
-              error = `Function "${name}" Not found`;
-            }
+          const tableName = statement.from.name;
+          const inputstream = _.find(inputStreamOptions, (stream) => {
+            const regex = new RegExp(tableName);
+            const streamIdWOId = stream.streamId.split('_');
+            streamIdWOId.splice(streamIdWOId.length-1, 1);
+            // return streamIdWOId.join('_').toLowerCase() == tableName.toLowerCase();
+            return tableName.toLowerCase().match(streamIdWOId.join('_').toLowerCase());
+          });
+          if(!inputstream){
+            error = `Invalid Table "${tableName}"`;
+            // return;
           }else{
-            namePath = res.value.split('.');
-            const name = namePath[namePath.length-1];
-            let type = 'STRING';
-
-            let field;
-            field = _.find(inputstream.fields, (inp) => {
-              return inp.name == name;
+            _.each(statement.result, (res) => {
+              let namePath;
+              if(_.isObject(res.name)){
+                namePath = res.name.name.split('.');
+              }else{
+                namePath = res.name.split('.');
+              }
+              const name = namePath[namePath.length-1];
+              if(res.name == '*'){
+                _.each(inputstream.fields, (inp) => {
+                  outputStreamsFields.push({
+                    name: inp.name,
+                    type: inp.type
+                  });
+                });
+              }
+              else if(res.type == 'function'){
+                let type = 'STRING';
+                const udf = _.find(this.udfList, (f) => {
+                  return f.name == name.toUpperCase();
+                });
+                if(udf){
+                  type = udf.returnType;
+                  outputStreamsFields.push({
+                    name: res.alias || name,
+                    type: type
+                  });
+                }else{
+                  error = `Function "${name}" Not found`;
+                }
+              }else{
+                let type = 'STRING';
+                let field;
+                field = _.find(inputstream.fields, (inp) => {
+                  return inp.name.toLowerCase() == name;
+                });
+                if(field){
+                  type = field.type;
+                  outputStreamsFields.push({
+                    name: res.alias || name,
+                    type: type
+                  });
+                }else{
+                  error = `Field "${name}" Not found`;
+                }
+              }
             });
-
-            if(field){
-              type = field.type;
-              outputStreamsFields.push({
-                name: res.alias || name,
-                type: type
-              });
-            }else{
-              error = `Field "${name}" Not found`;
-            }
           }
         });
       }
-    }catch(e){
-      error = e.message;
-    }
+      this.context.ParentForm.setState({outputStreamObj: this.streamData});
+      const form = this.refs.Form;
+      const Errors = form.state.Errors;
+      Errors.sql = error;
+      form.setState({Errors});
+      this.setState({sqlError: error});
 
-    this.context.ParentForm.setState({outputStreamObj: this.streamData});
-
-    const form = this.refs.Form;
-    const Errors = form.state.Errors;
-    Errors.sql = error;
-    form.setState({Errors});
-    this.setState({sqlError: error});
+    });
 
   }
 
@@ -261,7 +260,7 @@ export default class SqlProcessorNodeForm extends Component {
     let fields = Utils.genFields(uiSpec, [], formData,[], securityType, hasSecurity,'');
     const disabledFields = this.props.testRunActivated ? true : !this.props.editMode;
 
-    const form = fetchLoader ? 
+    const form = fetchLoader ?
       <div className="col-sm-12">
         <div className="loading-img text-center" style={{
           marginTop: "100px"

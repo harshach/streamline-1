@@ -87,6 +87,7 @@
     "reactable": "0.14.1",
     "require-dir": "^0.3.0",
     "run-sequence": "^1.2.2",
+    "sqlite-parser": "^1.0.1",
     "style-loader": "^0.13.1",
     "system": "^1.0.6",
     "url-loader": "^0.5.7",

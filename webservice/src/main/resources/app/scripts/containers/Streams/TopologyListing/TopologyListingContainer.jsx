@@ -332,7 +332,7 @@ class TopologyItems extends Component {
           : metricWrap.status || 'NOTRUNNING'}`} data-id={topology.id} ref={(ref) => this.streamRef = ref} onClick={this.streamBoxClick.bind(this, topology.id)}>
           {/*<div className="stream-head clearfix">
             <div className="pull-left m-t-xs">
-              
+
             </div>
             {dropdown}
           </div>*/}
@@ -344,7 +344,7 @@ class TopologyItems extends Component {
                   }}/>
                 </div>
               </div>
-            : 
+            :
             <div className="stream-body">
               <div className="card-content">
                 {this.getMetrics()}
@@ -854,6 +854,19 @@ class TopologyListingContainer extends Component {
       <BaseContainer ref="BaseContainer" routes={this.props.routes} headerContent={this.getHeaderContent()}>
         {!fetchLoader
           ? <div>
+              {hasEditCapability(accessCapabilities.APPLICATION) ?
+                <div className="add-btn text-center">
+                  <DropdownButton title={btnIcon} id="actionDropdown" className="actionDropdown success" noCaret>
+                    <MenuItem onClick={this.onActionMenuClicked.bind(this, "create")}>
+                      &nbsp;New Workflow
+                    </MenuItem>
+                    <MenuItem onClick={this.onActionMenuClicked.bind(this, "import")}>
+                      &nbsp;Import Workflow
+                    </MenuItem>
+                  </DropdownButton>
+                </div>
+                : null
+              }
               {((filterValue && splitData.length === 0) || splitData.length !== 0)
                 ? <div className="row">
                     <div className="page-title-box clearfix">
@@ -878,19 +891,6 @@ class TopologyListingContainer extends Component {
                           </MenuItem>
                         </DropdownButton>
                       </div>*/}
-                      {hasEditCapability(accessCapabilities.APPLICATION) ?
-                        <div className="add-btn text-center">
-                          <DropdownButton title={btnIcon} id="actionDropdown" className="actionDropdown success" noCaret>
-                            <MenuItem onClick={this.onActionMenuClicked.bind(this, "create")}>
-                              &nbsp;New Workflow
-                            </MenuItem>
-                            <MenuItem onClick={this.onActionMenuClicked.bind(this, "import")}>
-                              &nbsp;Import Workflow
-                            </MenuItem>
-                          </DropdownButton>
-                        </div>
-                        : null
-                      }
                       <div className="col-md-1 col-sm-3 text-left"></div>
                     </div>
                   </div>

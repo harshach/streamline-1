@@ -520,6 +520,7 @@ public class StreamCatalogService {
         TopologyVersion versionInfo = new TopologyVersion();
         versionInfo.setName(CURRENT_VERSION);
         versionInfo.setDescription("");
+        versionInfo.setDagThumbnail("");
         versionInfo.setTimestamp(timestamp);
         versionInfo.setTopologyId(topologyId);
         return addTopologyVersionInfo(versionInfo);

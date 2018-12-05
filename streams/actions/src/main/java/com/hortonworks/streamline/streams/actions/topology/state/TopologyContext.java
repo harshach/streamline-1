@@ -19,7 +19,6 @@ import com.hortonworks.streamline.streams.actions.TopologyActionContext;
 import com.hortonworks.streamline.streams.actions.TopologyActions;
 import com.hortonworks.streamline.streams.actions.topology.service.TopologyActionsService;
 import com.hortonworks.streamline.streams.catalog.Topology;
-import com.hortonworks.streamline.streams.cluster.catalog.Namespace;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -57,7 +56,7 @@ public class TopologyContext implements TopologyActionContext {
     }
 
     public String getStateName() {
-        return TopologyStateFactory.getInstance().getTopologyStateName(state);
+        return state.getName();
     }
 
     public TopologyActionsService getTopologyActionsService() {

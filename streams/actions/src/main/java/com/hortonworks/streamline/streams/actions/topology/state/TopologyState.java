@@ -45,6 +45,6 @@ public abstract class TopologyState {
 
     @Override
     public String toString() {
-        return TopologyStateFactory.getInstance().getTopologyStateName(this);
+        return this.getName();
     }
 }

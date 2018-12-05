@@ -27,7 +27,8 @@ import com.hortonworks.streamline.streams.actions.TopologyActionsFactory;
 import com.hortonworks.streamline.streams.actions.builder.TopologyActionsBuilder;
 import com.hortonworks.streamline.streams.actions.topology.state.TopologyContext;
 import com.hortonworks.streamline.streams.actions.topology.state.TopologyState;
-import com.hortonworks.streamline.streams.actions.topology.state.TopologyStateFactory;
+import com.hortonworks.streamline.streams.actions.topology.state.TopologyStateMachine;
+import com.hortonworks.streamline.streams.actions.topology.state.TopologyStateMachineFactory;
 import com.hortonworks.streamline.streams.catalog.*;
 import com.hortonworks.streamline.streams.catalog.service.StreamCatalogService;
 import com.hortonworks.streamline.streams.catalog.topology.component.TopologyDagBuilder;
@@ -54,7 +55,7 @@ public class TopologyActionsService implements ContainingNamespaceAwareContainer
     private final EnvironmentService environmentService;
     private final TopologyDagBuilder topologyDagBuilder;
     private final FileStorage fileStorage;
-    private final TopologyStateFactory stateFactory;
+    private final TopologyStateMachineFactory topologyStateMachineFactory;
     private final TopologyTestRunner topologyTestRunner;
     private final ManagedTransaction managedTransaction;
     private final TopologyActionsFactory topologyActionsFactory;
@@ -84,7 +85,7 @@ public class TopologyActionsService implements ContainingNamespaceAwareContainer
             topologyTestRunResultDir = topologyTestRunResultDir.substring(0, topologyTestRunResultDir.length() - 1);
         }
         this.topologyActionsFactory = new TopologyActionsFactory(configuration);
-        this.stateFactory = TopologyStateFactory.getInstance();
+        this.topologyStateMachineFactory = new TopologyStateMachineFactory(configuration);
         this.topologyTestRunner = new TopologyTestRunner(catalogService, this, topologyTestRunResultDir);
         this.managedTransaction = new ManagedTransaction(transactionManager, TransactionIsolation.DEFAULT);
     }
@@ -97,11 +98,12 @@ public class TopologyActionsService implements ContainingNamespaceAwareContainer
 
         String runtimeId = getRuntimeTopologyId(topology, asUser);
 
-        if (runtimeId != null && ctx.getState() == stateFactory.deployedState()) {
+        TopologyStateMachine topologyStateMachine = getTopologyStateMachineInstance(topology);
+        if (runtimeId != null && ctx.getState() == topologyStateMachine.deployedState()) {
             return redeployTopology(topology, asUser);
         }
 
-        while (ctx.getState() != stateFactory.deployedState()) {
+        while (ctx.getState() != topologyStateMachine.deployedState()) {
             managedTransaction.executeConsumer((topologyContext) -> {
                 LOG.debug("Current state {}", topologyContext.getStateName());
                 topologyContext.deploy();
@@ -179,25 +181,29 @@ public class TopologyActionsService implements ContainingNamespaceAwareContainer
     @Override
     public void invalidateInstance(Long namespaceId) { }
 
-    private TopologyActions getTopologyActionsInstance(Topology ds) {
-        Namespace namespace = environmentService.getNamespace(ds.getNamespaceId());
+    private TopologyActions getTopologyActionsInstance(Topology topology) {
+        Namespace namespace = environmentService.getNamespace(topology.getNamespaceId());
         if (namespace == null) {
-            throw new RuntimeException("Corresponding namespace not found: " + ds.getNamespaceId());
+            throw new RuntimeException("Corresponding namespace not found: " + topology.getNamespaceId());
         }
-        Engine engine = catalogService.getEngine(ds.getEngineId());
+        Engine engine = catalogService.getEngine(topology.getEngineId());
         TopologyActionsBuilder topologyActionsBuilder = topologyActionsFactory.getTopologyActionsBuilder(engine, namespace,
                 this, conf, subject);
         return topologyActionsBuilder.getTopologyActions();
     }
 
-    private TopologyContext  getTopologyContext(Topology topology, String asUser) {
+    private TopologyStateMachine getTopologyStateMachineInstance(Topology topology) {
+        Engine engine = catalogService.getEngine(topology.getEngineId());
+        return topologyStateMachineFactory.getTopologyStateMachine(engine);
+    }
+
+    private TopologyContext getTopologyContext(Topology topology, String asUser) {
+        TopologyStateMachine topologyStateMachine = getTopologyStateMachineInstance(topology);
         TopologyState state = catalogService
                 .getTopologyState(topology.getId())
-                .map(s -> stateFactory.getTopologyState(s.getName()))
-                .orElse(stateFactory.initialState());
+                .map(s -> topologyStateMachine.getTopologyState(s.getName()))
+                .orElse(topologyStateMachine.initialState());
         TopologyActions topologyActions = getTopologyActionsInstance(topology);
         return new TopologyContext(topology, topologyActions, this, state, asUser);
     }
-
-
 }

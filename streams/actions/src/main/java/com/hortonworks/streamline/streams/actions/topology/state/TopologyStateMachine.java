@@ -28,4 +28,11 @@ public interface TopologyStateMachine {
    * @return all possible states in this state machine
    */
   Collection<TopologyState> allStates();
+
+  /**
+   * Get TopologyState from a state name
+   *
+   * @return TopologyState for the input stateName
+   */
+  TopologyState getTopologyState(String stateName);
 }

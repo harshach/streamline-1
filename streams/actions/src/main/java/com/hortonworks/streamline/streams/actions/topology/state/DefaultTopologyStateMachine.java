@@ -15,6 +15,7 @@
  **/
 package com.hortonworks.streamline.streams.actions.topology.state;
 
+import com.hortonworks.streamline.common.util.Utils;
 import com.hortonworks.streamline.storage.exception.IgnoreTransactionRollbackException;
 import com.hortonworks.streamline.streams.actions.TopologyActions;
 import com.hortonworks.streamline.streams.catalog.CatalogToLayoutConverter;
@@ -27,7 +28,9 @@ import org.slf4j.LoggerFactory;
 
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * The class captures the different states a 'topology' can be in and the state transitions.
@@ -351,5 +354,25 @@ public class DefaultTopologyStateMachine implements TopologyStateMachine {
     @Override
     public Collection<TopologyState> allStates() {
         return allStates;
+    }
+
+    private final Map<String, TopologyState> topologyStateMap = new HashMap<>();
+
+    public DefaultTopologyStateMachine() {
+        for (TopologyState state : allStates()) {
+            String name = state.getName();
+            topologyStateMap.put(name, state);
+            LOG.debug("Registered topology state {}", name);
+        }
+    }
+
+    @Override
+    public TopologyState getTopologyState(String stateName) {
+        Utils.requireNonEmpty(stateName, "State name cannot be empty");
+        TopologyState state = topologyStateMap.get(stateName);
+        if (state == null) {
+            throw new IllegalArgumentException("No such state " + stateName);
+        }
+        return state;
     }
 }

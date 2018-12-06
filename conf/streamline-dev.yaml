@@ -142,7 +142,7 @@ logging:
   # Logger-specific levels.
   loggers:
     # Sets the level for 'com.example.app' to DEBUG.
-    com.hortonworks.streamline: INFO
+    com.hortonworks.streamline: DEBUG
   appenders:
     - type: console
     - type: file

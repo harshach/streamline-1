@@ -9,6 +9,8 @@ import com.hortonworks.streamline.streams.actions.TopologyActions;
 import com.hortonworks.streamline.streams.actions.athenax.topology.entity.DeployRequest;
 import com.hortonworks.streamline.streams.actions.athenax.topology.entity.JobDefinition;
 import com.hortonworks.streamline.streams.actions.athenax.topology.entity.JobStatusRequest;
+import com.hortonworks.streamline.streams.actions.athenax.topology.entity.RTACreateTableRequest;
+import com.hortonworks.streamline.streams.actions.athenax.topology.entity.RTADeployTableRequest;
 import com.hortonworks.streamline.streams.actions.athenax.topology.entity.StopJobRequest;
 import com.hortonworks.streamline.streams.actions.topology.service.TopologyActionsService;
 import com.hortonworks.streamline.streams.catalog.Topology;
@@ -40,18 +42,20 @@ public class AthenaxTopologyActionsImpl implements TopologyActions {
 	private static final String FINAL_APPLICATION_STATUS = "finalApplicationStatus";
 	private static final String FINISH_TIME = "finishTime";
 
-	private AthenaXRestAPIClient client;
-	private String dataCenter;
-	private String cluster;
+	private AthenaXRestAPIClient athenaXRestAPIClient;
+	private RTARestAPIClient rtaRestAPIClient;
+	private String yarnDataCenter;
+	private String yarnCluster;
 	private String zkConnectionStr;
 
 	@Override
 	public void init(Map<String, Object> conf, TopologyActionsService topologyActionsService) {
 		String athenaxServiceRootUrl = (String) conf.get(AthenaxConstants.ATHENAX_SERVICE_ROOT_URL_KEY);
-		client = new AthenaXRestAPIClient(athenaxServiceRootUrl, null/*subject*/);
+		athenaXRestAPIClient = new AthenaXRestAPIClient(athenaxServiceRootUrl, null/*subject*/);
+		rtaRestAPIClient = new RTARestAPIClient(null);
 
-		dataCenter = (String) conf.get(AthenaxConstants.ATHENAX_YARN_DATA_CENTER_KEY);
-		cluster = (String) conf.get(AthenaxConstants.ATHENAX_YARN_CLUSTER_KEY);
+		yarnDataCenter = (String) conf.get(AthenaxConstants.ATHENAX_YARN_DATA_CENTER_KEY);
+		yarnCluster = (String) conf.get(AthenaxConstants.ATHENAX_YARN_CLUSTER_KEY);
 		zkConnectionStr = (String) conf.get(PROPERTY_KEY_ZOOKEEPER_CONNECT);
 	}
 
@@ -62,11 +66,16 @@ public class AthenaxTopologyActionsImpl implements TopologyActions {
 		TopologyDag topologyDag = topology.getTopologyDag();
 		topologyDag.traverse(requestGenerator);
 
+		RTACreateTableRequest rtaCreateTableRequest = requestGenerator.extractRTACreateTableRequest();
+		String tableId = rtaRestAPIClient.createVirtualTable(JsonClientUtil.convertRequestToJson(rtaCreateTableRequest));
+
+		RTADeployTableRequest rtaDeployTableRequest = requestGenerator.extractRTADeployTableRequest();
+		rtaRestAPIClient.deployVirtualTable(rtaDeployTableRequest, tableId);
 		// extract AthenaX deploy job request
-		DeployRequest request = requestGenerator.extractDeployJobRequest(dataCenter, cluster, zkConnectionStr);
+		DeployRequest deployRequest = requestGenerator.extractDeployJobRequest(yarnDataCenter, yarnCluster, zkConnectionStr);
 
 		// submit job via Athenax-vm API
-		return this.client.deployJob(JsonClientUtil.convertRequestToJson(request));
+		return this.athenaXRestAPIClient.deployJob(JsonClientUtil.convertRequestToJson(deployRequest));
 	}
 
   @Override
@@ -75,10 +84,10 @@ public class AthenaxTopologyActionsImpl implements TopologyActions {
 		AthenaxJobGraphGenerator requestGenerator = new AthenaxJobGraphGenerator(topology, null, asUser);
 
 		// extract job status request
-		JobStatusRequest request = requestGenerator.extractJobStatusRequest(applicationId, dataCenter, cluster);
+		JobStatusRequest request = requestGenerator.extractJobStatusRequest(applicationId, yarnDataCenter, yarnCluster);
 
 		// send request via Athenax-vm API
-		String response = client.jobStatus(JsonClientUtil.convertRequestToJson(request));
+		String response = athenaXRestAPIClient.jobStatus(JsonClientUtil.convertRequestToJson(request));
 		if (response == null) {
 			return null;
 		}
@@ -113,10 +122,10 @@ public class AthenaxTopologyActionsImpl implements TopologyActions {
 		AthenaxJobGraphGenerator requestGenerator = new AthenaxJobGraphGenerator(topology, null, asUser);
 
 		// extract kill job request
-		StopJobRequest request = requestGenerator.extractStopJobRequest(applicationId, dataCenter, cluster);
+		StopJobRequest request = requestGenerator.extractStopJobRequest(applicationId, yarnDataCenter, yarnCluster);
 
 		// send request via Athenax-vm API
-		client.stopJob(JsonClientUtil.convertRequestToJson(request));
+		athenaXRestAPIClient.stopJob(JsonClientUtil.convertRequestToJson(request));
 	}
 
   @Override
@@ -130,7 +139,7 @@ public class AthenaxTopologyActionsImpl implements TopologyActions {
     JobDefinition jobDef = requestGenerator.extractJobDefinition(zkConnectionStr);
 
 		// send request via Athenax-vm API
-    client.validateJob(JsonClientUtil.convertRequestToJson(jobDef));
+    athenaXRestAPIClient.validateJob(JsonClientUtil.convertRequestToJson(jobDef));
 	}
 
   @Override

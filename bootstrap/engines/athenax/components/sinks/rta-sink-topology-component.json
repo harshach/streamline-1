@@ -1,0 +1,162 @@
+{
+  "type": "SINK",
+  "name": "RTA",
+  "subType": "RTA",
+  "engine": "ATHENAX",
+  "template": ["Blank"],
+  "builtin": true,
+  "fieldHintProviderClass": "com.hortonworks.streamline.streams.cluster.bundle.impl.KafkaSinkBundleHintProvider",
+  "transformationClass": "com.hortonworks.streamline.streams.layout.component.impl.RTASink",
+  "mavenDeps": "",
+  "input": true,
+  "output": false,
+  "topologyComponentUISpecification": {
+    "fields": [
+      {
+        "uiName": "Kafka Cluster",
+        "fieldName": "kafkaCluster",
+        "isOptional": false,
+        "tooltip": "Kafka cluster name for the output messages",
+        "type": "string"
+      },
+      {
+        "uiName": "Security Protocol",
+        "fieldName": "securityProtocol",
+        "isOptional": false,
+        "tooltip": "Protocol to be used to communicate with Kafka brokers",
+        "type": "enumstring",
+        "options": []
+      },
+      {
+        "uiName": "Bootstrap Servers",
+        "fieldName": "bootstrapServers",
+        "isOptional": false,
+        "tooltip": "Comma separated string of host:port kafka brokers",
+        "type": "string",
+        "hint": "dependsOn-securityProtocol"
+      },
+      {
+        "uiName": "Kafka Topic",
+        "fieldName": "topic",
+        "isOptional": false,
+        "tooltip": "Kafka topic to write data to",
+        "type": "enumstring",
+        "options": [],
+        "hint": "schema,override"
+      },
+      {
+        "uiName": "Table Name",
+        "fieldName": "tableName",
+        "isOptional": false,
+        "tooltip": "RTA logical table name",
+        "type": "string"
+      },
+      {
+        "uiName": "Ingestion Rate",
+        "fieldName": "ingestionRate",
+        "isOptional": false,
+        "tooltip": "Incoming rate of messages per second",
+        "type": "number",
+        "defaultValue": 500
+      },
+      {
+        "uiName": "Retention Days",
+        "fieldName": "retentionDays",
+        "isOptional": false,
+        "tooltip": "Number of retention days after the data injected into RTA",
+        "type": "number",
+        "defaultValue": 20
+      },
+      {
+        "uiName": "Support Pre-defined Queries?",
+        "fieldName": "supportPredefinedQueries",
+        "isOptional": false,
+        "tooltip": "A flag to indicate if the RTA table supports pre-defined queries",
+        "type": "boolean",
+        "defaultValue": true
+      },
+      {
+        "uiName": "Support Adhoc Queries?",
+        "fieldName": "supportAdhocQueries",
+        "isOptional": false,
+        "tooltip": "A flag to indicate if the RTA table supports adhoc queries",
+        "type": "boolean",
+        "defaultValue": true
+      },
+      {
+        "uiName": "Table Fields",
+        "fieldName": "tableFields",
+        "tooltip": "Fields in tha RTA table",
+        "isOptional": false,
+        "type": "array.object",
+        "fields": [
+          {
+            "uiName": "Primary Key?",
+            "fieldName": "isPrimaryKey",
+            "isOptional": false,
+            "tooltip": "A flag to indicate if the field is a primary key",
+            "type": "boolean",
+            "defaultValue": false
+          },
+          {
+            "uiName": "Type",
+            "fieldName": "type",
+            "tooltip": "Type of the field in Schema Service",
+            "isOptional": false,
+            "type": "enumstring",
+            "options": ["boolean", "long", "double", "string"]
+          },
+          {
+            "uiName": "Name",
+            "fieldName": "name",
+            "tooltip": "Name of the field",
+            "isOptional": false,
+            "type": "string"
+          },
+          {
+            "uiName": "RTA Type",
+            "fieldName": "rtaType",
+            "tooltip": "RTA data type",
+            "isOptional": true,
+            "type": "enumstring",
+            "options": [
+              "boolean",
+              "tinyInt",
+              "smallInt",
+              "int",
+              "bigInt",
+              "float",
+              "double",
+              "uuid",
+              "geoPoint",
+              "geoShape"
+            ]
+          },
+          {
+            "uiName": "RTA Column Type",
+            "fieldName": "rtaColumnType",
+            "tooltip": "RTA column type",
+            "isOptional": false,
+            "type": "enumstring",
+            "options": ["dimension", "metric", "time"]
+          },
+          {
+            "uiName": "Cardinality",
+            "fieldName": "cardinality",
+            "tooltip": "Cardinality, only applies when the type is string",
+            "isOptional": true,
+            "type": "enumstring",
+            "options": ["low", "medium", "high"]
+          },
+          {
+            "uiName": "Doc",
+            "fieldName": "doc",
+            "tooltip": "Description of the field",
+            "isOptional": true,
+            "type": "string"
+          }
+        ]
+      }
+    ]
+  }
+}

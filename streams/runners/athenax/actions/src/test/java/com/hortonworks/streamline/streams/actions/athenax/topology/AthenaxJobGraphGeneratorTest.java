@@ -3,8 +3,8 @@ package com.hortonworks.streamline.streams.actions.athenax.topology;
 import com.hortonworks.streamline.common.Config;
 import com.hortonworks.streamline.streams.actions.athenax.topology.entity.JobDefinition;
 import com.hortonworks.streamline.streams.layout.component.*;
-import com.hortonworks.streamline.streams.layout.component.impl.KafkaSink;
 import com.hortonworks.streamline.streams.layout.component.impl.KafkaSource;
+import com.hortonworks.streamline.streams.layout.component.impl.RTASink;
 import com.hortonworks.streamline.streams.layout.component.impl.SqlProcessor;
 import org.junit.Test;
 
@@ -31,18 +31,18 @@ public class AthenaxJobGraphGeneratorTest {
     sqlProcessor.addOutputStream(new Stream("f2"));
 
     // sink
-    KafkaSink kafkaSink = new KafkaSink();
-    kafkaSink.setId("k2");
+    RTASink rtaSink = new RTASink();
+    rtaSink.setId("rta");
     Config sinkConfig = new Config();
     sinkConfig.put("bootstrapServers", "localhost:9092");
     sinkConfig.put("topic", "topicSink");
-    kafkaSink.setConfig(sinkConfig);
+    rtaSink.setConfig(sinkConfig);
 
-    // construct topology DAG: kafkaSource -> sql -> kafkaSink
+    // construct topology DAG: kafkaSource -> sql -> rtaSink
     TopologyDag topologyDag = new TopologyDag();
-    topologyDag.add(kafkaSource).add(sqlProcessor).add(kafkaSink);
+    topologyDag.add(kafkaSource).add(sqlProcessor).add(rtaSink);
     topologyDag.addEdge(kafkaSource, sqlProcessor);
-    topologyDag.addEdge(sqlProcessor, kafkaSink);
+    topologyDag.addEdge(sqlProcessor, rtaSink);
 
     Config cfg = new Config();
     String topologyName = "toplogy1";

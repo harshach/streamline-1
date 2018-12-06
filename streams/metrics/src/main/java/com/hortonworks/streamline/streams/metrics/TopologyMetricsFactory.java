@@ -40,14 +40,16 @@ public class TopologyMetricsFactory {
         if (topologyMetrics == null) {
             try {
                 String topologyMetricsClazz = getConfiguredClass(engine, TOPOLOGY_METRICS_CLASS);
-                topologyMetrics = instantiateTopologyMetrics(topologyMetricsClazz);
-                topologyMetrics.init(engine, namespace, topologyCatalogHelperService, subject, config);
-                String topologyTimeseriesClazz = getConfiguredClass(engine, TIMESERIES_METRICS_CLASS);
-                TimeSeriesQuerier timeSeriesQuerier = instantiateTimeSeriesQuerier(topologyTimeseriesClazz);
-                timeSeriesQuerier.init(engine, namespace, topologyCatalogHelperService, subject, config);
-                topologyMetrics.setTimeSeriesQuerier(timeSeriesQuerier);
-                metricsMap.put(namespace, topologyMetrics);
-                topologyMetricsMap.put(engine, metricsMap);
+                if (topologyMetricsClazz != null && !topologyMetricsClazz.isEmpty()) {
+                    topologyMetrics = instantiateTopologyMetrics(topologyMetricsClazz);
+                    topologyMetrics.init(engine, namespace, topologyCatalogHelperService, subject, config);
+                    String topologyTimeseriesClazz = getConfiguredClass(engine, TIMESERIES_METRICS_CLASS);
+                    TimeSeriesQuerier timeSeriesQuerier = instantiateTimeSeriesQuerier(topologyTimeseriesClazz);
+                    timeSeriesQuerier.init(engine, namespace, topologyCatalogHelperService, subject, config);
+                    topologyMetrics.setTimeSeriesQuerier(timeSeriesQuerier);
+                    metricsMap.put(namespace, topologyMetrics);
+                    topologyMetricsMap.put(engine, metricsMap);
+                }
             } catch (IllegalAccessException | InstantiationException | ClassNotFoundException  | ConfigException e) {
                 throw new RuntimeException("Can't initialize Topology actions instance - Class Name: " + className, e);
             }

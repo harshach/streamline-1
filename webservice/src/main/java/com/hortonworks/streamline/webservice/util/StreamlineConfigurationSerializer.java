@@ -74,7 +74,8 @@ public class StreamlineConfigurationSerializer extends JsonSerializer<Streamline
         Map<String, String> registryConf = new HashMap<>();
         for (ModuleConfiguration moduleConfiguration : streamlineConfiguration.getModules()) {
             String moduleName = moduleConfiguration.getName();
-            if (moduleName.equals(Constants.CONFIG_STREAMS_MODULE)) {
+            if (moduleName.equals(Constants.CONFIG_STREAMS_MODULE) &&
+                    moduleConfiguration.getConfig().get(Constants.CONFIG_SCHEMA_REGISTRY_URL) != null) {
                 String schemaRegistryUrl = (String) moduleConfiguration.getConfig().get(Constants.CONFIG_SCHEMA_REGISTRY_URL);
                 registryConf.put(CONFIG_REGISTRY_API_URL, schemaRegistryUrl);
                 try {

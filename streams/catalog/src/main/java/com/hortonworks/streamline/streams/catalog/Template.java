@@ -113,5 +113,24 @@ public class Template implements Storable {
 
     public void setConfig(String config) { this.config = config; }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        Template template = (Template) o;
+
+        if (id != null ? !id.equals(template.id) : template.id != null) return false;
+        if (name != null ? !name.equals(template.getName()): template.getName() != null) return false;
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = id != null ? id.hashCode() : 0;
+        result = 31 * result + (name != null ? name.hashCode() : 0);
+        return result;
+    }
+
 
 }

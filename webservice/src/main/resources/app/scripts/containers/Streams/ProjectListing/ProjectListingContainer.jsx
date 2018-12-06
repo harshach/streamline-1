@@ -153,7 +153,9 @@ class ProjectListingContainer extends Component {
   }
 
   handleAdd = () => {
-    this.refs.addModal.show();
+    this.refs.addModal.show({
+      btnOkText: 'Create'
+    });
   }
 
   handleSave = () => {
@@ -278,9 +280,9 @@ class ProjectListingContainer extends Component {
               })
           }
         </div>
-        <Modal ref="addModal" data-title={`${editModeData.id
+        <Modal ref="addModal" className="u-form" data-title={`${editModeData.id
           ? "Edit"
-          : "Add"} Project`} onKeyPress={this.handleKeyPress} data-resolve={this.handleSave.bind(this)}>
+          : "Create new"} project`} onKeyPress={this.handleKeyPress} data-resolve={this.handleSave.bind(this)}>
           <AddProject ref="addProject" editData={editModeData}/>
         </Modal>
       </BaseContainer>

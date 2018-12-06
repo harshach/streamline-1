@@ -39,10 +39,6 @@ class AddProject extends Component {
       validDataFlag = false;
       this.setState({nameValid: false});
     }
-    if(projectDescription === ''){
-      validDataFlag = false;
-      this.setState({descriptionValid: false});
-    }
     if(validDataFlag){
       this.setState({validInput: true});
     }
@@ -73,18 +69,14 @@ class AddProject extends Component {
     }
   }
   handleDescriptionChange = (event) => {
-    if (event.target.value.trim() !== '') {
-      this.setState({projectDescription: event.target.value, descriptionValid: true});
-    } else {
-      this.setState({projectDescription: event.target.value.trim(), descriptionValid: false});
-    }
+    this.setState({projectDescription: event.target.value, descriptionValid: true});
   }
   render() {
     const {validInput, projectName, nameValid, projectDescription, descriptionValid} = this.state;
     return (
-      <div className="modal-form config-modal-form">
+      <div className="modal-form">
         <div className="form-group">
-          <label data-stest="projectNameLabel">Project Name<span className="text-danger">*</span>
+          <label data-stest="projectNameLabel">Project Name
           </label>
           <div>
             <input data-stest="projectName" type="text" value={projectName} className={nameValid
@@ -93,10 +85,10 @@ class AddProject extends Component {
           </div>
         </div>
         <div className="form-group">
-          <label data-stest="projectDescriptionLabel">Project Description<span className="text-danger">*</span>
+          <label data-stest="projectDescriptionLabel">Description<span className="optional">(optional)</span>
           </label>
           <div>
-            <input data-stest="projectDescription" type="text" value={projectDescription} className={descriptionValid
+            <textarea data-stest="projectDescription" type="text" value={projectDescription} className={descriptionValid
               ? "form-control"
               : "form-control invalidInput"} onChange={this.handleDescriptionChange} placeholder="Project Description"/>
           </div>

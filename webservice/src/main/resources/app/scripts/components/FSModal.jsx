@@ -24,7 +24,7 @@ const defaultState = {
 
 export default class FSModal extends Component {
   state = defaultState;
-  show() {
+  show(state) {
     var state = state || {};
     state.show = true;
     this.setState(state);

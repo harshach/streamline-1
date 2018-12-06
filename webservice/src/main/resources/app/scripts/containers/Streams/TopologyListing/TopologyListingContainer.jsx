@@ -526,7 +526,9 @@ class TopologyListingContainer extends Component {
   }
 
   handleAddTopology() {
-    this.AddTopologyModelRef.show();
+    this.AddTopologyModelRef.show({
+      btnOkText: 'Create'
+    });
   }
 
   handleImportTopology() {
@@ -913,7 +915,7 @@ class TopologyListingContainer extends Component {
           ? <Paginate len={entities.length} splitData={splitData} pagesize={pageSize} pagePosition={this.pagePosition}/>
           : ''
 }
-        <Modal ref={(ref) => this.AddTopologyModelRef = ref} data-title={topologyData ? "Update Engine" : "Add Workflow"} onKeyPress={this.handleKeyPress} data-resolve={this.handleSaveClicked} data-reject={()=>{this.setState({topologyData: null});this.AddTopologyModelRef.hide();}}>
+        <Modal className="u-form" ref={(ref) => this.AddTopologyModelRef = ref} data-title={topologyData ? "Update Engine" : "Add Workflow"} onKeyPress={this.handleKeyPress} data-resolve={this.handleSaveClicked} data-reject={()=>{this.setState({topologyData: null});this.AddTopologyModelRef.hide();}}>
           <AddTopology ref={(ref) => this.addTopologyRef = ref} topologyData={topologyData} />
         </Modal>
         <Modal ref={(ref) => this.ImportTopologyModelRef = ref} data-title="Import Workflow" onKeyPress={this.handleKeyPress} data-resolve={this.handleImportSave}>

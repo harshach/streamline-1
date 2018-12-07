@@ -727,6 +727,10 @@ const clusterField = function(){
   };
 };
 
+const matchStr = function(str1, str2){
+  return str1.toLowerCase().match(str2.toLowerCase());
+};
+
 const matchStringInArr = function(stringArr,str){
   let match=false;
   _.map(stringArr.split(','), (s) => {
@@ -970,6 +974,7 @@ export default {
   checkStatusForResponseText,
   getClusterKey,
   clusterField,
+  matchStr,
   matchStringInArr,
   populateSchemaVersionOptions,
   populateSchemaBranchOptions,

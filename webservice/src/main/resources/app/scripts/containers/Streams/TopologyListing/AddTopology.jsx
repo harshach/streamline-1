@@ -266,7 +266,7 @@ class AddTopology extends Component {
     let fields = formField ? Utils.genFields(formField.fields || [], [], formData) : null;
 
     const filteredTemplates = _.filter(templateOptions, (t) => {
-      return t.name.toLowerCase().match(filterStr.toLowerCase()) || t.description.toLowerCase().match(filterStr.toLowerCase());
+      return Utils.matchStr(t.name, filterStr) || Utils.matchStr(t.description, filterStr);
     });
 
     return (

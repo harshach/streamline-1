@@ -27,6 +27,7 @@ import FSReactToastr from '../../../components/FSReactToastr';
 import {toastOpt} from '../../../utils/Constants';
 import Form from '../../../libs/form';
 import app_state from '../../../app_state';
+import {FormGroup, InputGroup, FormControl} from 'react-bootstrap';
 
 /* component import */
 import BaseContainer from '../../BaseContainer';
@@ -49,7 +50,8 @@ class AddTopology extends Component {
       formField: {},
       showRequired: true,
       engineOptions: [],
-      templateOptions: []
+      templateOptions: [],
+      filterStr:''
     };
     this.fetchData();
   }
@@ -227,6 +229,13 @@ class AddTopology extends Component {
       this.setState({templateId: '', validTemplate: false});
     }
   }
+  handleDescriptionChange = (event) => {
+    this.setState({description: event.target.value});
+  }
+  onFilterChange = (e) => {
+    const val = e.target.value;
+    this.setState({filterStr: val});
+  }
 
   render() {
     const {
@@ -242,13 +251,19 @@ class AddTopology extends Component {
       validEngine,
       templateId,
       templateOptions,
-      validTemplate
+      validTemplate,
+      description,
+      filterStr
     } = this.state;
     const formData = {};
     let fields = formField ? Utils.genFields(formField.fields || [], [], formData) : null;
 
+    const filteredTemplates = _.filter(templateOptions, (t) => {
+      return Utils.matchStr(t.name, filterStr) || Utils.matchStr(t.description, filterStr);
+    });
+
     return (
-      <div className="modal-form config-modal-form">
+      <div className="modal-form">
         <div className="form-group">
           <label data-stest="nameLabel">Name
             <span className="text-danger">*</span>
@@ -260,33 +275,66 @@ class AddTopology extends Component {
           </div>
         </div>
         <div className="form-group">
-          <label data-stest="selectEnvLabel">Engine
-            <span className="text-danger">*</span>
+          <label data-stest="projectDescriptionLabel">Description<span className="optional">(optional)</span>
           </label>
           <div>
-            <Select value={engineId} options={engineOptions} onChange={this.handleOnChangeEngine} placeholder="Select Engine" className={!validEngine
-              ? "invalidSelect"
-              : ""} required={true} clearable={false} labelKey="displayName" valueKey="id"/>
+            <textarea data-stest="description" type="text" value={description} className={"form-control"} onChange={this.handleDescriptionChange} placeholder="Description"/>
+          </div>
+        </div>
+        <hr />
+        <div className="form-group">
+          <label data-stest="selectEnvLabel">Choose the Engine for the workflow to run on
+            <span className="text-danger">*</span>
+          </label>
+          <div className="m-t-xs m-b-b">{
+            _.map(engineOptions, (e) => {
+              return <span className="radio-container" onClick={() => this.handleOnChangeEngine(e)} key={e.id}>
+                <input type="radio" name="engine" checked={engineId == e.id}/>
+                {e.displayName}
+              </span>;
+            })
+          }
+          {validEngine === false && <p className="text-danger m-t-xs">Please select engine</p>}
           </div>
         </div>
         <div className="form-group">
-          <label data-stest="selectEnvLabel">Template
+          <label data-stest="selectEnvLabel">Workflow Templates
             <span className="text-danger">*</span>
           </label>
-          <div>
-            <Select value={templateId} options={templateOptions} onChange={this.handleOnChangeTemplate} placeholder="Select Template" className={!validTemplate
-              ? "invalidSelect"
-              : ""} required={true} clearable={false} labelKey="name" valueKey="id"/>
+          <FormGroup className="search-box">
+            <InputGroup>
+              <InputGroup.Addon>
+                <i className="fa fa-search"></i>
+              </InputGroup.Addon>
+              <FormControl data-stest="searchBox" type="text" placeholder="Search..." onKeyUp={this.onFilterChange} className="" />
+            </InputGroup>
+          </FormGroup>
+          <div className="row templates-container">{filteredTemplates.length ? 
+            _.map(filteredTemplates, (t) => {
+              return <div className={`col-md-6 template-box ${templateId == t.id ? 'selected-template' : ''}`} key={t.name}>
+                <span className="name">{t.name}</span>
+                <span className="description">{t.description}</span>
+              </div>;
+            })
+            :
+            <div className="text-center">No template found!</div>
+          }
           </div>
         </div>
+        <hr />
         <div className="form-group">
-          <label data-stest="selectEnvLabel">Data Center
+          <label data-stest="selectEnvLabel">Choose the Regions
             <span className="text-danger">*</span>
           </label>
-          <div>
-            <Select value={namespaceId} options={namespaceOptions} onChange={this.handleOnChangeEnvironment} placeholder="Select Data Center" className={!validSelect
-              ? "invalidSelect"
-              : ""} required={true} clearable={false} labelKey="name" valueKey="id"/>
+          <div className="m-t-xs">{
+            _.map(namespaceOptions, (n) => {
+              return <span className="radio-container" onClick={() => this.handleOnChangeEnvironment(n)} key={n.name}>
+                <input type="radio" name="environment" checked={namespaceId == n.id}/>
+                {n.name}
+              </span>;
+            })
+          }
+          {validSelect === false && <p className="text-danger m-t-xs">Please select region</p>}
           </div>
         </div>
         {fields ?

@@ -18,18 +18,20 @@ import java.util.Properties;
 public class AthenaxJobGraphGenerator extends TopologyDagVisitor {
 	private static final Logger LOG = LoggerFactory.getLogger(AthenaxJobGraphGenerator.class);
 
-	private static String ATHENAX_SERVICE_NAME = "athenax";
-	private static String YARN_CONTAINER_COUNT = "yarnContainerCount";
-	private static String SLOT_PER_YARN_CONTAINER = "slotPerYarnContainer";
-	private static String YARN_MEMORY_PER_CONTAINER_IN_MB = "yarnMemoryPerContainerInMB";
-	private static String BOOTSTRAP_SERVERS = "bootstrap.servers";
-	private static String GROUP_ID = "group.id";
-	private static String ENABLE_AUTO_COMMIT = "enable.auto.commit";
-	private static String HEATPIPE_APP_ID = "heatpipe.app_id";
-	private static String HEATPIPE_KAFKA_HOST_PORT = "heatpipe.kafka.hostport";
-	private static String HEATPIPE_SCHEMA_SERVICE_HOST_PORT = "heatpipe.schemaservice.hostport";
-	private static String TYPE_KAFKA = "kafka";
-	private static String KAFKA_TOPIC = "topic";
+	private static final String UWORC_SERVICE_NAME = "uworc";
+	private static final String YARN_CONTAINER_COUNT = "yarnContainerCount";
+	private static final String SLOT_PER_YARN_CONTAINER = "slotPerYarnContainer";
+	private static final String YARN_MEMORY_PER_CONTAINER_IN_MB = "yarnMemoryPerContainerInMB";
+	private static final String BOOTSTRAP_SERVERS = "bootstrap.servers";
+	private static final String GROUP_ID = "group.id";
+	private static final String CLIENT_ID = "client.id";
+	private static final String ENABLE_AUTO_COMMIT = "enable.auto.commit";
+	private static final String HEATPIPE_APP_ID = "heatpipe.app_id";
+	private static final String HEATPIPE_KAFKA_HOST_PORT = "heatpipe.kafka.hostport";
+	private static final String HEATPIPE_SCHEMA_SERVICE_HOST_PORT = "heatpipe.schemaservice.hostport";
+	private static final String TYPE_KAFKA = "kafka";
+	private static final String KAFKA_TOPIC = "topic";
+	private static final String HEATPIPE_PROTOCOL_PREFIX = "kafka+heatpipe://";
 
 	private TopologyLayout topology;
 	private TopologyActionContext topologyActionContext;
@@ -95,12 +97,12 @@ public class AthenaxJobGraphGenerator extends TopologyDagVisitor {
 		LOG.debug("visit edge:" + edge);
 	}
 
-	public JobDefinition extractJobDefinition() throws Exception {
+	public JobDefinition extractJobDefinition(String zkConnectionStr) throws Exception {
 		errorIfIllegalAthenaxJob();
 
 		JobDefinition jobDef = new JobDefinition();
 		// input connectors (kafka only)
-		jobDef.setInput(getInputConnectors());
+		jobDef.setInput(getInputConnectors(zkConnectionStr));
 
 		// output connectors(kafka only)
 		jobDef.setOutput(getOutputConnectors());
@@ -114,7 +116,7 @@ public class AthenaxJobGraphGenerator extends TopologyDagVisitor {
 		// groupName: default null
 
 		// serviceName: ublame service name to send alert
-		jobDef.setServiceName(ATHENAX_SERVICE_NAME);
+		jobDef.setServiceName(UWORC_SERVICE_NAME);
 
 	  // sql statement
 		jobDef.setTransformQuery(sql);
@@ -122,10 +124,10 @@ public class AthenaxJobGraphGenerator extends TopologyDagVisitor {
 		return jobDef;
 	}
 
-	public DeployRequest extractDeployJobRequest(String dataCenter, String cluster) throws Exception {
+	public DeployRequest extractDeployJobRequest(String dataCenter, String cluster, String zkConnectionStr) throws Exception {
 		DeployRequest request = new DeployRequest();
 
-		request.setJobDefinition(extractJobDefinition());
+		request.setJobDefinition(extractJobDefinition(zkConnectionStr));
 		request.setBackfill(false);
 
 		// extract env settings from config
@@ -155,7 +157,7 @@ public class AthenaxJobGraphGenerator extends TopologyDagVisitor {
 		return request;
 	}
 
-	private List<Connector> getInputConnectors() throws Exception {
+	private List<Connector> getInputConnectors(String zkConnectionStr) throws Exception {
 		// input connectors(kafka only for AthenaX)
 		List<Connector> inputConnectors = new ArrayList<>();
 		for (StreamlineSource streamSource : sourceList) {
@@ -183,8 +185,7 @@ public class AthenaxJobGraphGenerator extends TopologyDagVisitor {
 			kafkaInput.setType(TYPE_KAFKA);
 			kafkaInput.setName(topicName);
 
-			// TODO: need new config for zookeeper
-			//kafkaInput.setUri("kafka+heatpipe://kloakzk09-sjc1:2181,kloakzk10-sjc1:2181,kloakzk05-sjc1:2181,kloakzk03-sjc1:2181,kloakzk04-sjc1:2181/" + topicName);
+			kafkaInput.setUri(HEATPIPE_PROTOCOL_PREFIX + zkConnectionStr + "/" + topicName);
 
 			inputConnectors.add(kafkaInput);
 		}
@@ -207,6 +208,10 @@ public class AthenaxJobGraphGenerator extends TopologyDagVisitor {
 			Properties kafkaProperties = new Properties();
 			String bootStrapServers = kafkaSink.getConfig().get("bootstrapServers");
 			kafkaProperties.put(BOOTSTRAP_SERVERS, bootStrapServers);
+			kafkaProperties.put(HEATPIPE_APP_ID, topology.getName());
+			kafkaProperties.put(HEATPIPE_KAFKA_HOST_PORT, "localhost:18083");
+			kafkaProperties.put(HEATPIPE_SCHEMA_SERVICE_HOST_PORT, "localhost:14040");
+			kafkaProperties.put(CLIENT_ID, UWORC_SERVICE_NAME + "/" + topology.getName());
 
 			String topicName = kafkaSink.getConfig().get(KAFKA_TOPIC);
 			Connector kafkaOutput = new Connector();
@@ -214,7 +219,7 @@ public class AthenaxJobGraphGenerator extends TopologyDagVisitor {
 			kafkaOutput.setType(TYPE_KAFKA);
 			kafkaOutput.setName(topicName);
 
-			kafkaOutput.setUri("kafka+json://" +  bootStrapServers + "/" + topicName);
+			kafkaOutput.setUri(HEATPIPE_PROTOCOL_PREFIX + bootStrapServers + "/" + topicName);
 
 			outputConnectors.add(kafkaOutput);
 		}

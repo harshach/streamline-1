@@ -9,6 +9,7 @@ import com.hortonworks.streamline.streams.layout.component.impl.SqlProcessor;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 
 public class AthenaxJobGraphGeneratorTest {
   @Test
@@ -50,12 +51,12 @@ public class AthenaxJobGraphGeneratorTest {
     AthenaxJobGraphGenerator requestGenerator = new AthenaxJobGraphGenerator(topologyLayout, null, null);
     topologyDag.traverse(requestGenerator);
 
-    JobDefinition job = requestGenerator.extractJobDefinition();
+    JobDefinition job = requestGenerator.extractJobDefinition("localhost:2181");
 
     // verify
-    assertEquals(job.jobName(), topologyName);
-    assertEquals(job.serviceName(), "athenax");
-    assertEquals(job.transformQuery(), sql);
-    assertEquals(job.isBackfill(), false);
+    assertEquals(topologyName, job.jobName());
+    assertEquals("uworc", job.serviceName());
+    assertEquals(sql, job.transformQuery());
+    assertFalse(job.isBackfill());
   }
 }

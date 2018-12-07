@@ -28,6 +28,8 @@ import java.nio.file.Path;
 import java.util.Map;
 import java.util.Optional;
 
+import static com.hortonworks.streamline.streams.cluster.Constants.Kafka.PROPERTY_KEY_ZOOKEEPER_CONNECT;
+
 /**
  * AthenaX implementation of the TopologyActions interface
  */
@@ -41,6 +43,7 @@ public class AthenaxTopologyActionsImpl implements TopologyActions {
 	private AthenaXRestAPIClient client;
 	private String dataCenter;
 	private String cluster;
+	private String zkConnectionStr;
 
 	@Override
 	public void init(Map<String, Object> conf, TopologyActionsService topologyActionsService) {
@@ -49,6 +52,7 @@ public class AthenaxTopologyActionsImpl implements TopologyActions {
 
 		dataCenter = (String) conf.get(AthenaxConstants.ATHENAX_YARN_DATA_CENTER_KEY);
 		cluster = (String) conf.get(AthenaxConstants.ATHENAX_YARN_CLUSTER_KEY);
+		zkConnectionStr = (String) conf.get(PROPERTY_KEY_ZOOKEEPER_CONNECT);
 	}
 
   @Override
@@ -59,7 +63,7 @@ public class AthenaxTopologyActionsImpl implements TopologyActions {
 		topologyDag.traverse(requestGenerator);
 
 		// extract AthenaX deploy job request
-		DeployRequest request = requestGenerator.extractDeployJobRequest(dataCenter, cluster);
+		DeployRequest request = requestGenerator.extractDeployJobRequest(dataCenter, cluster, zkConnectionStr);
 
 		// submit job via Athenax-vm API
 		return this.client.deployJob(JsonClientUtil.convertRequestToJson(request));
@@ -123,7 +127,7 @@ public class AthenaxTopologyActionsImpl implements TopologyActions {
 		topologyDag.traverse(requestGenerator);
 
 		// extract AthenaX job description
-    JobDefinition jobDef = requestGenerator.extractJobDefinition();
+    JobDefinition jobDef = requestGenerator.extractJobDefinition(zkConnectionStr);
 
 		// send request via Athenax-vm API
     client.validateJob(JsonClientUtil.convertRequestToJson(jobDef));

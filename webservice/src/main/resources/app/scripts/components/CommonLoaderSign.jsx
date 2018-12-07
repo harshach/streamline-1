@@ -25,7 +25,7 @@ export default class CommonLoaderSign extends Component {
     const {imgName} = this.props;
     const imgUrl = `styles/img/back-${imgName}.png`;
     const divStyle = {
-      backgroundImage: 'url(' + imgUrl + ')',
+      // backgroundImage: 'url(' + imgUrl + ')',
       backgroundRepeat: "no-repeat",
       backgroundPosition: "center top",
       backgroundSize: "50%",

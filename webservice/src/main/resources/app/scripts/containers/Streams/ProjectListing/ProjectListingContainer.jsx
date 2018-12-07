@@ -27,7 +27,7 @@ import CommonNotification from '../../../utils/CommonNotification';
 import {toastOpt, iconsFrom} from '../../../utils/Constants';
 import Modal from '../../../components/FSModal';
 import AddProject from './AddProject';
-import NoData from '../../../components/NoData';
+import NoData, {BeginNew} from '../../../components/NoData';
 import ProjectREST from '../../../rest/ProjectREST';
 import TopologyREST from '../../../rest/TopologyREST';
 import CommonLoaderSign from '../../../components/CommonLoaderSign';
@@ -54,6 +54,9 @@ class ProjectCard extends Component {
       <ul className="project-engines ">
         {_.map(applicationsGroup, (arr, engineName)=>{
           let name = '';
+          const displayName = _.find(app_state.engines, (e) => {
+            return e.name == engineName;
+          }).displayName;
           switch(engineName.toLowerCase()){
           case 'athenax':
             name = 'athenax';
@@ -66,7 +69,7 @@ class ProjectCard extends Component {
             break;
           }
           return <li className={name}>
-            <span className="engine-name">{engineName}</span>
+            <span className="engine-name">{displayName}</span>
             <span className="badge">{arr.length}</span>
           </li>;
         })}
@@ -77,7 +80,7 @@ class ProjectCard extends Component {
       </h3>;
 
     return (
-      <div className="col-md-4">
+      <div className="col-md-3">
         <div className="service-box card" data-id={data.id} ref={(ref) => this.projectRef = ref}>
           {/*<div className="service-head clearfix">
             
@@ -247,12 +250,18 @@ class ProjectListingContainer extends Component {
     const {entities, filterValue, fetchLoader, editModeData} = this.state;
     const filteredEntities = Utils.filterByName(entities, filterValue);
 
+    const components = filteredEntities.length == 0
+    ? <NoData imgName={"default"} searchVal={filterValue}/>
+    : filteredEntities.map((project, index)=>{
+      return <ProjectCard key={index} data={project} actionClick={this.projectActionClick} />;
+    });
+
     return (
       <BaseContainer ref="BaseContainer" routes={this.props.routes} headerContent={this.props.routes[this.props.routes.length - 1].name}>
         <div className="row">
           <div className="page-title-box clearfix">
             <div className="search-container">
-              {((filterValue && filteredEntities.length === 0) || filteredEntities.length !== 0)
+              {((filterValue && filteredEntities.length === 0) || filteredEntities.length !== 0) && entities.length
                 ? <FormGroup className="search-box">
                     <InputGroup>
                       <InputGroup.Addon>
@@ -263,21 +272,19 @@ class ProjectListingContainer extends Component {
                   </FormGroup>
                 : ''}
             </div>
+            {entities.length !== 0 && 
             <div className="add-btn text-center">
               <a href="javascript:void(0);" className="success actionDropdown" data-target="#addEnvironment" onClick={this.handleAdd.bind(this)}>
                 <i className="fa fa-plus"></i> New Project
               </a>
             </div>
+            }
           </div>
         </div>
         <div className="row">
           {fetchLoader
             ? [<div key={"1"} className="loader-overlay"></div>,<CommonLoaderSign key={"2"} imgName={"default"}/>]
-            : filteredEntities.length == 0
-              ? <NoData imgName={"default"} searchVal={filterValue}/>
-              : filteredEntities.map((project, index)=>{
-                return <ProjectCard key={index} data={project} actionClick={this.projectActionClick} />;
-              })
+            : entities.length ? components : <BeginNew type="Project" onClick={this.handleAdd.bind(this)}/>
           }
         </div>
         <Modal ref="addModal" className="u-form" data-title={`${editModeData.id

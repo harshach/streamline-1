@@ -56,6 +56,13 @@ class AddTopology extends Component {
     this.fetchData();
   }
 
+  componentDidMount = () => {
+    const piperEngine = _.find(app_state.engines, (e) => {
+      return e.name == "PIPER";
+    });
+    this.handleOnChangeEngine(piperEngine);
+  }
+
   fetchData = () => {
     let promiseArr = [TopologyREST.getTopologyConfig(), EnvironmentREST.getAllNameSpaces()];
     if(this.props.topologyData){

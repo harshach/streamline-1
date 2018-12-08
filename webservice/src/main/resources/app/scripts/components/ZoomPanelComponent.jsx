@@ -26,18 +26,6 @@ class  ZoomPanelComponent extends Component {
       <div className="zoomWrap clearfix">
         <div className="topology-editor-controls pull-right">
           <span className="version">
-            Last Change:
-            <span style={{
-              color: '#545454'
-            }}>{Utils.splitTimeStamp(lastUpdatedTime)}</span>
-          </span>
-          <span className="version">
-            Version:
-            <span style={{
-              color: '#545454'
-            }}>{versionName}</span>
-          </span>
-          <span className="version">
             Mode:&nbsp;
             <span className="SwitchWrapper">
               <span className={`Switch ${testRunActivated ? 'On' : 'Off'}`} onClick={confirmMode}>

@@ -40,6 +40,7 @@ import TestSourceNodeModal from '../TestRunComponents/TestSourceNodeModal';
 import TestSinkNodeModal from '../TestRunComponents/TestSinkNodeModel';
 import ZoomPanelComponent from '../../../components/ZoomPanelComponent';
 import VersionControl from '../../../components/VersionControl';
+import RightSideBar from '../../../components/RightSideBar';
 import {
   StreamEditorGraph,
   BatchEditorGraph
@@ -1300,6 +1301,16 @@ export class TopologyEditorContainer extends Component {
     }, () => {});
   }
 
+  getRightSideBar = () => {
+    return <VersionControl
+      versions={this.state.versionsArr}
+      handleVersionChange={this.handleVersionChange}
+      selectedVersionName={this.versionName}
+      setCurrentVersion={this.setCurrentVersion}
+      currentVersionDagThumbnail={this.refs.EditorGraph ? this.refs.EditorGraph.child.decoratedComponentInstance.refs.TopologyGraph.decoratedComponentInstance.svg.node().outerHTML : ''}
+    />;
+  }
+
   render() {
     const {progressCount, progressBarColor, fetchLoader, mapTopologyConfig,deployStatus,testRunActivated,testCaseList,selectedTestObj,testCaseLoader,testRunCurrentEdges,testResult,nodeData,testName,showError,testSinkConfigure,nodeListArr,hideEventLog,eventLogData,testHistory,testCompleted,deployFlag,testRunningMode,abortTestCase,notifyCheck,activePage,activePageList, topologyData} = this.state;
     let nodeType = this.node
@@ -1307,7 +1318,7 @@ export class TopologyEditorContainer extends Component {
       : '';
 
     return (
-      <BaseContainer ref="BaseContainer" routes={this.props.routes} onLandingPage="false" headerContent={this.getTopologyHeader()}>
+      <BaseContainer ref="BaseContainer" routes={this.props.routes} onLandingPage="false" headerContent={this.getTopologyHeader()} siblingContent={this.getRightSideBar()}>
         <div className="row">
           <div className="col-sm-12">
             {fetchLoader
@@ -1385,13 +1396,6 @@ export class TopologyEditorContainer extends Component {
 }
           </div>
         </div>
-        <VersionControl
-          versions={this.state.versionsArr}
-          handleVersionChange={this.handleVersionChange}
-          selectedVersionName={this.versionName}
-          setCurrentVersion={this.setCurrentVersion}
-          currentVersionDagThumbnail={this.refs.EditorGraph ? this.refs.EditorGraph.child.decoratedComponentInstance.refs.TopologyGraph.decoratedComponentInstance.svg.node().outerHTML : ''}
-        />
         <Modal ref="TopologyConfigModal" data-title={deployFlag ? "Are you sure want to continue with this configuration?" : "Application Configuration"}  onKeyPress={this.handleKeyPress.bind(this)} data-resolve={this.handleSaveConfig.bind(this)} data-reject={this.handleCancelConfig.bind(this)}>
           <TopologyConfig ref="topologyConfig" topologyData={topologyData} projectId={this.projectId} topologyId={this.topologyId} versionId={this.versionId} data={mapTopologyConfig} topologyName={this.state.topologyName} uiConfigFields={this.topologyConfigData} testRunActivated={this.state.testRunActivated} topologyNodes={this.graphData.nodes}/>
         </Modal>

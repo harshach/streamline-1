@@ -20,12 +20,16 @@ import {EditorFooter} from '../containers/Streams/TopologyEditor/TopologyViewMod
 import Slider from "react-slick";
 import moment from 'moment';
 import d3 from 'd3';
+import RightSideBar from './RightSideBar';
 
 class VersionThumbnail extends Component{
   constructor(props) {
     super(props);
   }
   componentDidMount(){
+    this.renderGraph();
+  }
+  componentDidUpdate(){
     this.renderGraph();
   }
   renderGraph(){
@@ -37,7 +41,7 @@ class VersionThumbnail extends Component{
       const graphG = container.select('g.graph');
       const graphTransform = graphG.attr('transform');
       graphG.attr('transform', () => {
-        return graphTransform.split('scale')[0] + 'scale(0.15)';
+        return 'translate(0,0)scale(0.15)';
       });
     }
   }
@@ -59,56 +63,25 @@ export default class VersionControl extends Component{
   constructor(props) {
     super(props);
     this.state = {
-      sliderSettings: {
-        // dots: true,
-        infinite: false,
-        speed: 500,
-        slidesToShow: 4,
-        slidesToScroll: 1
-      }
+      expanded: false
     };
   }
   componentDidUpdate(){
-    this.checkForButtons();
   }
-  checkForButtons = () => {
-    const slickSlider = document.querySelector('.slick-slider');
-    if(!slickSlider){
-      return;
-    }
-
-    const slickPrev = slickSlider.querySelector('.slick-prev');
-    if(!slickPrev){
-      d3.select(slickSlider).append('button')
-        .classed('slick-arrow slick-prev disabled', true);
-    }
-    const slickNext = slickSlider.querySelector('.slick-next');
-    if(!slickNext){      
-      d3.select(slickSlider).append('button')
-        .classed('slick-arrow slick-next disabled', true);
-    }
+  handleExpandCollapse = () => {
+    const {expanded} = this.state;
+    this.setState({expanded: !expanded});
   }
   getHeader = () => {
     const {selectedVersionName, setCurrentVersion} = this.props;
-    return <div className="clearfix topology-foot-top">
-      <div className="clearfix version-control-title">
-        Version Control
-      </div>
-      {selectedVersionName != 'CURRENT' && 
-        <span className=" version-control-set-current pull-right" onClick={setCurrentVersion}>Set {selectedVersionName} as current version</span>
-      }
-    </div>;
+    return <button className="btn-panels" onClick={this.handleExpandCollapse}><img src="styles/img/uWorc/version-icon.png"/></button>;
   }
   getBody = () => {
     const {sliderSettings} = this.state;
-    const {versions, handleVersionChange, selectedVersionName, currentVersionDagThumbnail} = this.props;
-    const footTop = document.querySelector('.topology-foot-top');
-    if(footTop){
-      const trackWidth = footTop.clientWidth-160;
-      sliderSettings.slidesToShow = Math.floor(trackWidth/215);
-    }
+    const {versions, handleVersionChange, selectedVersionName, currentVersionDagThumbnail, setCurrentVersion} = this.props;
+
     const verComps = _.map(versions, (v, i) => {
-      return <div style={{width:'195px'}}>
+      return <div>
         <VersionThumbnail
           key={i}
           data={v}
@@ -118,29 +91,43 @@ export default class VersionControl extends Component{
         />
       </div>;
     });
-    if(verComps.length < sliderSettings.slidesToShow){
-      const diff = sliderSettings.slidesToShow - verComps.length;
-      for(let i=0; i<diff;i++){
-        verComps.push(<div style={{width:'195px'}}></div>);
-      }
-    }
 
-    const body = <Slider
-      {...sliderSettings}
-    >
-      {verComps}
-    </Slider>;
+    const content = (<div>
+      <div className="right-sidebar-header">
+        <div>
+          <h6 className="version-control">Version Control</h6>
+          <DropdownButton bsStyle="link" className="btn-sm" title={selectedVersionName} pullRight id="version-dropdown" onSelect={(v) => {
+            handleVersionChange(v);
+          }} >
+            {_.map(versions, (v, i) => {
+              return <MenuItem active={selectedVersionName === v.name ? true : false} eventKey={v.id} key={i} data-version-id={v.id}>{v.name}</MenuItem>;
+            })
+          }
+          </DropdownButton>
+        </div>
+        <div className="text-right">
+          <button className="btn btn-primary btn-sm" onClick={setCurrentVersion}>Set as Current</button>
+        </div>
+        <div className="text-right">
+          <button type="button" className="close" style={{marginLeft:'5px'}} onClick={this.handleExpandCollapse}><span >×</span></button>
+        </div>
+      </div>
+      <div className="right-sidebar-body">
+        {verComps}
+      </div>
+    </div>);
 
-    setTimeout(this.checkForButtons, 500);
-
-    return body;
+    return content;
   }
   render(){
-    const {selectedVersionName} = this.props;
-    return <EditorFooter
+    const {expanded} = this.state;
+    const {selectedVersionName, currentVersionDagThumbnail} = this.props;
+    return <RightSideBar
       getHeader={this.getHeader}
       getBody={this.getBody}
       selectedVersionName={selectedVersionName}
+      expanded={expanded}
+      currentVersionDagThumbnail={currentVersionDagThumbnail}
     />;
   }
 }

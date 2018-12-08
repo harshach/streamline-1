@@ -301,7 +301,7 @@ export default class ComponentNodeContainer extends Component {
       return null;
     }
     return (
-      <div className="component-panel right" style={{height: testRunActivated ? "auto" : window.innerHeight - 100}}>
+      <div className="component-panel right" style={{height: testRunActivated ? "auto" : window.innerHeight - 60}}>
       {
         !testRunActivated
         ? <div>
@@ -322,7 +322,7 @@ export default class ComponentNodeContainer extends Component {
                 }
               </div>
               <div className="panel-wrapper" style={{
-                height: window.innerHeight - 130
+                height: window.innerHeight - 90
               }}>
                 <Scrollbars autoHide autoHeightMin={452} renderThumbHorizontal= { props => <div style = { { display: "none" } } />}>
                   <div className="inner-panel">

@@ -286,24 +286,6 @@ class TopologyViewMode extends Component {
             </div>
           </div>
           }
-          <div className="pull-right">
-            {versionName.toLowerCase() == 'current'
-              ? [
-                permission ? <Link style={{marginLeft: '10px', marginRight: '10px'}} key={2} className="hb xl success" to={`projects/${projectId}/applications/${topologyId}/edit`}><i className="fa fa-pencil"></i></Link> : null]
-            :
-              <OverlayTrigger placement="bottom" overlay={<Tooltip id="tooltip">Set this version as current version. If another version of topology is deployed, kill it first to set this one.</Tooltip>}>
-                <div style={{display: 'inline-block', cursor: 'not-allowed'}}>
-                  <button
-                    type="button"
-                    className="btn btn-default"
-                    onClick={setCurrentVersion}
-                    disabled={isAppRunning}
-                    style={isAppRunning ? {pointerEvents : 'none'} : {}}>
-                    Set Current Version
-                  </button>
-                </div>
-              </OverlayTrigger>}
-          </div>
           {showLogSearchBtn ?
             <div className="pull-right">
               <a href="javascript:void(0)" style={{marginLeft: '10px', top: '5px'}} key={3}

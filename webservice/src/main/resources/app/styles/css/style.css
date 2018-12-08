@@ -142,7 +142,7 @@ footer {
 
 .contentEditor-wrapper {
   padding-left: 70px;
-  padding-right: 10px;
+  padding-right: 50px;
   padding-top: 70px;
   margin-left: 230px;
   -webkit-transition: -webkit-transform .3s ease-in-out, margin .3s ease-in-out;
@@ -174,6 +174,11 @@ footer {
   left: 0;
   max-height: 100px;
   z-index: 1030;
+}
+
+.navbar-static-top > div{
+  border-bottom: 1px #ccc solid;
+  padding-right: 15px;
 }
 
 a.dropdown-toggle~ul.dropdown-menu {
@@ -217,7 +222,7 @@ a.dropdown-toggle~ul.dropdown-menu {
   transition: margin-left 0.3s ease-in-out;
   margin-bottom: 0;
   margin-left: 253px;
-  padding-right: 15px;
+  padding-right: 0px;
   border: none;
   min-height: 50px;
   border-radius: 0;
@@ -1195,8 +1200,7 @@ label {
   background-color: #fff;
   /*padding: 0 10px;*/
   font-size: 0.875em;
-  border-radius: 0px 10px 10px 0px;
-  box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.5);
+  border-right: 1px #ccc solid;
 }
 
 .component-title {
@@ -4502,8 +4506,8 @@ ul.custom-pagination li.active{
 }
 .version-container{
   display: inline-block;
-  width: 195px;
-  height: 133px;
+  width: 100%;
+  height: 216px;
   text-align: left;
   cursor: pointer;
   border-radius: 5px;
@@ -4511,20 +4515,20 @@ ul.custom-pagination li.active{
 }
 .version-thumb{
   display: block;
-  width: 195px;
-  height: 92px;
+  width: 100%;
+  height: 170px;
   background: #333333;
   cursor: pointer;
 }
 .version-thumb > svg{
   cursor: pointer;
 }
-.selected .version-thumb{
-  background: #CCCCCC;
+.selected{
+  border: 1px solid #1B6DE0;
 }
 .version-info{
-  width: 195px;
-  height: 41px;
+  width: 100%;
+  height: 46px;
   background: #F7F7F7;
   padding: 10px;
 }
@@ -5134,4 +5138,52 @@ h3.empty-project {
   line-height: 20px;
   display: block;
   margin-top: 5px;
+}
+
+aside.right-sidebar {
+  background-color: #fff;
+  position: fixed;
+  width: 350px;
+  top: 60px;
+  right: -300px;
+  bottom: 0;
+  z-index: 999;
+  padding-left: 50px;
+  border-top: 1px #CCC solid;
+  border-left: 1px #CCC solid;
+  transition: all .5s ease;
+}
+aside.right-sidebar.active { right: 0; }
+.right-sidebar-header {
+  padding: 10px;
+  border-bottom: 1px #ccc solid;
+  margin-left: 0;
+  display: table;
+  width: 100%;
+}
+.right-sidebar-header > div {
+  display: table-cell;
+  vertical-align: middle;
+}
+.right-sidebar-body {
+  padding: 20px;
+}
+.icon-panel {
+  position: absolute;
+  width: 50px;
+  padding: 7px;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  border-right: 1px #ccc solid;
+}
+.btn-panels {
+  background-color: #F7F7F7;
+  border: 1px #E5E5E5 solid;
+  border-radius: 2px;
+  padding: 5px 8px;
+}
+h6.version-control {
+  margin: 0 0 0 10px;
+  color: #999;
 }

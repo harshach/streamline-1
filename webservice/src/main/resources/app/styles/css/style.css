@@ -4961,7 +4961,11 @@ h3.empty-project {
 }
 .empty-data-box{
   width: 400px;
-  display: inline-block;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  margin-left: -200px;
+  margin-top: -125px;
 }
 .empty-data-box .headline{
   font-size: 20px;

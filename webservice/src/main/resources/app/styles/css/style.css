@@ -4512,6 +4512,7 @@ ul.custom-pagination li.active{
   cursor: pointer;
   border-radius: 5px;
   overflow: hidden;
+  margin-bottom: 20px;
 }
 .version-thumb{
   display: block;
@@ -5153,7 +5154,13 @@ aside.right-sidebar {
   border-left: 1px #CCC solid;
   transition: all .5s ease;
 }
-aside.right-sidebar.active { right: 0; }
+aside.right-sidebar.active {
+  right: 0;
+}
+aside.right-sidebar .sidebar-content{
+  max-height: 100%;
+  overflow-y: auto;
+}
 .right-sidebar-header {
   padding: 10px;
   border-bottom: 1px #ccc solid;

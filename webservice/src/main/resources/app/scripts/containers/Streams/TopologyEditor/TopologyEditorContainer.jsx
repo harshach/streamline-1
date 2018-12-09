@@ -1300,14 +1300,19 @@ export class TopologyEditorContainer extends Component {
       confirmBox.cancel();
     }, () => {});
   }
-
+  getCurrentVersionThumbnail = () => {
+    return this.refs.EditorGraph && this.refs.EditorGraph.child.decoratedComponentInstance.refs.TopologyGraph ?
+     this.refs.EditorGraph.child.decoratedComponentInstance.refs.TopologyGraph.decoratedComponentInstance.svg.node().outerHTML
+     : '';
+  }
   getRightSideBar = () => {
     return <VersionControl
       versions={this.state.versionsArr}
       handleVersionChange={this.handleVersionChange}
       selectedVersionName={this.versionName}
       setCurrentVersion={this.setCurrentVersion}
-      currentVersionDagThumbnail={this.refs.EditorGraph ? this.refs.EditorGraph.child.decoratedComponentInstance.refs.TopologyGraph.decoratedComponentInstance.svg.node().outerHTML : ''}
+      getCurrentVersionThumbnail={this.getCurrentVersionThumbnail}
+      lastUpdatedTime={this.lastUpdatedTime}
     />;
   }
 

@@ -33,8 +33,8 @@ class VersionThumbnail extends Component{
     this.renderGraph();
   }
   renderGraph(){
-    const {data, currentVersionDagThumbnail} = this.props;
-    const graphStr = data.name == 'CURRENT' ? currentVersionDagThumbnail : data.dagThumbnail;
+    const {data, getCurrentVersionThumbnail} = this.props;
+    const graphStr = data.name == 'CURRENT' ? getCurrentVersionThumbnail() : data.dagThumbnail;
     if(graphStr){
       const container = d3.select(this.refs.thumbContainer);
       container.html(graphStr);
@@ -78,7 +78,7 @@ export default class VersionControl extends Component{
   }
   getBody = () => {
     const {sliderSettings} = this.state;
-    const {versions, handleVersionChange, selectedVersionName, currentVersionDagThumbnail, setCurrentVersion} = this.props;
+    const {versions, handleVersionChange, selectedVersionName, getCurrentVersionThumbnail, setCurrentVersion, lastUpdatedTime} = this.props;
 
     const verComps = _.map(versions, (v, i) => {
       return <div>
@@ -87,7 +87,8 @@ export default class VersionControl extends Component{
           data={v}
           onClick={handleVersionChange}
           selectedVersionName={selectedVersionName}
-          currentVersionDagThumbnail={currentVersionDagThumbnail}
+          getCurrentVersionThumbnail={getCurrentVersionThumbnail}
+          lastUpdatedTime={lastUpdatedTime}
         />
       </div>;
     });

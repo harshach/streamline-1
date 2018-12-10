@@ -37,7 +37,7 @@ body {
 }
 
 .view-mode-wrapper, body.graph-bg {
-  background: #eef0ef url('/styles/img/graph-bg.png') repeat;
+  background: #F7F7F7;
 }
 
 body.edge-details {
@@ -141,8 +141,8 @@ footer {
 }
 
 .contentEditor-wrapper {
-  padding-left: 70px;
-  padding-right: 10px;
+  padding-left: 102px;
+  padding-right: 50px;
   padding-top: 70px;
   margin-left: 230px;
   -webkit-transition: -webkit-transform .3s ease-in-out, margin .3s ease-in-out;
@@ -174,6 +174,11 @@ footer {
   left: 0;
   max-height: 100px;
   z-index: 1030;
+}
+
+.navbar-static-top > div{
+  border-bottom: 1px #ccc solid;
+  padding-right: 15px;
 }
 
 a.dropdown-toggle~ul.dropdown-menu {
@@ -217,7 +222,7 @@ a.dropdown-toggle~ul.dropdown-menu {
   transition: margin-left 0.3s ease-in-out;
   margin-bottom: 0;
   margin-left: 253px;
-  padding-right: 15px;
+  padding-right: 0px;
   border: none;
   min-height: 50px;
   border-radius: 0;
@@ -1175,15 +1180,31 @@ label {
 
 
 /* Topolgy Editor */
+.topology-editor-controls{
+  margin-top: 5px;
+}
 
 .topology-editor-controls a {
-  color: #1892c1;
-  font-size: 21px;
+  color: #CCCCCC;
+  font-size: 17px;
+  line-height: 25px;
   margin-left: 8px;
+  text-decoration: none;
 }
 
 .topology-editor-controls a:hover {
   color: #0d739a;
+  text-decoration: none;
+}
+
+.zoom-btn-container{
+  display: inline-block;
+  border: 1px solid #E5E5E5;
+  background: #FFFFFF;
+  padding: 0 10px 0 5px;
+}
+.zoom-btn-container i{
+  font-size: 13px;
 }
 
 .component-panel {
@@ -1191,12 +1212,11 @@ label {
   height: auto;
   width: 80px;
   top: 60px;
-  margin-left: -47px;
+  margin-left: -78px;
   background-color: #fff;
   /*padding: 0 10px;*/
   font-size: 0.875em;
-  border-radius: 0px 10px 10px 0px;
-  box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.5);
+  border-right: 1px #ccc solid;
 }
 
 .component-title {
@@ -1223,11 +1243,12 @@ label {
   display: block;
   margin: 0 auto 4px;
   width: 22px;
+  max-height: 27px;
 }
 
 .topology-footer {
   position: absolute;
-  bottom: 30px;
+  bottom: 0;
   right: 30px;
   z-index: 99;
 }
@@ -1777,10 +1798,16 @@ label {
 }
 
 .zoomWrap {
-  position: absolute;
-  right: 22px;
+  /*position: absolute;*/
+  /*right: 22px;*/
 }
-
+.editor-header{
+  height: 60px;
+  background: #FFFFFF;
+  border-bottom: 1px solid #E5E5E5;
+  padding: 13px 13px;
+  margin-top: -9px;
+}
 
 /* Select 2 */
 
@@ -1924,7 +1951,7 @@ label {
 }
 
 .topology-view-mode-container {
-  padding: 10px;
+  padding-left: 8px;
 }
 
 .static-label {
@@ -2700,7 +2727,7 @@ rect.extent {
 
 @media (min-width: 768px) {
   .sidebar-mini.sidebar-collapse .content-wrapper, .sidebar-mini.sidebar-collapse .right-side, .sidebar-mini.sidebar-collapse .main-footer {
-    margin-left: 50px !important;
+    margin-left: 63px !important;
     z-index: 840;
   }
   .sidebar-mini.sidebar-collapse .contentEditor-wrapper {
@@ -4383,9 +4410,11 @@ ul.custom-pagination li.active{
   position: relative;
   float: left;
 }
-.topology-foot-top > div:last-child {
-  margin-right: 20px;
-  float: right;
+.topology-foot-action.chevron {
+  position: absolute;
+  right: 15px;
+  bottom: -2px;
+  z-index: 9999;
 }
 .topology-foot-component {
   padding-right: 20px;
@@ -4398,8 +4427,8 @@ ul.custom-pagination li.active{
   color: #94d2e7;
 }
 #component-dropdown {
-  background-color: #6d6e72;
-  color: #94d2e7;
+  background-color: #FFFFFF;
+  color: #666666;
   padding: 0;
   margin: 5px 5px 0 10px;
 }
@@ -4415,14 +4444,14 @@ ul.custom-pagination li.active{
   text-align: left;
 }
 .topology-foot-widget h6 {
-  color: #fff;
+  color: #666666;
   margin: 0;
   font-size: 13px;
   text-transform: uppercase;
 }
 .topology-foot-widget h6 big {
   margin-left: 5px;
-  color: #ceeaf5;
+  color: #666666;
   font-size: 18px;
 }
 .topology-foot-widget h6 big i.fa-arrow-up {
@@ -4432,18 +4461,18 @@ ul.custom-pagination li.active{
   transform: rotate(-45deg);
 }
 .topology-foot-widget h4 {
-  color: #fff;
+  color: #666666;
   margin: 0;
   font-size: 16px;
   text-transform: uppercase;
 }
 .topology-foot-widget h4 small {
   margin-left: 5px;
-  color: #ceeaf5;
+  color: #666666;
 }
 .topology-foot-action {
   display: inline-block;
-  color: #95d6ec;
+  color: #CCCCCC;
   font-size: 18px;
   line-height: 42px;
   text-decoration: none;
@@ -4458,14 +4487,14 @@ ul.custom-pagination li.active{
   position: fixed;
   bottom: 0;
   left: 0px;
-  padding: 0 0 0 50px;
-  background-color: #6d6e72;
+  padding: 0 0 0 72px;
+  z-index: 999;
 }
 .topology-metrics-container .panel-default .panel-heading {
-  background-color: #6d6e72;
+  background-color: #FFFFFF;
   color: #fff;
   position: relative;
-  border-bottom: none;
+  border-bottom: 1px solid #F0F0F0;
   padding: 0;
   margin: 0px;
 }
@@ -4482,7 +4511,68 @@ ul.custom-pagination li.active{
   padding: 10px 15px;
 }
 .topology-metrics-container .panel-body {
-  background-color: #6d6e72;
+  background-color: #FFFFFF;
+}
+.version-control-title{
+  padding: 10px 0 5px 15px;
+  font-size: 16px;
+  line-height: 24px;
+  font-weight: 500;
+  color: #666666;
+}
+.version-control-set-current{
+  padding: 10px 0 5px 15px;
+  font-size: 16px;
+  line-height: 24px;
+  font-weight: 500;
+  color: #666666;
+  margin-right: 40px;
+}
+.version-container{
+  display: inline-block;
+  width: 100%;
+  height: 216px;
+  text-align: left;
+  cursor: pointer;
+  border-radius: 5px;
+  overflow: hidden;
+  margin-bottom: 20px;
+}
+.version-thumb{
+  display: block;
+  width: 100%;
+  height: 170px;
+  background: #333333;
+  cursor: pointer;
+}
+.version-thumb > svg{
+  cursor: pointer;
+}
+.selected{
+  border: 1px solid #1B6DE0;
+}
+.version-info{
+  width: 100%;
+  height: 46px;
+  background: #F7F7F7;
+  padding: 10px;
+}
+.version-name{
+  display: block;
+  font-size: 10px;
+  line-height: 10px;
+  font-weight: 500;
+  color:#276EF1;
+}
+.version-updated-label{
+  font-size: 10px;
+  line-height: 16px;
+  color: #B3B3B3;
+}
+.version-updated-value{
+  font-size: 10px;
+  line-height: 16px;
+  color: #666666;
 }
 #log-duration-dropdown {
   border-radius: 4px;
@@ -5095,4 +5185,76 @@ h3.empty-project {
   line-height: 20px;
   display: block;
   margin-top: 5px;
+}
+
+aside.right-sidebar {
+  background-color: #fff;
+  position: fixed;
+  width: 350px;
+  top: 60px;
+  right: -300px;
+  bottom: 0;
+  z-index: 999;
+  padding-left: 50px;
+  border-top: 1px #CCC solid;
+  border-left: 1px #CCC solid;
+  transition: all .5s ease;
+}
+aside.right-sidebar.active {
+  right: 0;
+}
+.right-sidebar-body {
+  padding: 20px 20px 60px 20px;
+  overflow-y: auto;
+  position: absolute;
+  height: 100%;
+}
+.right-sidebar-header {
+  padding: 10px;
+  border-bottom: 1px #ccc solid;
+  margin-left: 0;
+  display: table;
+  width: 100%;
+}
+.right-sidebar-header > div {
+  display: table-cell;
+  vertical-align: middle;
+}
+.icon-panel {
+  position: absolute;
+  width: 50px;
+  padding: 13px 7px;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  border-right: 1px #ccc solid;
+}
+.btn-panels {
+  background-color: #F7F7F7;
+  border: 1px #E5E5E5 solid;
+  border-radius: 2px;
+  padding: 5px 8px;
+}
+.btn-panels img{
+  filter: url(#grayscale);
+}
+.btn-panels.active img{
+  filter: url(#blue-wash);
+}
+.right-sidebar.active .icon-panel .btn-panels img{
+  filter: url(#blue-wash);
+}
+h6.version-control {
+  margin: 0 0 0 10px;
+  color: #999;
+}
+.editor-header .btn-panels{
+  margin: 0 5px;
+}
+.editor-header .graph-action{
+  line-height: 35px;
+  margin-right: 20px;
+}
+.editor-header .graph-action img{
+  margin-right: 5px;
 }

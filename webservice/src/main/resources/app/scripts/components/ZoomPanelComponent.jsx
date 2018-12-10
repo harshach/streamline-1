@@ -20,57 +20,59 @@ import {observer} from 'mobx-react';
 
 @observer
 class  ZoomPanelComponent extends Component {
+  onEditClick = () => {
+    const {router, projectId, topologyId} = this.props;
+    router.push('projects/'+ projectId +'/applications/'+ topologyId +'/edit');
+  }
+  onViewClick = () => {
+    const {router, projectId, topologyId} = this.props;
+    router.push('projects/'+ projectId +'/applications/'+ topologyId +'/view');
+  }
   render(){
-    const {lastUpdatedTime,versionName,zoomInAction,zoomOutAction,showConfig,confirmMode,testRunActivated,testCompleted,handleEventLogHide} = this.props;
+    const {lastUpdatedTime,
+      versionName,
+      zoomInAction,
+      zoomOutAction,
+      showConfig,
+      confirmMode,
+      testRunActivated,
+      testCompleted,
+      handleEventLogHide,
+      mode
+    } = this.props;
     return (
-      <div className="zoomWrap clearfix">
-        <div className="topology-editor-controls pull-right">
-          <span className="version">
-            Last Change:
-            <span style={{
-              color: '#545454'
-            }}>{Utils.splitTimeStamp(lastUpdatedTime)}</span>
-          </span>
-          <span className="version">
-            Version:
-            <span style={{
-              color: '#545454'
-            }}>{versionName}</span>
-          </span>
-          <span className="version">
-            Mode:&nbsp;
-            <span className="SwitchWrapper">
-              <span className={`Switch ${testRunActivated ? 'On' : 'Off'}`} onClick={confirmMode}>
-                <span className={`Toggle ${testRunActivated ? 'On' : 'Off'}`}>
-                  <span className="ToggleBtnText">
-                    {
-                      testRunActivated ? "TEST" : "EDIT"
-                    }
-                  </span>
-                </span>
-                {
-                  testRunActivated
-                  ? <span className="OnActive">EDIT</span>
-                  :  <span className="OffActive">TEST</span>
-                }
-              </span>
-            </span>
-          </span>
-          <OverlayTrigger placement="top" overlay={<Tooltip id ="tooltip"> Zoom In </Tooltip>}>
-            <a href="javascript:void(0);" className="zoom-in" onClick={zoomInAction}>
-              <i className="fa fa-search-plus"></i>
-            </a>
-          </OverlayTrigger>
-          <OverlayTrigger placement="top" overlay={<Tooltip id ="tooltip"> Zoom Out </Tooltip>}>
-            <a href="javascript:void(0);" className="zoom-out" onClick={zoomOutAction}>
-              <i className="fa fa-search-minus"></i>
-            </a>
-          </OverlayTrigger>
+      <div className="col-md-12 zoomWrap clearfix">
+        <div className="editor-header row">
+          <div className="pull-left">
+            <span className="graph-action"><img src="styles/img/uWorc/undo.png" /> Undo</span>
+            <span className="graph-action"><img src="styles/img/uWorc/redo.png" /> Redo</span>
+            <span className="graph-action"><img src="styles/img/uWorc/command.png" /> Shortcuts</span>
+          </div>
+          <div className="pull-right">
+            <button className={`btn-panels ${mode == 'view' ? 'active' : ''}`} onClick={this.onViewClick}><img src="styles/img/uWorc/view.png" /></button>
+            <button className={`btn-panels ${mode == 'edit' ? 'active' : ''}`} onClick={this.onEditClick}><img src="styles/img/uWorc/edit.png" /></button>
+          </div>
+        </div>
+        <div className="topology-editor-controls pull-left">
+          <div className="zoom-btn-container">
+            <OverlayTrigger placement="top" overlay={<Tooltip id ="tooltip"> Zoom Out </Tooltip>}>
+              <a href="javascript:void(0);" className="zoom-out" onClick={zoomOutAction}>
+                <i className="fa fa-minus"></i>
+              </a>
+            </OverlayTrigger>
+            <OverlayTrigger placement="top" overlay={<Tooltip id ="tooltip"> Zoom In </Tooltip>}>
+              <a href="javascript:void(0);" className="zoom-in" onClick={zoomInAction}>
+                <i className="fa fa-plus"></i>
+              </a>
+            </OverlayTrigger>
+          </div>
+          { mode == 'edit' && 
           <OverlayTrigger placement="top" overlay={<Tooltip id ="tooltip"> Configure </Tooltip>}>
             <a href="javascript:void(0);" className="config" onClick={showConfig}>
               <i className="fa fa-gear"></i>
             </a>
           </OverlayTrigger>
+          }
         </div>
       </div>
     );

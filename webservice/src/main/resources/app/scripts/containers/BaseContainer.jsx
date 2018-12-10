@@ -50,6 +50,7 @@ export default class BaseContainer extends Component {
         <section className="content-wrapper editorHandler">
           {this.props.children}
         </section>
+        {this.props.siblingContent}
         <Confirm ref="Confirm" onKeyUp={this.handleKeyPress}/>
       </div>
     );

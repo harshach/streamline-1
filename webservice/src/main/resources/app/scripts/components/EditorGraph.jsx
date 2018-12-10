@@ -107,8 +107,8 @@ class EditorGraph extends Component {
 
   render() {
     const actualHeight = (window.innerHeight - (this.props.viewMode
-      ? 100
-      : 100)) + 'px';
+      ? 155
+      : 155)) + 'px';
     const {
       versionsArr,
       connectDropTarget,
@@ -138,7 +138,8 @@ class EditorGraph extends Component {
       contextRouter,
       engine,
       topologyData,
-      selectedExecutionComponentsStatus
+      selectedExecutionComponentsStatus,
+      versionName
     } = this.props;
     const {boxes, bundleArr, loading} = this.state;
 
@@ -180,7 +181,7 @@ class EditorGraph extends Component {
               topologyData={topologyData}
               selectedExecutionComponentsStatus={selectedExecutionComponentsStatus || []}
             />
-            {state.showComponentNodeContainer && !viewMode
+            {state.showComponentNodeContainer && !viewMode && versionName == 'CURRENT'
               ? <ComponentNode
                 testRunningMode={testRunningMode}
                 left={boxes.left}

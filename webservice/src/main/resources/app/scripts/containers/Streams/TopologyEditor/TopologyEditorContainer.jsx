@@ -39,6 +39,8 @@ import CommonLoaderSign from '../../../components/CommonLoaderSign';
 import TestSourceNodeModal from '../TestRunComponents/TestSourceNodeModal';
 import TestSinkNodeModal from '../TestRunComponents/TestSinkNodeModel';
 import ZoomPanelComponent from '../../../components/ZoomPanelComponent';
+import VersionControl from '../../../components/VersionControl';
+import RightSideBar from '../../../components/RightSideBar';
 import {
   StreamEditorGraph,
   BatchEditorGraph
@@ -290,7 +292,9 @@ export class TopologyEditorContainer extends Component {
             this.setState({deployStatus : topologyState.name}, () => {
               const clearTimer = setTimeout(() => {
                 clearInterval(this.interval);
-                this.refs.deployLoadingModal.hide();
+                if(this.refs.deployLoadingModal){
+                  this.refs.deployLoadingModal.hide();
+                }
                 if(topology) {
                   this.saveTopologyVersion(topology.timestamp);
                 } else {
@@ -560,9 +564,11 @@ export class TopologyEditorContainer extends Component {
     this.setState({
       altFlag: !this.state.altFlag
     });
+    const thumbElStr = this.refs.EditorGraph.child.decoratedComponentInstance.refs.TopologyGraph.decoratedComponentInstance.svg.node().outerHTML;
     let versionData = {
       name: 'V' + this.state.topologyVersion,
-      description: 'version description auto generated'
+      description: 'version description auto generated',
+      dagThumbnail: thumbElStr
     };
     TopologyREST.saveTopologyVersion(this.topologyId, {body: JSON.stringify(versionData)}).then((versionResponse) => {
       let versions = this.state.versionsArr;
@@ -1267,12 +1273,47 @@ export class TopologyEditorContainer extends Component {
       viewModeData={this.state.viewModeData || {}}
       isAppRunning={isAppRunning}
       compSelectCallback={this.compSelectCallback}
+      versionName={this.versionName}
       {...this.getEditorProps()}
     />;
   }
 
   getEditorProps = () => {
     return {}; /*Required for view mode*/
+  }
+  handleVersionChange = (value) => {
+    this.fetchData(value);
+  }
+  setCurrentVersion = () => {
+    this.refs.BaseContainer.refs.Confirm.show({title: 'Are you sure you want to set this version as your current one?'}).then((confirmBox) => {
+      TopologyREST.activateTopologyVersion(this.topologyId, this.versionId).then(result => {
+        if (result.responseMessage !== undefined) {
+          FSReactToastr.error(
+            <CommonNotification flag="error" content={result.responseMessage}/>, '', toastOpt);
+        } else {
+          FSReactToastr.success(
+            <strong>Version switched successfully</strong>
+          );
+          this.fetchData();
+        }
+      });
+      confirmBox.cancel();
+    }, () => {});
+  }
+  getCurrentVersionThumbnail = () => {
+    return this.refs.EditorGraph && this.refs.EditorGraph.child.decoratedComponentInstance.refs.TopologyGraph ?
+     this.refs.EditorGraph.child.decoratedComponentInstance.refs.TopologyGraph.decoratedComponentInstance.svg.node().outerHTML
+     : '';
+  }
+  getRightSideBar = () => {
+    return <VersionControl
+      versions={this.state.versionsArr}
+      handleVersionChange={this.handleVersionChange}
+      selectedVersionName={this.versionName}
+      setCurrentVersion={this.setCurrentVersion}
+      getCurrentVersionThumbnail={this.getCurrentVersionThumbnail}
+      lastUpdatedTime={this.lastUpdatedTime}
+    />;
   }
 
   render() {
@@ -1282,13 +1323,26 @@ export class TopologyEditorContainer extends Component {
       : '';
 
     return (
-      <BaseContainer ref="BaseContainer" routes={this.props.routes} onLandingPage="false" headerContent={this.getTopologyHeader()}>
+      <BaseContainer ref="BaseContainer" routes={this.props.routes} onLandingPage="false" headerContent={this.getTopologyHeader()} siblingContent={this.getRightSideBar()}>
         <div className="row">
           <div className="col-sm-12">
             {fetchLoader
               ? [<div key={"1"} className="loader-overlay"></div>,<CommonLoaderSign key={"2"} imgName={"viewMode"}/>]
               : <div className="graph-region">
-                <ZoomPanelComponent testCompleted={testCompleted}  lastUpdatedTime={this.lastUpdatedTime} versionName={this.versionName} zoomInAction={this.graphZoomAction.bind(this, 'zoom_in')} zoomOutAction={this.graphZoomAction.bind(this, 'zoom_out')} showConfig={this.showConfig.bind(this)} confirmMode={this.confirmMode.bind(this)} testRunActivated={testRunActivated}/>
+                <ZoomPanelComponent
+                  mode="edit"
+                  router={this.props.router}
+                  projectId={this.projectId}
+                  topologyId={this.topologyId}
+                  testCompleted={testCompleted}
+                  lastUpdatedTime={this.lastUpdatedTime}
+                  versionName={this.versionName}
+                  zoomInAction={this.graphZoomAction.bind(this, 'zoom_in')}
+                  zoomOutAction={this.graphZoomAction.bind(this, 'zoom_out')}
+                  showConfig={this.showConfig.bind(this)}
+                  confirmMode={this.confirmMode.bind(this)}
+                  testRunActivated={testRunActivated}
+                />
                 {this.getEditorGraph()}
                 <div className="topology-footer">
                   {testRunActivated

@@ -36,6 +36,7 @@ import Modal from '../../../components/FSModal';
 import CommonNotification from '../../../utils/CommonNotification';
 import {TopologyEditorContainer} from './TopologyEditorContainer';
 import TopologyViewMode from './TopologyViewMode';
+import ZoomPanelComponent from '../../../components/ZoomPanelComponent';
 import CommonLoaderSign from '../../../components/CommonLoaderSign';
 import ErrorStatus from '../../../components/ErrorStatus';
 import app_state from '../../../app_state';
@@ -679,7 +680,19 @@ class TopologyViewContainer extends TopologyEditorContainer {
             : <div>
               {
                 this.checkAuth
-                ? [<TopologyViewMode
+                ? [<ZoomPanelComponent
+                    mode="view"
+                    router={this.props.router}
+                    projectId={this.projectId}
+                    topologyId={this.topologyId}
+                    lastUpdatedTime={this.lastUpdatedTime}
+                    versionName={this.versionName}
+                    zoomInAction={this.graphZoomAction.bind(this, 'zoom_in')}
+                    zoomOutAction={this.graphZoomAction.bind(this, 'zoom_out')}
+                    showConfig={this.showConfig.bind(this)}
+                    confirmMode={this.confirmMode.bind(this)}
+                  />,
+                  <TopologyViewMode
                     allACL={allACL} key={"1"} {...this.state}
                     runtimeObj={this.runtimeObj}
                     projectId={this.projectData.id}
@@ -698,10 +711,6 @@ class TopologyViewContainer extends TopologyEditorContainer {
                     engine={this.engine}
                    />,
                   <div id="viewMode" className="graph-bg" key={"2"}>
-                    <div className="zoom-btn-group">
-                      <i className="fa fa-search-plus" onClick={this.zoomAction.bind(this, "zoom_in")}></i>
-                      <i className="fa fa-search-minus" onClick={this.zoomAction.bind(this, "zoom_out")}></i>
-                    </div>
                     {this.getEditorGraph()}
                   </div>]
                 : <ErrorStatus imgName={"viewMode"} />

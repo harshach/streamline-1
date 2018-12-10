@@ -1329,7 +1329,20 @@ export class TopologyEditorContainer extends Component {
             {fetchLoader
               ? [<div key={"1"} className="loader-overlay"></div>,<CommonLoaderSign key={"2"} imgName={"viewMode"}/>]
               : <div className="graph-region">
-                <ZoomPanelComponent testCompleted={testCompleted}  lastUpdatedTime={this.lastUpdatedTime} versionName={this.versionName} zoomInAction={this.graphZoomAction.bind(this, 'zoom_in')} zoomOutAction={this.graphZoomAction.bind(this, 'zoom_out')} showConfig={this.showConfig.bind(this)} confirmMode={this.confirmMode.bind(this)} testRunActivated={testRunActivated}/>
+                <ZoomPanelComponent
+                  mode="edit"
+                  router={this.props.router}
+                  projectId={this.projectId}
+                  topologyId={this.topologyId}
+                  testCompleted={testCompleted}
+                  lastUpdatedTime={this.lastUpdatedTime}
+                  versionName={this.versionName}
+                  zoomInAction={this.graphZoomAction.bind(this, 'zoom_in')}
+                  zoomOutAction={this.graphZoomAction.bind(this, 'zoom_out')}
+                  showConfig={this.showConfig.bind(this)}
+                  confirmMode={this.confirmMode.bind(this)}
+                  testRunActivated={testRunActivated}
+                />
                 {this.getEditorGraph()}
                 <div className="topology-footer">
                   {testRunActivated

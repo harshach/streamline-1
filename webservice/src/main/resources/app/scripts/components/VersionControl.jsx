@@ -97,7 +97,7 @@ export default class VersionControl extends Component{
       <div className="right-sidebar-header">
         <div>
           <h6 className="version-control">Version Control</h6>
-          <DropdownButton bsStyle="link" className="btn-sm" title={selectedVersionName} pullRight id="version-dropdown" onSelect={(v) => {
+          <DropdownButton bsStyle="link" className="btn-sm" title={selectedVersionName} id="version-dropdown" onSelect={(v) => {
             handleVersionChange(v);
           }} >
             {_.map(versions, (v, i) => {

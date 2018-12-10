@@ -1121,7 +1121,7 @@ export class enumobject extends BaseField {
     const selected = _.find(this.props.fieldJson.options, (d) => {
       return d.fieldName == value;
     });
-    const optionsFields = Utils.genFields(selected.fields, this.props.valuePath.split('.'), this.data);
+    const optionsFields = Utils.genFields(selected.fields, this.props.valuePath.split('.'), this.data[value]);
     const {className} = this.props;
     return (
       <div className={className}>

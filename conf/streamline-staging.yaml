@@ -181,6 +181,7 @@ authorizerConfiguration:
    - "jianyong"
    - "pawan"
    - "root"
+   - "pcullen"
  containerRequestFilter: "com.hortonworks.streamline.streams.security.authentication.StreamlineOpenIdAuthorizationRequestFilter"
  principalDomain: "uber.com"
 

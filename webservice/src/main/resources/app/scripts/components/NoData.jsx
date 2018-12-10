@@ -26,7 +26,7 @@ export default class NoData extends Component {
     });
     const imgUrl = `styles/img/back-${imgName}.png`;
     const divStyle = {
-      backgroundImage: 'url(' + imgUrl + ')',
+      // backgroundImage: 'url(' + imgUrl + ')',
       backgroundRepeat: "no-repeat",
       backgroundPosition: `${searchVal || analyst
         ? "center"
@@ -194,5 +194,22 @@ export default class NoData extends Component {
 }
       </div>
     );
+  }
+}
+
+export class BeginNew extends Component{
+  render(){
+    const {onClick, type} = this.props;
+    const typeToLower = type.toLowerCase();
+    return <div className="u-form text-center">
+      <div className="empty-data-box">
+        <div>
+          <img src="styles/img/uWorc/nodata.png" />
+        </div>
+        <h4 className="headline">You have not created any {typeToLower} yet.</h4>
+        <p className="info">Start here to create your first {typeToLower}. For additional support and instructions, use our #uworc-jumpstarter page.</p>
+        <button type="button" className="btn btn-success" onClick={onClick}>Begin New {type}</button>
+      </div>
+    </div>;
   }
 }

@@ -39,7 +39,7 @@ import ProjectREST from '../../../rest/ProjectREST';
 
 /* component import */
 import BaseContainer from '../../BaseContainer';
-import NoData from '../../../components/NoData';
+import NoData, {BeginNew} from '../../../components/NoData';
 import CommonNotification from '../../../utils/CommonNotification';
 import {toastOpt, PieChartColor, accessCapabilities} from '../../../utils/Constants';
 import PieChart from '../../../components/PieChart';
@@ -455,7 +455,7 @@ class TopologyListingContainer extends Component {
   }
 
   onFilterChange = (e) => {
-    this.setState({filterValue: e.target.value.trim()}, () => {
+    this.setState({filterValue: e.target.value.trim(), searchLoader: true}, () => {
       this.getFilteredEntities();
     });
   }
@@ -852,11 +852,17 @@ class TopologyListingContainer extends Component {
     }}>&nbsp;{this.state.sorted.text}</span>
     </span>;
 
+    const components = (splitData.length === 0)
+    ? <NoData imgName={"default"} searchVal={filterValue} userRoles={app_state.user_profile}/>
+    : splitData[pageIndex].map((list) => {
+      return <TopologyItems key={list.topology.id} projectId={this.props.params.projectId} topologyList={list} topologyAction={this.actionHandler} refIdArr={refIdArr} allACL={allACL}/>;
+    });
+
     return (
       <BaseContainer ref="BaseContainer" routes={this.props.routes} headerContent={this.getHeaderContent()}>
         {!fetchLoader
           ? <div>
-              {hasEditCapability(accessCapabilities.APPLICATION) ?
+              {hasEditCapability(accessCapabilities.APPLICATION) && (entities.length || filterValue) ?
                 <div className="add-btn text-center">
                   <DropdownButton title={btnIcon} id="actionDropdown" className="actionDropdown success" noCaret>
                     <MenuItem onClick={this.onActionMenuClicked.bind(this, "create")}>
@@ -904,11 +910,7 @@ class TopologyListingContainer extends Component {
         <div className="row">
           {(fetchLoader || searchLoader)
             ? [<div key={"1"} className="loader-overlay"></div>,<CommonLoaderSign key={"2"} imgName={"applications"}/>]
-            : (splitData.length === 0)
-              ? <NoData imgName={"default"} searchVal={filterValue} userRoles={app_state.user_profile}/>
-              : splitData[pageIndex].map((list) => {
-                return <TopologyItems key={list.topology.id} projectId={this.props.params.projectId} topologyList={list} topologyAction={this.actionHandler} refIdArr={refIdArr} allACL={allACL}/>;
-              })
+            : filterValue || entities.length ? components : <BeginNew type="Workflow" onClick={this.onActionMenuClicked.bind(this, "create")}/>
 }
         </div>
         {(entities.length > pageSize)

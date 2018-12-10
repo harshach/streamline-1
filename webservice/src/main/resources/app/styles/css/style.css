@@ -30,7 +30,7 @@
 /* Generic */
 
 body {
-  background-color: #FFFFFF;
+  background-color: #F7F7F7;
   font-family: 'Roboto', sans-serif;
   -webkit-font-smoothing: antialiased;
   /*padding-bottom: 30px;*/
@@ -1990,6 +1990,7 @@ span.version {
   color: #fff;
   font-size: 16px;
   line-height: 40px;
+  text-decoration: none;
 }
 .add-btn a:hover{
   color: white;
@@ -2022,7 +2023,7 @@ span.version {
   color: #B3B3B3;
 }
 .search-box .input-group-addon, .search-box input{
-  background-color: #F6F6F6;
+  background-color: #F0F0F0;
   border-radius: 0px;
   border: none;
   height: 40px;
@@ -4958,6 +4959,25 @@ h3.empty-project {
   color: #c1c1c1;
   text-shadow: 3px 2px 1px rgba(0,0,0,0.1);
 }
+.empty-data-box{
+  width: 400px;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  margin-left: -200px;
+  margin-top: -125px;
+}
+.empty-data-box .headline{
+  font-size: 20px;
+  line-height: 24px;
+  margin-top: 25px;
+  color:#333333;
+}
+.empty-data-box .info{
+  font-size: 14px;
+  line-height: 24px;
+  color:#666666;
+}
 
 .u-form .btn, .u-form.btn:active:focus{
   font-size: 14px;
@@ -4999,6 +5019,9 @@ h3.empty-project {
 }
 .u-form .modal-body{
   padding: 0 41px;
+}
+.u-form .search-box .input-group-addon{
+  background: #F7F7F7;
 }
 .u-form .modal-footer{
   padding: 18px 41px 31px 41px;

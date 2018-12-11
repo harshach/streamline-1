@@ -39,6 +39,7 @@ export default class SqlProcessorNodeForm extends Component {
       streamObj: {},
       fetchLoader: true
     };
+    this.tableMapping = {};
     this.udfList = [];
     this.fetchUdfs();
   }
@@ -146,7 +147,8 @@ export default class SqlProcessorNodeForm extends Component {
           if(!statement.from){
             return;
           }
-          const tableName = statement.from.name;
+          const tableNameFromSql = statement.from.name;
+          const tableName = this.tableMapping[tableNameFromSql];
           const inputstream = _.find(inputStreamOptions, (stream) => {
             const regex = new RegExp(tableName);
             const streamIdWOId = stream.streamId.split('_');
@@ -239,8 +241,10 @@ export default class SqlProcessorNodeForm extends Component {
         const streamIdWOId = stream.streamId.split('_');
         streamIdWOId.splice(streamIdWOId.length-1, 1);
         const topicNameFromStreamId = streamIdWOId.join('_');
+        const formatedTableName = 'hdrone.'+topicNameFromStreamId.replace('-', '_');
+        this.tableMapping[formatedTableName.toLowerCase()] = topicNameFromStreamId;
         tableNames.push({
-          name: topicNameFromStreamId,
+          name: formatedTableName,
           type: 'TABLE'
         });
 

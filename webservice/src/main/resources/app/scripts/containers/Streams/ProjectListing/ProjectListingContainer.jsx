@@ -75,9 +75,12 @@ class ProjectCard extends Component {
         })}
       </ul>
       :
-      <h3 className="empty-project">
-        No Application Found
-      </h3>;
+      <ul className="project-engines ">
+        <li className="no-workflow">
+          <span className="engine-name">No Workflow</span>
+          <span className="badge">0</span>
+        </li>
+      </ul>;
 
     return (
       <div className="col-md-3">
@@ -103,7 +106,7 @@ class ProjectCard extends Component {
               <Link to={`projects/${data.id}/applications`}>{data.name}</Link>
             </h6>
             <span className="display-block project-description">{data.description}</span>
-            <span className="display-block project-timestamp">Created at {moment(data.timestamp).format('MMMM Do YYYY, h:mm:ss a')}</span>
+            <span className="display-block project-timestamp">Last modified on {Utils.datetime(data.timestamp).value}</span>
           </div>
         </div>
       </div>

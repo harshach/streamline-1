@@ -216,7 +216,7 @@
   color: #252422;
   padding: 10px 0;
   margin-bottom: 20px;
-  position: relative;
+  /* position: relative; */
   z-index: 1;
 }
 

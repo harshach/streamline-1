@@ -119,6 +119,9 @@ footer {
 
 
 /* Bootstrap Overide */
+a {
+  color: #276EF1;
+}
 .btn-primary {
   background-color: #1B6DE0;
   border-color: #1B6DE0;
@@ -2093,6 +2096,7 @@ span.version {
   border-radius: 5px;
   box-shadow: none;
   padding: 0;
+  color: #333333;
 }
 .padding-24{
   padding: 24px;
@@ -2133,12 +2137,12 @@ ul.project-engines li .badge{
 }
 
 ul.project-engines li.storm{
-  color: #276EF1;
-  background: #EDF3FE;
+  color: #47B275;
+  background: #DAF0E3;
 }
 ul.project-engines li.storm .badge{
-  background: #D3E1FF;
-  color: #1E54B7;
+  background: #AEDDC2;
+  color: #47B275;
 }
 ul.project-engines li.piper{
   color: #276EF1;
@@ -2149,12 +2153,20 @@ ul.project-engines li.piper .badge{
   color: #1E54B7;
 }
 ul.project-engines li.athenax{
-  color: #F19248;
+  color: #FF7D49;
   background: #FEF3EC;
 }
 ul.project-engines li.athenax .badge{
-  background: #fde1cb;
-  color: #F19248;
+  background: #FFE2CB;
+  color: #FF7D49;
+}
+ul.project-engines li.no-workflow{
+  color: #000000;
+  background: #E2E2E2;
+}
+ul.project-engines li.no-workflow .badge{
+  background: #CBCBCB;
+  color: #4E545B;
 }
 
 .project-name{
@@ -2191,6 +2203,13 @@ ul.project-engines li.athenax .badge{
 }
 .metric-right{
   display: table-cell;
+}
+.metric-right-footer{
+  position: relative;
+  top: -25px;
+}
+.metric-right-footer button{
+  padding-right: 0px;
 }
 .metric-title{
   font-size: 14px;
@@ -2238,6 +2257,27 @@ ul.project-engines li.athenax .badge{
   line-height: 20px;
   font-weight: bold;
   display: block;
+}
+.app-name > .engine-name {
+  height: 20px;
+  border-radius: 10px;
+  padding: 0 12px;
+  margin-left: 10px;
+  line-height: 20px;
+  font-weight: normal;
+  display: inline-block;
+}
+.app-name > .engine-name.storm {
+  color: #47B275;
+  background: #DAF0E3;
+}
+.app-name > .engine-name.piper {
+  color: #276EF1;
+  background: #EDF3FE;
+}
+.app-name > .engine-name.athenax {
+  color: #f19248;
+  background: #fef3ec;
 }
 .app-last-update-label{
   color:  #B3B3B3;
@@ -5209,7 +5249,7 @@ h3.empty-project {
   font-weight: 300;
 }
 .u-form .modal-body{
-  padding: 15px 25px;
+  padding: 0px 25px 15px 25px;
 }
 .u-form .search-box .input-group-addon{
   background: #F7F7F7;
@@ -5400,7 +5440,13 @@ aside.right-sidebar.active {
   padding: 5px 8px;
 }
 .btn-panels img{
-  filter: url(#grayscale);
+  /* filter: url(#grayscale); */
+  width: 16px;
+}
+.btn-panels.active,
+.right-sidebar.active .icon-panel .btn-panels {
+  background-color: #CCCCCC;
+  border-color: #CCCCCC;
 }
 .btn-panels.active img{
   filter: url(#blue-wash);

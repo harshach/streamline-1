@@ -81,17 +81,18 @@ class TopologyComponentMetrics extends Component {
 
         const uiNameArr = t.uiName.split(' ');
 
-        const component = <div className="component-metric-widget" style={{margin : "0 10px 10px 0"}}>
-            <h6>{uiNameArr[0]}</h6>
-            {uiNameArr[1] ? <h6>{uiNameArr[1]}</h6> : <h6>&nbsp;</h6>}
-            <h4>{value.value}
-            <small>{value.suffix}</small></h4>
-          </div>;
+        const component = <tr>
+            <td><span className="execution-metric-label">{t.uiName}</span></td>
+            <td>
+              <span className="execution-metric-value">{value.value}</span>
+              <small>{value.suffix}</small>
+            </td>
+          </tr>;
         metrics.push(component);
       });
     }
 
-    return metrics;
+    return <table>{metrics}</table>;
   }
 
   getTimeseriesMetrics(timeSeriesMetrics){
@@ -170,11 +171,13 @@ class TopologyComponentMetrics extends Component {
     }
     const colTimeWidth =  60, colStaticWidth = 40;
     // increase the parent with multiple the number of columns..
-    const parentWidth = compData.parentType == 'SOURCE'
+    /*const parentWidth = compData.parentType == 'SOURCE'
                         ? ((colTimeWidth * 1) + (colStaticWidth*3)) + (4*7.5)
-                        : ((colTimeWidth * 2) + (colStaticWidth*3)) + (5*7.5);
+                        : ((colTimeWidth * 2) + (colStaticWidth*3)) + (5*7.5);*/
+    const parentWidth = 208;
+
     return (
-      <div className="overviewDiv" style={{width : parentWidth+'px'}}>
+      <div className="overviewDiv" style={{width : parentWidth+'px', height: '79px'}}>
       <div className="metric-bg top"></div>
       <div className="component-metric-top">
         {overviewMetrics && this.getMetrics(overviewMetrics)}

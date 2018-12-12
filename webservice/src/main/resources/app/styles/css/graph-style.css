@@ -216,7 +216,7 @@ path.link.selected {
 }
 
 rect.node-rectangle {
-  filter: url(#dropshadow);
+  /*filter: url(#dropshadow);*/
 }
 
 rect.datasink {

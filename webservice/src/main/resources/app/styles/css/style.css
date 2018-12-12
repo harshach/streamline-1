@@ -1311,6 +1311,99 @@ label {
 .executions-container table td h6:hover{
   text-decoration: none;
 }
+.execution-box{
+  display: inline-block;
+  height: 22px;
+  width: 22px;
+  border-radius: 2px;
+  margin: 3px 3px -5px 0px;
+  cursor: pointer;
+}
+.execution-box.succeeded{
+  background: #07A35A;
+}
+.execution-box.done{
+  background: #07A35A;
+}
+.execution-box.failed{
+  background: #E54937;
+}
+.execution-box.running{
+  background: #1B6DE0;
+}
+.execution-box.queued{
+  background: #F19248;
+}
+.execution-page-btn{
+  padding: 5px 5px;
+  cursor: pointer;
+}
+.execution-range{
+  font-size: 12px;
+}
+.execution-metrics-container{
+  margin-top: 20px;
+}
+.execution-metric-label{
+  color: #999999;
+  font-size: 12px;
+}
+.execution-metric-value{
+  color: #333333;
+  font-size: 12px;
+  margin-left: 15px;
+}
+.task-metrics{
+  margin-top: 30px;
+}
+.task-metrics-header{
+  border-top: 1px #ccc solid;
+  border-bottom: 1px #ccc solid;
+  margin-top: 15px;
+  padding: 10px 20px;
+  position: relative;
+  left: -20px;
+  width: calc(100% + 40px);
+}
+.task-metrics-header > div.text-left{
+  display: inline-block;
+}
+.task-metrics-header > div.text-right{
+  display: inline;
+}
+.task-metrics-header .execution-metric-value{
+  margin-left: 0px;
+}
+.timeseries-metrics-tabs{
+  position: relative;
+  left: -20px;
+  width: calc(100% + 40px);
+}
+.timeseries-metrics-tabs .nav-tabs{
+  font-size: 12px;
+  width: 100%;
+  padding: 0 0 0 5px;
+}
+.timeseries-metrics-tabs .nav-tabs > li{
+  margin-bottom: 0px;
+}
+.timeseries-metrics-tabs .nav-tabs > li > a{
+  padding: 10px 6px;
+  color: #333333;
+  border-radius: 0;
+  padding-bottom: 11px;
+}
+.timeseries-metrics-tabs .nav-tabs > li.active > a,
+.timeseries-metrics-tabs .nav-tabs > li.active > a:hover,
+.timeseries-metrics-tabs .nav-tabs > li.active > a:focus{
+  border:none;
+  border-bottom: 2px solid #1B6DE0;
+  padding-bottom: 11px;
+  color: #1B6DE0;
+}
+.timeseries-metrics-tabs .tab-content{
+  margin: 20px 10px;
+}
 .loading-container{
   position: absolute;
   top:0;
@@ -4668,6 +4761,11 @@ ul.custom-pagination li.active{
   font-size: 12px;
   margin: 0 3px 0 3px;
 }
+.component-metric-widget{
+  overflow: auto;
+  display: block;
+  width: 100%;
+}
 .component-metric-widget div {
   text-align: left;
 }
@@ -4865,6 +4963,8 @@ div.actions-list > div > ul > li > span.logsearchLink{
 .overviewDiv{
   width: 100%;
   height: auto;
+  background: #FFFFFF;
+  padding-left: 10px;
 }
 
 /* CSS For CodeMirror Start Here  */
@@ -5208,6 +5308,7 @@ aside.right-sidebar.active {
   overflow-y: auto;
   position: absolute;
   height: 100%;
+  width: calc(100% - 40px);
 }
 .right-sidebar-header {
   padding: 10px;

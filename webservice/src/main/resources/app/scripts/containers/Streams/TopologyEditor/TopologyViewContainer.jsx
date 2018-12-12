@@ -36,6 +36,7 @@ import Modal from '../../../components/FSModal';
 import CommonNotification from '../../../utils/CommonNotification';
 import {TopologyEditorContainer} from './TopologyEditorContainer';
 import TopologyViewMode from './TopologyViewMode';
+import BatchMetrics from '../../../components/BatchMetrics';
 import ZoomPanelComponent from '../../../components/ZoomPanelComponent';
 import CommonLoaderSign from '../../../components/CommonLoaderSign';
 import ErrorStatus from '../../../components/ErrorStatus';
@@ -83,7 +84,7 @@ class TopologyViewContainer extends TopologyEditorContainer {
     availableTimeSeriesDb: false,
     fetchLoader: true,
     fetchMetrics: true,
-    startDate: moment().subtract(30, 'minutes'),
+    startDate: moment().subtract(1440, 'minutes'),
     endDate: moment(),
     activeRangeLabel: null,
     viewModeData: {
@@ -101,7 +102,7 @@ class TopologyViewContainer extends TopologyEditorContainer {
       logTopologyLevel : 'None',
       durationTopologyLevel :  0
     },
-    executionInfoPageSize: 5,
+    executionInfoPageSize: 30,
     executionInfoPage: 0,
     executionInfo: {},
     selectedExecution: {},
@@ -296,7 +297,7 @@ class TopologyViewContainer extends TopologyEditorContainer {
           compMetrics.overviewMetrics = {
             metrics: compEx
           };
-          compMetrics.timeSeriesMetrics = timeSeriesMetricsData.timeSeriesMetrics;
+          compMetrics.timeSeriesMetrics = timeSeriesMetricsData ? timeSeriesMetricsData.timeSeriesMetrics : {};
           taskMetrics.push(compMetrics);
         });
 
@@ -430,8 +431,8 @@ class TopologyViewContainer extends TopologyEditorContainer {
     if(this.engine.type == 'batch'){
       const req = this.fetchExecutions();
       promiseArr.push(req);
-      const timeseriesMetricReqs = this.fetchBatchTimeSeriesMetrics();
-      promiseArr.push.apply(promiseArr, [...timeseriesMetricReqs]);
+      // const timeseriesMetricReqs = this.fetchBatchTimeSeriesMetrics();
+      // promiseArr.push.apply(promiseArr, [...timeseriesMetricReqs]);
     }else{
       promiseArr.push(ViewModeREST.getTopologyMetrics(this.topologyId, fromTime, toTime).then((res)=>{
         viewModeData.topologyMetrics = res;
@@ -523,7 +524,9 @@ class TopologyViewContainer extends TopologyEditorContainer {
     this.fetchData(value);
   }
   datePickerCallback = (startDate, endDate, activeRangeLabel) => {
-    this.refs.metricsPanelRef.setState({loadingRecord: true});
+    if(this.refs.metricsPanelRef){
+      this.refs.metricsPanelRef.setState({loadingRecord: true});
+    }
     this.setState({
       startDate: startDate,
       endDate: endDate,
@@ -667,13 +670,30 @@ class TopologyViewContainer extends TopologyEditorContainer {
     this.refs.EditorGraph.child.decoratedComponentInstance.refs.TopologyGraph.decoratedComponentInstance.updateGraph();
   }
 
+  getRightSideBar = () => {
+    const {topologyName, executionInfo, selectedExecution} = this.state;
+    return <BatchMetrics
+      {...this.state}
+      executionInfo={executionInfo}
+      lastUpdatedTime={this.lastUpdatedTime}
+      topologyName={topologyName}
+      onSelectExecution={this.onSelectExecution}
+      getPrevPageExecutions={this.getPrevPageExecutions}
+      getNextPageExecutions={this.getNextPageExecutions}
+      compSelectCallback={this.compSelectCallback}
+      components={this.graphData.nodes}
+      selectedExecution={selectedExecution}
+      datePickerCallback={this.datePickerCallback}
+    />;
+  }
+
   render() {
     const {fetchLoader,allACL, viewModeData, startDate, endDate} = this.state;
     let nodeType = this.node
       ? this.node.currentType
       : '';
     return (
-      <BaseContainer ref="BaseContainer" routes={this.props.routes} onLandingPage="false" headerContent={this.getTopologyHeader()}>
+      <BaseContainer ref="BaseContainer" routes={this.props.routes} onLandingPage="false" headerContent={this.getTopologyHeader()} siblingContent={this.getRightSideBar()}>
         <div className="topology-view-mode-container">
           {fetchLoader
             ? [<div key={"1"} className="loader-overlay"></div>,<CommonLoaderSign key={"2"} imgName={"viewMode"}/>]
@@ -725,7 +745,7 @@ class TopologyViewContainer extends TopologyEditorContainer {
           : "modal-fixed-height"} data-title={this.modalTitle} data-resolve={this.handleSaveNodeModal.bind(this)}>
           {this.modalContent()}
         </Modal>
-        {this.state.isAppRunning && this.graphData.nodes.length > 0 && this.versionName.toLowerCase() == 'current' ?
+        {this.state.isAppRunning && this.graphData.nodes.length > 0 && this.versionName.toLowerCase() == 'current' && this.engine.type == 'stream' ?
         <TopologyViewModeMetrics
           ref="metricsPanelRef"
           {...this.state}
@@ -735,9 +755,6 @@ class TopologyViewContainer extends TopologyEditorContainer {
           compSelectCallback={this.compSelectCallback}
           datePickerCallback={this.datePickerCallback}
           engine={this.engine}
-          onSelectExecution={this.onSelectExecution}
-          getPrevPageExecutions={this.getPrevPageExecutions}
-          getNextPageExecutions={this.getNextPageExecutions}
         />
         : null}
       </BaseContainer>

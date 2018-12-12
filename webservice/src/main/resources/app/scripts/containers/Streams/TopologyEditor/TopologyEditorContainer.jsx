@@ -193,7 +193,7 @@ export class TopologyEditorContainer extends Component {
         };
 
         let unknown = data.running;
-        let isAppRunning = false;
+        let isAppRunning = true;
         let status = '';
         if (this.topologyMetric.metrics.status) {
           status = this.topologyMetric.metrics.status;

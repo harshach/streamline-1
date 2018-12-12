@@ -57,7 +57,7 @@ app.use("/", express.static(__dirname + '/app'));
 //-------------------proxy-------------------
 
 const proxyMiddleware = require('http-proxy-middleware');
-const restTarget = 'http://localhost:8080';
+const restTarget = 'http://85.10.201.175:8081';
 
 const proxyTable = {}; // when request.headers.host == 'dev.localhost:3000',
 proxyTable[host + ':' + port] = restTarget; // override target 'http://www.example.org' to 'http://localhost:8000'

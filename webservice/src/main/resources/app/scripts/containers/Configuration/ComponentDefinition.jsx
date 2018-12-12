@@ -181,7 +181,7 @@ export default class ComponentDefinition extends Component {
                   }
                   </div>
               }
-                <Modal ref="definitionModel"
+                <Modal className="u-form" ref="definitionModel"
                   data-title="Edit Definition"
                   onKeyPress={this.handleKeyPress}
                   data-resolve={this.handleSave}>

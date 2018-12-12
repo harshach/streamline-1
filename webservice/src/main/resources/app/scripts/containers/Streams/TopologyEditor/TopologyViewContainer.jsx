@@ -672,6 +672,16 @@ class TopologyViewContainer extends TopologyEditorContainer {
     let nodeType = this.node
       ? this.node.currentType
       : '';
+      // this.viewMode && (nodeType.toLowerCase() === 'join' || nodeType.toLowerCase() === 'window') ? "modal-xl" : "modal-fixed-height modal-xl"
+    let nodeClassName = "";
+    if(this.node && (this.node.parentType.toLowerCase() === 'source' || this.node.parentType.toLowerCase() === 'sink')){
+      nodeClassName = "modal-fixed-height modal-lg";
+    } else if(nodeType === 'join' || nodeType === 'window' || nodeType === 'projection' ||
+      nodeType === 'rt-join' || nodeType === 'sql'){
+      nodeClassName = "modal-xl";
+    } else {
+      nodeClassName = "modal-fixed-height modal-xl";
+    }
     return (
       <BaseContainer ref="BaseContainer" routes={this.props.routes} onLandingPage="false" headerContent={this.getTopologyHeader()}>
         <div className="topology-view-mode-container">
@@ -718,11 +728,11 @@ class TopologyViewContainer extends TopologyEditorContainer {
             </div>
 }
         </div>
-        <Modal ref="NodeModal" bsSize={this.processorNode
-          ? "large"
-          : null} dialogClassName={this.viewMode && (nodeType.toLowerCase() === 'join' || nodeType.toLowerCase() === 'window')
-          ? "modal-xl"
-          : "modal-fixed-height"} data-title={this.modalTitle} data-resolve={this.handleSaveNodeModal.bind(this)}>
+        <Modal className="u-form" ref="NodeModal"
+          dialogClassName={nodeClassName}
+          data-title={this.modalTitle}
+          data-resolve={this.handleSaveNodeModal.bind(this)}
+        >
           {this.modalContent()}
         </Modal>
         {this.state.isAppRunning && this.graphData.nodes.length > 0 && this.versionName.toLowerCase() == 'current' ?

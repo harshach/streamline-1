@@ -32,9 +32,16 @@ export default class CommonLoaderSign extends Component {
       height: window.innerHeight - 124
     };
     const load = <span><i className="fa fa-spinner fa-spin"></i> {this.state.text}</span>;
+    // return (
+    //   <div className="col-sm-12 text-center" style={divStyle}>
+    //     <p className="loading-text">{load}</p>
+    //   </div>
+    // );
     return (
-      <div className="col-sm-12 text-center" style={divStyle}>
-        <p className="loading-text">{load}</p>
+      <div className="page-loader">
+        <div className="cssload-container">
+            <div className="cssload-whirlpool"></div>
+        </div>
       </div>
     );
   }

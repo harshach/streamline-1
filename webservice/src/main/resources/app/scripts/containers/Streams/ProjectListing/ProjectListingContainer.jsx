@@ -68,7 +68,7 @@ class ProjectCard extends Component {
             name = 'storm';
             break;
           }
-          return <li className={name}>
+          return <li className={name} key={name+data.id}>
             <span className="engine-name">{displayName}</span>
             <span className="badge">{arr.length}</span>
           </li>;
@@ -83,7 +83,7 @@ class ProjectCard extends Component {
       <div className="col-md-3">
         <div className="service-box card" data-id={data.id} ref={(ref) => this.projectRef = ref}>
           {/*<div className="service-head clearfix">
-            
+
             <div className="service-action-btn">
               <DropdownButton noCaret title={ellipseIcon} id="dropdown" bsStyle="link" className="dropdown-toggle" data-stest="project-actions">
                 <MenuItem onClick={this.onActionClick.bind(this, "edit/")} data-stest="edit-project">
@@ -272,7 +272,7 @@ class ProjectListingContainer extends Component {
                   </FormGroup>
                 : ''}
             </div>
-            {entities.length !== 0 && 
+            {entities.length !== 0 &&
             <div className="add-btn text-center">
               <a href="javascript:void(0);" className="success actionDropdown" data-target="#addEnvironment" onClick={this.handleAdd.bind(this)}>
                 <i className="fa fa-plus"></i> New Project

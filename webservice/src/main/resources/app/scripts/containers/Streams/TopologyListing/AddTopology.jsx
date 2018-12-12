@@ -290,7 +290,7 @@ class AddTopology extends Component {
             _.map(engineOptions, (e) => {
               return <span className="radio-container" onClick={() => this.handleOnChangeEngine(e)} key={e.id}>
                 <input type="radio" name="engine" checked={engineId == e.id}/>
-                {e.displayName}
+                <label>{e.displayName}</label>
               </span>;
             })
           }
@@ -309,7 +309,7 @@ class AddTopology extends Component {
               <FormControl data-stest="searchBox" type="text" placeholder="Search..." onKeyUp={this.onFilterChange} className="" />
             </InputGroup>
           </FormGroup>
-          <div className="row templates-container">{filteredTemplates.length ? 
+          <div className="row templates-container">{filteredTemplates.length ?
             _.map(filteredTemplates, (t) => {
               return <div className={`col-md-6 template-box ${templateId == t.id ? 'selected-template' : ''}`} key={t.name}>
                 <span className="name">{t.name}</span>
@@ -330,7 +330,7 @@ class AddTopology extends Component {
             _.map(namespaceOptions, (n) => {
               return <span className="radio-container" onClick={() => this.handleOnChangeEnvironment(n)} key={n.name}>
                 <input type="radio" name="environment" checked={namespaceId == n.id}/>
-                {n.name}
+                <label>{n.name}</label>
               </span>;
             })
           }

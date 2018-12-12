@@ -202,7 +202,7 @@ class TopologyItems extends Component {
 
     const metrics = [];
 
-    _.each(layout, (row) => {
+    _.each(layout, (row, index) => {
       const left = _.map(row.left, (m) => {
         return designs[m.type](m.name);
       });
@@ -920,19 +920,19 @@ class TopologyListingContainer extends Component {
         <Modal className="u-form" ref={(ref) => this.AddTopologyModelRef = ref} data-title={topologyData ? "Update Engine" : "Add Workflow"} onKeyPress={this.handleKeyPress} data-resolve={this.handleSaveClicked} data-reject={()=>{this.setState({topologyData: null});this.AddTopologyModelRef.hide();}}>
           <AddTopology ref={(ref) => this.addTopologyRef = ref} topologyData={topologyData} />
         </Modal>
-        <Modal ref={(ref) => this.ImportTopologyModelRef = ref} data-title="Import Workflow" onKeyPress={this.handleKeyPress} data-resolve={this.handleImportSave}>
+        <Modal className="u-form" ref={(ref) => this.ImportTopologyModelRef = ref} data-title="Import Workflow" onKeyPress={this.handleKeyPress} data-resolve={this.handleImportSave}>
           <ImportTopology
             ref={(ref) => this.importTopologyRef = ref}
             defaultProjectId={this.props.params.projectId}/>
         </Modal>
-        <Modal ref={(ref) => this.CloneTopologyModelRef = ref} data-title="Clone Workflow" onKeyPress={this.handleKeyPress} data-resolve={this.handleCloneSave}>
+        <Modal className="u-form" ref={(ref) => this.CloneTopologyModelRef = ref} data-title="Clone Workflow" onKeyPress={this.handleKeyPress} data-resolve={this.handleCloneSave}>
           <CloneTopology
             topologyId={this.state.cloneFromId}
             ref={(ref) => this.cloneTopologyRef = ref}
             defaultProjectId={this.props.params.projectId}/>
         </Modal>
         {/* CommonShareModal */}
-        <Modal ref={"CommonShareModalRef"} data-title="Share Workflow"  data-resolve={this.handleShareSave.bind(this)} data-reject={this.handleShareCancel.bind(this)}>
+        <Modal className="u-form" ref={"CommonShareModalRef"} data-title="Share Workflow"  data-resolve={this.handleShareSave.bind(this)} data-reject={this.handleShareCancel.bind(this)}>
           <CommonShareModal ref="CommonShareModal" shareObj={shareObj}/>
         </Modal>
         <a className="btn-download" ref="ExportTopology" hidden download href=""></a>

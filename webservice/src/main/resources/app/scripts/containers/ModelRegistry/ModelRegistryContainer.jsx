@@ -169,7 +169,7 @@ class ModelRegistryContainer extends Component {
 }
             </div>
             <div id="add-environment">
-              <a href="javascript:void(0);" className="hb lg success actionDropdown" data-target="#addEnvironment" onClick={this.handleAdd.bind(this)}>
+              <a href="javascript:void(0);" className="hb lg default-blue actionDropdown" data-target="#addEnvironment" onClick={this.handleAdd.bind(this)}>
                 <i className="fa fa-plus"></i>
               </a>
             </div>
@@ -211,7 +211,7 @@ class ModelRegistryContainer extends Component {
 }
           </div>
         </div>
-        <Modal ref="addModal" data-title={`${editModeData.id
+        <Modal className="u-form" ref="addModal" data-title={`${editModeData.id
           ? "Edit"
           : "Add"} Model`} onKeyPress={this.handleKeyPress} data-resolve={this.handleSave.bind(this)}>
           <AddModelRegistry ref="addModelRegistry" editData={editModeData}/>

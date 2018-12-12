@@ -429,7 +429,7 @@ class TestSourceNodeModal extends Component{
     );
     return(
       <div>
-        <div style={{"width" : "95%", margin : "auto auto 20px auto"}}>
+        <div style={{margin : "auto auto 20px auto"}}>
           <label>Name
             <span className="text-danger">*</span>
           </label>
@@ -489,7 +489,7 @@ class TestSourceNodeModal extends Component{
                                         <input type="file" ref="browseFile" accept=".json" className="inputfile" onClick={(e) => {
                                           e.stopPropagation();
                                         }} onChange={this.fileHandler.bind(this,'browser')}/>
-                                        <label htmlFor="file" className="btn btn-success">BROWSE</label>
+                                        <label htmlFor="file" className="btn btn-primary">BROWSE</label>
                                         </div>
                                       </div>
                                     </div>

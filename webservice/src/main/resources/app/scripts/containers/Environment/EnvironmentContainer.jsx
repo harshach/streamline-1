@@ -239,7 +239,7 @@ class EnvironmentContainer extends Component {
   btnClassChange = () => {
     if (!this.state.fetchLoader) {
       const actionMenu = document.querySelector('.actionDropdown');
-      actionMenu.setAttribute("class", "actionDropdown hb lg success ");
+      actionMenu.setAttribute("class", "actionDropdown hb lg default-blue ");
       if (this.state.entities.length !== 0) {
         actionMenu.parentElement.setAttribute("class", "dropdown");
         const sortDropdown = document.querySelector('.sortDropdown');
@@ -624,7 +624,7 @@ class EnvironmentContainer extends Component {
       <BaseContainer ref="BaseContainer" routes={routes} headerContent={this.getHeaderContent()}>
         {hasEditCapability(accessCapabilities.ENVIRONMENT) ?
           <div id="add-environment">
-            <a href="javascript:void(0);" className="hb lg success actionDropdown" data-target="#addEnvironment" onClick={this.addEnvironmentBtn}>
+            <a href="javascript:void(0);" className="hb lg default-blue actionDropdown" data-target="#addEnvironment" onClick={this.addEnvironmentBtn}>
               <i className="fa fa-plus"></i>
             </a>
           </div>
@@ -682,11 +682,11 @@ class EnvironmentContainer extends Component {
           ? <Paginate len={customEntities.length} splitData={splitData} pagesize={pageSize} pagePosition={this.pagePosition}/>
           : ''
         }
-        <Modal ref={(ref) => this.addEvtModel = ref} data-title={modelTitle} onKeyPress={this.handleKeyPress} data-resolve={this.addEvtModelSaveClicked} data-reject={this.addEvtModelCancelClicked}>
+        <Modal dialogClassName="modal-lg" className="u-form" ref={(ref) => this.addEvtModel = ref} data-title={modelTitle} onKeyPress={this.handleKeyPress} data-resolve={this.addEvtModelSaveClicked} data-reject={this.addEvtModelCancelClicked}>
           <AddEnvironment ref={(ref) => this.EvtModelRef = ref} namespaceId={namespaceIdToEdit}/>
         </Modal>
         {/* CommonShareModal */}
-        <Modal ref={"CommonShareModalRef"} data-title="Share Environment"  data-resolve={this.handleShareSave.bind(this)} data-reject={this.handleShareCancel.bind(this)}>
+        <Modal className="u-form" ref={"CommonShareModalRef"} data-title="Share Environment"  data-resolve={this.handleShareSave.bind(this)} data-reject={this.handleShareCancel.bind(this)}>
           <CommonShareModal ref="CommonShareModal" shareObj={shareObj}/>
         </Modal>
       </BaseContainer>

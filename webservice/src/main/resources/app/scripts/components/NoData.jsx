@@ -38,7 +38,7 @@ export default class NoData extends Component {
     };
     const serviceStep_1 = <div className="list">
       <h4>
-        <span className="hb xs success">1</span>
+        <span className="hb xs default-blue">1</span>
         &nbsp;Add Ambari URL</h4>
       <div className="intro-content">
         In this format
@@ -48,7 +48,7 @@ export default class NoData extends Component {
     </div>;
     const serviceStep_2 = <div className="list">
       <h4>
-        <span className="hb xs success">2</span>
+        <span className="hb xs default-blue">2</span>
         &nbsp;Click Add</h4>
       <div className="intro-content">
         Enter username & password
@@ -58,7 +58,7 @@ export default class NoData extends Component {
     </div>;
     const applicationStep_1 = <div className="list">
       <h4>
-        <span className="hb xs success">1</span>
+        <span className="hb xs default-blue">1</span>
         &nbsp;Click Add</h4>
       <div className="intro-content">
         Select New Application
@@ -68,7 +68,7 @@ export default class NoData extends Component {
     </div>;
     const applicationStep_2 = <div className="list">
       <h4>
-        <span className="hb xs success">2</span>
+        <span className="hb xs default-blue">2</span>
         &nbsp;Add Application Name</h4>
       <div className="intro-content">
         Select Environment
@@ -95,7 +95,7 @@ export default class NoData extends Component {
                       &nbsp;Easy Steps to get started...</h4>
                     <div className="list">
                       <h4>
-                        <span className="hb xs success">1</span>
+                        <span className="hb xs default-blue">1</span>
                         &nbsp;No component
                       </h4>
                       <div className="intro-content">
@@ -104,7 +104,7 @@ export default class NoData extends Component {
                     </div>
                     <div className="list">
                       <h4>
-                        <span className="hb xs success">2</span>
+                        <span className="hb xs default-blue">2</span>
                         &nbsp;Please run</h4>
                       <div className="intro-content">
                         ./bin/streamline bootstrap dev
@@ -125,7 +125,7 @@ export default class NoData extends Component {
                       : (serviceFlag && imgName === "environments")
                         ? <div className="list">
                             <h4>
-                              <span className="hb xs success">1</span>
+                              <span className="hb xs default-blue">1</span>
                               &nbsp;Click Add</h4>
                             <div className="intro-content">
                               Enter name & description<br/>
@@ -136,7 +136,7 @@ export default class NoData extends Component {
                           ? applicationStep_1
                           : <div className="list">
                             <h4>
-                              <span className="hb xs success">1</span>
+                              <span className="hb xs default-blue">1</span>
                               &nbsp;Go to&nbsp;
                               <Link to="/service-pool">Service Pool</Link>
                             </h4>
@@ -152,7 +152,7 @@ export default class NoData extends Component {
                       : (serviceFlag && imgName === "environments")
                         ? <div className="list">
                             <h4>
-                              <span className="hb xs success">2</span>
+                              <span className="hb xs default-blue">2</span>
                               &nbsp;Select Services</h4>
                             <div className="intro-content">
                               Add services from
@@ -164,7 +164,7 @@ export default class NoData extends Component {
                           ? applicationStep_2
                           : <div className="list">
                             <h4>
-                              <span className="hb xs success">2</span>
+                              <span className="hb xs default-blue">2</span>
                               &nbsp;Go to&nbsp;
                               <Link to="/environments">Environments</Link>
                             </h4>
@@ -179,7 +179,7 @@ export default class NoData extends Component {
                       ? ''
                       : <div className="list">
                         <h4>
-                          <span className="hb xs success">3</span>
+                          <span className="hb xs default-blue">3</span>
                           &nbsp;Go to&nbsp;
                           <Link to="/">My Applications</Link>
                         </h4>

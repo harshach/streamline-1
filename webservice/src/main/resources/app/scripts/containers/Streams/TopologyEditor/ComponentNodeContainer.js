@@ -78,15 +78,17 @@ export default class ComponentNodeContainer extends Component {
   //Utility to get every component's Bundle Id
   getComponentIdArr(componentArr){
     let idArr = [];
-    componentArr.map(component=>{
-      if(component.children && component.children.length > 0) {
-        component.children.map(c => {
-          idArr.push(c.bundleId);
-        });
-      } else {
-        idArr.push(component.bundleId);
-      }
-    });
+    if(componentArr){
+      componentArr.map(component=>{
+        if(component.children && component.children.length > 0) {
+          component.children.map(c => {
+            idArr.push(c.bundleId);
+          });
+        } else {
+          idArr.push(component.bundleId);
+        }
+      });
+    }
     return idArr;
   }
 
@@ -416,6 +418,13 @@ class SPSComponentNodeContainer extends ComponentNodeContainer{
   //Add new components (eg: Custom Processor) if not already present in the
   //component toolbar data
   syncComponentToolbarData(data, userId) {
+    if(data.tasks){
+      data = {
+        sources: [],
+        processors: [],
+        sinks: []
+      };
+    }
     let hasNewComponent = false;
 
     let sourceBundlesId = this.getComponentIdArr(data.sources);
@@ -448,7 +457,7 @@ export class StormComponentNodeContainer extends SPSComponentNodeContainer{}
 @observer
 export class PiperComponentNodeContainer extends ComponentNodeContainer{
   getComponents(){
-    return [<h6 className="component-title">
+    return [<h6 className="component-title" key="comp-title">
         Tasks
       </h6>,
       <ul className="component-list" key="source-ul">

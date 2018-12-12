@@ -43,11 +43,14 @@ class  ZoomPanelComponent extends Component {
     return (
       <div className="col-md-12 zoomWrap clearfix">
         <div className="editor-header row">
-          <div className="pull-left">
-            <span className="graph-action"><img src="styles/img/uWorc/undo.png" /> Undo</span>
-            <span className="graph-action"><img src="styles/img/uWorc/redo.png" /> Redo</span>
-            <span className="graph-action"><img src="styles/img/uWorc/command.png" /> Shortcuts</span>
-          </div>
+          {mode === 'edit' ?
+            <div className="pull-left">
+              <span className="graph-action"><img src="styles/img/uWorc/undo.png" /> Undo</span>
+              <span className="graph-action"><img src="styles/img/uWorc/redo.png" /> Redo</span>
+              <span className="graph-action"><img src="styles/img/uWorc/command.png" /> Shortcuts</span>
+            </div>
+            : null
+          }
           <div className="pull-right">
             <button className={`btn-panels ${mode == 'view' ? 'active' : ''}`} onClick={this.onViewClick}><img src="styles/img/uWorc/view.png" /></button>
             <button className={`btn-panels ${mode == 'edit' ? 'active' : ''}`} onClick={this.onEditClick}><img src="styles/img/uWorc/edit.png" /></button>
@@ -66,7 +69,7 @@ class  ZoomPanelComponent extends Component {
               </a>
             </OverlayTrigger>
           </div>
-          { mode == 'edit' && 
+          { mode == 'edit' &&
           <OverlayTrigger placement="top" overlay={<Tooltip id ="tooltip"> Configure </Tooltip>}>
             <a href="javascript:void(0);" className="config" onClick={showConfig}>
               <i className="fa fa-gear"></i>

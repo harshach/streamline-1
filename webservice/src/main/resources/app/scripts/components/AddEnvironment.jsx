@@ -345,7 +345,7 @@ class AddEnvironment extends Component {
     const {fetchLoader, entities} = this.state;
     return (
       <div>
-        <div className="modal-form config-modal-form" ref="addEvtModelRef">
+        <div className="modal-form environment-modal-form" ref="addEvtModelRef">
           <div className="form-group">
             <label data-stest="nameLabel">Name
               <span className="text-danger">*</span>

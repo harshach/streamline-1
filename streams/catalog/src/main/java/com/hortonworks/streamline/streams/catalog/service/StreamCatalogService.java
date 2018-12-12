@@ -307,8 +307,7 @@ public class StreamCatalogService {
             LOG.debug("Added Project {} ", project);
         }
 
-        long timestamp = System.currentTimeMillis();
-        project.setTimestamp(timestamp);
+        project.setTimestamp(System.currentTimeMillis());
         this.dao.addOrUpdate(project);
         LOG.debug("Added project {}", project);
         return project;

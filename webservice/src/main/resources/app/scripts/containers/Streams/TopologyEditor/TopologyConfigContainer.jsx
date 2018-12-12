@@ -130,10 +130,14 @@ export default class TopologyConfigContainer extends Component {
                   // });
 
             let principalFieldObj = _.find(securityFields, {"fieldName": "principal"});
-            principalFieldObj.options = principalsArr;
+            if(principalFieldObj){
+              principalFieldObj.options = principalsArr;
+            }
 
             let keyTabFieldObj = _.find(securityFields, {"fieldName": "keytabPath"});
-            keyTabFieldObj.options = keyTabsArr;
+            if(keyTabFieldObj){
+              keyTabFieldObj.options = keyTabsArr;
+            }
                 // }
                 //removing security related fields for non-secure mode
             if(hasSecurity === false) {
@@ -348,7 +352,7 @@ export default class TopologyConfigContainer extends Component {
             </div>
           : <Tabs id="ConfigForm" activeKey={this.state.activeTabKey} className="modal-tabs" onSelect={this.onSelectTab}>
               <Tab eventKey={1} title="GENERAL">
-                <div className="source-modal-form" style={{width : 580}}>
+                <div className="source-modal-form app-config">
                   <Scrollbars autoHide renderThumbHorizontal={props => <div {...props} style={{
                     display: "none"
                   }}/>}>
@@ -361,7 +365,7 @@ export default class TopologyConfigContainer extends Component {
               {
               this.state.hasSecurity ?
               <Tab eventKey={3} title="SECURITY">
-                <div className="source-modal-form" style={{width : 580}}>
+                <div className="source-modal-form app-config">
                   <Scrollbars autoHide renderThumbHorizontal={props => <div {...props} style={{
                     display: "none"
                   }}/>}>
@@ -374,7 +378,7 @@ export default class TopologyConfigContainer extends Component {
               : ''
               }
               <Tab eventKey={2} title="ADVANCED">
-                <form className="source-modal-form" style={{width : 580}}>
+                <form className="source-modal-form app-config">
                   <Scrollbars autoHide renderThumbHorizontal={props => <div {...props} style={{
                     display: "none"
                   }}/>}>

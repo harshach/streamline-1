@@ -396,7 +396,12 @@ export default class RulesNodeForm extends Component {
           }
           </Scrollbars>
         </div>
-        <Modal ref="RuleModal" onKeyPress={this.handleKeyPress} dialogClassName="rule-modal-fixed-height" bsSize="large" data-title={this.state.modalTitle} data-resolve={this.handleSaveRule.bind(this)}>
+        <Modal
+          className="u-form" ref="RuleModal" onKeyPress={this.handleKeyPress}
+          dialogClassName="rule-modal-fixed-height modal-xl"
+          data-title={this.state.modalTitle}
+          data-resolve={this.handleSaveRule.bind(this)}
+        >
           <RulesForm ref="RuleForm" topologyId={topologyId} versionId={versionId} ruleObj={this.state.ruleObj} nodeData={this.nodeData} nodeType={nodeType} parsedStreams={this.parsedStreams} rules={rules} udfList={this.udfList}/>
         </Modal>
         <Confirm ref="Confirm"/>

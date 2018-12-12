@@ -29,7 +29,7 @@ export default class StreamSidebar extends Component {
   render() {
     return (
       <div className="note-modal-form">
-        <textarea rows="14" disabled={this.props.editable} placeholder="enter notes here..." onChange={this.handleOnChange.bind(this)} value={this.props.description}/>
+        <textarea rows="14" disabled={this.props.editable} placeholder=" Enter notes here..." onChange={this.handleOnChange.bind(this)} value={this.props.description}/>
       </div>
     );
   }

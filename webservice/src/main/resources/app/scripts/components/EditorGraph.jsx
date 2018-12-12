@@ -27,6 +27,9 @@ import TopologyGraphComponent from './TopologyGraphComponent';
 import SpotlightSearch from './SpotlightSearch';
 import state from '../../scripts/app_state';
 import Utils from '../../scripts/utils/Utils';
+import FSReactToastr from './FSReactToastr';
+import CommonNotification from '../utils/CommonNotification';
+import {toastOpt} from '../utils/Constants';
 
 import TopologyREST from '../rest/TopologyREST';
 import TopologyUtils from '../utils/TopologyUtils';
@@ -60,7 +63,8 @@ class EditorGraph extends Component {
         left: left
       },
       bundleArr: null,
-      loading: true
+      loading: true,
+      mapSlideInterval: []
     };
   }
   componentWillMount(){
@@ -272,7 +276,7 @@ export class StreamEditorGraph extends EditorGraph{
     });
   }
   processorSlideInterval(processors) {
-    const {topologyTimeSec, topologyName, topologyVersion} = this.props;
+    const {topologyTimeSec, topologyData, topologyVersion} = this.props;
     let tempIntervalArr = [];
     const pString = "JOIN,AGGREGATE";
     const pIndex = _.findIndex(processors, function(processor) {
@@ -296,11 +300,11 @@ export class StreamEditorGraph extends EditorGraph{
         if (processor.name !== undefined) {
           if (processor.name.indexOf("JOIN") !== -1 && processor.config.properties.window !== undefined) {
             this.mapSlideInterval(processor.id, processor.config.properties.window);
-            this.props.setTopologyConfig(topologyName, topologyVersion);
+            this.props.setTopologyConfig(topologyData.name, topologyVersion);
           } else {
             if (processor.name.indexOf("AGGREGATE") !== -1 && processor.config.properties.rules !== undefined) {
               this.fetchWindowSlideInterval(processor).then((result) => {
-                this.props.setTopologyConfig(topologyName, topologyVersion);
+                this.props.setTopologyConfig(topologyData.name, topologyVersion);
               });
             }
           }
@@ -311,7 +315,7 @@ export class StreamEditorGraph extends EditorGraph{
   mapSlideInterval(id, timeObj) {
     const {defaultTimeSec} = this.state;
     this.tempIntervalArr = this.state.mapSlideInterval;
-    let timeoutSec = this.topologyConfig["topology.message.timeout.secs"];
+    let timeoutSec = this.props.topologyConfig["topology.message.timeout.secs"];
     let slideIntVal = 0,
       totalVal = 0;
     _.keys(timeObj).map((x) => {
@@ -337,7 +341,7 @@ export class StreamEditorGraph extends EditorGraph{
     }
     const sum = _.sumBy(this.tempIntervalArr, "value");
     const sumVal = sum + 2; // 2 is for delta
-    this.topologyConfig["topology.message.timeout.secs"] = timeoutSec >= sumVal
+    this.props.topologyConfig["topology.message.timeout.secs"] = timeoutSec >= sumVal
       ? timeoutSec
       : sumVal;
   }

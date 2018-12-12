@@ -68,22 +68,25 @@ class ProjectCard extends Component {
             name = 'storm';
             break;
           }
-          return <li className={name}>
+          return <li className={name} key={name+data.id}>
             <span className="engine-name">{displayName}</span>
             <span className="badge">{arr.length}</span>
           </li>;
         })}
       </ul>
       :
-      <h3 className="empty-project">
-        No Application Found
-      </h3>;
+      <ul className="project-engines ">
+        <li className="no-workflow">
+          <span className="engine-name">No Workflow</span>
+          <span className="badge">0</span>
+        </li>
+      </ul>;
 
     return (
       <div className="col-md-3">
         <div className="service-box card" data-id={data.id} ref={(ref) => this.projectRef = ref}>
           {/*<div className="service-head clearfix">
-            
+
             <div className="service-action-btn">
               <DropdownButton noCaret title={ellipseIcon} id="dropdown" bsStyle="link" className="dropdown-toggle" data-stest="project-actions">
                 <MenuItem onClick={this.onActionClick.bind(this, "edit/")} data-stest="edit-project">
@@ -103,7 +106,7 @@ class ProjectCard extends Component {
               <Link to={`projects/${data.id}/applications`}>{data.name}</Link>
             </h6>
             <span className="display-block project-description">{data.description}</span>
-            <span className="display-block project-timestamp">Created at {moment(data.timestamp).format('MMMM Do YYYY, h:mm:ss a')}</span>
+            <span className="display-block project-timestamp">Last modified on {Utils.datetime(data.timestamp).value}</span>
           </div>
         </div>
       </div>
@@ -272,7 +275,7 @@ class ProjectListingContainer extends Component {
                   </FormGroup>
                 : ''}
             </div>
-            {entities.length !== 0 && 
+            {entities.length !== 0 &&
             <div className="add-btn text-center">
               <a href="javascript:void(0);" className="success actionDropdown" data-target="#addEnvironment" onClick={this.handleAdd.bind(this)}>
                 <i className="fa fa-plus"></i> New Project

@@ -75,7 +75,7 @@ export default class FSModal extends Component {
         {
           this.props.hideOkBtn
           ? null
-          : <Button bsStyle='success' onClick={this.sure.bind(this)}  data-stest="okbtn" disabled={this.props.btnOkDisabled}>
+          : <Button bsStyle='primary' onClick={this.sure.bind(this)}  data-stest="okbtn" disabled={this.props.btnOkDisabled}>
               {this.state.btnOkText || 'Ok'}
             </Button>
         }
@@ -143,7 +143,7 @@ export class Confirm extends FSModal {
         {
           this.props.hideOkBtn
           ? null
-          : <Button bsStyle='success' onClick={this.sure.bind(this)} data-stest="confirmBoxOkBtn">
+          : <Button bsStyle='primary' onClick={this.sure.bind(this)} data-stest="confirmBoxOkBtn">
               {this.state.btnOkText || 'Yes'}
             </Button>
         }

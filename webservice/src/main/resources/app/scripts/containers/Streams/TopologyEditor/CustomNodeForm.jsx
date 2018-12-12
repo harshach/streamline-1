@@ -560,7 +560,9 @@ export default class CustomNodeForm extends Component {
             }
           </form>
           <Modal
+            className="u-form"
             ref="OpFieldModal"
+            dialogClassName="modal-xl"
             onKeyPress={this.handleKeyPress}
             data-title={this.state.modalTitle}
             data-resolve={this.handleSaveOpFieldModal.bind(this)}

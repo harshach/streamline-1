@@ -77,8 +77,8 @@ public class TopologyDashboardResource {
                                   @javax.ws.rs.QueryParam("ascending") Boolean ascending,
                                   @javax.ws.rs.QueryParam("latencyTopN") Integer latencyTopN,
                                   @Context SecurityContext securityContext) {
-        Collection<Topology> topologies = catalogService.listTopologies(
-                com.hortonworks.streamline.common.QueryParam.params(Topology.PROJECTID, projectId.toString()));
+        Collection<Topology> topologies = catalogService.listTopologies(projectId);
+
         boolean topologyUser = SecurityUtil.hasRole(authorizer, securityContext, Roles.ROLE_TOPOLOGY_USER);
         if (topologyUser) {
             LOG.debug("Returning all topologies since user has role: {}", Roles.ROLE_TOPOLOGY_USER);

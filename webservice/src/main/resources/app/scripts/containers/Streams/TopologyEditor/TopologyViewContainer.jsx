@@ -583,7 +583,7 @@ class TopologyViewContainer extends TopologyEditorContainer {
           <span className="title-separator">/</span>
           {projectData.name}
           <span className="title-separator">/</span>
-          <Link to={"/projects/"+projectData.id+"/applications"}>My Application</Link>
+          <Link to={"/projects/"+projectData.id+"/applications"}>My Workflow</Link>
           <span className="title-separator">/</span>
           View: {topologyName}
         </span>
@@ -676,6 +676,8 @@ class TopologyViewContainer extends TopologyEditorContainer {
     let nodeClassName = "";
     if(this.node && (this.node.parentType.toLowerCase() === 'source' || this.node.parentType.toLowerCase() === 'sink')){
       nodeClassName = "modal-fixed-height modal-lg";
+    } else if(this.node && (this.node.parentType.toLowerCase() === 'task')){
+      nodeClassName = "modal-fixed-height";
     } else if(nodeType === 'join' || nodeType === 'window' || nodeType === 'projection' ||
       nodeType === 'rt-join' || nodeType === 'sql'){
       nodeClassName = "modal-xl";

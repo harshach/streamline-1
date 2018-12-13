@@ -580,11 +580,11 @@ class TopologyViewContainer extends TopologyEditorContainer {
       return (
         <span>
           <Link to="/">My Projects</Link>
-          <span className="title-separator">/</span>
+          <i className="fa fa-angle-right title-separator"></i>
           {projectData.name}
-          <span className="title-separator">/</span>
+          <i className="fa fa-angle-right title-separator"></i>
           <Link to={"/projects/"+projectData.id+"/applications"}>My Workflow</Link>
-          <span className="title-separator">/</span>
+          <i className="fa fa-angle-right title-separator"></i>
           View: {topologyName}
         </span>
       );

@@ -189,12 +189,12 @@ export default class Sidebar extends Component {
             }
           </ul>
         </section>
-        <a href="javascript:void(0);" className="sidebar-toggle" onClick={this.toggleSidebar.bind(this)} data-toggle="offcanvas" role="button">
+        {/*<a href="javascript:void(0);" className="sidebar-toggle" onClick={this.toggleSidebar.bind(this)} data-toggle="offcanvas" role="button">
           {!app_state.sidebar_isCollapsed ? <span>Version: {config.version} </span> : null}
           <i className={app_state.sidebar_isCollapsed
             ? "fa fa-angle-double-right"
             : "fa fa-angle-double-left"}></i>
-        </a>
+        </a>*/}
         <Modal className="u-form" ref="leaveEditable" onKeyPress={this.handleKeyPress.bind(this)} data-title="Confirm Box" dialogClassName="confirm-box" data-resolve={this.confirmLeave.bind(this, true)}>
           {< p > Are you sure want to navigate away from this page? </p>}
         </Modal>

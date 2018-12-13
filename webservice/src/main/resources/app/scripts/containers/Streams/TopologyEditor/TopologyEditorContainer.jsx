@@ -135,7 +135,7 @@ export class TopologyEditorContainer extends Component {
     topologyStatus: '',
     unknown: '',
     progressCount: 0,
-    progressBarColor: 'green',
+    progressBarColor: 'blue',
     fetchLoader: true,
     mapSlideInterval: [],
     topologyTimeSec: 0,
@@ -221,7 +221,7 @@ export class TopologyEditorContainer extends Component {
 
           let defaultTimeSecVal = this.getDefaultTimeSec(this.topologyConfigData);
 
-          Utils.sortArray(versions, 'name', true);
+          Utils.sortArray(versions, 'timestamp', false);
 
           this.versionName = versions.find((o) => {
             return o.id == this.versionId;
@@ -972,11 +972,11 @@ export class TopologyEditorContainer extends Component {
       return (
         <span>
           <Link to="/">My Projects</Link>
-          <span className="title-separator">/</span>
+          <i className="fa fa-angle-right title-separator"></i>
           {projectData.name}
-          <span className="title-separator">/</span>
+          <i className="fa fa-angle-right title-separator"></i>
           <Link to={"/projects/"+projectData.id+"/applications"}>My Workflow</Link>
-          &nbsp;/&nbsp;
+          <i className="fa fa-angle-right title-separator"></i>
           <Editable id="applicationName" ref="topologyNameEditable" inline={true} resolve={this.saveTopologyName.bind(this)} reject={this.handleRejectTopologyName.bind(this)}>
             <input ref={this.focusInput} defaultValue={this.state.topologyName} onKeyPress={this.handleKeyPress.bind(this)} onChange={this.handleNameChange.bind(this)}/>
           </Editable>
@@ -1282,20 +1282,31 @@ export class TopologyEditorContainer extends Component {
     return {}; /*Required for view mode*/
   }
   handleVersionChange = (value) => {
-    this.fetchData(value);
+    this.setState({
+      fetchLoader: true
+    },()=>{
+      this.fetchData(value);
+    });
   }
   setCurrentVersion = () => {
     this.refs.BaseContainer.refs.Confirm.show({title: 'Are you sure you want to set this version as your current one?'}).then((confirmBox) => {
-      TopologyREST.activateTopologyVersion(this.topologyId, this.versionId).then(result => {
-        if (result.responseMessage !== undefined) {
-          FSReactToastr.error(
-            <CommonNotification flag="error" content={result.responseMessage}/>, '', toastOpt);
-        } else {
-          FSReactToastr.success(
-            <strong>Version switched successfully</strong>
-          );
-          this.fetchData();
-        }
+      this.setState({
+        fetchLoader: true
+      },()=>{
+        TopologyREST.activateTopologyVersion(this.topologyId, this.versionId).then(result => {
+          if (result.responseMessage !== undefined) {
+            this.setState({
+              fetchLoader: false
+            });
+            FSReactToastr.error(
+              <CommonNotification flag="error" content={result.responseMessage}/>, '', toastOpt);
+          } else {
+            FSReactToastr.success(
+              <strong>Version switched successfully</strong>
+            );
+            this.fetchData();
+          }
+        });
       });
       confirmBox.cancel();
     }, () => {});
@@ -1317,7 +1328,10 @@ export class TopologyEditorContainer extends Component {
   }
 
   render() {
-    const {progressCount, progressBarColor, fetchLoader, mapTopologyConfig,deployStatus,testRunActivated,testCaseList,selectedTestObj,testCaseLoader,testRunCurrentEdges,testResult,nodeData,testName,showError,testSinkConfigure,nodeListArr,hideEventLog,eventLogData,testHistory,testCompleted,deployFlag,testRunningMode,abortTestCase,notifyCheck,activePage,activePageList, topologyData} = this.state;
+    const {progressCount, progressBarColor, fetchLoader, mapTopologyConfig,deployStatus,testRunActivated,
+      testCaseList,selectedTestObj,testCaseLoader,testRunCurrentEdges,testResult,nodeData,testName,showError,
+      testSinkConfigure,nodeListArr,hideEventLog,eventLogData,testHistory,testCompleted,deployFlag,testRunningMode,
+      abortTestCase,notifyCheck,activePage,activePageList, topologyData, isAppRunning} = this.state;
     let nodeType = this.node
       ? this.node.currentType.toLowerCase()
       : '';
@@ -1335,7 +1349,10 @@ export class TopologyEditorContainer extends Component {
     }
 
     return (
-      <BaseContainer ref="BaseContainer" routes={this.props.routes} onLandingPage="false" headerContent={this.getTopologyHeader()} siblingContent={this.getRightSideBar()}>
+      <BaseContainer
+        ref="BaseContainer" routes={this.props.routes} onLandingPage="false"
+        headerContent={this.getTopologyHeader()} siblingContent={this.getRightSideBar()}
+      >
         <div className="row">
           <div className="col-sm-12">
             {fetchLoader
@@ -1354,9 +1371,12 @@ export class TopologyEditorContainer extends Component {
                   showConfig={this.showConfig.bind(this)}
                   confirmMode={this.confirmMode.bind(this)}
                   testRunActivated={testRunActivated}
+                  isAppRunning={isAppRunning}
+                  killTopology={this.killTopology.bind(this)}
+                  deployTopology={this.handleDeployTopology.bind(this)}
                 />
                 {this.getEditorGraph()}
-                <div className="topology-footer">
+                {/*<div className="topology-footer">
                   {testRunActivated
                   ? <OverlayTrigger key={4} placement="top" overlay={<Tooltip id = "tooltip"> {testRunningMode ?  'Kill Test' : 'Run Test'}  </Tooltip>}>
                       <button className={`hb xl ${testRunningMode ?  'danger' : 'default'} pull-right`} disabled={testRunningMode ? _.isEmpty(testHistory) ? true : false : false} onClick={ testRunningMode ? this.handleKillTestRun.bind(this) : this.runTestCase.bind(this)}>
@@ -1374,13 +1394,6 @@ export class TopologyEditorContainer extends Component {
                            <i className="fa fa-paper-plane"></i>
                          </button>
                        </OverlayTrigger>
-                    // : (this.state.unknown !== "UNKNOWN")
-                    //   ? <OverlayTrigger key={3} placement="top" overlay={<Tooltip id = "tooltip" > Run </Tooltip>}>
-                    //       <button className="hb xl success pull-right" onClick={ testRunActivated ? this.runTestCase.bind(this) : this.handleDeployTopology.bind(this)}>
-                    //         <i className="fa fa-paper-plane"></i>
-                    //       </button>
-                    //     </OverlayTrigger>
-                    //   : ''
                   }
                   {
                     testRunActivated &&  !_.isEmpty(testHistory)  && eventLogData.length && !testRunningMode
@@ -1411,9 +1424,6 @@ export class TopologyEditorContainer extends Component {
                     : <div className="topology-status text-right">
                         <p className="text-muted">Status:</p>
                         <p>{this.state.topologyStatus || 'NOT RUNNING'}</p>
-                        {/* <p>{(this.state.unknown === "UNKNOWN")
-                          ? "Storm server is not running"
-                          : this.state.topologyStatus || 'NOT RUNNING'}</p> */}
                       </div>
                   }
                 </div>
@@ -1421,9 +1431,9 @@ export class TopologyEditorContainer extends Component {
                   eventLogData.length && testRunActivated
                   ? <EventGroupPagination entities={activePageList} pageSize={pageSize} pageActive={activePage} callBackFunction={this.paginationCallBack.bind(this)} maxButtons={5}/>
                 : null
-                }
+                }*/}
               </div>
-}
+            }
           </div>
         </div>
         <Modal className="u-form" ref="TopologyConfigModal" data-title={deployFlag ? "Are you sure want to continue with this configuration?" : "Workflow Configuration"}  onKeyPress={this.handleKeyPress.bind(this)} data-resolve={this.handleSaveConfig.bind(this)} data-reject={this.handleCancelConfig.bind(this)}>

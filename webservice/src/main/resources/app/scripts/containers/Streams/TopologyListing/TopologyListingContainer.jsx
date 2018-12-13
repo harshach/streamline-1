@@ -803,9 +803,9 @@ class TopologyListingContainer extends Component {
       return (
         <span>
           <Link to="/">My Projects</Link>
-          <span className="title-separator">/</span>
+          <i className="fa fa-angle-right title-separator"></i>
           {projectData.name}
-          <span className="title-separator">/</span>
+          <i className="fa fa-angle-right title-separator"></i>
           My Workflows
         </span>
       );

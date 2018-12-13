@@ -96,9 +96,9 @@ class LogSearch extends Component {
       return (
         <span>
           <Link to="/">My Workflows</Link>
-          <span className="title-separator">/</span>
+          <i className="fa fa-angle-right title-separator"></i>
           <Link to={"/applications/"+ topologyData.topology.id +"/view"}>View: {topologyData.topology.name}</Link>
-          <span className="title-separator">/</span>
+          <i className="fa fa-angle-right title-separator"></i>
           Log Search
         </span>
       );

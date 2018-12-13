@@ -21,6 +21,7 @@ import Slider from "react-slick";
 import moment from 'moment';
 import d3 from 'd3';
 import RightSideBar from './RightSideBar';
+import app_state from '../app_state';
 
 class VersionThumbnail extends Component{
   constructor(props) {
@@ -51,6 +52,7 @@ class VersionThumbnail extends Component{
       <div className="version-thumb" ref="thumbContainer">
       </div>
       <div className="version-info">
+        {data.name == 'CURRENT' && <span className="version-current-label">Current</span>}
         <span className="version-name">{data.name}</span>
         <span className="version-updated-label">Last updated on</span>&nbsp;
         <span className="version-updated-value">{moment(data.timestamp).format('MM/DD/YYYY HH:mm')}</span>
@@ -63,14 +65,12 @@ export default class VersionControl extends Component{
   constructor(props) {
     super(props);
     this.state = {
-      expanded: false
     };
   }
   componentDidUpdate(){
   }
   handleExpandCollapse = () => {
-    const {expanded} = this.state;
-    this.setState({expanded: !expanded});
+    app_state.versionPanelCollapsed = !app_state.versionPanelCollapsed;
   }
   getHeader = () => {
     const {selectedVersionName, setCurrentVersion} = this.props;
@@ -81,7 +81,7 @@ export default class VersionControl extends Component{
     const {versions, handleVersionChange, selectedVersionName, getCurrentVersionThumbnail, setCurrentVersion, lastUpdatedTime} = this.props;
 
     const verComps = _.map(versions, (v, i) => {
-      return <div>
+      return <div key={i}>
         <VersionThumbnail
           key={i}
           data={v}
@@ -107,7 +107,7 @@ export default class VersionControl extends Component{
           </DropdownButton>
         </div>
         <div className="text-right">
-          <button className="btn btn-primary btn-sm" onClick={setCurrentVersion}>Set as Current</button>
+          <button className="btn btn-primary btn-sm set-version-btn" onClick={setCurrentVersion}>Set as Current</button>
         </div>
         <div className="text-right">
           <button type="button" className="close" style={{marginLeft:'5px'}} onClick={this.handleExpandCollapse}><span >×</span></button>
@@ -121,13 +121,11 @@ export default class VersionControl extends Component{
     return content;
   }
   render(){
-    const {expanded} = this.state;
     const {selectedVersionName, currentVersionDagThumbnail} = this.props;
     return <RightSideBar
       getHeader={this.getHeader}
       getBody={this.getBody}
       selectedVersionName={selectedVersionName}
-      expanded={expanded}
       currentVersionDagThumbnail={currentVersionDagThumbnail}
     />;
   }

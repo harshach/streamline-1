@@ -290,7 +290,7 @@ export default class TagsContainer extends Component {
     return (
       <span>
         Configuration
-        <span className="title-separator">/</span>
+        <i className="fa fa-angle-right title-separator"></i>
         {this.props.routes[this.props.routes.length - 1].name}
       </span>
     );

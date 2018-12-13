@@ -32,6 +32,8 @@ class app_state {
   @observable user_profile = {}
   @observable roleInfo = []
   @observable unKnownUser = unknownAccessCode.loggedIn
+  @observable versionPanelCollapsed = true
+  @observable zoomScale = 0.8
   engines = []
   enginesMetricsTemplates = []
 }

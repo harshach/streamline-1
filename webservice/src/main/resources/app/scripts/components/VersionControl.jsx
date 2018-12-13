@@ -51,6 +51,7 @@ class VersionThumbnail extends Component{
       <div className="version-thumb" ref="thumbContainer">
       </div>
       <div className="version-info">
+        {data.name == 'CURRENT' && <span className="version-current-label">Current</span>}
         <span className="version-name">{data.name}</span>
         <span className="version-updated-label">Last updated on</span>&nbsp;
         <span className="version-updated-value">{moment(data.timestamp).format('MM/DD/YYYY HH:mm')}</span>

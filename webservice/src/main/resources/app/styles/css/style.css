@@ -4665,6 +4665,20 @@ ul.custom-pagination li.active{
   color: #666666;
   margin-right: 40px;
 }
+.version-current-label{
+  position: absolute;
+  right: 35px;
+  top: 181px;
+  background: white;
+  font-size: 11px;
+  line-height: 22px;
+  color: #ED6F0E;
+  border: 1px solid #CCCCCC;
+  border-radius: 2px;
+  width: 62px;
+  height: 24px;
+  text-align: center;
+}
 .version-container{
   display: inline-block;
   width: 100%;
@@ -4858,7 +4872,7 @@ ul.custom-pagination li.active{
   background-color: #fff;
   border: 1px solid #00000026;
   border-radius: 5px;
-+  font-size: 14px;
+  font-size: 14px;
   box-shadow: 1px 1px 5px rgba(0, 0, 0, 0.25);
 }
 .component-log-actions-container > div {

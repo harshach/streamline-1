@@ -279,6 +279,7 @@ export default class TopologyGraphComponent extends Component {
         dragCoords: gTranslate,
         zoomScale: gScaled
       };
+      state.zoomScale = gScaled;
       clearTimeout(this.saveMetaInfoTimer);
       this.saveMetaInfoTimer = setTimeout(() => {
         let {topologyId, versionId, versionsArr, metaInfo, editMode} = thisGraph;
@@ -295,6 +296,7 @@ export default class TopologyGraphComponent extends Component {
 
     this.dragSvg.translate(this.graphTransforms.dragCoords);
     this.dragSvg.scale(this.graphTransforms.zoomScale);
+    state.zoomScale = this.graphTransforms.zoomScale;
     this.dragSvg.event(svg);
 
     //NOTE - To use scroll for zoom in/out, uncomment the below line
@@ -366,6 +368,7 @@ export default class TopologyGraphComponent extends Component {
           dragCoords: thisGraph.dragSvg.translate(),
           zoomScale: thisGraph.dragSvg.scale()
         };
+        state.zoomScale = thisGraph.dragSvg.scale();
         clearTimeout(this.saveMetaInfoTimer);
         this.saveMetaInfoTimer = setTimeout(() => {
           let {topologyId, versionId, versionsArr, metaInfo, editMode} = thisGraph;
@@ -1478,6 +1481,7 @@ export default class TopologyGraphComponent extends Component {
       d3.select("." + this.constants.graphClass).attr("transform", "translate(" + this.graphTransforms.dragCoords + ")" + "scale(" + this.graphTransforms.zoomScale + ")");
       this.dragSvg.translate(this.graphTransforms.dragCoords);
       this.dragSvg.scale(this.graphTransforms.zoomScale);
+      state.zoomScale = this.graphTransforms.zoomScale;
       this.dragSvg.event(this.svg);
     }
     return connectDropTarget(

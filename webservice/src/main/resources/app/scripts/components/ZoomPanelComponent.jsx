@@ -15,7 +15,7 @@
 import React, {Component} from 'react';
 import {OverlayTrigger, Tooltip} from 'react-bootstrap';
 import Utils from '../utils/Utils';
-import state from '../../scripts/app_state';
+import app_state from '../app_state';
 import {observer} from 'mobx-react';
 
 @observer
@@ -38,44 +38,68 @@ class  ZoomPanelComponent extends Component {
       testRunActivated,
       testCompleted,
       handleEventLogHide,
-      mode
+      mode,
+      isAppRunning,
+      killTopology,
+      deployTopology
     } = this.props;
     return (
-      <div className="col-md-12 zoomWrap clearfix">
-        <div className="editor-header row">
-          {mode === 'edit' ?
-            <div className="pull-left">
-              <span className="graph-action"><img src="styles/img/uWorc/undo.png" /> Undo</span>
-              <span className="graph-action"><img src="styles/img/uWorc/redo.png" /> Redo</span>
-              <span className="graph-action"><img src="styles/img/uWorc/command.png" /> Shortcuts</span>
-            </div>
-            : null
-          }
-          <div className="pull-right">
-            <button className={`btn-panels ${mode == 'view' ? 'active' : ''}`} onClick={this.onViewClick}><img src="styles/img/uWorc/view.png" /></button>
-            <button className={`btn-panels ${mode == 'edit' ? 'active' : ''}`} onClick={this.onEditClick}><img src="styles/img/uWorc/edit.png" /></button>
+      <div>
+        <div className={`control-widget right ${app_state.versionPanelCollapsed ? '' : 'active'}`}>
+          <div className="control-top">
+            <h5>Last Edited <span>{Utils.datetime(lastUpdatedTime).value}</span></h5>
+            <h5>Workflow Status<span><i className="fa fa-circle text-primary workflow-status"></i> {isAppRunning ? "Running" : "Paused"}</span></h5>
+          </div>
+          <div className="control-bottom text-center">
+            {mode === 'view' ?
+              <button className="btn btn-primary btn-sm workflow-action-btn" onClick={this.onEditClick}><i className="fa fa-pencil workflow-btn"></i> Edit Workflow</button>
+            :
+              (isAppRunning ?
+                <button className="btn btn-primary btn-sm workflow-action-btn" onClick={killTopology}>
+                  <i className="fa fa-play workflow-btn"></i> Kill
+                </button>
+              :
+                <button className="btn btn-primary btn-sm workflow-action-btn" onClick={deployTopology}>
+                  <i className="fa fa-play workflow-btn"></i> Deploy
+                </button>
+              )
+            }
           </div>
         </div>
-        <div className="topology-editor-controls pull-left">
-          <div className="zoom-btn-container">
-            <OverlayTrigger placement="top" overlay={<Tooltip id ="tooltip"> Zoom Out </Tooltip>}>
-              <a href="javascript:void(0);" className="zoom-out" onClick={zoomOutAction}>
-                <i className="fa fa-minus"></i>
-              </a>
-            </OverlayTrigger>
-            <OverlayTrigger placement="top" overlay={<Tooltip id ="tooltip"> Zoom In </Tooltip>}>
-              <a href="javascript:void(0);" className="zoom-in" onClick={zoomInAction}>
-                <i className="fa fa-plus"></i>
-              </a>
-            </OverlayTrigger>
+        <div className="control-widget left">
+          <div className="control-top">
+            <h5>Image Control</h5>
           </div>
-          { mode == 'edit' &&
-          <OverlayTrigger placement="top" overlay={<Tooltip id ="tooltip"> Configure </Tooltip>}>
-            <a href="javascript:void(0);" className="config" onClick={showConfig}>
-              <i className="fa fa-gear"></i>
-            </a>
-          </OverlayTrigger>
-          }
+          <div className="control-bottom">
+            <div className="row">
+              <div className="col-sm-12">
+                  <button className="btn btn-default btn-xs" onClick={zoomOutAction}>
+                    <i className="fa fa-minus"></i>
+                  </button> <input type="range" value={app_state.zoomScale} className="zoom-slider"
+                  min={1} max={8} step={(8 - 1) / 100}
+                /> <button className="btn btn-default btn-xs" onClick={zoomInAction}>
+                    <i className="fa fa-plus"></i>
+                  </button>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div className="col-md-12 zoomWrap clearfix">
+          <div className={`editor-header row ${app_state.versionPanelCollapsed ? '' : 'active'}`}>
+            {mode === 'edit' ?
+              <div className="pull-left">
+                <span className="graph-action"><img src="styles/img/uWorc/undo.png" /> Undo</span>
+                <span className="graph-action"><img src="styles/img/uWorc/redo.png" /> Redo</span>
+                <span className="graph-action"><img src="styles/img/uWorc/command.png" /> Shortcuts</span>
+                <span className="graph-action" onClick={showConfig}><img src="styles/img/uWorc/setting.png" /> Configure Settings</span>
+              </div>
+              : null
+            }
+            <div className="pull-right">
+              <button className={`btn-panels ${mode == 'view' ? 'active' : ''}`} onClick={this.onViewClick}><img src="styles/img/uWorc/view.png" /></button>
+              <button className={`btn-panels ${mode == 'edit' ? 'active' : ''}`} onClick={this.onEditClick}><img src="styles/img/uWorc/edit.png" /></button>
+            </div>
+          </div>
         </div>
       </div>
     );

@@ -249,6 +249,9 @@ class TopologyViewMode extends Component {
       <span><i className="fa fa-clock-o"></i> {moment.duration(startDate.diff(endDate)).humanize()}</span>
     );
     return (
+      <div></div>
+    );
+    return (
       <div>
         <div className="view-mode-title-box">
           { engine.type == 'stream' &&

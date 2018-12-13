@@ -21,6 +21,7 @@ import Slider from "react-slick";
 import moment from 'moment';
 import d3 from 'd3';
 import RightSideBar from './RightSideBar';
+import app_state from '../app_state';
 
 class VersionThumbnail extends Component{
   constructor(props) {
@@ -64,14 +65,12 @@ export default class VersionControl extends Component{
   constructor(props) {
     super(props);
     this.state = {
-      expanded: false
     };
   }
   componentDidUpdate(){
   }
   handleExpandCollapse = () => {
-    const {expanded} = this.state;
-    this.setState({expanded: !expanded});
+    app_state.versionPanelCollapsed = !app_state.versionPanelCollapsed;
   }
   getHeader = () => {
     const {selectedVersionName, setCurrentVersion} = this.props;
@@ -82,7 +81,7 @@ export default class VersionControl extends Component{
     const {versions, handleVersionChange, selectedVersionName, getCurrentVersionThumbnail, setCurrentVersion, lastUpdatedTime} = this.props;
 
     const verComps = _.map(versions, (v, i) => {
-      return <div>
+      return <div key={i}>
         <VersionThumbnail
           key={i}
           data={v}
@@ -122,13 +121,11 @@ export default class VersionControl extends Component{
     return content;
   }
   render(){
-    const {expanded} = this.state;
     const {selectedVersionName, currentVersionDagThumbnail} = this.props;
     return <RightSideBar
       getHeader={this.getHeader}
       getBody={this.getBody}
       selectedVersionName={selectedVersionName}
-      expanded={expanded}
       currentVersionDagThumbnail={currentVersionDagThumbnail}
     />;
   }

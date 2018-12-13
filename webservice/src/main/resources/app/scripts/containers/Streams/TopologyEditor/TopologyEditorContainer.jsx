@@ -972,11 +972,11 @@ export class TopologyEditorContainer extends Component {
       return (
         <span>
           <Link to="/">My Projects</Link>
-          <span className="title-separator">/</span>
+          <i className="fa fa-angle-right title-separator"></i>
           {projectData.name}
-          <span className="title-separator">/</span>
+          <i className="fa fa-angle-right title-separator"></i>
           <Link to={"/projects/"+projectData.id+"/applications"}>My Workflow</Link>
-          &nbsp;/&nbsp;
+          <i className="fa fa-angle-right title-separator"></i>
           <Editable id="applicationName" ref="topologyNameEditable" inline={true} resolve={this.saveTopologyName.bind(this)} reject={this.handleRejectTopologyName.bind(this)}>
             <input ref={this.focusInput} defaultValue={this.state.topologyName} onKeyPress={this.handleKeyPress.bind(this)} onChange={this.handleNameChange.bind(this)}/>
           </Editable>

@@ -123,8 +123,13 @@ a {
   color: #276EF1;
 }
 .btn-primary {
-  background-color: #1B6DE0;
-  border-color: #1B6DE0;
+  background-color: #276EF1;
+  border-color: #276EF1;
+}
+.btn-primary:hover {
+  color: #fff;
+  background-color: #276EF1;
+  border-color: #276EF1;
 }
 .text-danger {
   color: red;
@@ -2016,8 +2021,8 @@ label {
 }
 
 .headContentText .title-separator {
-  padding: 0 5px;
-  color: #ccc;
+  margin: 0 10px;
+  color: #aaa;
 }
 
 span.version {
@@ -4706,6 +4711,14 @@ ul.custom-pagination li.active{
   line-height: 16px;
   color: #666666;
 }
+.set-version-btn {
+  color: #276EF1;
+  background-color: #EEF3FE;
+  border-color: #EEF3FE;
+}
+#version-dropdown{
+  color: #000000;
+}
 #log-duration-dropdown {
   border-radius: 4px;
   right: -20px;
@@ -5272,11 +5285,11 @@ h3.empty-project {
   box-shadow: none;
 }
 .u-form .form-group label{
-  text-transform: none;
+  text-transform: uppercase;
   font-size: 12px;
   line-height: 24px;
-  color: #000000;
-  font-weight: 500;
+  color: #888;
+  font-weight: 400;
 }
 .u-form .optional{
   color: #999999;

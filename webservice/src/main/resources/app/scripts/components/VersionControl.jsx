@@ -107,7 +107,7 @@ export default class VersionControl extends Component{
           </DropdownButton>
         </div>
         <div className="text-right">
-          <button className="btn btn-primary btn-sm" onClick={setCurrentVersion}>Set as Current</button>
+          <button className="btn btn-primary btn-sm set-version-btn" onClick={setCurrentVersion}>Set as Current</button>
         </div>
         <div className="text-right">
           <button type="button" className="close" style={{marginLeft:'5px'}} onClick={this.handleExpandCollapse}><span >×</span></button>

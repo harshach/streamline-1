@@ -221,7 +221,7 @@ export class TopologyEditorContainer extends Component {
 
           let defaultTimeSecVal = this.getDefaultTimeSec(this.topologyConfigData);
 
-          Utils.sortArray(versions, 'name', true);
+          Utils.sortArray(versions, 'timestamp', false);
 
           this.versionName = versions.find((o) => {
             return o.id == this.versionId;
@@ -1282,20 +1282,31 @@ export class TopologyEditorContainer extends Component {
     return {}; /*Required for view mode*/
   }
   handleVersionChange = (value) => {
-    this.fetchData(value);
+    this.setState({
+      fetchLoader: true
+    },()=>{
+      this.fetchData(value);
+    });
   }
   setCurrentVersion = () => {
     this.refs.BaseContainer.refs.Confirm.show({title: 'Are you sure you want to set this version as your current one?'}).then((confirmBox) => {
-      TopologyREST.activateTopologyVersion(this.topologyId, this.versionId).then(result => {
-        if (result.responseMessage !== undefined) {
-          FSReactToastr.error(
-            <CommonNotification flag="error" content={result.responseMessage}/>, '', toastOpt);
-        } else {
-          FSReactToastr.success(
-            <strong>Version switched successfully</strong>
-          );
-          this.fetchData();
-        }
+      this.setState({
+        fetchLoader: true
+      },()=>{
+        TopologyREST.activateTopologyVersion(this.topologyId, this.versionId).then(result => {
+          if (result.responseMessage !== undefined) {
+            this.setState({
+              fetchLoader: false
+            });
+            FSReactToastr.error(
+              <CommonNotification flag="error" content={result.responseMessage}/>, '', toastOpt);
+          } else {
+            FSReactToastr.success(
+              <strong>Version switched successfully</strong>
+            );
+            this.fetchData();
+          }
+        });
       });
       confirmBox.cancel();
     }, () => {});

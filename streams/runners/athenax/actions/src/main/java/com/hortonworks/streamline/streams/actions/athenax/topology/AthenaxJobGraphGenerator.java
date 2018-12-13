@@ -115,7 +115,8 @@ public class AthenaxJobGraphGenerator extends TopologyDagVisitor {
 
 		Config rtaSinkConfig = rtaSink.getConfig();
 
-		request.setOwner(runAsUser);
+		// TODO: change to use runAsUser when available
+		request.setOwner(rtaSinkConfig.get(RTAConstants.OWNER));
 		request.setName(rtaSinkConfig.get(RTAConstants.TABLE_NAME));
 		request.setRtaTableMetaData(extractRTATableMetaData());
 

@@ -1,6 +1,7 @@
 package com.hortonworks.streamline.streams.actions.athenax.topology;
 
 public class RTAConstants {
+    public static final String OWNER = "owner";
     public static final String TABLE_NAME = "tableName";
     public static final String TABLE_FIELDS = "tableFields";
     public static final String INGESTION_RATE = "ingestionRate";
@@ -12,6 +13,6 @@ public class RTAConstants {
     public static final String NAME = "name";
     public static final String RTA_TYPE = "rtaType";
     public static final String RTA_COLUMN_TYPE = "rtaColumnType";
-    public static final String CARDINALITY = "Cardinality";
-    public static final String DOC = "Doc";
+    public static final String CARDINALITY = "cardinality";
+    public static final String DOC = "doc";
 }

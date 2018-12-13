@@ -123,7 +123,7 @@
       "name": "avgCPUUsage",
       "uiName": "Avg CPU Usage",
       "metricKeyName": ["task_monitoring"],
-      "metricQuery": "fetch env:$deployment service:piper name:piper_task_monitoring reason:average_cpu_usage pipeline:$pipeline | sort avg desc | showTags true $legend_key | head $top_n",
+      "metricQuery": "fetch env:$deployment service:piper name:piper_task_monitoring reason:average_cpu_usage pipeline:$pipeline | sort avg desc",
       "params": {
         "pipeline":"application_id",
         "deployment":"namespace"
@@ -133,7 +133,7 @@
       "name": "memoryUsage",
       "uiName": "Memory Usage",
       "metricKeyName": ["task_monitoring"],
-      "metricQuery": "fetch env:$deployment service:piper name:piper_task_monitoring reason:memory_usage pipeline:$pipeline | sort avg desc | showTags true $legend_key | head $top_n",
+      "metricQuery": "fetch env:$deployment service:piper name:piper_task_monitoring reason:memory_usage pipeline:$pipeline | sort avg desc",
       "params": {
         "pipeline":"application_id",
         "deployment":"namespace"

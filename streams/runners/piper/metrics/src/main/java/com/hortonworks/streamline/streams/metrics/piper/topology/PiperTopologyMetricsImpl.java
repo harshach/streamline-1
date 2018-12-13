@@ -54,10 +54,10 @@ public class PiperTopologyMetricsImpl implements TopologyMetrics {
 	// Piper JSON API keys
 	private static final String STATE_KEY_SCHEDULE_INTERVAL = "schedule_interval";
     private static final String STATE_KEY_DURATION = "duration";
-    private static final String STATE_KEY_AUTOBACKFILLING = "autobackfilling";
+    private static final String STATE_KEY_AUTOBACKFILLING = "is_auto_backfilling";
     private static final String STATE_KEY_NEXT_EXECUTION_DATE = "next_execution_date";
-    private static final String STATE_KEY_PIPELINE_TYPE = "pipeline_type";
-    private static final String STATE_KEY_TRIGGERED_PIPELINE_RUN_NAME = "triggered_pipeline_run_name";
+    private static final String STATE_KEY_TRIGGER_TYPE = "trigger_type";
+    private static final String STATE_KEY_TRIGGERED_PIPELINE_RUN_NAME = "triggered_run_name";
 
     private static final String TASK_GRAPH_KEY_GRAPH= "graph";
     private static final String TASK_GRAPH_KEY_NODES = "nodes";
@@ -102,6 +102,10 @@ public class PiperTopologyMetricsImpl implements TopologyMetrics {
     private static final String PIPER_METRIC_EXECUTION_STATUS = "status";
     private static final String PIPER_METRIC_EXECUTION_DATE = "executionDate";
     private static final String PIPER_METRIC_CREATED_AT = "createdAt";
+
+    private static final String EXTERNAL_TRIGGER = "external_trigger";
+    private static final String SCHEDULED_TYPE = "scheduled";
+    private static final String TRIGGERED_TYPE = "triggered";
 
 
     @Override
@@ -166,7 +170,8 @@ public class PiperTopologyMetricsImpl implements TopologyMetrics {
             metrics.put(PIPER_METRIC_DURATION, response.get(STATE_KEY_DURATION));
             metrics.put(PIPER_METRIC_AUTOBACKFILLING, response.get(STATE_KEY_AUTOBACKFILLING));
             metrics.put(PIPER_METRIC_NEXT_EXECUTION_DATE, response.get(STATE_KEY_NEXT_EXECUTION_DATE));
-            metrics.put(PIPER_METRIC_PIPELINE_TYPE, response.get(STATE_KEY_PIPELINE_TYPE));
+            String triggerType = (String) response.get(STATE_KEY_TRIGGER_TYPE);
+            metrics.put(PIPER_METRIC_PIPELINE_TYPE, pipelineType(triggerType));
 
             metrics.put(PIPER_METRIC_TRIGGERED_PIPELINE_RUN_NAME, response.get(STATE_KEY_TRIGGERED_PIPELINE_RUN_NAME));
         }
@@ -383,4 +388,12 @@ public class PiperTopologyMetricsImpl implements TopologyMetrics {
 
         return conf;
 	}
+
+	private String pipelineType(String trigger_type) {
+        String pipelineType = SCHEDULED_TYPE;
+        if(EXTERNAL_TRIGGER.equals(trigger_type)) {
+            pipelineType = TRIGGERED_TYPE;
+        }
+        return pipelineType;
+    }
 }

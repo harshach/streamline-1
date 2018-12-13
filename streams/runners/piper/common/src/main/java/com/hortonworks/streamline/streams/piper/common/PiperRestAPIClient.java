@@ -51,11 +51,9 @@ public class PiperRestAPIClient {
     }
 
     public Map getPipelineRuns(String uuid, Long from, Long to, Integer page, Integer pageSize) {
-        // FIXME don't send params if not set
-        // FIXME call search
-        // FIXME where should date conversion happen
-        return doGetRequest(String.format("%s/api/v1/pipelines/%s/runs?page=%d&page_size=%d",
-                this.apiRootUrl, uuid, page, pageSize));
+        return doGetRequest(String.format(
+                "%s/api/v1/pipelines/%s/runs/search?page=%d&page_size=%d&start_date=%d&end_date=%d&order_by=desc(execution_date)",
+                this.apiRootUrl, uuid, page, pageSize, from, to));
     }
 
     public Map getPipelineState(String uuid) {

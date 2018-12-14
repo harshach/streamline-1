@@ -256,7 +256,7 @@ public class PiperTopologyMetricsImpl implements TopologyMetrics {
 
         if (runtimeId != null) {
 
-            Map response = this.client.getPipelineRuns(runtimeId, from, to, page, pageSize);
+            Map response = this.client.getPipelineRuns(runtimeId, toSeconds(from), toSeconds(to), page, pageSize);
             ArrayList<Map<String, Object>> executions = (ArrayList<Map<String, Object>>) response.get(PIPER_RESPONSE_DATA);
 
             result.put(RESPONSE_TOTAL_RESULTS, response.get(PIPER_RESPONSE_TOTAL_RESULTS));
@@ -398,4 +398,8 @@ public class PiperTopologyMetricsImpl implements TopologyMetrics {
         }
         return pipelineType;
     }
+
+    private long toSeconds(long value) {
+        return value/1000L;
+    };
 }

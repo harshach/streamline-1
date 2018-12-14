@@ -45,6 +45,10 @@ public class PiperRestAPIClient {
         return doPostRequest(String.format("%s/api/v1/managed_pipelines", this.apiRootUrl), pipeline);
     }
 
+    public String redeployPipeline(Object pipeline, String uuid) {
+        return doPutRequest(String.format("%s/api/v1/managed_pipelines/%s", this.apiRootUrl, uuid), pipeline);
+    }
+
     public Map getConnections(String type) {
         return doGetRequest(String.format("%s/api/v1/connections/search?page_size=%d&conn_type=%s",
                 this.apiRootUrl, DEFAULT_PAGE_SIZE, encodeParam(type)));

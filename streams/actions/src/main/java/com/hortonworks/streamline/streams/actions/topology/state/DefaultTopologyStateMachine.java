@@ -200,6 +200,28 @@ public class DefaultTopologyStateMachine implements TopologyStateMachine {
         }
 
         @Override
+        public void redeploy(TopologyContext context, String runtimeId) throws Exception {
+
+            Topology topology = context.getTopology();
+            TopologyActions topologyActions = context.getTopologyActions();
+            TopologyDag dag = topology.getTopologyDag();
+            TopologyLayout layout = CatalogToLayoutConverter.getTopologyLayout(topology, dag);
+            if (dag == null) {
+                throw new IllegalStateException("Topology dag not set up");
+            }
+
+            try {
+                context.setCurrentAction("Redeploying topology");
+                topologyActions.redeploy(layout, runtimeId, context.getAsUser());
+                context.setCurrentAction("Topology Redeployed");
+            } catch (Exception ex) {
+                LOG.error("Error while trying to redeploy the topology", ex);
+                context.setCurrentAction("Redeploying the topology failed due to: " + ex);
+                throw new IgnoreTransactionRollbackException(ex);
+            }
+        }
+
+        @Override
         public String getName() {
             return "TOPOLOGY_STATE_DEPLOYED";
         }

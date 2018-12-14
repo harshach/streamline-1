@@ -51,6 +51,8 @@ public interface TopologyActions {
     // engine
     String deploy(TopologyLayout topology, String mavenArtifacts, TopologyActionContext ctx, String asUser) throws Exception;
 
+    String redeploy(TopologyLayout topology, String runtimeId, String asUser) throws Exception;
+
     // Compose and run parameter topology as test mode using the underlying engine.
     // The parameter 'topology' should contain its own topology DAG.
     // Please refer the javadoc of TestRunSource and also TestRunSink to see which information this method requires.

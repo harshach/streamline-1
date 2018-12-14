@@ -20,6 +20,10 @@ public abstract class TopologyState {
         throw new IllegalStateException("Invalid action for current state: " + this);
     }
 
+    public void redeploy(TopologyContext context, String applicationId) throws Exception {
+        throw new IllegalStateException("Invalid action for current state: " + this);
+    }
+
     public void kill(TopologyContext context) throws Exception {
         throw new IllegalStateException("Invalid action for current state: " + this);
     }

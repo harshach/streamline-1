@@ -394,6 +394,11 @@ public class StormTopologyActionsImpl implements TopologyActions {
     }
 
     @Override
+    public String redeploy(TopologyLayout topology, String runtimeId, String asUser) throws Exception {
+        return "";
+    }
+
+    @Override
     public void runTest(TopologyLayout topology, TopologyTestRunHistory testRunHistory, String mavenArtifacts,
                         Map<String, TestRunSource> testRunSourcesForEachSource,
                         Map<String, TestRunProcessor> testRunProcessorsForEachProcessor,

@@ -55,7 +55,7 @@ class TopologyViewContainer extends TopologyEditorContainer {
     this.versionName = '';
     this.customProcessors = [];
     this.showLogSearch = false;
-    this.fetchData();
+    // this.fetchData(); //Data being fetched from TopologyEditorContainer
     this.checkAuth = true;
     this.sampleInputNotify = false;
   }
@@ -78,7 +78,6 @@ class TopologyViewContainer extends TopologyEditorContainer {
     altFlag: true,
     isAppRunning: false,
     topologyStatus: '',
-    unknown: '',
     bundleArr: null,
     availableTimeSeriesDb: false,
     fetchLoader: true,
@@ -706,7 +705,7 @@ class TopologyViewContainer extends TopologyEditorContainer {
                   />,
                   <TopologyViewMode
                     allACL={allACL} key={"1"} {...this.state}
-                    runtimeObj={this.runtimeObj}
+                    runTimeTopologyId={this.runTimeTopologyId}
                     projectId={this.projectData.id}
                     topologyId={this.topologyId}
                     killTopology={this.killTopology.bind(this)}
@@ -715,7 +714,6 @@ class TopologyViewContainer extends TopologyEditorContainer {
                     datePickerCallback={this.datePickerCallback}
                     modeSelectCallback={this.modeSelectCallback}
                     stormClusterId={this.state.stormClusterId}
-                    nameSpaceName={this.nameSpace}
                     namespaceId={this.namespaceId}
                     showLogSearchBtn={this.showLogSearch}
                     topologyLevelDetailsFunc={this.handleTopologyLevelDetails}

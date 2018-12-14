@@ -156,11 +156,12 @@ class TopologyItems extends Component {
     const {topologyList} = this.props;
     const {
       topology,
-      runtime = {},
-      namespaceName
+      namespaces
     } = topologyList;
-    const {metric, latencyTopN} = runtime;
-    const metricWrap = metric ? metric.metrics : {};
+    let clusterNamesList = _.keys(namespaces);
+    const namespaceName = namespaces[clusterNamesList[0]].clusterName;
+    const status = namespaces[clusterNamesList[0]].status.status.toLowerCase();
+    const metricWrap = namespaces[clusterNamesList[0]].metric ?  namespaces[clusterNamesList[0]].metric.metrics : {};
 
     const engine = Utils.getEngineById(topologyList.topology.engineId);
     const template = Utils.getListingMetricsTemplate(engine);
@@ -174,11 +175,10 @@ class TopologyItems extends Component {
 
     const designs = {
       title: (metricName) => {
-        return <span className="metric-title">{topologyList.namespaceName}</span>;
+        return <span className="metric-title">{namespaceName}</span>;
       },
       status: (metricName) => {
-        const metric = getMetric(metricName);
-        return <span className="metric-status">{metricWrap[metric.metricKeyName]} &nbsp;</span>;
+        return <span className="metric-status">{status} &nbsp;</span>;
       },
       labelValue: (metricName) => {
         const metric = getMetric(metricName);
@@ -219,14 +219,6 @@ class TopologyItems extends Component {
   }
   getFooter(dropdown){
     const {topologyList} = this.props;
-    const {
-      topology,
-      runtime = {},
-      namespaceName
-    } = topologyList;
-    const {metric, latencyTopN} = runtime;
-    const metricWrap = metric ? metric.metrics : {};
-
     const engine = Utils.getEngineById(topologyList.topology.engineId);
 
     return <div className="card-footer">
@@ -252,23 +244,10 @@ class TopologyItems extends Component {
     const {topologyAction, topologyList,allACL} = this.props;
     const {
       topology,
-      runtime = {},
-      namespaceName
+      namespaces
     } = topologyList;
-    const {metric, latencyTopN} = runtime;
-    const metricWrap = metric ? metric.metrics : {};
-    let latencyWrap = latencyTopN || [];
-    let graphData = [],
-      graphVal = 0;
-    latencyWrap.map((d, v) => {
-      graphData.push({
-        name: Object.keys(d)[0],
-        value: d[Object.keys(d)[0]]
-      });
-      graphVal += d[Object.keys(d)[0]];
-    });
-    const unitLeft = _.slice(latencyWrap, 0, latencyWrap.length / 2);
-    const unitRight = _.slice(latencyWrap, latencyWrap.length / 2, latencyWrap.length);
+    let clusterNamesList = _.keys(namespaces);
+    const status = namespaces[clusterNamesList[0]].status.status.toLowerCase();
     const ellipseIcon = <i className="fa fa-ellipsis-h"></i>;
     const userInfo = app_state.user_profile !== undefined ? app_state.user_profile.admin :false;
     let permission=true,rights_share=true,aclObject={};
@@ -303,11 +282,11 @@ class TopologyItems extends Component {
         <i className="fa fa-share-square-o"></i>
         &nbsp;Export
       </MenuItem>
-      {metricWrap.status !== 'ACTIVE' && metricWrap.status !== 'INACTIVE' ?
-      <MenuItem title="Update Engine" disabled={!permission} onClick={this.onActionClick.bind(this, "update/" + topology.id)}>
-        <i className="fa fa-wrench"></i>
-        &nbsp;Update Engine
-      </MenuItem>
+      {status !== 'enabled' ?
+        <MenuItem title="Update Engine" disabled={!permission} onClick={this.onActionClick.bind(this, "update/" + topology.id)}>
+          <i className="fa fa-wrench"></i>
+          &nbsp;Update Engine
+        </MenuItem>
       : null
       }
       <MenuItem title="Delete" disabled={!permission} onClick={this.onActionClick.bind(this, "delete/" + topology.id)}>
@@ -318,9 +297,7 @@ class TopologyItems extends Component {
 
     return (
       <div className="col-sm-5">
-        <div className={`card ${(this.checkRefId(topology.id))
-          ? ''
-          : metricWrap.status || 'NOTRUNNING'}`} data-id={topology.id} ref={(ref) => this.streamRef = ref} onClick={this.streamBoxClick.bind(this, topology.id)}>
+        <div className="card" data-id={topology.id} ref={(ref) => this.streamRef = ref} onClick={this.streamBoxClick.bind(this, topology.id)}>
           {(this.checkRefId(topology.id))
             ? <div className="stream-body">
                 <div className="loading-img text-center">

@@ -48,7 +48,7 @@ class  ZoomPanelComponent extends Component {
         <div className={`control-widget right ${app_state.versionPanelCollapsed ? '' : 'active'}`}>
           <div className="control-top">
             <h5>Last Edited <span>{Utils.datetime(lastUpdatedTime).value}</span></h5>
-            <h5>Workflow Status<span><i className="fa fa-circle text-primary workflow-status"></i> {isAppRunning ? "Running" : "Paused"}</span></h5>
+            {isAppRunning ? <h5>Workflow Status<span><i className="fa fa-circle text-primary workflow-status"></i> Running</span></h5> : null}
           </div>
           <div className="control-bottom text-center">
             {mode === 'view' ?
@@ -67,9 +67,6 @@ class  ZoomPanelComponent extends Component {
           </div>
         </div>
         <div className="control-widget left">
-          <div className="control-top">
-            <h5>Image Control</h5>
-          </div>
           <div className="control-bottom">
             <div className="row">
               <div className="col-sm-12">

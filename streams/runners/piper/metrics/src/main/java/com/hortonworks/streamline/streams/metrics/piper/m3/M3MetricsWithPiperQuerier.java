@@ -150,9 +150,12 @@ public class M3MetricsWithPiperQuerier extends AbstractTimeSeriesQuerier{
     public static void maskUUIDs(Map<String,String> params) {
         Matcher matcher = UUID_PATTERN.matcher("");
         for (Map.Entry<String,String> entry : params.entrySet()) {
-            matcher.reset(entry.getValue());
-            if (matcher.matches()) {
-                params.put(entry.getKey(), maskUUID(entry.getValue()));
+            String value = entry.getValue();
+            if (value != null) {
+                matcher.reset(value);
+                if (matcher.matches()) {
+                    params.put(entry.getKey(), maskUUID(value));
+                }
             }
         }
     }

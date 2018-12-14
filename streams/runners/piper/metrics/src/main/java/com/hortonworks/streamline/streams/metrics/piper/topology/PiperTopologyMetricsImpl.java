@@ -286,7 +286,7 @@ public class PiperTopologyMetricsImpl implements TopologyMetrics {
 
         M3MetricsWithPiperQuerier timeSeriesQuerier = (M3MetricsWithPiperQuerier) this.timeSeriesQuerier;
 
-        Map<String, String> metricParams = getServerSubstitionParams(topology);
+        Map<String, String> metricParams = getServerSubstitutionParams(topology);
 
         // merge (overwrite) params from client
         for (Map.Entry<String,String> entry : clientMetricParams.entrySet()) {
@@ -335,12 +335,14 @@ public class PiperTopologyMetricsImpl implements TopologyMetrics {
         return topologyCatalogHelperService.listTopologyTasks(queryParams);
     }
 
-    private Map<String, String> getServerSubstitionParams(Topology topology) {
+    private Map<String, String> getServerSubstitutionParams(Topology topology) {
         Map<String, String> params = new HashMap<String, String>();
         String runtimeId = getRuntimeTopologyId(topology);
-        params.put("pipeline", runtimeId);
-        params.put("pipelineId", runtimeId);
-        params.put("applicationId", runtimeId);
+        if (runtimeId != null) {
+            params.put("pipeline", runtimeId);
+            params.put("pipelineId", runtimeId);
+            params.put("applicationId", runtimeId);
+        }
         return params;
     }
 

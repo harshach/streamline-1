@@ -229,7 +229,11 @@ export default class ComponentNodeContainer extends Component {
       if(_.has(s, 'bundleId')){
         const source = _.find(entityTypeArr, {id: s.bundleId});
         nodeName = source.name.toUpperCase();
-        imgPath = "styles/img/"+iconsFrom+"icon-" + source.subType.toLowerCase() + ".png";
+        let iconName = source.subType.toLowerCase() + '.png';
+        if(source.subType.toLowerCase() === 'kafka'){
+          iconName = source.subType.toLowerCase() + '-' + source.type.toLowerCase() + '.png';
+        }
+        imgPath = "styles/img/"+iconsFrom+"icon-" + iconName;
         subType = source.subType;
         if (source.subType === 'CUSTOM') {
           let config = source.topologyComponentUISpecification.fields,

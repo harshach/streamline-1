@@ -241,7 +241,7 @@ export default class SqlProcessorNodeForm extends Component {
         const streamIdWOId = stream.streamId.split('_');
         streamIdWOId.splice(streamIdWOId.length-1, 1);
         const topicNameFromStreamId = streamIdWOId.join('_');
-        const formatedTableName = 'hdrone.'+topicNameFromStreamId.replace('-', '_');
+        const formatedTableName = 'hdrone.'+topicNameFromStreamId.replace(/-/g,'_');
         this.tableMapping[formatedTableName.toLowerCase()] = topicNameFromStreamId;
         tableNames.push({
           name: formatedTableName,

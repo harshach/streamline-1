@@ -91,9 +91,13 @@ class EditorGraph extends Component {
     invokes method to add component in TopologyGraphComponent
   */
   addComponent(item) {
+    let iconName = item.subType.toLowerCase() + '.png';
+    if(item.subType.toLowerCase() === 'kafka'){
+      iconName = item.subType.toLowerCase() + '-' + item.type.toLowerCase() + '.png';
+    }
     let obj = {
       type: item.type,
-      imgPath: 'styles/img/'+iconsFrom+'icon-' + item.subType.toLowerCase() + '.png',
+      imgPath: 'styles/img/'+iconsFrom+'icon-' + iconName,
       name: item.subType,
       nodeLabel: item.subType,
       nodeType: item.subType,

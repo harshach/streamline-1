@@ -988,6 +988,11 @@ const generateNodeData = function(nodes, componentBundle, metadata, resultArr, r
       nodeLabel = name.defaultValue || 'Custom';
     }
 
+    let iconName = componentObj.subType.toLowerCase() + '.png';
+    if(componentObj.subType.toLowerCase() === 'kafka'){
+      iconName = componentObj.subType.toLowerCase() + '-' + componentObj.type.toLowerCase() + '.png';
+    }
+
     let obj = {
       x: currentMetaObj.x,
       y: currentMetaObj.y,
@@ -995,7 +1000,7 @@ const generateNodeData = function(nodes, componentBundle, metadata, resultArr, r
       parentType: componentObj.type,
       currentType: currentType,
       uiname: nodes[i].name,
-      imageURL: 'styles/img/'+iconsFrom+'icon-' + componentObj.subType.toLowerCase() + '.png',
+      imageURL: 'styles/img/'+iconsFrom+'icon-' + iconName,
       isConfigured: configuredFlag,
       parallelismCount: nodes[i].config.properties.parallelism || 1,
       nodeLabel: nodeLabel,

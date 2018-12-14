@@ -28,6 +28,37 @@ class  ZoomPanelComponent extends Component {
     const {router, projectId, topologyId} = this.props;
     router.push('projects/'+ projectId +'/applications/'+ topologyId +'/view');
   }
+  renderActionButton = () => {
+    const {isAppRunning, topologyStatus, killTopology, deployTopology} = this.props;
+    let btn = [];
+    if(isAppRunning){
+      btn.push(
+        <button key="kill" className="btn btn-primary btn-sm workflow-action-btn m-r-xs" onClick={killTopology}>
+          <i className="fa fa-ban workflow-btn"></i> Kill
+        </button>
+      );
+      if(topologyStatus == 'enabled'){
+        btn.push(
+          <button key="redeploy" className="btn btn-primary btn-sm workflow-action-btn" onClick={deployTopology}>
+            <i className="fa fa-play workflow-btn"></i> Redeploy
+          </button>
+        );
+      } else {
+        btn.push(
+          <button key="deploy" className="btn btn-primary btn-sm workflow-action-btn" onClick={deployTopology}>
+            <i className="fa fa-play workflow-btn"></i> Deploy
+          </button>
+        );
+      }
+    } else {
+      btn.push(
+        <button key="deploy" className="btn btn-primary btn-sm workflow-action-btn" onClick={deployTopology}>
+          <i className="fa fa-play workflow-btn"></i> Deploy
+        </button>
+      );
+    }
+    return btn;
+  }
   render(){
     const {lastUpdatedTime,
       versionName,
@@ -41,41 +72,31 @@ class  ZoomPanelComponent extends Component {
       mode,
       isAppRunning,
       killTopology,
-      deployTopology
+      deployTopology,
+      topologyStatus
     } = this.props;
     return (
       <div>
         <div className={`control-widget right ${app_state.versionPanelCollapsed ? '' : 'active'}`}>
           <div className="control-top">
             <h5>Last Edited <span>{Utils.datetime(lastUpdatedTime).value}</span></h5>
-            <h5>Workflow Status<span><i className="fa fa-circle text-primary workflow-status"></i> {isAppRunning ? "Running" : "Paused"}</span></h5>
+            {isAppRunning ? <h5>Workflow Status<span><i className="fa fa-circle text-primary workflow-status"></i> Running</span></h5> : null}
           </div>
           <div className="control-bottom text-center">
             {mode === 'view' ?
               <button className="btn btn-primary btn-sm workflow-action-btn" onClick={this.onEditClick}><i className="fa fa-pencil workflow-btn"></i> Edit Workflow</button>
             :
-              (isAppRunning ?
-                <button className="btn btn-primary btn-sm workflow-action-btn" onClick={killTopology}>
-                  <i className="fa fa-play workflow-btn"></i> Kill
-                </button>
-              :
-                <button className="btn btn-primary btn-sm workflow-action-btn" onClick={deployTopology}>
-                  <i className="fa fa-play workflow-btn"></i> Deploy
-                </button>
-              )
+              this.renderActionButton()
             }
           </div>
         </div>
         <div className="control-widget left">
-          <div className="control-top">
-            <h5>Image Control</h5>
-          </div>
           <div className="control-bottom">
             <div className="row">
               <div className="col-sm-12">
                   <button className="btn btn-default btn-xs" onClick={zoomOutAction}>
                     <i className="fa fa-minus"></i>
-                  </button> <input type="range" value={app_state.zoomScale} className="zoom-slider"
+                  </button> <input type="range" readOnly value={app_state.zoomScale} className="zoom-slider"
                   min={1} max={8} step={(8 - 1) / 100}
                 /> <button className="btn btn-default btn-xs" onClick={zoomInAction}>
                     <i className="fa fa-plus"></i>

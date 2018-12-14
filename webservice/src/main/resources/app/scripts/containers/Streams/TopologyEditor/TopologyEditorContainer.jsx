@@ -327,7 +327,7 @@ export class TopologyEditorContainer extends Component {
   // get the App Running status
   getAppRunningStatus = (status) => {
     let isAppRunning = false;
-    if (status && status == 'enabled') {
+    if (status && (status == 'enabled' || status == 'inactive' || status == 'paused')) {
       isAppRunning = true;
     }
     return isAppRunning;
@@ -1343,6 +1343,7 @@ export class TopologyEditorContainer extends Component {
                   isAppRunning={isAppRunning}
                   killTopology={this.killTopology.bind(this)}
                   deployTopology={this.handleDeployTopology.bind(this)}
+                  topologyStatus={this.state.topologyStatus}
                 />
                 {this.getEditorGraph()}
                 {/*<div className="topology-footer">

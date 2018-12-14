@@ -83,7 +83,8 @@ export default class Sidebar extends Component {
   }
   render() {
     let config = app_state.streamline_config;
-    let registryURL = window.location.protocol + "//" + config.registry.host + ":" + config.registry.port + '/ui/';
+    // let registryURL = window.location.protocol + "//" + config.registry.host + ":" + config.registry.port + '/ui/';
+    let watchTowerURL = "http://watchtower.uberinternal.com";
     return (
       <aside className="main-sidebar">
         <section className="sidebar">
@@ -114,14 +115,14 @@ export default class Sidebar extends Component {
               <li className={app_state.sidebar_activeKey === 2
                 ? 'active'
                 : ''} onClick={this.handleClickOnRegistry.bind(this, 2)}>
-                <a href={registryURL} target="_blank">
+                <a href={watchTowerURL} target="_blank">
                   <img src="/styles/img/uWorc/sr.png"/>
-                  <span>Schema Registry</span>
+                  <span>Watch Tower</span>
                 </a>
               </li>
               : null
             }
-            {hasModuleAccess(menuName.MODEL_REGISTRY) ?
+            {/*hasModuleAccess(menuName.MODEL_REGISTRY) ?
               <li className={app_state.sidebar_activeKey === 5
                 ? 'active'
                 : ''} onClick={this.handleClick.bind(this, 5)}>
@@ -131,7 +132,7 @@ export default class Sidebar extends Component {
                 </Link>
               </li>
               : null
-            }
+            */}
             {hasModuleAccess(menuName.UDF) || hasModuleAccess(menuName.NOTIFIER) || hasModuleAccess(menuName.CUSTOM_PROCESSOR) ||
               hasModuleAccess(menuName.SERVICE_POOL) || hasModuleAccess(menuName.ENVIRONMENT) || hasModuleAccess(menuName.AUTHORIZER) ?
               <li className={app_state.sidebar_activeKey === 3

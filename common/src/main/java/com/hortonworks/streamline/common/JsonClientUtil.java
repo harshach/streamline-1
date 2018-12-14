@@ -149,6 +149,10 @@ public class JsonClientUtil {
         return target.request(mediaType).post(Entity.json(entity), clazz);
     }
 
+    public static <T> T putEntity(WebTarget target, Object entity, MediaType mediaType, Class<T> clazz) {
+        return target.request(mediaType).put(Entity.json(entity), clazz);
+    }
+
     public static <T> T postEntityWithHeaders(WebTarget target, Map<String, String> headers, Object entity, MediaType mediaType, Class<T> clazz) {
         Invocation.Builder builder = target.request();
         for ( Map.Entry<String, String> entry : headers.entrySet()) {

@@ -91,6 +91,7 @@ public class PiperTopologyActionsImpl implements TopologyActions {
     @Override
     public void kill(TopologyLayout topology, String applicationId, String asUser) throws Exception {
         LOG.info("XXXXXXXXXXXXXX kill() XXXXXXXXXXXXXXXXXXX");
+        this.client.deactivatePipeline(applicationId);
     }
 
     @Override

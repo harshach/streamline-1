@@ -67,11 +67,34 @@ public class PiperRestAPIClient {
                 this.apiRootUrl, uuid, executionDate));
     }
 
+    public String deactivatePipeline(String uuid) {
+        return doPutRequest(String.format("%s/api/v1/managed_pipelines/%s/deactivate", this.apiRootUrl, uuid), "");
+    }
+
     private String encodeParam(String s) {
         try {
             return URLEncoder.encode(s, "UTF-8");
         } catch (UnsupportedEncodingException e) {
             throw new RuntimeException(e);
+        }
+    }
+    private String doPutRequest(final String requestUrl, final Object bodyObject) {
+        try {
+            return Subject.doAs(subject, new PrivilegedAction<String>() {
+                @Override
+                public String run() {
+                    return JsonClientUtil.putEntity(client.target(requestUrl), bodyObject, REST_API_MEDIA_TYPE, String.class);
+                }
+            });
+        } catch (javax.ws.rs.ProcessingException e) {
+            if (e.getCause() instanceof IOException) {
+                throw new RuntimeException("Exception while requesting " + requestUrl, e);
+            }
+
+            throw e;
+        } catch (WebApplicationException e) {
+            LOG.error(e.getResponse().readEntity(String.class));
+            throw new RuntimeException("Deployment Exception " + e.getResponse().readEntity(String.class), e);
         }
     }
 

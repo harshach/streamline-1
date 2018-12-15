@@ -4101,7 +4101,7 @@ div#TestSourceForm > ul {
 .m-b-md {
   margin-bottom: 15px;
 }
-.m-b-b {
+.m-b-lg {
   margin-bottom: 20px;
 }
 
@@ -5603,4 +5603,9 @@ h6.version-control {
   color: #ccc;
   background-color: transparent;
   font-size: 15px;
+}
+.engine-type {
+  color: #888;
+  font-weight: 400;
+  font-size: 12px;
 }

@@ -150,11 +150,13 @@ export default class SqlProcessorNodeForm extends Component {
           const tableNameFromSql = statement.from.name;
           const tableName = this.tableMapping[tableNameFromSql];
           const inputstream = _.find(inputStreamOptions, (stream) => {
-            const regex = new RegExp(tableName);
-            const streamIdWOId = stream.streamId.split('_');
-            streamIdWOId.splice(streamIdWOId.length-1, 1);
-            // return streamIdWOId.join('_').toLowerCase() == tableName.toLowerCase();
-            return tableName.toLowerCase().match(streamIdWOId.join('_').toLowerCase());
+            if(tableName){
+              const regex = new RegExp(tableName);
+              const streamIdWOId = stream.streamId.split('_');
+              streamIdWOId.splice(streamIdWOId.length-1, 1);
+              // return streamIdWOId.join('_').toLowerCase() == tableName.toLowerCase();
+              return tableName.toLowerCase().match(streamIdWOId.join('_').toLowerCase());
+            }
           });
           if(!inputstream){
             error = `Invalid Table "${tableName}"`;
@@ -248,7 +250,17 @@ export default class SqlProcessorNodeForm extends Component {
           type: 'TABLE'
         });
 
-        allFields.push.apply(allFields, stream.fields);
+        let fieldsArr = [];
+        stream.fields.map((field)=>{
+          let obj = {
+            name: "msg."+field.name,
+            type: field.type,
+            optional: field.optional
+          };
+          fieldsArr.push(obj);
+        });
+
+        allFields.push.apply(allFields, fieldsArr);
       });
 
       Array.prototype.push.apply(this.hintOptions,ProcessorUtils.generateCodeMirrorOptions(allFields,"ARGS"));

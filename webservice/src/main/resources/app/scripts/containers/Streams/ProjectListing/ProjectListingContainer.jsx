@@ -83,7 +83,7 @@ class ProjectCard extends Component {
       </ul>;
 
     return (
-      <div className="col-md-3">
+      <div className="col-md-4">
         <div className="service-box card" data-id={data.id} ref={(ref) => this.projectRef = ref}>
           {/*<div className="service-head clearfix">
 

@@ -49,7 +49,8 @@ class AddTopology extends Component {
       validTemplate: true,
       formField: {},
       showRequired: true,
-      engineOptions: [],
+      batchOptions: [],
+      streamOptions: [],
       templateOptions: [],
       filterStr:''
     };
@@ -65,7 +66,8 @@ class AddTopology extends Component {
       this.allEngineSettings = result[0];
       let stateObj = {};
       //setting all the engines from app_state
-      stateObj.engineOptions = app_state.engines;
+      stateObj.batchOptions = app_state.engines.filter((f)=>{return f.type == 'batch';});
+      stateObj.streamOptions = app_state.engines.filter((f)=>{return f.type == 'stream';});
 
       if (this.allEngineSettings.responseMessage !== undefined) {
         FSReactToastr.error(
@@ -247,7 +249,8 @@ class AddTopology extends Component {
       namespaceOptions,
       validSelect,
       engineId,
-      engineOptions,
+      batchOptions,
+      streamOptions,
       validEngine,
       templateId,
       templateOptions,
@@ -282,19 +285,31 @@ class AddTopology extends Component {
           </div>
         </div>
         <hr />
-        <div className="form-group">
-          <label data-stest="selectEnvLabel">Choose the Engine for the workflow to run on
+        <div className="form-group m-b-xs">
+          <label data-stest="selectEnvLabel">Choose the Engine to run on
             <span className="text-danger">*</span>
           </label>
-          <div className="m-t-xs m-b-b">{
-            _.map(engineOptions, (e) => {
+        </div>
+        <div className="row m-b-xs">
+          <label className="col-sm-2 engine-type">Batch:</label>
+          <div className="col-sm-6">
+            {_.map(batchOptions, (e) => {
               return <span className="radio-container" onClick={() => this.handleOnChangeEngine(e)} key={e.id}>
                 <input type="radio" name="engine" checked={engineId == e.id}/>
                 <label>{e.displayName}</label>
               </span>;
-            })
-          }
-          {validEngine === false && <p className="text-danger m-t-xs">Please select engine</p>}
+            })}
+          </div>
+        </div>
+        <div className="row m-b-lg">
+          <label className="col-sm-2 engine-type">Streaming:</label>
+          <div className="col-sm-6">
+            {_.map(streamOptions, (e) => {
+              return <span className="radio-container" onClick={() => this.handleOnChangeEngine(e)} key={e.id}>
+                <input type="radio" name="engine" checked={engineId == e.id}/>
+                <label>{e.displayName}</label>
+              </span>;
+            })}
           </div>
         </div>
         <div className="form-group">

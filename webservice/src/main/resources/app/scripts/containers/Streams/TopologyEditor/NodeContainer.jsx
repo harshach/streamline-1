@@ -160,13 +160,13 @@ export default class NodeContainer extends Component {
       className.push('highlight');
     }
     if((!viewType && accepts != ItemTypes.Nodes) || (viewType == 'folder' && accepts != '')){
-      className.push.apply(className, ['pulse', 'animated', 'infinite']);
+      className.push.apply(className, ['tada', 'animated', 'infinite']);
     }
     return connectDragSource(connectDropTarget(
       <li className={className.join(' ')}>
         { viewType != 'folder'
         ?
-        <div className="nodeContainer"><img src={imgPath} ref="img" style={{filter: 'url(#blue-wash)'}} onError={() => {
+        <div className="nodeContainer"><span className="drag-handle"></span><img src={imgPath} ref="img" style={{filter: 'url(#blue-wash)'}} onError={() => {
           this.refs.img.src = defaultImagePath;
         }}/></div>
         :

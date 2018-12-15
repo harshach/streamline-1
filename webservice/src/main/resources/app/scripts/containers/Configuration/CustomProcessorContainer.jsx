@@ -177,7 +177,7 @@ export default class CustomProcessorContainer extends Component {
     return (
       <span>
         Configuration
-        <span className="title-separator">/</span>
+        <i className="fa fa-angle-right title-separator"></i>
         {this.props.routes[this.props.routes.length - 1].name}
       </span>
     );
@@ -218,7 +218,7 @@ export default class CustomProcessorContainer extends Component {
         <div className={fetchLoader ? "displayNone" : ""}>
           <div className={this.state.showListing ? "" : "displayNone"}>
             {hasEditCapability(accessCapabilities.APPLICATION) ?
-              <a href="javascript:void(0);" className="hb success pull-right" data-target="#addEnvironment" onClick={this.handleAdd.bind(this)}>
+              <a href="javascript:void(0);" className="hb default-blue pull-right" data-target="#addEnvironment" onClick={this.handleAdd.bind(this)}>
                 <i className="fa fa-plus"></i>
               </a>
               : null

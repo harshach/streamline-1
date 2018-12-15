@@ -189,10 +189,9 @@ class TopologyViewMode extends Component {
       topologyId,
       topologyName,
       isAppRunning,
-      unknown,
       killTopology,
       setCurrentVersion,
-      runtimeObj,
+      runTimeTopologyId,
       timestamp,
       topologyVersion,
       versionsArr = [],
@@ -202,23 +201,14 @@ class TopologyViewMode extends Component {
       engine
     } = this.props;
 
-    const topologyMetric = runtimeObj;
-
-    const {metric} = topologyMetric || {
-      metric: (topologyMetric === '')
-        ? ''
-        : topologyMetric.metric
-    };
-    const metricWrap = metric.metrics || {};
-
     let versionName = this.getTitleFromId(topologyVersion);
 
-    if (topologyMetric && topologyMetric.runtimeTopologyId && stormViewUrl.length) {
+    if (runTimeTopologyId && stormViewUrl.length) {
       if (stormViewUrl.indexOf('/main/views/') == -1) {
-        stormViewUrl = stormViewUrl + '/topology.html?id=' + topologyMetric.runtimeTopologyId;
+        stormViewUrl = stormViewUrl + '/topology.html?id=' + runTimeTopologyId;
       } else {
         //Storm view requires the path to be encoded
-        stormViewUrl = stormViewUrl + '?viewpath=%23%2Ftopology%2F' + encodeURIComponent(topologyMetric.runtimeTopologyId);
+        stormViewUrl = stormViewUrl + '?viewpath=%23%2Ftopology%2F' + encodeURIComponent(runTimeTopologyId);
       }
     }
     const userInfo = app_state.user_profile !== undefined ? app_state.user_profile.admin : false;
@@ -247,6 +237,9 @@ class TopologyViewMode extends Component {
     );
     const datePickerTitleContent = (
       <span><i className="fa fa-clock-o"></i> {moment.duration(startDate.diff(endDate)).humanize()}</span>
+    );
+    return (
+      <div></div>
     );
     return (
       <div>

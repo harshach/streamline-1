@@ -56,7 +56,7 @@ class TopologyViewContainer extends TopologyEditorContainer {
     this.versionName = '';
     this.customProcessors = [];
     this.showLogSearch = false;
-    this.fetchData();
+    // this.fetchData(); //Data being fetched from TopologyEditorContainer
     this.checkAuth = true;
     this.sampleInputNotify = false;
   }
@@ -79,7 +79,6 @@ class TopologyViewContainer extends TopologyEditorContainer {
     altFlag: true,
     isAppRunning: false,
     topologyStatus: '',
-    unknown: '',
     bundleArr: null,
     availableTimeSeriesDb: false,
     fetchLoader: true,
@@ -583,11 +582,11 @@ class TopologyViewContainer extends TopologyEditorContainer {
       return (
         <span>
           <Link to="/">My Projects</Link>
-          <span className="title-separator">/</span>
+          <i className="fa fa-angle-right title-separator"></i>
           {projectData.name}
-          <span className="title-separator">/</span>
-          <Link to={"/projects/"+projectData.id+"/applications"}>My Application</Link>
-          <span className="title-separator">/</span>
+          <i className="fa fa-angle-right title-separator"></i>
+          <Link to={"/projects/"+projectData.id+"/applications"}>My Workflow</Link>
+          <i className="fa fa-angle-right title-separator"></i>
           View: {topologyName}
         </span>
       );
@@ -692,6 +691,18 @@ class TopologyViewContainer extends TopologyEditorContainer {
     let nodeType = this.node
       ? this.node.currentType
       : '';
+      // this.viewMode && (nodeType.toLowerCase() === 'join' || nodeType.toLowerCase() === 'window') ? "modal-xl" : "modal-fixed-height modal-xl"
+    let nodeClassName = "";
+    if(this.node && (this.node.parentType.toLowerCase() === 'source' || this.node.parentType.toLowerCase() === 'sink')){
+      nodeClassName = "modal-fixed-height modal-lg";
+    } else if(this.node && (this.node.parentType.toLowerCase() === 'task')){
+      nodeClassName = "modal-fixed-height";
+    } else if(nodeType === 'join' || nodeType === 'window' || nodeType === 'projection' ||
+      nodeType === 'rt-join' || nodeType === 'sql'){
+      nodeClassName = "modal-xl";
+    } else {
+      nodeClassName = "modal-fixed-height modal-xl";
+    }
     return (
       <BaseContainer ref="BaseContainer" routes={this.props.routes} onLandingPage="false" headerContent={this.getTopologyHeader()} siblingContent={this.getRightSideBar()}>
         <div className="topology-view-mode-container">
@@ -714,7 +725,7 @@ class TopologyViewContainer extends TopologyEditorContainer {
                   />,
                   <TopologyViewMode
                     allACL={allACL} key={"1"} {...this.state}
-                    runtimeObj={this.runtimeObj}
+                    runTimeTopologyId={this.runTimeTopologyId}
                     projectId={this.projectData.id}
                     topologyId={this.topologyId}
                     killTopology={this.killTopology.bind(this)}
@@ -723,7 +734,6 @@ class TopologyViewContainer extends TopologyEditorContainer {
                     datePickerCallback={this.datePickerCallback}
                     modeSelectCallback={this.modeSelectCallback}
                     stormClusterId={this.state.stormClusterId}
-                    nameSpaceName={this.nameSpace}
                     namespaceId={this.namespaceId}
                     showLogSearchBtn={this.showLogSearch}
                     topologyLevelDetailsFunc={this.handleTopologyLevelDetails}
@@ -738,11 +748,11 @@ class TopologyViewContainer extends TopologyEditorContainer {
             </div>
 }
         </div>
-        <Modal ref="NodeModal" bsSize={this.processorNode
-          ? "large"
-          : null} dialogClassName={this.viewMode && (nodeType.toLowerCase() === 'join' || nodeType.toLowerCase() === 'window')
-          ? "modal-xl"
-          : "modal-fixed-height"} data-title={this.modalTitle} data-resolve={this.handleSaveNodeModal.bind(this)}>
+        <Modal className="u-form" ref="NodeModal"
+          dialogClassName={nodeClassName}
+          data-title={this.modalTitle}
+          data-resolve={this.handleSaveNodeModal.bind(this)}
+        >
           {this.modalContent()}
         </Modal>
         {this.state.isAppRunning && this.graphData.nodes.length > 0 && this.versionName.toLowerCase() == 'current' && this.engine.type == 'stream' ?

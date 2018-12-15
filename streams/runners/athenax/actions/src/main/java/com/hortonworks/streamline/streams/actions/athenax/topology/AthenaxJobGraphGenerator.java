@@ -2,10 +2,24 @@ package com.hortonworks.streamline.streams.actions.athenax.topology;
 
 import com.hortonworks.streamline.common.Config;
 import com.hortonworks.streamline.streams.actions.TopologyActionContext;
-import com.hortonworks.streamline.streams.actions.athenax.topology.entity.*;
-import com.hortonworks.streamline.streams.layout.component.*;
-import com.hortonworks.streamline.streams.layout.component.impl.KafkaSink;
+import com.hortonworks.streamline.streams.actions.athenax.topology.entity.Connector;
+import com.hortonworks.streamline.streams.actions.athenax.topology.entity.DeployRequest;
+import com.hortonworks.streamline.streams.actions.athenax.topology.entity.JobDefinition;
+import com.hortonworks.streamline.streams.actions.athenax.topology.entity.JobStatusRequest;
+import com.hortonworks.streamline.streams.actions.athenax.topology.entity.RTADeployTableRequest;
+import com.hortonworks.streamline.streams.actions.athenax.topology.entity.RTAQueryTypes;
+import com.hortonworks.streamline.streams.actions.athenax.topology.entity.RTACreateTableRequest;
+import com.hortonworks.streamline.streams.actions.athenax.topology.entity.RTATableField;
+import com.hortonworks.streamline.streams.actions.athenax.topology.entity.RTATableMetaData;
+import com.hortonworks.streamline.streams.actions.athenax.topology.entity.StopJobRequest;
+import com.hortonworks.streamline.streams.layout.component.Edge;
+import com.hortonworks.streamline.streams.layout.component.StreamlineProcessor;
+import com.hortonworks.streamline.streams.layout.component.StreamlineSink;
+import com.hortonworks.streamline.streams.layout.component.StreamlineSource;
+import com.hortonworks.streamline.streams.layout.component.TopologyDagVisitor;
+import com.hortonworks.streamline.streams.layout.component.TopologyLayout;
 import com.hortonworks.streamline.streams.layout.component.impl.KafkaSource;
+import com.hortonworks.streamline.streams.layout.component.impl.RTASink;
 import com.hortonworks.streamline.streams.layout.component.impl.RulesProcessor;
 import com.hortonworks.streamline.streams.layout.component.impl.SqlProcessor;
 import org.slf4j.Logger;
@@ -13,6 +27,7 @@ import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Properties;
 
 public class AthenaxJobGraphGenerator extends TopologyDagVisitor {
@@ -33,11 +48,12 @@ public class AthenaxJobGraphGenerator extends TopologyDagVisitor {
 	private static final String KAFKA_TOPIC = "topic";
 	private static final String HEATPIPE_PROTOCOL_PREFIX = "kafka+heatpipe://";
 
+
 	private TopologyLayout topology;
 	private TopologyActionContext topologyActionContext;
 	private String runAsUser;
-	private List<StreamlineSource> sourceList;
-	private List<StreamlineSink> sinkList;
+	private List<KafkaSource> kafkaSourceList;
+	private RTASink rtaSink;
 	private String sql;
 	private boolean legalAthenaXJob;
 
@@ -45,8 +61,7 @@ public class AthenaxJobGraphGenerator extends TopologyDagVisitor {
 		this.topology = topology;
 		this.topologyActionContext = ctx;
 		this.runAsUser = asUser;
-		this.sourceList = new ArrayList<>();
-		this.sinkList = new ArrayList<>();
+		this.kafkaSourceList = new ArrayList<>();
 		this.legalAthenaXJob = true;
 	}
 
@@ -59,7 +74,7 @@ public class AthenaxJobGraphGenerator extends TopologyDagVisitor {
 	public void visit(StreamlineSource source) {
 		LOG.debug("visit source: " + source);
 		if (source instanceof KafkaSource) {
-			sourceList.add(source);
+			kafkaSourceList.add((KafkaSource) source);
 		} else {
 			legalAthenaXJob = false;
 			LOG.error("non kafka source not supported in AthenaX");
@@ -69,13 +84,11 @@ public class AthenaxJobGraphGenerator extends TopologyDagVisitor {
 	@Override
 	public void visit(StreamlineSink sink) {
 		LOG.debug("visit sink: " + sink);
-
-		// TODO: relax this
-		if (sink instanceof KafkaSink) {
-			sinkList.add(sink);
+		if (sink instanceof RTASink) {
+			rtaSink = (RTASink) sink;
 		} else {
 			legalAthenaXJob = false;
-			LOG.error("non kafka sink not supported at this time.");
+			LOG.error("non RTA sink not supported at this time.");
 		}
 	}
 
@@ -95,6 +108,73 @@ public class AthenaxJobGraphGenerator extends TopologyDagVisitor {
 	@Override
 	public void visit(Edge edge) {
 		LOG.debug("visit edge:" + edge);
+	}
+
+	public RTACreateTableRequest extractRTACreateTableRequest() {
+		RTACreateTableRequest request = new RTACreateTableRequest();
+
+		Config rtaSinkConfig = rtaSink.getConfig();
+
+		// TODO: change to use runAsUser when available
+		request.setOwner(rtaSinkConfig.get(RTAConstants.OWNER));
+		request.setName(rtaSinkConfig.get(RTAConstants.TABLE_NAME));
+		request.setRtaTableMetaData(extractRTATableMetaData());
+
+		List<RTATableField> rtaTableFields = new ArrayList<>();
+		List<Map<String, Object>> tableFieldConfigs = rtaSinkConfig.getAny(RTAConstants.TABLE_FIELDS);
+		for (Map<String, Object> fieldConfig : tableFieldConfigs) {
+			RTATableField rtaTableField = new RTATableField();
+
+			rtaTableField.setType((String) fieldConfig.get(RTAConstants.TYPE));
+			rtaTableField.setName((String) fieldConfig.get(RTAConstants.NAME));
+			rtaTableField.setRtaType((String) fieldConfig.get(RTAConstants.RTA_TYPE));
+			rtaTableField.setCardinality((String) fieldConfig.get(RTAConstants.CARDINALITY));
+			rtaTableField.setRtaColumnType((String) fieldConfig.get(RTAConstants.RTA_COLUMN_TYPE));
+			rtaTableField.setDoc((String) fieldConfig.get(RTAConstants.DOC));
+
+			rtaTableFields.add(rtaTableField);
+		}
+		request.setFields(rtaTableFields);
+
+		return request;
+	}
+
+	private RTATableMetaData extractRTATableMetaData() {
+		RTATableMetaData metaData = new RTATableMetaData();
+
+		Config rtaSinkConfig = rtaSink.getConfig();
+
+		List<String> primaryKeys = new ArrayList<>();
+		List<Map<String, Object>> tableFieldConfigs = rtaSinkConfig.getAny(RTAConstants.TABLE_FIELDS);
+		for (Map<String, Object> fieldConfig : tableFieldConfigs) {
+			if ((boolean) fieldConfig.get(RTAConstants.IS_PRIMARY_KEY)) {
+				primaryKeys.add((String) fieldConfig.get(RTAConstants.NAME));
+			}
+		}
+		metaData.setPrimaryKeys(primaryKeys);
+
+		metaData.setIngestionRate(rtaSinkConfig.getAny(RTAConstants.INGESTION_RATE));
+		metaData.setRetentionDays(rtaSinkConfig.getAny(RTAConstants.RETENTION_DAYS));
+
+		List<String> queryTypes = new ArrayList<>();
+		for (RTAQueryTypes rtaQueryTypes : RTAQueryTypes.values()) {
+			if (rtaSinkConfig.getAny(rtaQueryTypes.getUiFieldName())) {
+				queryTypes.add(rtaQueryTypes.getRtaTypeName());
+			}
+		}
+		metaData.setQueryTypes(queryTypes);
+
+		// source topic for RTA ingestion, which is the topic defined in RTA sink
+		String rtaSourceTopicName = rtaSink.getConfig().get(KAFKA_TOPIC);
+		metaData.setSourceName(rtaSourceTopicName);
+
+		return metaData;
+	}
+
+	public RTADeployTableRequest extractRTADeployTableRequest() {
+		RTADeployTableRequest request = new RTADeployTableRequest();
+		request.setKafkaCluster(rtaSink.getConfig().get(RTAConstants.KAFKA_CLUSTER));
+		return request;
 	}
 
 	public JobDefinition extractJobDefinition(String zkConnectionStr) throws Exception {
@@ -157,18 +237,10 @@ public class AthenaxJobGraphGenerator extends TopologyDagVisitor {
 		return request;
 	}
 
-	private List<Connector> getInputConnectors(String zkConnectionStr) throws Exception {
+	private List<Connector> getInputConnectors(String zkConnectionStr) {
 		// input connectors(kafka only for AthenaX)
 		List<Connector> inputConnectors = new ArrayList<>();
-		for (StreamlineSource streamSource : sourceList) {
-			KafkaSource kafkaSource;
-			if (streamSource instanceof KafkaSource) {
-				kafkaSource = (KafkaSource) streamSource;
-			} else {
-				LOG.error("Topology with non-kakfa inputs can't be converted into AthenaX job.");
-				throw new Exception("Topology with non-kakfa inputs can't be converted into AthenaX job.");
-			}
-
+		for (KafkaSource kafkaSource : kafkaSourceList) {
 			// extract kafka properties
 			Properties kafkaProperties = new Properties();
 			kafkaProperties.put(BOOTSTRAP_SERVERS, kafkaSource.getConfig().get("bootstrapServers"));
@@ -193,36 +265,27 @@ public class AthenaxJobGraphGenerator extends TopologyDagVisitor {
 		return inputConnectors;
 	}
 
-	private List<Connector> getOutputConnectors() throws Exception {
+	private List<Connector> getOutputConnectors() {
 		List<Connector> outputConnectors = new ArrayList<>();
-		for (StreamlineSink streamSink : sinkList) {
-			KafkaSink kafkaSink;
-			if (streamSink instanceof KafkaSink) {
-				kafkaSink = (KafkaSink) streamSink;
-			} else {
-				LOG.error("Topology with non-kakfa output can't be converted into AthenaX job at this time.");
-				throw new Exception("Topology with non-kakfa output can't be converted into AthenaX job at this time.");
-			}
 
-			// extract kafka properties
-			Properties kafkaProperties = new Properties();
-			String bootStrapServers = kafkaSink.getConfig().get("bootstrapServers");
-			kafkaProperties.put(BOOTSTRAP_SERVERS, bootStrapServers);
-			kafkaProperties.put(HEATPIPE_APP_ID, topology.getName());
-			kafkaProperties.put(HEATPIPE_KAFKA_HOST_PORT, "localhost:18083");
-			kafkaProperties.put(HEATPIPE_SCHEMA_SERVICE_HOST_PORT, "localhost:14040");
-			kafkaProperties.put(CLIENT_ID, UWORC_SERVICE_NAME + "/" + topology.getName());
+		// extract kafka properties
+		Properties kafkaProperties = new Properties();
+		String bootStrapServers = rtaSink.getConfig().get("bootstrapServers");
+		kafkaProperties.put(BOOTSTRAP_SERVERS, bootStrapServers);
+		kafkaProperties.put(HEATPIPE_APP_ID, topology.getName());
+		kafkaProperties.put(HEATPIPE_KAFKA_HOST_PORT, "localhost:18083");
+		kafkaProperties.put(HEATPIPE_SCHEMA_SERVICE_HOST_PORT, "localhost:14040");
+		kafkaProperties.put(CLIENT_ID, UWORC_SERVICE_NAME + "/" + topology.getName());
 
-			String topicName = kafkaSink.getConfig().get(KAFKA_TOPIC);
-			Connector kafkaOutput = new Connector();
-			kafkaOutput.setProperties(kafkaProperties);
-			kafkaOutput.setType(TYPE_KAFKA);
-			kafkaOutput.setName(topicName);
+		String topicName = rtaSink.getConfig().get(KAFKA_TOPIC);
+		Connector kafkaOutput = new Connector();
+		kafkaOutput.setProperties(kafkaProperties);
+		kafkaOutput.setType(TYPE_KAFKA);
+		kafkaOutput.setName(topicName);
 
-			kafkaOutput.setUri(HEATPIPE_PROTOCOL_PREFIX + bootStrapServers + "/" + topicName);
+		kafkaOutput.setUri(HEATPIPE_PROTOCOL_PREFIX + bootStrapServers + "/" + topicName);
 
-			outputConnectors.add(kafkaOutput);
-		}
+		outputConnectors.add(kafkaOutput);
 
 		return outputConnectors;
 	}

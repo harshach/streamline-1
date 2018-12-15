@@ -53,6 +53,7 @@ import com.hortonworks.streamline.streams.layout.component.impl.KafkaSink;
 import com.hortonworks.streamline.streams.layout.component.impl.KafkaSource;
 import com.hortonworks.streamline.streams.layout.component.impl.MultiLangProcessor;
 import com.hortonworks.streamline.streams.layout.component.impl.NotificationSink;
+import com.hortonworks.streamline.streams.layout.component.impl.RTASink;
 import com.hortonworks.streamline.streams.layout.component.impl.RulesProcessor;
 import com.hortonworks.streamline.streams.layout.component.impl.JoinProcessor;
 import com.hortonworks.streamline.streams.layout.component.impl.SqlProcessor;
@@ -85,6 +86,7 @@ import static com.hortonworks.streamline.common.ComponentTypes.NORMALIZATION;
 import static com.hortonworks.streamline.common.ComponentTypes.NOTIFICATION;
 import static com.hortonworks.streamline.common.ComponentTypes.PMML;
 import static com.hortonworks.streamline.common.ComponentTypes.PROJECTION;
+import static com.hortonworks.streamline.common.ComponentTypes.RTA;
 import static com.hortonworks.streamline.common.ComponentTypes.RULE;
 import static com.hortonworks.streamline.common.ComponentTypes.SPLIT;
 import static com.hortonworks.streamline.common.ComponentTypes.SQL;
@@ -269,6 +271,7 @@ public class TopologyComponentFactory {
         builder.put(hbaseSinkProvider());
         builder.put(hiveSinkProvider());
         builder.put(kafkaSinkProvider());
+        builder.put(rtaSinkProvider());
         return builder.build();
     }
 
@@ -613,5 +616,15 @@ public class TopologyComponentFactory {
             }
         };
         return new SimpleImmutableEntry<>(KAFKA, provider);
+    }
+
+    private Map.Entry<String, Provider<StreamlineSink>> rtaSinkProvider() {
+        Provider<StreamlineSink> provider = new Provider<StreamlineSink>() {
+            @Override
+            public StreamlineSink create(TopologyComponent component) {
+                return new RTASink();
+            }
+        };
+        return new SimpleImmutableEntry<>(RTA, provider);
     }
 }

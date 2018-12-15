@@ -78,6 +78,15 @@ public class PiperTopologyActionsImpl implements TopologyActions {
     }
 
     @Override
+    public String redeploy(TopologyLayout topology, String runtimeId, String asUser) throws Exception {
+        ManagedPipelineGenerator dagVisitor = new ManagedPipelineGenerator(topology);
+        Pipeline pipeline = dagVisitor.generatePipeline();
+        pipeline.setPipelineId(runtimeId);
+        String piperResponse = this.client.redeployPipeline(pipeline, runtimeId);
+        return parseApplicationId(piperResponse);
+    }
+
+    @Override
     public void runTest(TopologyLayout topology, TopologyTestRunHistory testRunHistory, String mavenArtifacts, Map<String, TestRunSource> testRunSourcesForEachSource, Map<String, TestRunProcessor> testRunProcessorsForEachProcessor, Map<String, TestRunRulesProcessor> testRunRulesProcessorsForEachProcessor, Map<String, TestRunSink> testRunSinksForEachSink, Optional<Long> durationSecs) throws Exception {
         LOG.info("XXXXXXXXXXXXXX runTest() XXXXXXXXXXXXXXXXXXX");
     }
@@ -91,6 +100,7 @@ public class PiperTopologyActionsImpl implements TopologyActions {
     @Override
     public void kill(TopologyLayout topology, String applicationId, String asUser) throws Exception {
         LOG.info("XXXXXXXXXXXXXX kill() XXXXXXXXXXXXXXXXXXX");
+        this.client.deactivatePipeline(applicationId);
     }
 
     @Override

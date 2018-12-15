@@ -216,7 +216,7 @@
   color: #252422;
   padding: 10px 0;
   margin-bottom: 20px;
-  position: relative;
+  /* position: relative; */
   z-index: 1;
 }
 
@@ -245,7 +245,7 @@
 
 .wizard-card {
   min-height: 200px;
-  box-shadow: 0 20px 16px -15px rgba(0, 0, 0, 0.57);
+  /* box-shadow: 0 20px 16px -15px rgba(0, 0, 0, 0.57); */
 }
 
 .wizard-card .picture-container {
@@ -347,27 +347,27 @@
 }
 
 .wizard-card[data-color="blue"] .picture:hover {
-  border-color: #68B3C8;
+  border-color: #276EF1;
 }
 
 .wizard-card[data-color="blue"] .nav-pills>li.active>a:after {
-  background-color: #68B3C8;
+  background-color: #276EF1;
 }
 
 .wizard-card[data-color="blue"] .nav-pills>li.active>a {
-  color: #68B3C8;
+  color: #276EF1;
 }
 
 .wizard-card[data-color="blue"] .nav-pills .icon-circle.checked {
-  border-color: #68B3C8;
+  border-color: #276EF1;
 }
 
 .wizard-card[data-color="blue"] .choice.active .card-checkboxes {
-  color: #68B3C8;
+  color: #276EF1;
 }
 
 .wizard-card[data-color="blue"] .wizard-navigation .progress-bar {
-  background-color: #68B3C8;
+  background-color: #276EF1;
 }
 
 .wizard-card[data-color="orange"] .picture:hover {

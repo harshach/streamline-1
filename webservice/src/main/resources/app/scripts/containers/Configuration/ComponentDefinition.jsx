@@ -72,7 +72,7 @@ export default class ComponentDefinition extends Component {
   getHeaderContent() {
     return (
       <span>
-        Configuration <span className="title-separator">/</span> {this.props.routes[this.props.routes.length-1].name}
+        Configuration <i className="fa fa-angle-right title-separator"></i> {this.props.routes[this.props.routes.length-1].name}
       </span>
     );
   }
@@ -181,7 +181,7 @@ export default class ComponentDefinition extends Component {
                   }
                   </div>
               }
-                <Modal ref="definitionModel"
+                <Modal className="u-form" ref="definitionModel"
                   data-title="Edit Definition"
                   onKeyPress={this.handleKeyPress}
                   data-resolve={this.handleSave}>

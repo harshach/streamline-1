@@ -307,8 +307,7 @@ public class StreamCatalogService {
             LOG.debug("Added Project {} ", project);
         }
 
-        long timestamp = System.currentTimeMillis();
-        project.setTimestamp(timestamp);
+        project.setTimestamp(System.currentTimeMillis());
         this.dao.addOrUpdate(project);
         LOG.debug("Added project {}", project);
         return project;
@@ -432,20 +431,34 @@ public class StreamCatalogService {
     /**
      * Lists the 'CURRENT' version of topologies
      */
-    public Collection<Topology> listTopologies() {
+
+    public Collection<Topology> listTopologies(Long projectId) {
         List<Topology> topologies = new ArrayList<>();
         for (TopologyVersion version: listCurrentTopologyVersionInfos()) {
-            topologies.addAll(listTopologies(version.getId()));
+            topologies.addAll(listTopologies(version.getId(), projectId));
         }
         return topologies;
     }
 
-    private Collection<Topology> listTopologies(Long versionId) {
-        Collection<Topology> topologies = this.dao.find(TOPOLOGY_NAMESPACE, versionIdQueryParam(versionId));
+    private Collection<Topology> listTopologies(Long versionId, Long projectId) {
+        List<QueryParam> queryParams = new ArrayList<>();
+        queryParams.add(new QueryParam(Topology.VERSIONID, versionId.toString()));
+        queryParams.add(new QueryParam(Topology.PROJECTID, projectId.toString()));
+        Collection<Topology> topologies = this.dao.find(TOPOLOGY_NAMESPACE, queryParams);
         Long versionTimestamp = getVersionTimestamp(versionId);
         topologies.forEach(x -> x.setVersionTimestamp(versionTimestamp));
         return topologies;
     }
+
+    public Collection<Topology> listTopologies() {
+        List<Topology> topologies = new ArrayList<>();
+        for (TopologyVersion version: listCurrentTopologyVersionInfos()) {
+            topologies.addAll(listTopologies(Collections.singletonList(new QueryParam(Topology.VERSIONID,
+                    version.getId().toString()))));
+        }
+        return topologies;
+    }
+
 
     public Collection<Topology> listTopologies(List<QueryParam> queryParams) {
         Collection<Topology> topologies = this.dao.find(TOPOLOGY_NAMESPACE, queryParams);
@@ -1066,7 +1079,7 @@ public class StreamCatalogService {
     public Topology cloneTopology(Long namespaceId, Long projectId, Topology topology) throws Exception {
         Preconditions.checkNotNull(topology, "Topology does not exist");
         TopologyData exported = new TopologyData(doExportTopology(topology));
-        Optional<String> latest = getLatestCloneName(exported.getTopologyName(), listTopologies());
+        Optional<String> latest = getLatestCloneName(exported.getTopologyName(), listTopologies(projectId));
         exported.setTopologyName(getNextCloneName(latest.orElse(topology.getName())));
         if (namespaceId == null) {
             namespaceId = topology.getNamespaceId();

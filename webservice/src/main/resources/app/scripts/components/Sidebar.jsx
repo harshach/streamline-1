@@ -83,7 +83,8 @@ export default class Sidebar extends Component {
   }
   render() {
     let config = app_state.streamline_config;
-    let registryURL = window.location.protocol + "//" + config.registry.host + ":" + config.registry.port + '/ui/';
+    // let registryURL = window.location.protocol + "//" + config.registry.host + ":" + config.registry.port + '/ui/';
+    let watchTowerURL = "http://watchtower.uberinternal.com";
     return (
       <aside className="main-sidebar">
         <section className="sidebar">
@@ -114,14 +115,14 @@ export default class Sidebar extends Component {
               <li className={app_state.sidebar_activeKey === 2
                 ? 'active'
                 : ''} onClick={this.handleClickOnRegistry.bind(this, 2)}>
-                <a href={registryURL} target="_blank">
+                <a href={watchTowerURL} target="_blank">
                   <img src="/styles/img/uWorc/sr.png"/>
-                  <span>Schema Registry</span>
+                  <span>Watch Tower</span>
                 </a>
               </li>
               : null
             }
-            {hasModuleAccess(menuName.MODEL_REGISTRY) ?
+            {/*hasModuleAccess(menuName.MODEL_REGISTRY) ?
               <li className={app_state.sidebar_activeKey === 5
                 ? 'active'
                 : ''} onClick={this.handleClick.bind(this, 5)}>
@@ -131,7 +132,7 @@ export default class Sidebar extends Component {
                 </Link>
               </li>
               : null
-            }
+            */}
             {hasModuleAccess(menuName.UDF) || hasModuleAccess(menuName.NOTIFIER) || hasModuleAccess(menuName.CUSTOM_PROCESSOR) ||
               hasModuleAccess(menuName.SERVICE_POOL) || hasModuleAccess(menuName.ENVIRONMENT) || hasModuleAccess(menuName.AUTHORIZER) ?
               <li className={app_state.sidebar_activeKey === 3
@@ -189,13 +190,13 @@ export default class Sidebar extends Component {
             }
           </ul>
         </section>
-        <a href="javascript:void(0);" className="sidebar-toggle" onClick={this.toggleSidebar.bind(this)} data-toggle="offcanvas" role="button">
+        {/*<a href="javascript:void(0);" className="sidebar-toggle" onClick={this.toggleSidebar.bind(this)} data-toggle="offcanvas" role="button">
           {!app_state.sidebar_isCollapsed ? <span>Version: {config.version} </span> : null}
           <i className={app_state.sidebar_isCollapsed
             ? "fa fa-angle-double-right"
             : "fa fa-angle-double-left"}></i>
-        </a>
-        <Modal ref="leaveEditable" onKeyPress={this.handleKeyPress.bind(this)} data-title="Confirm Box" dialogClassName="confirm-box" data-resolve={this.confirmLeave.bind(this, true)}>
+        </a>*/}
+        <Modal className="u-form" ref="leaveEditable" onKeyPress={this.handleKeyPress.bind(this)} data-title="Confirm Box" dialogClassName="confirm-box" data-resolve={this.confirmLeave.bind(this, true)}>
           {< p > Are you sure want to navigate away from this page? </p>}
         </Modal>
       </aside>

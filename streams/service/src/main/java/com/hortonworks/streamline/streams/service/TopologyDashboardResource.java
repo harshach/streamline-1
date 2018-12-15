@@ -75,10 +75,9 @@ public class TopologyDashboardResource {
     public Response listTopologies(@PathParam("projectId") Long projectId,
                                   @javax.ws.rs.QueryParam("sort") String sortType,
                                   @javax.ws.rs.QueryParam("ascending") Boolean ascending,
-                                  @javax.ws.rs.QueryParam("latencyTopN") Integer latencyTopN,
                                   @Context SecurityContext securityContext) {
-        Collection<Topology> topologies = catalogService.listTopologies(
-                com.hortonworks.streamline.common.QueryParam.params(Topology.PROJECTID, projectId.toString()));
+        Collection<Topology> topologies = catalogService.listTopologies(projectId);
+
         boolean topologyUser = SecurityUtil.hasRole(authorizer, securityContext, Roles.ROLE_TOPOLOGY_USER);
         if (topologyUser) {
             LOG.debug("Returning all topologies since user has role: {}", Roles.ROLE_TOPOLOGY_USER);
@@ -97,7 +96,7 @@ public class TopologyDashboardResource {
 
             String asUser = WSUtils.getUserFromSecurityContext(securityContext);
             List<CatalogResourceUtil.TopologyDashboardResponse> detailedTopologies = enrichTopologies(topologies, asUser,
-                    sortType, ascending, latencyTopN);
+                    sortType, ascending);
 
             response = WSUtils.respondEntities(detailedTopologies, OK);
         } else {
@@ -120,7 +119,7 @@ public class TopologyDashboardResource {
         Topology result = catalogService.getTopology(topologyId);
         if (result != null) {
             CatalogResourceUtil.TopologyDashboardResponse topologyDetailed =
-                    CatalogResourceUtil.enrichTopology(result, asUser, latencyTopN,
+                    CatalogResourceUtil.enrichTopology(result, asUser,
                             environmentService, actionsService, metricsService, catalogService);
             return WSUtils.respondEntity(topologyDetailed, OK);
         }
@@ -142,8 +141,7 @@ public class TopologyDashboardResource {
         Topology result = catalogService.getTopology(topologyId, versionId);
         if (result != null) {
             CatalogResourceUtil.TopologyDashboardResponse topologyDetailed =
-                    CatalogResourceUtil.enrichTopology(result, asUser, latencyTopN,
-                            environmentService, actionsService, metricsService, catalogService);
+                    CatalogResourceUtil.enrichTopology(result, asUser, environmentService, actionsService, metricsService, catalogService);
             return WSUtils.respondEntity(topologyDetailed, OK);
         }
 
@@ -152,8 +150,7 @@ public class TopologyDashboardResource {
 
     private List<CatalogResourceUtil.TopologyDashboardResponse> enrichTopologies(Collection<Topology> topologies,
                                                                                  String asUser, String sortType,
-                                                                                 Boolean ascending,
-                                                                                 Integer latencyTopN) {
+                                                                                 Boolean ascending) {
         LOG.debug("[START] enrichTopologies");
         Stopwatch stopwatch = Stopwatch.createStarted();
 
@@ -162,7 +159,7 @@ public class TopologyDashboardResource {
                     topologies.parallelStream()
                             .map(Unchecked.function(t ->
                                     managedTransaction.executeFunction(() ->
-                                            CatalogResourceUtil.enrichTopology(t, asUser, latencyTopN,
+                                            CatalogResourceUtil.enrichTopology(t, asUser,
                                                     environmentService, actionsService, metricsService, catalogService))))
                             .sorted((c1, c2) -> {
                                 int compared;
@@ -170,9 +167,6 @@ public class TopologyDashboardResource {
                                 switch (TopologySortType.valueOf(sortType.toUpperCase())) {
                                     case NAME:
                                         compared = c1.getTopology().getName().compareTo(c2.getTopology().getName());
-                                        break;
-                                    case STATUS:
-                                        compared = c1.getRunning().compareTo(c2.getRunning());
                                         break;
                                     case LAST_UPDATED:
                                         compared = c1.getTopology().getVersionTimestamp().compareTo(c2.getTopology().getVersionTimestamp());

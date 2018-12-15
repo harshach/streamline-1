@@ -656,12 +656,8 @@ public class TopologyCatalogResource {
     private Response listTopologies(SecurityContext securityContext, Long projectId) {
         boolean topologyUser = SecurityUtil.hasRole(authorizer, securityContext, Roles.ROLE_TOPOLOGY_USER);
         Collection<Topology> topologies;
-        if (projectId != null)  {
-            topologies = catalogService.listTopologies(
-                    com.hortonworks.streamline.common.QueryParam.params(Topology.PROJECTID, projectId.toString()));
-        } else {
-            topologies = catalogService.listTopologies();
-        }
+        topologies = catalogService.listTopologies(projectId);
+
 
         if (topologyUser) {
             LOG.debug("Returning all topologies since user has role: {}", Roles.ROLE_TOPOLOGY_USER);

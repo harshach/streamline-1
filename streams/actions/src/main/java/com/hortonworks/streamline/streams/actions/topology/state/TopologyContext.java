@@ -88,6 +88,10 @@ public class TopologyContext implements TopologyActionContext {
         state.deploy(this); 
     }
 
+    public void redeploy() throws Exception {
+        state.redeploy(this, getRuntimeApplicationId());
+    }
+
     public void kill() throws Exception {
         state.kill(this);
     }
@@ -103,6 +107,10 @@ public class TopologyContext implements TopologyActionContext {
     public void storeRuntimeApplicationId(String applicationId) throws Exception {
         topologyActionsService.storeRuntimeApplicationId(topology, applicationId);
     }
+    public String getRuntimeApplicationId() throws Exception {
+        return topologyActionsService.getRuntimeTopologyId(topology, asUser);
+    }
+
 
     @Override
     public void setCurrentAction(String description) {

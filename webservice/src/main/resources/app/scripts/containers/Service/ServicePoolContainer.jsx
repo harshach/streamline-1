@@ -866,7 +866,7 @@ class ServicePoolContainer extends Component {
     return (
       <span>
         Configuration
-        <span className="title-separator">/</span>
+        <i className="fa fa-angle-right title-separator"></i>
         {this.props.routes[this.props.routes.length - 1].name}
       </span>
     );
@@ -1107,7 +1107,7 @@ class ServicePoolContainer extends Component {
     }}>&nbsp;{sorted.text}</span>
     </span>;
     const adminFormFields = () => {
-      return <form className="modal-form config-modal-form" ref="modelForm">
+      return <form className="modal-form service-pool-form" ref="modelForm">
         {loader || showFields
           ? <div className="form-group">
               <label>Url<span className="text-danger">*</span>
@@ -1176,7 +1176,7 @@ class ServicePoolContainer extends Component {
                       ? ''
                       : 'invalidInput'}`} placeholder="http://ambari_host:port/api/v1/clusters/CLUSTER_NAME" value={ambariUrl} onChange={this.handleChange}/>
                     <span className="input-group-btn">
-                      <button className="btn btn-success" type="button" onClick={this.addBtnClicked}>
+                      <button className="btn btn-primary" type="button" onClick={this.addBtnClicked}>
                         AUTO ADD
                       </button>
                     </span>
@@ -1222,16 +1222,17 @@ class ServicePoolContainer extends Component {
           ? <Paginate len={entities.length} splitData={splitData} pagesize={pageSize} pagePosition={this.pagePosition}/>
           : ''
 }
-        <Modal ref={(ref) => this.adminFormModel = ref} data-title="Credentials" onKeyPress={this.handleKeyPress} data-resolve={this.adminSaveClicked} data-reject={this.adminCancelClicked}>
+        <Modal className="u-form" ref={(ref) => this.adminFormModel = ref} data-title="Credentials" onKeyPress={this.handleKeyPress} data-resolve={this.adminSaveClicked} data-reject={this.adminCancelClicked}>
           {adminFormFields()}
         </Modal>
-        <Modal ref={(ref) => this.addManualClusterModal = ref} data-title="Add Manual Cluster" data-resolve={this.addManualClusterSave} data-reject={this.addManualCommonCancel.bind(this,'cluster')} onKeyPress={this.handleKeyPress}>
+        <Modal className="u-form" ref={(ref) => this.addManualClusterModal = ref} data-title="Add Manual Cluster" data-resolve={this.addManualClusterSave} data-reject={this.addManualCommonCancel.bind(this,'cluster')} onKeyPress={this.handleKeyPress}>
           <AddManualCluster ref="addManualClusterRef"/>
         </Modal>
-        <Modal ref={(ref) => this.addManualServiceModal = ref} data-title={mClusterServiceUpdate ? "Edit Manual Service" : "Add Manual Service"}  data-resolve={this.addManualServiceSave} data-reject={this.addManualCommonCancel.bind(this,'service')} onKeyPress={this.handleKeyPress}>
+        <Modal className="u-form" ref={(ref) => this.addManualServiceModal = ref} data-title={mClusterServiceUpdate ? "Edit Manual Service" : "Add Manual Service"}  data-resolve={this.addManualServiceSave} data-reject={this.addManualCommonCancel.bind(this,'service')} onKeyPress={this.handleKeyPress}>
           <AddManualService ref="addManualServiceRef" mClusterId={mClusterId} mClusterServiceUpdate={mClusterServiceUpdate} serviceNameList={mServiceNameList}/>
         </Modal>
         <Modal
+          className="u-form"
           ref={(ref) => this.viewManualServiceModal = ref}
           data-title={"View Manual Service"}
           data-resolve={this.addManualCommonCancel.bind(this,'service-view')}
@@ -1245,7 +1246,7 @@ class ServicePoolContainer extends Component {
         </Modal>
 
         {/* CommonShareModal */}
-        <Modal ref={"CommonShareModalRef"} data-title="Share Cluster"  data-resolve={this.handleShareSave.bind(this)} data-reject={this.handleShareCancel.bind(this)}>
+        <Modal className="u-form" ref={"CommonShareModalRef"} data-title="Share Cluster"  data-resolve={this.handleShareSave.bind(this)} data-reject={this.handleShareCancel.bind(this)}>
           <CommonShareModal ref="CommonShareModal" shareObj={shareObj}/>
         </Modal>
       </BaseContainer>

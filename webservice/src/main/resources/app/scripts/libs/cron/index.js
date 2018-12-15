@@ -356,9 +356,9 @@ export default class ReactCron extends Component {
         strVal = strVal.substr(0, substrVal);
       }
       const comp = <span
-        className={`cron-badge-option ${o.value == value ? 'active' : ''} ${disabled ? 'disabled' : ''}`}
+        className={`cron-badge-option ${o.value == value ? 'active' : ''} ${disabled || !onClick ? 'disabled' : ''}`}
         data-value={o.value}
-        onClick={disabled ? null : onClick}
+        onClick={disabled || !onClick ? null : onClick}
       >
         {strVal}
       </span>;
@@ -389,7 +389,7 @@ export default class ReactCron extends Component {
         <div className="cron-field-row">
           <span className='m-l-xs'>Day : </span>
           <div className="cron-badge-option-container week-opt-container">
-            {this.getBadgeOptions(dayOptions, -1, 1, () => {})}
+            {this.getBadgeOptions(dayOptions, -1, 1, null)}
           </div>
         </div>
         <span className='m-l-xs'>Minute : </span>
@@ -412,7 +412,7 @@ export default class ReactCron extends Component {
         <div className="cron-field-row">
           <span className='m-l-xs'>Day : </span>
           <div className="cron-badge-option-container week-opt-container">
-            {this.getBadgeOptions(dayOptions, -1, 1, () => {})}
+            {this.getBadgeOptions(dayOptions, -1, 1, null)}
           </div>
         </div>
         <span className='m-l-xs'>Time : </span>
@@ -577,7 +577,7 @@ export default class ReactCron extends Component {
       }
     };
     var t = this.getCronType(valueStr);
-    
+
     var d = valueStr.split(" ");
     var v = {
       "min"  : d[0],
@@ -606,7 +606,7 @@ export default class ReactCron extends Component {
         // var btgt = block[tgt].find("select").val(v[tgt]);
       }
     }
-    
+
     // trigger change event
     // var bp = block["period"].find("select").val(t);
     return stateVal;

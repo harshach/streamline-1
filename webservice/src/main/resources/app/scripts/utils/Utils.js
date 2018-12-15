@@ -850,7 +850,24 @@ const getEngineById = function(id){
   });
 };
 
-const defaultTemplate = {"metricsUISpec":{"metrics":[],"timeseries":[],"layout":{"listing":[],"viewmode":{"DAG":{"metrics":{},"timeseries":{}},"metricsSection":{"metrics":{},"timeseries":{}}}}}};
+const defaultTemplate = {
+  "metricsUISpec":{
+    "metrics":[],
+    "timeseries":[],
+    "layout":{
+      "listing":[],
+      "viewmode":{
+        "DAG":{
+          "metrics":{},
+          "timeseries":{}
+        },
+        "metricsSection":{
+          "metrics":{},"timeseries":{}
+        }
+      }
+    }
+  }
+};
 const defineEngineProps = function(engine){
   Object.defineProperty(engine, 'metricsTemplate', {
     get : function(){

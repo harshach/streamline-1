@@ -146,4 +146,24 @@ public class Engine implements Storable {
     public void setConfig(String config) { this.config = config; }
 
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        Engine engine = (Engine) o;
+
+        if (id != null ? !id.equals(engine.id) : engine.id != null) return false;
+        if (name != null ? !name.equals(engine.getName()): engine.getName() != null) return false;
+        return type != null ? !type.equals(engine.getType()) : engine.getType() != null;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = id != null ? id.hashCode() : 0;
+        result = 31 * result + (name != null ? name.hashCode() : 0);
+        result = 31 *  result + (type != null ? type.hashCode() : 0);
+        return result;
+    }
+
 }

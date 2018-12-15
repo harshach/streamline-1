@@ -92,6 +92,7 @@ public class Project implements Storable {
         map.put(ID, this.id);
         map.put(NAME, this.name);
         map.put(DESCRIPTION, this.description);
+        map.put(TIMESTAMP, this.timestamp);
         return map;
     }
 

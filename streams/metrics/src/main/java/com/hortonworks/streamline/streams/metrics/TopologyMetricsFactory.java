@@ -31,9 +31,7 @@ public class TopologyMetricsFactory {
 
     public TopologyMetrics getTopologyMetrics(Engine engine, Namespace namespace, TopologyCatalogHelperService topologyCatalogHelperService,
                                               Subject subject) {
-
-        topologyMetricsMap.putIfAbsent(engine,
-                new HashMap<>());
+        topologyMetricsMap.putIfAbsent(engine, new HashMap<>());
         Map<Namespace, TopologyMetrics> metricsMap = topologyMetricsMap.get(engine);
         TopologyMetrics topologyMetrics = metricsMap.get(namespace);
         String className = Strings.EMPTY;

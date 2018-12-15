@@ -88,13 +88,12 @@ public class SearchCatalogResource {
 
     // used internally to enrich the storables in a seamless way
     private Function<Collection<Storable>, Collection<?>> enrichCommand(String namespace,
-                                                                        String asUser,
-                                                                        Integer latencyTopN) {
+                                                                        String asUser) {
         switch (namespace) {
             case Topology.NAMESPACE:
                 return (Collection<Storable> storables) -> storables
                         .parallelStream()
-                        .map(s -> CatalogResourceUtil.enrichTopology((Topology) s, asUser, latencyTopN,
+                        .map(s -> CatalogResourceUtil.enrichTopology((Topology) s, asUser,
                                 environmentService, actionsService, metricsService, catalogService))
                         .collect(Collectors.toList());
             case Namespace.NAMESPACE:
@@ -120,7 +119,6 @@ public class SearchCatalogResource {
                                    @javax.ws.rs.QueryParam("namespace") String namespace,
                                    @javax.ws.rs.QueryParam("queryString") String queryString,
                                    @javax.ws.rs.QueryParam("detail") Boolean detail,
-                                   @javax.ws.rs.QueryParam("latencyTopN") Integer latencyTopN,
                                    @Context SecurityContext securityContext) {
         Collection<Storable> storables = SecurityUtil.filter(authorizer, securityContext, namespace,
                 listCommand(namespace).get(), READ);
@@ -135,7 +133,7 @@ public class SearchCatalogResource {
         }
         if (detail != null && detail) {
             String asUser = WSUtils.getUserFromSecurityContext(securityContext);
-            return WSUtils.respondEntities(enrichCommand(namespace, asUser, latencyTopN).apply(searchResult), OK);
+            return WSUtils.respondEntities(enrichCommand(namespace, asUser).apply(searchResult), OK);
         } else {
             return WSUtils.respondEntities(searchResult, OK);
         }

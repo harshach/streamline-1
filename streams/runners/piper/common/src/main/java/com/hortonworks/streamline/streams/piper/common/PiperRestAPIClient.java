@@ -45,17 +45,19 @@ public class PiperRestAPIClient {
         return doPostRequest(String.format("%s/api/v1/managed_pipelines", this.apiRootUrl), pipeline);
     }
 
+    public String redeployPipeline(Object pipeline, String uuid) {
+        return doPutRequest(String.format("%s/api/v1/managed_pipelines/%s", this.apiRootUrl, uuid), pipeline);
+    }
+
     public Map getConnections(String type) {
         return doGetRequest(String.format("%s/api/v1/connections/search?page_size=%d&conn_type=%s",
                 this.apiRootUrl, DEFAULT_PAGE_SIZE, encodeParam(type)));
     }
 
     public Map getPipelineRuns(String uuid, Long from, Long to, Integer page, Integer pageSize) {
-        // FIXME don't send params if not set
-        // FIXME call search
-        // FIXME where should date conversion happen
-        return doGetRequest(String.format("%s/api/v1/pipelines/%s/runs?page=%d&page_size=%d",
-                this.apiRootUrl, uuid, page, pageSize));
+        return doGetRequest(String.format(
+                "%s/api/v1/pipelines/%s/runs/search?page=%d&page_size=%d&start_date=%d&end_date=%d&order_by=desc(execution_date)",
+                this.apiRootUrl, uuid, page, pageSize, from, to));
     }
 
     public Map getPipelineState(String uuid) {
@@ -69,11 +71,34 @@ public class PiperRestAPIClient {
                 this.apiRootUrl, uuid, executionDate));
     }
 
+    public String deactivatePipeline(String uuid) {
+        return doPutRequest(String.format("%s/api/v1/managed_pipelines/%s/deactivate", this.apiRootUrl, uuid), "");
+    }
+
     private String encodeParam(String s) {
         try {
             return URLEncoder.encode(s, "UTF-8");
         } catch (UnsupportedEncodingException e) {
             throw new RuntimeException(e);
+        }
+    }
+    private String doPutRequest(final String requestUrl, final Object bodyObject) {
+        try {
+            return Subject.doAs(subject, new PrivilegedAction<String>() {
+                @Override
+                public String run() {
+                    return JsonClientUtil.putEntity(client.target(requestUrl), bodyObject, REST_API_MEDIA_TYPE, String.class);
+                }
+            });
+        } catch (javax.ws.rs.ProcessingException e) {
+            if (e.getCause() instanceof IOException) {
+                throw new RuntimeException("Exception while requesting " + requestUrl, e);
+            }
+
+            throw e;
+        } catch (WebApplicationException e) {
+            LOG.error(e.getResponse().readEntity(String.class));
+            throw new RuntimeException("Deployment Exception " + e.getResponse().readEntity(String.class), e);
         }
     }
 

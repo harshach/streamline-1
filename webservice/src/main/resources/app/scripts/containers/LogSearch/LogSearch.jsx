@@ -95,10 +95,10 @@ class LogSearch extends Component {
     if(topologyData){
       return (
         <span>
-          <Link to="/">My Applications</Link>
-          <span className="title-separator">/</span>
+          <Link to="/">My Workflows</Link>
+          <i className="fa fa-angle-right title-separator"></i>
           <Link to={"/applications/"+ topologyData.topology.id +"/view"}>View: {topologyData.topology.name}</Link>
-          <span className="title-separator">/</span>
+          <i className="fa fa-angle-right title-separator"></i>
           Log Search
         </span>
       );

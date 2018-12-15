@@ -17,6 +17,7 @@ package com.hortonworks.streamline.streams.service;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.google.common.base.Stopwatch;
+import com.hortonworks.streamline.streams.actions.TopologyActions;
 import com.hortonworks.streamline.streams.actions.topology.service.TopologyActionsService;
 import com.hortonworks.streamline.streams.actions.topology.state.TopologyStateFactory;
 import com.hortonworks.streamline.streams.cluster.catalog.Namespace;
@@ -33,14 +34,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 
 public final class CatalogResourceUtil {
     private static final Logger LOG = LoggerFactory.getLogger(CatalogResourceUtil.class);
-    private static final Integer DEFAULT_N_OF_TOP_N_LATENCY = 3;
 
     private CatalogResourceUtil() {
     }
@@ -48,46 +46,40 @@ public final class CatalogResourceUtil {
     @JsonInclude(JsonInclude.Include.NON_NULL)
     static class TopologyDashboardResponse {
         private final Topology topology;
-        private final TopologyRunningStatus running;
-        private final String namespaceName;
-        private TopologyRuntimeResponse runtime;
+        private Map<String, TopologyRuntimeResponse> namespaces;
 
-        public TopologyDashboardResponse(Topology topology, TopologyRunningStatus running, String namespaceName) {
+        public TopologyDashboardResponse(Topology topology) {
             this.topology = topology;
-            this.running = running;
-            this.namespaceName = namespaceName;
         }
 
-        public void setRuntime(TopologyRuntimeResponse runtime) {
-            this.runtime = runtime;
+        public void setNamespaces(Map<String, TopologyRuntimeResponse> namespaces) {
+            this.namespaces = namespaces;
         }
 
         public Topology getTopology() {
             return topology;
         }
 
-        public TopologyRunningStatus getRunning() {
-            return running;
+        public Map<String, TopologyRuntimeResponse> getNamespaces() {
+            return namespaces;
         }
 
-        public String getNamespaceName() {
-            return namespaceName;
-        }
-
-        public TopologyRuntimeResponse getRuntime() {
-            return runtime;
-        }
     }
 
     @JsonInclude(JsonInclude.Include.NON_NULL)
     static class TopologyRuntimeResponse {
+        private final String clusterName;
         private final String runtimeTopologyId;
+        private TopologyActions.Status status;
         private final TopologyMetrics.TopologyMetric metric;
 
-        public TopologyRuntimeResponse(String runtimeTopologyId, TopologyMetrics.TopologyMetric metric) {
+        public TopologyRuntimeResponse(String clusterName, String runtimeTopologyId, TopologyMetrics.TopologyMetric metric) {
+            this.clusterName = clusterName;
             this.runtimeTopologyId = runtimeTopologyId;
             this.metric = metric;
         }
+
+        public String getClusterName() { return clusterName; }
 
         public String getRuntimeTopologyId() {
             return runtimeTopologyId;
@@ -95,6 +87,14 @@ public final class CatalogResourceUtil {
 
         public TopologyMetrics.TopologyMetric getMetric() {
             return metric;
+        }
+
+        public TopologyActions.Status getStatus() {
+            return status;
+        }
+
+        public void setStatus(TopologyActions.Status status) {
+            this.status = status;
         }
 
     }
@@ -105,7 +105,6 @@ public final class CatalogResourceUtil {
 
     static TopologyDashboardResponse enrichTopology(Topology topology,
                                                     String asUser,
-                                                    Integer latencyTopN,
                                                     EnvironmentService environmentService,
                                                     TopologyActionsService actionsService,
                                                     TopologyMetricsService metricsService,
@@ -125,32 +124,31 @@ public final class CatalogResourceUtil {
             try {
                 String runtimeTopologyId = actionsService.getRuntimeTopologyId(topology, asUser);
                 TopologyMetrics.TopologyMetric topologyMetric = metricsService.getTopologyMetric(topology, asUser);
-                detailedResponse = new TopologyDashboardResponse(topology, TopologyRunningStatus.RUNNING, namespaceName);
-                detailedResponse.setRuntime(new TopologyRuntimeResponse(runtimeTopologyId, topologyMetric));
-            } catch (TopologyNotAliveException e) {
-                LOG.debug("Topology {} is not alive", topology.getId());
-                detailedResponse = new TopologyDashboardResponse(topology, TopologyRunningStatus.NOT_RUNNING, namespaceName);
-                catalogService.getTopologyState(topology.getId())
-                        .ifPresent(state -> {
-                            if (TopologyStateFactory.getInstance().getTopologyState(state.getName()) ==
-                                    TopologyStateFactory.getInstance().deployedState()) {
-                                try {
-                                    LOG.info("Force killing streamline topology since its not alive in the cluster");
-                                    actionsService.killTopology(topology, asUser);
-                                } catch (Exception ex) {
-                                    LOG.error("Error trying to kill topology", ex);
-                                }
-
-                            }
-                        });
-            } catch (StormNotReachableException | IOException e) {
-                LOG.error("Storm is not reachable or fail to operate", e);
-                detailedResponse = new TopologyDashboardResponse(topology, TopologyRunningStatus.UNKNOWN, namespaceName);
+                detailedResponse = new TopologyDashboardResponse(topology);
+                Map<String, TopologyRuntimeResponse> namespaces = new HashMap<>();
+                TopologyRuntimeResponse runtimeResponse = new TopologyRuntimeResponse(namespaceName,runtimeTopologyId, topologyMetric);
+                runtimeResponse.setStatus(actionsService.topologyStatus(topology, asUser));
+                namespaces.put(namespaceName, runtimeResponse);
+                detailedResponse.setNamespaces(namespaces);
             } catch (Exception e) {
-                LOG.error("Unhandled exception occurs while operate with Storm", e);
-                detailedResponse = new TopologyDashboardResponse(topology, TopologyRunningStatus.UNKNOWN, namespaceName);
-            }
+                LOG.debug("Topology {} is not alive", topology.getId());
+                detailedResponse = new TopologyDashboardResponse(topology);
+                Map<String, TopologyRuntimeResponse> namespaces = new HashMap<>();
+                TopologyRuntimeResponse runtimeResponse = new TopologyRuntimeResponse(namespaceName, "", null);
+                runtimeResponse.setStatus(new TopologyActions.Status() {
+                    @Override
+                    public String getStatus() {
+                        return "Unknown";
+                    }
 
+                    @Override
+                    public Map<String, String> getExtra() {
+                        return null;
+                    }
+                });
+                namespaces.put(namespaceName, runtimeResponse);
+                detailedResponse.setNamespaces(namespaces);
+            }
             LOG.debug("[END] enrichTopology - topology id: {}, elapsed: {} ms", topology.getId(),
                     stopwatch.elapsed(TimeUnit.MILLISECONDS));
 

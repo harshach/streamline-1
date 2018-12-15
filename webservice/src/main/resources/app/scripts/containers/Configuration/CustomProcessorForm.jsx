@@ -744,7 +744,7 @@ class CustomProcessorForm extends Component {
                               <input type="file" ref="browseFile" accept=".json" className="inputfile" onClick={(e) => {
                                 e.stopPropagation();
                               }} onChange={this.fileHandler.bind(this,'browser', 'inputSchema')}/>
-                              <label htmlFor="file" className="btn btn-success">BROWSE</label>
+                              <label htmlFor="file" className="btn btn-primary">BROWSE</label>
                               </div>
                             </div>
                           </div>
@@ -812,7 +812,7 @@ class CustomProcessorForm extends Component {
                               <input type="file" ref="browseFile" accept=".json" className="inputfile" onClick={(e) => {
                                 e.stopPropagation();
                               }} onChange={this.fileHandler.bind(this,'browser', 'outputSchema')}/>
-                              <label htmlFor="file" className="btn btn-success">BROWSE</label>
+                              <label htmlFor="file" className="btn btn-primary">BROWSE</label>
                               </div>
                             </div>
                           </div>
@@ -822,7 +822,7 @@ class CustomProcessorForm extends Component {
                   <div className="form-group">
                     <div className="col-sm-12 text-center">
                       <button type="button" className="btn btn-default" onClick={this.props.onCancel}>Cancel</button>{'\n'}
-                      <button type="button" className="btn btn-success" onClick={this.props.onSave}>Save</button>
+                      <button type="button" className="btn btn-primary" onClick={this.props.onSave}>Save</button>
                     </div>
                   </div>
                 </form>
@@ -830,10 +830,10 @@ class CustomProcessorForm extends Component {
             </div>
           </div>
         </div>
-        <Modal ref="ConfigFieldModal" onKeyPress={this.handleKeyPress} data-title={this.state.modalTitle} data-resolve={this.handleSaveConfigFieldModal.bind(this)} data-reject={()=>{this.refs.addField.refs.ConfigForm.clearErrors(); this.refs.ConfigFieldModal.hide();}}>
+        <Modal className="u-form" ref="ConfigFieldModal" onKeyPress={this.handleKeyPress} data-title={this.state.modalTitle} data-resolve={this.handleSaveConfigFieldModal.bind(this)} data-reject={()=>{this.refs.addField.refs.ConfigForm.clearErrors(); this.refs.ConfigFieldModal.hide();}}>
           {this.modalContent()}
         </Modal>
-        <Modal ref="leaveConfigProcessor" onKeyPress={this.handleKeyPress} data-title="Confirm Box" dialogClassName="confirm-box" data-resolve={this.confirmLeave.bind(this, true)} data-reject={this.confirmLeave.bind(this, false)}>
+        <Modal className="u-form" ref="leaveConfigProcessor" onKeyPress={this.handleKeyPress} data-title="Confirm Box" dialogClassName="confirm-box" data-resolve={this.confirmLeave.bind(this, true)} data-reject={this.confirmLeave.bind(this, false)}>
           {< p > Your Processor Config setting is not saved! Are you sure you want to leave
             ? </p>}
         </Modal>

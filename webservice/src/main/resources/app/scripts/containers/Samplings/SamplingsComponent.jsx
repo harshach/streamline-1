@@ -181,11 +181,13 @@ export default class ComponentSamplings extends Component{
 
   getHeaderContent = () => {
     const {topologyName,topologyId} = this.props.location.state;
-    const headerText = <span>View: <Link to={`/applications/${topologyId}/view`}>{topologyName}</Link> / Sampling</span>;
+    const headerText = <span>View: <Link to={`/applications/${topologyId}/view`}>{topologyName}</Link>
+      <i className="fa fa-angle-right title-separator"></i> Sampling
+    </span>;
     return (
       <span>
-        <Link to="/">My Applications</Link>
-        <span className="title-separator">/</span>
+        <Link to="/">My Workflows</Link>
+        <i className="fa fa-angle-right title-separator"></i>
         {headerText}
       </span>
     );

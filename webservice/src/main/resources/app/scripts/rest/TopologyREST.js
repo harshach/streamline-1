@@ -27,7 +27,7 @@ const TopologyREST = {
     options = options || {};
     options.method = options.method || 'GET';
     options.credentials = 'same-origin';
-    return fetch(baseUrl + 'projects/'+projectId+'/topologies/dashboard?sort=' + sort + '&latencyTopN=3', options)
+    return fetch(baseUrl + 'projects/'+projectId+'/topologies/dashboard?sort=' + sort, options)
       .then((response) => {
         return response.json();
       });
@@ -54,9 +54,9 @@ const TopologyREST = {
     options = options || {};
     options.method = options.method || 'GET';
     options.credentials = 'same-origin';
-    let url = baseUrl + 'topologies/' + id + "/dashboard?latencyTopN=3";
+    let url = baseUrl + 'topologies/' + id + "/dashboard";
     if (versionId) {
-      url = baseUrl + 'topologies/' + id + "/versions/" + versionId + "/dashboard?latencyTopN=3";
+      url = baseUrl + 'topologies/' + id + "/versions/" + versionId + "/dashboard";
     }
     return fetch(url, options)
       .then((response) => {

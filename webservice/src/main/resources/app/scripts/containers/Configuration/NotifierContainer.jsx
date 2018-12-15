@@ -194,7 +194,7 @@ export default class NotifierContainer extends Component {
             </div>
           : <div>
             {hasEditCapability(accessCapabilities.APPLICATION) ?
-              <a href="javascript:void(0);" className="hb pull-right success actionDropdown displayNone" onClick={this.handleAdd}>
+              <a href="javascript:void(0);" className="hb pull-right default-blue actionDropdown displayNone" onClick={this.handleAdd}>
                 <i className="fa fa-plus"></i>
               </a>
               : null
@@ -250,7 +250,7 @@ export default class NotifierContainer extends Component {
               }
             </div>
         }
-        <Modal ref="NotifierModal"
+        <Modal className="u-form" ref="NotifierModal"
           data-title={editData.id ? "Edit Notifier" : "Add Notifier"}
           onKeyPress={this.handleKeyPress}
           data-resolve={this.handleSave}
@@ -262,7 +262,7 @@ export default class NotifierContainer extends Component {
           />
         </Modal>
         {/* CommonShareModal */}
-        <Modal ref={"CommonShareModalRef"} data-title="Share Notifier"  data-resolve={this.handleShareSave.bind(this)} data-reject={this.handleShareCancel.bind(this)}>
+        <Modal className="u-form" ref={"CommonShareModalRef"} data-title="Share Notifier"  data-resolve={this.handleShareSave.bind(this)} data-reject={this.handleShareCancel.bind(this)}>
           <CommonShareModal ref="CommonShareModal" shareObj={shareObj}/>
         </Modal>
       </div>

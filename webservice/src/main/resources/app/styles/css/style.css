@@ -5311,17 +5311,13 @@ h3.empty-project {
   color: #333333;
   border: none;
   transition: none;
-  line-height: 12px;
-  padding: 14px 12px;
-  font-size: 12px;
+  padding: 12px 12px;
 }
 .u-form .form-control:focus{
   box-shadow: none;
 }
 .u-form .form-group label{
   text-transform: uppercase;
-  font-size: 12px;
-  line-height: 24px;
   color: #888;
   font-weight: 400;
 }
@@ -5568,7 +5564,43 @@ h6.version-control {
   font-size: small;
   padding: 5px 20px;
 }
-.zoom-slider{
-  display: inline-block !important;
-  width: 77% !important;
+.image-control-slider {
+  background-color: #f7f7f7;
+  border: 1px #e5e5e4 solid;
+  padding: 10px;
+}
+.image-control-slider input[type=range] {
+  display: inline-block;
+  -webkit-appearance: none;
+  appearance: none;
+  width: 140px;
+  height: 4px;
+  background: #e5e5e5;
+  outline: none;
+  position: relative;
+  top: -2px;
+}
+.image-control-slider input[type=range]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 18px;
+  height: 18px;
+  background: #fff;
+  cursor: pointer;
+  border-radius: 5px;
+  box-shadow: 0px 0px 4px rgba(0,0,0,0.2);
+}
+
+.image-control-slider input[type=range]::-moz-range-thumb {
+  width: 18px;
+  height: 18px;
+  background: #fff;
+  cursor: pointer;
+  border-radius: 5px;
+  box-shadow: 0px 0px 4px rgba(0,0,0,0.2);
+}
+.image-control-slider .btn {
+  color: #ccc;
+  background-color: transparent;
+  font-size: 15px;
 }

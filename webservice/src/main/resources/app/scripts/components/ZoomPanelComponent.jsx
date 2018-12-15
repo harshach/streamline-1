@@ -91,16 +91,16 @@ class  ZoomPanelComponent extends Component {
           </div>
         </div>
         <div className="control-widget left">
-          <div className="control-bottom">
-            <div className="row">
-              <div className="col-sm-12">
-                  <button className="btn btn-default btn-xs" onClick={zoomOutAction}>
-                    <i className="fa fa-minus"></i>
-                  </button> <input type="range" readOnly value={app_state.zoomScale} className="zoom-slider"
+          <div className="row">
+            <div className="col-sm-12">
+              <div className="image-control-slider">
+                <button className="btn btn-xs" onClick={zoomOutAction}>
+                  <i className="fa fa-minus"></i>
+                </button> <input type="range" readOnly value={app_state.zoomScale}
                   min={1} max={8} step={(8 - 1) / 100}
-                /> <button className="btn btn-default btn-xs" onClick={zoomInAction}>
-                    <i className="fa fa-plus"></i>
-                  </button>
+                /> <button className="btn btn-xs" onClick={zoomInAction}>
+                  <i className="fa fa-plus"></i>
+                </button>
               </div>
             </div>
           </div>

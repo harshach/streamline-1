@@ -386,8 +386,8 @@ class TopologyViewContainer extends TopologyEditorContainer {
         metricQuery = metricQuery.replace('$deployment', dc);
 
         const queryParams = {
-          from: startDate.unix(),
-          to: endDate.unix(),
+          from: startDate.valueOf(),
+          to: endDate.valueOf(),
           metricQuery: metricQuery,
           dc: dc
         };

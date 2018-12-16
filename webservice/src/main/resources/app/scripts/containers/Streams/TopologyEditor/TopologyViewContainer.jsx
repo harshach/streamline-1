@@ -382,8 +382,8 @@ class TopologyViewContainer extends TopologyEditorContainer {
         let name = m.name;
         let metricQuery = m.metricQuery;
         let interpolate = m.interpolate;
-        metricQuery = metricQuery.replace('$pipeline', pipeline);
-        metricQuery = metricQuery.replace('$deployment', dc);
+        // metricQuery = metricQuery.replace('$pipeline', pipeline);
+        // metricQuery = metricQuery.replace('$deployment', dc);
 
         const queryParams = {
           from: startDate.valueOf(),

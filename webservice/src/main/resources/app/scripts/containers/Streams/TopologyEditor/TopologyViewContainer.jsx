@@ -339,8 +339,8 @@ class TopologyViewContainer extends TopologyEditorContainer {
     let {viewModeData, executionInfoPageSize, executionInfoPage, startDate, endDate} = this.state;
 
     return ViewModeREST.getAllExecutions(this.topologyId, {
-      from: startDate.unix(),
-      to: endDate.unix(),
+      from: startDate.valueOf(),
+      to: endDate.valueOf(),
       pageSize: executionInfoPageSize,
       page: executionInfoPage
     }).then((res) => {

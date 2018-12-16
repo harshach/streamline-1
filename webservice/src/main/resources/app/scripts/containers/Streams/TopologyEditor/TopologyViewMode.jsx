@@ -61,7 +61,7 @@ class TopologyViewMode extends Component {
     container.setAttribute("class", "content-wrapper view-mode-wrapper");
     if(this.props.isAppRunning){
       setTimeout(() => {
-        this.getLogLevel();
+        // this.getLogLevel();
       });
     }
     this.compUnMountFlag = false;

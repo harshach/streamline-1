@@ -173,7 +173,7 @@
           "metrics": {
             "topology": [],
             "task": {
-              "base_metrics": ["taskStatus", "taskStartDate", "taskEndDate", "Duration"],
+              "baseMetrics": ["taskStatus", "startTime", "endTime", "Duration"],
               "component_metrics" : {}
             }
           },

@@ -221,6 +221,7 @@ export class TopologyEditorContainer extends Component {
 
           this.setState({
             topologyData: data.topology,
+            topologyNamespaces: data.namespaces,
             timestamp: data.topology.timestamp,
             topologyName: this.topologyName,
             isAppRunning: isAppRunning,

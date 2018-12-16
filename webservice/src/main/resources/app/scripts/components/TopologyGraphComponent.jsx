@@ -899,14 +899,16 @@ export default class TopologyGraphComponent extends Component {
       return classArr.join(' ');
     }).attr("filter", function(d) {
       if (!d.isConfigured) {
-        return "url(#grayscale)";
+        // return "url(#grayscale)";
       } else {
         return "";
       }
-    }).attr("filter", function(d) {
-      return "url(#dropshadow)";
     }).attr("height" , function(d){
-      return GraphUtils.getSpecificNodeBboxData.call(thisGraph,d).height;
+      if(thisGraph.editMode){
+        return GraphUtils.getSpecificNodeBboxData.call(thisGraph,d).height;
+      }else{
+        return 131;
+      }
     }).attr("width" , function(d){
       return GraphUtils.getSpecificNodeBboxData.call(thisGraph,d).width;
     });
@@ -1047,25 +1049,6 @@ export default class TopologyGraphComponent extends Component {
       thisGraph.rectangleMouseUp.call(thisGraph, d3.select(this.parentNode), d);
     }).call(thisGraph.drag);
 
-    //Icon background
-    newGs.append("rect")
-      .classed('left-bar', true)
-      .attr({
-        width: '4px',
-        height: '52px'
-      }).attr('fill', () => {
-        let fill = "white";
-        const componentsStatus = thisGraph.props.selectedExecutionComponentsStatus;
-        if(componentsStatus.length){
-          const comp = _.find(componentsStatus, (compStatus) => {
-            return compStatus.componentId == d.nodeId;
-          });
-          if(comp && comp.taskStatus == 'failed'){
-            fill = red;
-          }
-        }
-        return fill;
-      });
 
     //Icon background
     newGs.append("rect")
@@ -1440,8 +1423,36 @@ export default class TopologyGraphComponent extends Component {
       if(engine.type == 'stream'){
         render(<ComponentLogActions topologyId={thisGraph.topologyId} viewModeContextRouter={thisGraph.props.viewModeContextRouter}  componentLevelAction={GraphUtils.componentLevelActionHandler.bind(this)} selectedNodeId={selectedNodeId} allComponentLevelAction={allComponentLevelAction} sampleTopologyLevel={sampleTopologyLevel}/>, this.logActions.node());
       }else{
-        return null;
+        // return null;
       }
+
+      newGs.append("rect")
+        .classed('left-bar', true)
+        .attr({
+          width: '4px',
+          height: '131px',
+          x: '-2'
+        });
+
+      d3.selectAll('.'+constants.rectangleGClass).each(function(d){
+        const g = d3.select(this);
+        g.select('.left-bar')
+          .style('fill', () => {
+            let fill = "white";
+            const componentsStatus = thisGraph.props.selectedExecutionComponentsStatus;
+            if(componentsStatus.length){
+              const comp = _.find(componentsStatus, (compStatus) => {
+                return compStatus.componentId == d.nodeId;
+              });
+              if(comp && comp.taskStatus == 'success'){
+                fill = '#07A35A';
+              }else if(comp && comp.taskStatus == 'failed'){
+                fill = '#E54937';
+              }
+            }
+            return fill;
+          });
+      });
     }
 
     // remove old nodes

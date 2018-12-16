@@ -276,49 +276,51 @@ class TopologyViewContainer extends TopologyEditorContainer {
   }
 
   onSelectExecution = (ex) => {
-    const {executionInfo, viewModeData} = this.state;
-    ex.loading = true;
+    if(ex){
+      const {executionInfo, viewModeData} = this.state;
+      ex.loading = true;
 
-    this.setState({executionInfo: executionInfo}, () => {
-      ViewModeREST.getComponentExecutions(this.topologyId, ex.executionDate).then((res) => {
-        const selectedExecutionComponentsStatus = res.components || [];
-        ex.loading = false;
+      this.setState({executionInfo: executionInfo}, () => {
+        ViewModeREST.getComponentExecutions(this.topologyId, ex.executionDate).then((res) => {
+          const selectedExecutionComponentsStatus = res.components || [];
+          ex.loading = false;
 
-        const taskMetrics = [];
+          const taskMetrics = [];
 
-        _.each(selectedExecutionComponentsStatus, (compEx) => {
-          const timeSeriesMetricsData = _.find(this.batchTimeseries || [], (d) => {
-            return d.component.id == compEx.componentId;
+          _.each(selectedExecutionComponentsStatus, (compEx) => {
+            const timeSeriesMetricsData = _.find(this.batchTimeseries || [], (d) => {
+              return d.component.id == compEx.componentId;
+            });
+            const compMetrics = {};
+            compMetrics.component = {
+              id: compEx.componentId
+            };
+            compMetrics.overviewMetrics = {
+              metrics: compEx
+            };
+            compMetrics.timeSeriesMetrics = timeSeriesMetricsData ? timeSeriesMetricsData.timeSeriesMetrics : {};
+            taskMetrics.push(compMetrics);
           });
-          const compMetrics = {};
-          compMetrics.component = {
-            id: compEx.componentId
+
+          viewModeData.taskMetrics = taskMetrics;
+
+
+          viewModeData.topologyMetrics = {
+            overviewMetrics: {
+              metrics: ex
+            }
           };
-          compMetrics.overviewMetrics = {
-            metrics: compEx
-          };
-          compMetrics.timeSeriesMetrics = timeSeriesMetricsData ? timeSeriesMetricsData.timeSeriesMetrics : {};
-          taskMetrics.push(compMetrics);
-        });
-
-        viewModeData.taskMetrics = taskMetrics;
-
-
-        viewModeData.topologyMetrics = {
-          overviewMetrics: {
-            metrics: ex
-          }
-        };
-        this.setState({
-          selectedExecution: ex,
-          selectedExecutionComponentsStatus: selectedExecutionComponentsStatus,
-          viewModeData: viewModeData
-        }, () => {
-          this.syncComponentData();
-          this.triggerUpdateGraph();
+          this.setState({
+            selectedExecution: ex,
+            selectedExecutionComponentsStatus: selectedExecutionComponentsStatus,
+            viewModeData: viewModeData
+          }, () => {
+            this.syncComponentData();
+            this.triggerUpdateGraph();
+          });
         });
       });
-    });
+    }
   }
   getPrevPageExecutions = () => {
     const {executionInfoPageSize} = this.state;

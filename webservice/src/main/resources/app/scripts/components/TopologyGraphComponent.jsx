@@ -904,10 +904,10 @@ export default class TopologyGraphComponent extends Component {
         return "";
       }
     }).attr("height" , function(d){
-      if(thisGraph.editMode){
-        return GraphUtils.getSpecificNodeBboxData.call(thisGraph,d).height;
-      }else{
+      if(!thisGraph.editMode && thisGraph.props.isAppRunning){
         return 131;
+      } else {
+        return GraphUtils.getSpecificNodeBboxData.call(thisGraph,d).height;
       }
     }).attr("width" , function(d){
       return GraphUtils.getSpecificNodeBboxData.call(thisGraph,d).width;

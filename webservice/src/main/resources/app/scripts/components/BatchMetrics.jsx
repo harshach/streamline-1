@@ -32,7 +32,8 @@ export default class BatchMetrics extends Component{
     this.state = {
     };
   }
-  componentDidUpdate(){
+  componentDidMount(){
+    app_state.versionPanelCollapsed = false;
   }
   handleExpandCollapse = () => {
     app_state.versionPanelCollapsed = !app_state.versionPanelCollapsed;

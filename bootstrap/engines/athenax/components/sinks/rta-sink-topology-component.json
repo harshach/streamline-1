@@ -41,8 +41,7 @@
         "isOptional": false,
         "tooltip": "Kafka topic to write data to",
         "type": "enumstring",
-        "options": [],
-        "hint": "schema,override"
+        "options": []
       },
       {
         "uiName": "Table Name",
@@ -96,6 +95,8 @@
         "tooltip": "Fields in tha RTA table",
         "isOptional": false,
         "type": "array.object",
+        "hint": "table,inputFields",
+        "options": [],
         "fields": [
           {
             "uiName": "Primary Key?",

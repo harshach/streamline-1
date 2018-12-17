@@ -588,7 +588,7 @@ export class keyvalue extends BaseField {
           </div>
           <div className="col-sm-2 m-t-xs">
             <i className="fa fa-plus text-secondary m-r-xs" style={{cursor: iconCursor}} onClick={disabled ? null : this.addKeyValue.bind(this, i)}></i>
-            {i != 0 ? 
+            {i != 0 ?
               <i className="fa fa-trash text-danger" style={{cursor: iconCursor}} onClick={disabled ? null : this.removeKeyValue.bind(this, i)}></i>
             : null}
           </div>
@@ -1041,15 +1041,52 @@ export class arrayobject extends BaseField {
     Form.setState(Form.state);
   }
   render() {
-    const {className} = this.props;
-    return (
-      <fieldset className={className + " fieldset-default"}>
-        <legend>{this.props.label} {this.context.Form.props.readOnly
-            ? ''
-            : <i className="fa fa-plus" aria-hidden="true" onClick={this.onAdd}></i>}</legend>
-        {this.getField()}
-      </fieldset>
-    );
+    const {className, fieldJson} = this.props;
+    if(fieldJson.hint && fieldJson.hint.indexOf("table") !== -1){
+      if(!this.props.data[this.props.value] && fieldJson.options.length > 0){
+        this.props.data[this.props.value] = fieldJson.options.map((f)=>{return {};});
+      }
+      return (
+        <table className="table table-bordered">
+          <thead>
+            {fieldJson.fields.map((field)=>{
+              return (
+                <th>{field.uiName}</th>
+              );
+            })}
+          </thead>
+          <tbody>
+            {fieldJson.options.map((inputFields, index)=>{
+              let d = this.props.data[this.props.value][index];
+              const optionsFields = Utils.genFields(fieldJson.fields, [
+                ...this.props.valuePath.split('.'),
+                index
+              ], d);
+              return (
+                <tr>{optionsFields.map((child, i) => {
+                  return React.cloneElement(child, {
+                    ref: child.props
+                      ? (child.props._ref || i)
+                      : i,
+                    key: i,
+                    data: d
+                  });
+                })}</tr>
+              );
+            })}
+          </tbody>
+        </table>
+      );
+    } else {
+      return (
+        <fieldset className={className + " fieldset-default"}>
+          <legend>{this.props.label} {this.context.Form.props.readOnly
+              ? ''
+              : <i className="fa fa-plus" aria-hidden="true" onClick={this.onAdd}></i>}</legend>
+          {this.getField()}
+        </fieldset>
+      );
+    }
   }
   getField = () => {
     const fields = this.props.fieldJson.fields;

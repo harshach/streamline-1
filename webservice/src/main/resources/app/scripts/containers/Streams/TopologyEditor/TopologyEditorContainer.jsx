@@ -1307,15 +1307,22 @@ export class TopologyEditorContainer extends Component {
       : '';
 
     let nodeClassName = "";
-    if(this.node && (this.node.parentType.toLowerCase() === 'source' || this.node.parentType.toLowerCase() === 'sink')){
-      nodeClassName = "modal-fixed-height modal-lg";
-    } else if(this.node && (this.node.parentType.toLowerCase() === 'task')){
-      nodeClassName = "modal-fixed-height";
-    } else if(nodeType === 'join' || nodeType === 'window' || nodeType === 'projection' ||
-      nodeType === 'rt-join' || nodeType === 'sql'){
-      nodeClassName = "modal-xl";
-    } else {
-      nodeClassName = "modal-fixed-height modal-xl";
+    if(this.node){
+      if(this.node.parentType.toLowerCase() === 'source'){
+        nodeClassName = "modal-fixed-height modal-lg";
+      } else if(this.node.parentType.toLowerCase() === 'sink'){
+        if(nodeType === 'rta'){
+          nodeClassName = "modal-fixed-height modal-xl";
+        } else {
+          nodeClassName = "modal-fixed-height modal-xl";
+        }
+      } else if(this.node.parentType.toLowerCase() === 'task'){
+        nodeClassName = "modal-fixed-height";
+      } else if(nodeType === 'join' || nodeType === 'window' || nodeType === 'projection' || nodeType === 'rt-join' || nodeType === 'sql'){
+        nodeClassName = "modal-fixed-height modal-xl";
+      } else {
+        nodeClassName = "modal-fixed-height modal-xl";
+      }
     }
 
     return (

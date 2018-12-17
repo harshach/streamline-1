@@ -285,12 +285,12 @@ a.dropdown-toggle~ul.dropdown-menu {
 /* Modal */
 
 .modal-fixed-height>.modal-content>.modal-body {
-  /*height: 450px;*/
+  height: 550px;
   /*overflow-y: auto;*/
 }
 
 .rule-modal-fixed-height>.modal-content>.modal-body {
-  height: 450px;
+  height: 550px;
   /*overflow-y: auto;*/
 }
 
@@ -554,6 +554,27 @@ label {
   padding-top: 5px !important;
 }
 
+.modal-xl .sink-modal-form {
+  width: 80%;
+}
+
+.table-sink th{
+  padding: 8px;
+  background-color: #ececec;
+}
+
+.table-sink th,
+.table-sink td {
+  min-width: 150px;
+}
+
+.table-sink .form-group label {
+  display: none;
+}
+
+.table-sink .form-group.fg-checkbox label {
+  display: block;
+}
 
 .task-modal-form {
   width: 100%;
@@ -1366,6 +1387,16 @@ label {
   margin: 3px 3px -5px 0px;
   cursor: pointer;
 }
+.execution-box::after{
+  content: "\f00c";
+  font-family: FontAwesome;
+  color: white;
+  margin-left: 4px;
+  visibility: hidden;
+}
+.execution-box.execute-selected::after{
+  visibility: visible;
+}
 .execution-box.succeeded{
   background: #07A35A;
 }
@@ -1953,9 +1984,11 @@ label {
   margin-right: 290px !important;
 }
 .editor-header.active{
-  margin-right: 335px;
+  margin-right: 335px !important;
 }
-
+.topology-view-mode-container .editor-header.row{
+  margin-right: 35px;
+}
 /* Select 2 */
 
 .menu-outer-top .Select-menu-outer {
@@ -2060,7 +2093,7 @@ label {
 }
 
 .source-modal-form, .modal-sidebar-right, .modal-sidebar-left, .processor-modal-form, .sink-modal-form {
-  height: 395px;
+  height: 475px;
   /*padding: 0 5px;*/
 }
 

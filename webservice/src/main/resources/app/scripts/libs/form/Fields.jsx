@@ -588,7 +588,7 @@ export class keyvalue extends BaseField {
           </div>
           <div className="col-sm-2 m-t-xs">
             <i className="fa fa-plus text-secondary m-r-xs" style={{cursor: iconCursor}} onClick={disabled ? null : this.addKeyValue.bind(this, i)}></i>
-            {i != 0 ? 
+            {i != 0 ?
               <i className="fa fa-trash text-danger" style={{cursor: iconCursor}} onClick={disabled ? null : this.removeKeyValue.bind(this, i)}></i>
             : null}
           </div>
@@ -691,7 +691,7 @@ export class boolean extends BaseField {
     }
     return (booleanHint !== null && booleanHint.toLowerCase().indexOf("hidden") !== -1
       ? null
-      : <FormGroup className={className}>
+      : <FormGroup className={"fg-checkbox "+className}>
           <OverlayTrigger trigger={['hover']} placement="right" overlay={popoverContent}>
             <label>
               <input name={this.props.value} type="checkbox" ref="input" checked={this.props.data[this.props.value]} disabled={disabledField} {...this.props.attrs} onChange={this.handleChange} style={{
@@ -1041,15 +1041,66 @@ export class arrayobject extends BaseField {
     Form.setState(Form.state);
   }
   render() {
-    const {className} = this.props;
-    return (
-      <fieldset className={className + " fieldset-default"}>
-        <legend>{this.props.label} {this.context.Form.props.readOnly
-            ? ''
-            : <i className="fa fa-plus" aria-hidden="true" onClick={this.onAdd}></i>}</legend>
-        {this.getField()}
-      </fieldset>
-    );
+    const {className, fieldJson} = this.props;
+    if(fieldJson.hint && fieldJson.hint.indexOf("table") !== -1){
+      //remove object which is the parent field
+      let newOptionArr = [];
+      fieldJson.options.map((field)=>{
+        if(field.fieldType){
+          newOptionArr.push(field);
+        }
+      });
+      if(!this.props.data[this.props.value] && newOptionArr.length > 0){
+        this.props.data[this.props.value] = newOptionArr.map((f)=>{return {};});
+      }
+      return (
+        <div className="table-responsive">
+          <table className="table table-bordered table-sink">
+            <thead>
+              {fieldJson.fields.map((field)=>{
+                return (
+                  <th>{field.uiName}</th>
+                );
+              })}
+            </thead>
+            <tbody>
+              {newOptionArr.map((inputFields, index)=>{
+                let d = this.props.data[this.props.value][index];
+                if(!d.name){
+                  d.name = inputFields.fieldName;
+                }
+                const optionsFields = Utils.genFields(fieldJson.fields, [
+                  ...this.props.valuePath.split('.'),
+                  index
+                ], d);
+                return (
+                  <tr>{optionsFields.map((child, i) => {
+                    return (
+                      <td>{React.cloneElement(child, {
+                        ref: child.props
+                          ? (child.props._ref || i)
+                          : i,
+                        key: i,
+                        data: d
+                      })}</td>
+                    );
+                  })}</tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </div>
+      );
+    } else {
+      return (
+        <fieldset className={className + " fieldset-default"}>
+          <legend>{this.props.label} {this.context.Form.props.readOnly
+              ? ''
+              : <i className="fa fa-plus" aria-hidden="true" onClick={this.onAdd}></i>}</legend>
+          {this.getField()}
+        </fieldset>
+      );
+    }
   }
   getField = () => {
     const fields = this.props.fieldJson.fields;

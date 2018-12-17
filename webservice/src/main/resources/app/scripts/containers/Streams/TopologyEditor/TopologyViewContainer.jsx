@@ -382,8 +382,6 @@ class TopologyViewContainer extends TopologyEditorContainer {
         let name = m.name;
         let metricQuery = m.metricQuery;
         let interpolate = m.interpolate;
-        // metricQuery = metricQuery.replace('$pipeline', pipeline);
-        // metricQuery = metricQuery.replace('$deployment', dc);
 
         const queryParams = {
           from: startDate.valueOf(),
@@ -700,15 +698,22 @@ class TopologyViewContainer extends TopologyEditorContainer {
       : '';
       // this.viewMode && (nodeType.toLowerCase() === 'join' || nodeType.toLowerCase() === 'window') ? "modal-xl" : "modal-fixed-height modal-xl"
     let nodeClassName = "";
-    if(this.node && (this.node.parentType.toLowerCase() === 'source' || this.node.parentType.toLowerCase() === 'sink')){
-      nodeClassName = "modal-fixed-height modal-lg";
-    } else if(this.node && (this.node.parentType.toLowerCase() === 'task')){
-      nodeClassName = "modal-fixed-height";
-    } else if(nodeType === 'join' || nodeType === 'window' || nodeType === 'projection' ||
-      nodeType === 'rt-join' || nodeType === 'sql'){
-      nodeClassName = "modal-xl";
-    } else {
-      nodeClassName = "modal-fixed-height modal-xl";
+    if(this.node){
+      if(this.node.parentType.toLowerCase() === 'source'){
+        nodeClassName = "modal-fixed-height modal-lg";
+      } else if(this.node.parentType.toLowerCase() === 'sink'){
+        if(nodeType === 'rta'){
+          nodeClassName = "modal-fixed-height modal-xl";
+        } else {
+          nodeClassName = "modal-fixed-height modal-xl";
+        }
+      } else if(this.node.parentType.toLowerCase() === 'task'){
+        nodeClassName = "modal-fixed-height";
+      } else if(nodeType === 'join' || nodeType === 'window' || nodeType === 'projection' || nodeType === 'rt-join' || nodeType === 'sql'){
+        nodeClassName = "modal-fixed-height modal-xl";
+      } else {
+        nodeClassName = "modal-fixed-height modal-xl";
+      }
     }
     return (
       <BaseContainer ref="BaseContainer" routes={this.props.routes} onLandingPage="false"
@@ -732,6 +737,7 @@ class TopologyViewContainer extends TopologyEditorContainer {
                     zoomOutAction={this.graphZoomAction.bind(this, 'zoom_out')}
                     showConfig={this.showConfig.bind(this)}
                     confirmMode={this.confirmMode.bind(this)}
+                    isAppRunning={isAppRunning}
                   />,
                   <TopologyViewMode
                     allACL={allACL} key={"1"} {...this.state}

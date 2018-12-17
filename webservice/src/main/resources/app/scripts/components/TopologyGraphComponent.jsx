@@ -905,12 +905,10 @@ export default class TopologyGraphComponent extends Component {
         return "";
       }
     }).attr("height" , function(d){
-      if(thisGraph.editMode){
+      if(!thisGraph.editMode && thisGraph.props.isAppRunning){
         return constants.metricsDataRectHeight;
       } else {
         return GraphUtils.getSpecificNodeBboxData.call(thisGraph,d).height;
-      }else{
-        return 131;
       }
     }).attr("width" , function(d){
       return GraphUtils.getSpecificNodeBboxData.call(thisGraph,d).width;
@@ -1018,12 +1016,10 @@ export default class TopologyGraphComponent extends Component {
       return classStr;
     }).attr("filter", function(d) {
       if (!d.isConfigured) {
-        return "url(#grayscale)";
+        // return "url(#grayscale)";
       } else {
         return "";
       }
-    }).attr("filter", function(d) {
-      return "url(#dropshadow)";
     }).on("mouseover", function(d) {
       if (thisGraph.editMode) {
         d3.select(this.parentElement).select('text.fa.fa-times').style('display', thisGraph.testRunActivated ? 'none' : 'block');

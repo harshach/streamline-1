@@ -119,7 +119,7 @@ export default class BatchMetrics extends Component{
         </div>
         <div className="executions-box-container">
           {_.map(executionInfo.executions, (e, i) => {
-            return <div key={"executions-"+i} className={`execution-box ${e.status}`} onClick={onSelectExecution.bind(this, e)}></div>;
+            return <div key={"executions-"+i} className={`execution-box ${e.status} ${e.createdAt === selectedExecution.createdAt ? "execute-selected" : ""}`} onClick={onSelectExecution.bind(this, e)}></div>;
           })}
         </div>
         <div className="execution-metrics-container">

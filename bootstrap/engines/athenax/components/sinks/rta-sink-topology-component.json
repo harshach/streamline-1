@@ -112,6 +112,7 @@
             "tooltip": "Type of the field in Schema Service",
             "isOptional": false,
             "type": "enumstring",
+            "isUserInput": false,
             "options": ["boolean", "long", "double", "string"]
           },
           {

@@ -153,7 +153,8 @@ export default class TopologyGraphComponent extends Component {
     rectangleWidth: 208,
     rectangleHeight: 52,
     testDataRectHeight: 210,
-    testNoDataRectHeight: 75
+    testNoDataRectHeight: 75,
+    metricsDataRectHeight: 131
   };
 
   componentDidUpdate() {
@@ -905,7 +906,7 @@ export default class TopologyGraphComponent extends Component {
       }
     }).attr("height" , function(d){
       if(!thisGraph.editMode && thisGraph.props.isAppRunning){
-        return 131;
+        return constants.metricsDataRectHeight;
       } else {
         return GraphUtils.getSpecificNodeBboxData.call(thisGraph,d).height;
       }
@@ -1422,8 +1423,6 @@ export default class TopologyGraphComponent extends Component {
       }
       if(engine.type == 'stream'){
         render(<ComponentLogActions topologyId={thisGraph.topologyId} viewModeContextRouter={thisGraph.props.viewModeContextRouter}  componentLevelAction={GraphUtils.componentLevelActionHandler.bind(this)} selectedNodeId={selectedNodeId} allComponentLevelAction={allComponentLevelAction} sampleTopologyLevel={sampleTopologyLevel}/>, this.logActions.node());
-      }else{
-        // return null;
       }
 
       newGs.append("rect")

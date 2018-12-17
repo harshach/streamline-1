@@ -189,7 +189,7 @@ export default class SpotlightSearch extends Component {
 
   render() {
     let {entities, filterValue, filteredEntities} = this.state;
-    let sources = [], processors = [], sinks = [];
+    let sources = [], processors = [], sinks = [], tasks = [];
     filteredEntities.map((e)=>{
       if(e.type === 'SOURCE') {
         sources.push(e);
@@ -199,6 +199,9 @@ export default class SpotlightSearch extends Component {
       }
       if(e.type === 'SINK') {
         sinks.push(e);
+      }
+      if(e.type === 'TASK') {
+        tasks.push(e);
       }
     });
 
@@ -291,6 +294,25 @@ export default class SpotlightSearch extends Component {
                           src={"styles/img/"+iconsFrom+"icon-" + item.subType.toLowerCase() + ".png"}
                           ref="img"
                           onError={() => {this.refs.img.src = "styles/img/"+iconsFrom+"icon-sink.png";}}
+                        />
+                      {item.name.toUpperCase()}
+                    </li>);
+                })}
+              </ul></div>)
+              : ''
+              }
+              {tasks.length > 0 ?
+              (<div><div className="result-header">TASK</div><ul className="result-list">
+                {tasks.map((item, i)=>{
+                  return (<li key={i}
+                          data-id={item.id}
+                          className={this.state.activeComponentId === item.id ? 'activeItem list-item': 'list-item'}
+                          onClick={this.handleClickOnComponent.bind(this, item)}
+                        >
+                        <img
+                          src={"styles/img/"+iconsFrom+"icon-" + item.subType.toLowerCase() + ".png"}
+                          ref="img"
+                          onError={() => {this.refs.img.src = "styles/img/"+iconsFrom+"icon-task.png";}}
                         />
                       {item.name.toUpperCase()}
                     </li>);

@@ -74,7 +74,7 @@ export default class VersionControl extends Component{
   }
   getHeader = () => {
     const {selectedVersionName, setCurrentVersion} = this.props;
-    return <button className="btn-panels" onClick={this.handleExpandCollapse}><img src="styles/img/uWorc/version-icon.png"/></button>;
+    return <button className="btn-panels" onClick={this.handleExpandCollapse}><img src="styles/img/uWorc/clock.png"/></button>;
   }
   getBody = () => {
     const {sliderSettings} = this.state;

@@ -113,7 +113,7 @@
       "name": "taskDuration",
       "uiName": "Task Duration",
       "metricKeyName": ["task_duration"],
-      "metricQuery": "fetch service:piper name:piper_task_duration pipeline:$pipeline env:$deployment timertype:upper | scale 1000 | aliasByTags task",
+      "metricQuery": "fetch service:piper name:piper_task_duration pipeline:$pipelineId env:$dc timertype:upper | scale 1000 | aliasByTags task",
       "params": {
         "pipeline":"application_id",
         "deployment":"namespace"
@@ -123,7 +123,7 @@
       "name": "avgCPUUsage",
       "uiName": "Avg CPU Usage",
       "metricKeyName": ["task_monitoring"],
-      "metricQuery": "fetch env:$deployment service:piper name:piper_task_monitoring reason:average_cpu_usage pipeline:$pipeline | aliasByTags task",
+      "metricQuery": "fetch env:$dc service:piper name:piper_task_monitoring reason:average_cpu_usage pipeline:$pipelineId | aliasByTags task",
       "params": {
         "pipeline":"application_id",
         "deployment":"namespace"
@@ -133,7 +133,7 @@
       "name": "memoryUsage",
       "uiName": "Memory Usage",
       "metricKeyName": ["task_monitoring"],
-      "metricQuery": "fetch env:$deployment service:piper name:piper_task_monitoring reason:memory_usage pipeline:$pipeline | aliasByTags task",
+      "metricQuery": "fetch env:$dc service:piper name:piper_task_monitoring reason:memory_usage pipeline:$pipelineId | aliasByTags task,
       "params": {
         "pipeline":"application_id",
         "deployment":"namespace"
@@ -173,7 +173,7 @@
           "metrics": {
             "topology": [],
             "task": {
-              "base_metrics": ["taskStatus", "taskStartDate", "taskEndDate", "Duration"],
+              "baseMetrics": ["taskStatus", "startTime", "endTime", "Duration"],
               "component_metrics" : {}
             }
           },

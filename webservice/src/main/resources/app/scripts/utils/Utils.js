@@ -902,7 +902,7 @@ const filterTemplate = function(layout, metrics, componentType, componentName){
     metricsToFilter = layout;
   }else{
     if(layout){
-      metricsToFilter = layout.baseMetrics;
+      metricsToFilter = layout.baseMetrics || layout.base_metrics;
       const componentMetrics = layout.component_metrics[componentName];
       if(componentMetrics){
         metricsToFilter = [...layout.baseMetrics, ...componentMetrics];

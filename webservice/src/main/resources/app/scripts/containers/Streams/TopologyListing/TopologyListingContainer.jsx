@@ -175,32 +175,38 @@ class TopologyItems extends Component {
 
     const designs = {
       title: (metricName) => {
-        return <span className="metric-title">{namespaceName}</span>;
+        return <h5 className="metric-title">{namespaceName}</h5>;
       },
       status: (metricName) => {
-        return <span className="metric-status">{status} &nbsp;</span>;
+        return <h6 className="activity">{status} &nbsp;</h6>;
       },
       labelValue: (metricName) => {
         const metric = getMetric(metricName);
         const val = Utils[metric.valueFormat](metricWrap[metric.metricKeyName]);
         return [
-          <span className="metric-label">{metric.uiName}</span>,
-          <span className="metric-value">{val.value} &nbsp;</span>
+          <h6 className="metric-label">{metric.uiName}</h6>,
+          <p className="metric-value">{val.value} &nbsp;</p>
         ];
       },
       duration: (metricName) => {
         const metric = getMetric(metricName);
         const oVal = metricWrap[metric.metricKeyName] || 0;
         const val = Utils[metric.valueFormat](oVal);
-        return <span className="metric-duration">Duration {val.value + (val.prefix || '')}</span>;
+        return <p className="activity">Duration {val.value + (val.prefix || '')}</p>;
       },
       legendValue: (metricName) => {
         const metric = getMetric(metricName);
-        return <span className="metric-legend-status">{metricWrap[metric.metricKeyName]}</span>;
+        let value = metricWrap[metric.metricKeyName];;
+        if(value){
+          return <p><i className={"fa fa-square "+value.toLowerCase()}></i> {value}</p>;
+        } else {
+          return null;
+        }
       }
     };
 
-    const metrics = [];
+    const leftMetrics = [];
+    const rightMetrics = [];
 
     _.each(layout, (row, index) => {
       const left = _.map(row.left, (m) => {
@@ -209,32 +215,36 @@ class TopologyItems extends Component {
       const right = _.map(row.right, (m) => {
         return designs[m.type](m.name);
       });
-      metrics.push(<div className="metric-row">
-        <div className="metric-left">{left}</div>
-        <div className="metric-right text-right">{right}</div>
-      </div>);
+      leftMetrics.push(left);
+      rightMetrics.push(right);
     });
 
-    return <div className="metric-container">{metrics}</div>;
+    return (
+      <div className="row">
+        <div className="col-sm-8">{leftMetrics}</div>
+        <div className="col-sm-4 text-right">{rightMetrics}</div>
+      </div>
+    );
   }
   getFooter(dropdown){
     const {topologyList} = this.props;
     const engine = Utils.getEngineById(topologyList.topology.engineId);
 
-    return <div className="card-footer">
-      <div className="display-table">
-        <div className="metric-left">
-          <span className="app-name">
+    return <div className="workflow-widget-footer">
+      <div className="row">
+        <div className="col-sm-7">
+          <h5>
             {topologyList.topology.name}
             <span className={"engine-name "+engine.name.toLowerCase()}>{engine.displayName}</span>
-          </span>
-          <span className="app-last-update-label">Last modified on</span>
-          <span className="app-last-update-value">{Utils.datetime(topologyList.topology.timestamp).value}</span>
+          </h5>
+          <h6>
+            Last Updated on <span className="app-last-update-value">{Utils.datetime(topologyList.topology.timestamp).value}</span>
+          </h6>
         </div>
-        <div className="metric-right text-right metric-right-footer">
+        <div className="col-sm-5 text-right">
           {dropdown}
-          <span className="app-run-type">{topologyList.running}</span>
-          {/*<span className="app-run-duration">Run every 1 day at 11:00:00</span>*/}
+          <p>{topologyList.running}</p>
+          {/*<h6 className="app-run-duration">Run every 1 day at 11:00:00</h6>*/}
         </div>
       </div>
     </div>;
@@ -258,7 +268,7 @@ class TopologyItems extends Component {
       rights_share = r_share;
     }
 
-    const dropdown = <DropdownButton title={ellipseIcon} id="actionDropdown" noCaret bsStyle="link">
+    const dropdown = <DropdownButton title={ellipseIcon} id="actionDropdown" noCaret bsStyle="link workflow-dropdown">
       <MenuItem title="Refresh" onClick={this.onActionClick.bind(this, "refresh/" + topology.id)}>
         <i className="fa fa-refresh"></i>
         &nbsp;Refresh
@@ -297,21 +307,22 @@ class TopologyItems extends Component {
 
     return (
       <div className="col-sm-5">
-        <div className="card" data-id={topology.id} ref={(ref) => this.streamRef = ref} onClick={this.streamBoxClick.bind(this, topology.id)}>
+        <div className="workflow-widget" data-id={topology.id} ref={(ref) => this.streamRef = ref} onClick={this.streamBoxClick.bind(this, topology.id)}>
           {(this.checkRefId(topology.id))
-            ? <div className="stream-body">
+            ? <div className="workflow-widget-body">
                 <div className="loading-img text-center">
                   <img src="styles/img/start-loader.gif" alt="loading" style={{
                     width: "100px"
                   }}/>
                 </div>
               </div>
-            :
-            <div className="stream-body">
-              <div className="card-content">
+            : <div>
+            <div className="workflow-widget-body">
+              <div className="workflow-widget-panel">
                 {this.getMetrics()}
               </div>
-              {this.getFooter(dropdown)}
+            </div>
+            {this.getFooter(dropdown)}
             </div>
           }
 

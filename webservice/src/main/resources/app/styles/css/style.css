@@ -19,6 +19,46 @@
 */
 
 @import url('https://fonts.googleapis.com/css?family=Oswald');
+@font-face {
+    font-family: 'Uber Move';
+    src: url('../fonts/UberMoveText-Light.eot');
+    src: url('../fonts/UberMoveText-Light.eot?#iefix') format('embedded-opentype'),
+    	 url('../fonts/UberMoveText-Light.woff2') format('woff2'),
+         url('../fonts/UberMoveText-Light.woff') format('woff'),
+         url('../fonts/UberMoveText-Light.ttf') format('truetype');
+    font-weight: 300;
+    font-style: normal;
+}
+@font-face {
+    font-family: 'Uber Move';
+    src: url('../fonts/UberMoveText-Regular.eot');
+    src: url('../fonts/UberMoveText-Regular.eot?#iefix') format('embedded-opentype'),
+    	 url('../fonts/UberMoveText-Regular.woff2') format('woff2'),
+         url('../fonts/UberMoveText-Regular.woff') format('woff'),
+         url('../fonts/UberMoveText-Regular.ttf') format('truetype');
+    font-weight: 400;
+    font-style: normal;
+}
+@font-face {
+    font-family: 'Uber Move';
+    src: url('../fonts/UberMoveText-Medium.eot');
+    src: url('../fonts/UberMoveText-Medium.eot?#iefix') format('embedded-opentype'),
+    	 url('../fonts/UberMoveText-Medium.woff2') format('woff2'),
+         url('../fonts/UberMoveText-Medium.woff') format('woff'),
+         url('../fonts/UberMoveText-Medium.ttf') format('truetype');
+    font-weight: 500;
+    font-style: normal;
+}
+@font-face {
+    font-family: 'Uber Move';
+    src: url('../fonts/UberMoveText-Bold.eot');
+    src: url('../fonts/UberMoveText-Bold.eot?#iefix') format('embedded-opentype'),
+    	 url('../fonts/UberMoveText-Bold.woff2') format('woff2'),
+         url('../fonts/UberMoveText-Bold.woff') format('woff'),
+         url('../fonts/UberMoveText-Bold.ttf') format('truetype');
+    font-weight: 600;
+    font-style: normal;
+}
 
 /* Global */
 
@@ -31,7 +71,7 @@
 
 body {
   background-color: #F7F7F7;
-  font-family: 'Roboto', sans-serif;
+  font-family: 'Uber Move', sans-serif;
   -webkit-font-smoothing: antialiased;
   /*padding-bottom: 30px;*/
 }
@@ -1986,7 +2026,7 @@ label {
 .editor-header.active{
   margin-right: 335px !important;
 }
-.topology-view-mode-container .editor-header.row{
+.topology-view-mode-container .editor-header.row.app-running{
   margin-right: 35px;
 }
 /* Select 2 */
@@ -2430,24 +2470,24 @@ ul.project-engines li.no-workflow .badge{
   font-weight: bold;
   display: block;
 }
-.app-name > .engine-name {
+.workflow-widget-footer .engine-name {
   height: 20px;
   border-radius: 10px;
   padding: 0 12px;
   margin-left: 10px;
   line-height: 20px;
-  font-weight: normal;
+  font-weight: 500;
   display: inline-block;
 }
-.app-name > .engine-name.storm {
+.workflow-widget-footer .engine-name.storm {
   color: #47B275;
   background: #DAF0E3;
 }
-.app-name > .engine-name.piper {
+.workflow-widget-footer .engine-name.piper {
   color: #276EF1;
   background: #EDF3FE;
 }
-.app-name > .engine-name.athenax {
+.workflow-widget-footer .engine-name.athenax {
   color: #f19248;
   background: #fef3ec;
 }
@@ -5773,4 +5813,83 @@ h6.version-control {
 }
 .tada {
   animation-duration: 3s;
+}
+.workflow-widget {
+	border: 1px #F0F0F0 solid;
+	border-radius: 5px;
+}
+.workflow-widget-body {
+	padding: 0 20px;
+	background-color: #fff;
+	border-radius: 5px 5px 0 0;
+}
+.workflow-widget-panel {
+	padding: 20px 0;
+}
+.workflow-widget-panel + .workflow-widget-panel {
+	border-top: 1px #F0F0F0 solid;
+}
+.workflow-widget-body h5 {
+	font-size: 15px;
+	font-weight: 600;
+	margin: 0;
+}
+.workflow-widget-body h6,
+.workflow-widget-footer h6,
+.workflow-widget-body p,
+.workflow-widget-footer p {
+	font-weight: 400;
+	margin: 0 0 5px 0;
+	font-size: 13px;
+}
+.workflow-widget-body h6 {
+	color: #979797;
+	margin-top: 15px;
+}
+.workflow-widget-body h6.activity,
+.workflow-widget-body p.activity {
+	color: #276EF1;
+}
+.workflow-widget-body h6.activity {
+	margin-top: 0;
+	margin-bottom: 10px;
+	font-weight: 600;
+}
+.workflow-widget-footer {
+	padding: 20px;
+	background-color: #F0F0F0;
+	border-radius: 0 0 5px 5px;
+}
+.workflow-widget-footer h5 {
+	font-size: 15px;
+	font-weight: 600;
+	margin: 0;
+	color: #276EF1;
+}
+.workflow-widget-footer h6 {
+	margin: 10px 0 0;
+	color: #979797;
+}
+.workflow-widget-footer h6 span {
+	color: #666;
+}
+.workflow-widget-footer div.workflow-dropdown {
+  position: absolute;
+  top: -25px;
+  right: 0;
+}
+.fa.fa-square.succeeded {
+  color: #07A35A;
+}
+.fa.fa-square.done{
+  color: #07A35A;
+}
+.fa.fa-square.failed{
+  color: #E54937;
+}
+.fa.fa-square.running{
+  color: #1B6DE0;
+}
+.fa.fa-square.queued{
+  color: #F19248;
 }

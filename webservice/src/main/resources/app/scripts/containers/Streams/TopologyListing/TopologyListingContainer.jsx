@@ -178,7 +178,7 @@ class TopologyItems extends Component {
         return <h5 className="metric-title">{namespaceName}</h5>;
       },
       status: (metricName) => {
-        return <h6 className="activity">{status} &nbsp;</h6>;
+        return <h6 className="activity">{Utils.capitaliseFirstLetter(status)} &nbsp;</h6>;
       },
       labelValue: (metricName) => {
         const metric = getMetric(metricName);
@@ -198,7 +198,7 @@ class TopologyItems extends Component {
         const metric = getMetric(metricName);
         let value = metricWrap[metric.metricKeyName];;
         if(value){
-          return <p><i className={"fa fa-square "+value.toLowerCase()}></i> {value}</p>;
+          return <p><i className={"fa fa-square "+value.toLowerCase()}></i> {Utils.capitaliseFirstLetter(value)}</p>;
         } else {
           return null;
         }
@@ -228,7 +228,11 @@ class TopologyItems extends Component {
   }
   getFooter(dropdown){
     const {topologyList} = this.props;
+    let clusterNamesList = _.keys(topologyList.namespaces);
     const engine = Utils.getEngineById(topologyList.topology.engineId);
+    const metricWrap = topologyList.namespaces[clusterNamesList[0]].metric ?  topologyList.namespaces[clusterNamesList[0]].metric.metrics : {};
+
+    const typeValue = metricWrap['pipelineType'];
 
     return <div className="workflow-widget-footer">
       <div className="row">
@@ -243,7 +247,7 @@ class TopologyItems extends Component {
         </div>
         <div className="col-sm-5 text-right">
           {dropdown}
-          <p>{topologyList.running}</p>
+          <p>{typeValue ? Utils.capitaliseFirstLetter(typeValue) : ""}</p>
           {/*<h6 className="app-run-duration">Run every 1 day at 11:00:00</h6>*/}
         </div>
       </div>

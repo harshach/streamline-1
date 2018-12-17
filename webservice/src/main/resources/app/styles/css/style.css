@@ -5878,10 +5878,9 @@ h6.version-control {
   top: -25px;
   right: 0;
 }
-.fa.fa-square.succeeded {
-  color: #07A35A;
-}
-.fa.fa-square.done{
+.fa.fa-square.succeeded,
+.fa.fa-square.success,
+.fa.fa-square.done {
   color: #07A35A;
 }
 .fa.fa-square.failed{

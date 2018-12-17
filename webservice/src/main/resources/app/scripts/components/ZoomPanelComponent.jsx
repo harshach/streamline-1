@@ -75,9 +75,15 @@ class  ZoomPanelComponent extends Component {
       deployTopology,
       topologyStatus
     } = this.props;
+    let isActive = false;
+    if(!app_state.versionPanelCollapsed && mode == 'edit'){
+      isActive = true;
+    } else if(!app_state.versionPanelCollapsed && mode == 'view' && isAppRunning){
+      isActive = true;
+    }
     return (
       <div>
-        <div className={`control-widget right ${app_state.versionPanelCollapsed ? '' : 'active'}`}>
+        <div className={`control-widget right ${isActive ? 'active' : ''}`}>
           <div className="control-top">
             <h5>Last Edited <span>{Utils.datetime(lastUpdatedTime).value}</span></h5>
             {isAppRunning ? <h5>Workflow Status<span><i className="fa fa-circle text-primary workflow-status"></i> Running</span></h5> : null}
@@ -106,7 +112,7 @@ class  ZoomPanelComponent extends Component {
           </div>
         </div>
         <div className="col-md-12 zoomWrap clearfix">
-          <div className={`editor-header row ${app_state.versionPanelCollapsed ? '' : 'active'}`}>
+          <div className={`editor-header row ${isActive ? 'active' : ''}`}>
             {mode === 'edit' ?
               <div className="pull-left">
                 <span className="graph-action"><img src="styles/img/uWorc/undo.png" /> Undo</span>

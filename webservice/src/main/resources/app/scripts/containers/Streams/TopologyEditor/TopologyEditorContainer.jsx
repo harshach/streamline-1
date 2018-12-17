@@ -1319,7 +1319,7 @@ export class TopologyEditorContainer extends Component {
       } else if(this.node.parentType.toLowerCase() === 'task'){
         nodeClassName = "modal-fixed-height";
       } else if(nodeType === 'join' || nodeType === 'window' || nodeType === 'projection' || nodeType === 'rt-join' || nodeType === 'sql'){
-        nodeClassName = "modal-xl";
+        nodeClassName = "modal-fixed-height modal-xl";
       } else {
         nodeClassName = "modal-fixed-height modal-xl";
       }

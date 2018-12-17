@@ -67,7 +67,8 @@ export default class VersionControl extends Component{
     this.state = {
     };
   }
-  componentDidUpdate(){
+  componentDidMount(){
+    app_state.versionPanelCollapsed = true;
   }
   handleExpandCollapse = () => {
     app_state.versionPanelCollapsed = !app_state.versionPanelCollapsed;

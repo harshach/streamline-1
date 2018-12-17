@@ -691,7 +691,7 @@ export class boolean extends BaseField {
     }
     return (booleanHint !== null && booleanHint.toLowerCase().indexOf("hidden") !== -1
       ? null
-      : <FormGroup className={className}>
+      : <FormGroup className={"fg-checkbox "+className}>
           <OverlayTrigger trigger={['hover']} placement="right" overlay={popoverContent}>
             <label>
               <input name={this.props.value} type="checkbox" ref="input" checked={this.props.data[this.props.value]} disabled={disabledField} {...this.props.attrs} onChange={this.handleChange} style={{
@@ -1043,39 +1043,53 @@ export class arrayobject extends BaseField {
   render() {
     const {className, fieldJson} = this.props;
     if(fieldJson.hint && fieldJson.hint.indexOf("table") !== -1){
-      if(!this.props.data[this.props.value] && fieldJson.options.length > 0){
-        this.props.data[this.props.value] = fieldJson.options.map((f)=>{return {};});
+      //remove object which is the parent field
+      let newOptionArr = [];
+      fieldJson.options.map((field)=>{
+        if(field.fieldType){
+          newOptionArr.push(field);
+        }
+      });
+      if(!this.props.data[this.props.value] && newOptionArr.length > 0){
+        this.props.data[this.props.value] = newOptionArr.map((f)=>{return {};});
       }
       return (
-        <table className="table table-bordered">
-          <thead>
-            {fieldJson.fields.map((field)=>{
-              return (
-                <th>{field.uiName}</th>
-              );
-            })}
-          </thead>
-          <tbody>
-            {fieldJson.options.map((inputFields, index)=>{
-              let d = this.props.data[this.props.value][index];
-              const optionsFields = Utils.genFields(fieldJson.fields, [
-                ...this.props.valuePath.split('.'),
-                index
-              ], d);
-              return (
-                <tr>{optionsFields.map((child, i) => {
-                  return React.cloneElement(child, {
-                    ref: child.props
-                      ? (child.props._ref || i)
-                      : i,
-                    key: i,
-                    data: d
-                  });
-                })}</tr>
-              );
-            })}
-          </tbody>
-        </table>
+        <div className="table-responsive">
+          <table className="table table-bordered table-sink">
+            <thead>
+              {fieldJson.fields.map((field)=>{
+                return (
+                  <th>{field.uiName}</th>
+                );
+              })}
+            </thead>
+            <tbody>
+              {newOptionArr.map((inputFields, index)=>{
+                let d = this.props.data[this.props.value][index];
+                if(!d.name){
+                  d.name = inputFields.fieldName;
+                }
+                const optionsFields = Utils.genFields(fieldJson.fields, [
+                  ...this.props.valuePath.split('.'),
+                  index
+                ], d);
+                return (
+                  <tr>{optionsFields.map((child, i) => {
+                    return (
+                      <td>{React.cloneElement(child, {
+                        ref: child.props
+                          ? (child.props._ref || i)
+                          : i,
+                        key: i,
+                        data: d
+                      })}</td>
+                    );
+                  })}</tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </div>
       );
     } else {
       return (

@@ -710,7 +710,7 @@ class TopologyViewContainer extends TopologyEditorContainer {
       } else if(this.node.parentType.toLowerCase() === 'task'){
         nodeClassName = "modal-fixed-height";
       } else if(nodeType === 'join' || nodeType === 'window' || nodeType === 'projection' || nodeType === 'rt-join' || nodeType === 'sql'){
-        nodeClassName = "modal-xl";
+        nodeClassName = "modal-fixed-height modal-xl";
       } else {
         nodeClassName = "modal-fixed-height modal-xl";
       }
@@ -737,6 +737,7 @@ class TopologyViewContainer extends TopologyEditorContainer {
                     zoomOutAction={this.graphZoomAction.bind(this, 'zoom_out')}
                     showConfig={this.showConfig.bind(this)}
                     confirmMode={this.confirmMode.bind(this)}
+                    isAppRunning={isAppRunning}
                   />,
                   <TopologyViewMode
                     allACL={allACL} key={"1"} {...this.state}

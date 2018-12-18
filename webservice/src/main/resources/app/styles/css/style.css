@@ -400,7 +400,7 @@ a.dropdown-toggle~ul.dropdown-menu {
 }
 
 .modal-tabs .tab-content {
-  min-height: 395px;
+  min-height: 475px;
   position: relative;
   padding-top: 15px;
 }
@@ -487,9 +487,9 @@ label {
 }
 .processor-node-fields-container{
   position: absolute;
-  left: 300px;
-  right: 300px;
-  height: 100%;
+  left: 240px;
+  right: 245px;
+  height: 475px;
 }
 
 .form-field.cron-field select{
@@ -5470,6 +5470,9 @@ h3.empty-project {
 }
 .u-form .btn-success:hover, .u-form .btn-success:active, .u-form .btn-success:focus, .u-form .btn-success:active:focus{
   background: #1B6DE0;
+}
+.u-form .btn-sm{
+  padding: 9px 10px !important;
 }
 
 .u-form .modal-dialog .btn-default{

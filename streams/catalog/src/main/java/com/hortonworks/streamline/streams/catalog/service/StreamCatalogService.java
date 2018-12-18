@@ -440,6 +440,8 @@ public class StreamCatalogService {
         return topologies;
     }
 
+
+
     private Collection<Topology> listTopologies(Long versionId, Long projectId) {
         List<QueryParam> queryParams = new ArrayList<>();
         queryParams.add(new QueryParam(Topology.VERSIONID, versionId.toString()));

@@ -311,7 +311,7 @@ public class TopologyCatalogResource {
     @Timed
     public Response listTopologies (@Context SecurityContext securityContext) {
         return listTopologies(securityContext, null);
-        }
+    }
 
     @GET
     @Path("/topologies/{topologyId}")
@@ -656,8 +656,11 @@ public class TopologyCatalogResource {
     private Response listTopologies(SecurityContext securityContext, Long projectId) {
         boolean topologyUser = SecurityUtil.hasRole(authorizer, securityContext, Roles.ROLE_TOPOLOGY_USER);
         Collection<Topology> topologies;
-        topologies = catalogService.listTopologies(projectId);
-
+        if (projectId == null) {
+            topologies = catalogService.listTopologies();
+        } else {
+            topologies = catalogService.listTopologies(projectId);
+        }
 
         if (topologyUser) {
             LOG.debug("Returning all topologies since user has role: {}", Roles.ROLE_TOPOLOGY_USER);

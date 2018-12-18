@@ -96,6 +96,7 @@
         "isOptional": false,
         "type": "array.object",
         "hint": "table,inputFields",
+        "defaultValue": null,
         "options": [],
         "fields": [
           {

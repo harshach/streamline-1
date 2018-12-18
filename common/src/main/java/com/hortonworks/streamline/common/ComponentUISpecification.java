@@ -423,10 +423,7 @@ public class ComponentUISpecification {
                 if (defaultValue != null) {
                     logAndThrowException(String.format(NOT_APPLICABLE_PROPERTY, DEFAULT_VALUE, fieldName, type));
                 }
-                //options only applicable to enum types
-                if (options != null) {
-                    logAndThrowException(String.format(NOT_APPLICABLE_PROPERTY, OPTIONS, fieldName, type));
-                }
+
                 //fields are optional for object type to recurse
                 if (fields != null && !fields.isEmpty()) {
                     Set<String> fieldNames = new HashSet<>();

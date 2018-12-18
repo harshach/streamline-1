@@ -1415,7 +1415,12 @@ export class TopologyEditorContainer extends Component {
             }
           </div>
         </div>
-        <Modal className="u-form" ref="TopologyConfigModal" data-title={deployFlag ? "Are you sure want to continue with this configuration?" : "Workflow Configuration"}  onKeyPress={this.handleKeyPress.bind(this)} data-resolve={this.handleSaveConfig.bind(this)} data-reject={this.handleCancelConfig.bind(this)}>
+        <Modal
+          className="u-form" ref="TopologyConfigModal"
+          data-title={deployFlag ? "Are you sure want to continue with this configuration?" : "Workflow Configuration"}
+          onKeyPress={this.handleKeyPress.bind(this)} data-resolve={this.handleSaveConfig.bind(this)}
+          data-reject={this.handleCancelConfig.bind(this)} dialogClassName="modal-fixed-height"
+        >
           <TopologyConfig ref="topologyConfig" topologyData={topologyData} projectId={this.projectId} topologyId={this.topologyId} versionId={this.versionId} data={mapTopologyConfig} topologyName={this.state.topologyName} uiConfigFields={this.topologyConfigData} testRunActivated={this.state.testRunActivated} topologyNodes={this.graphData.nodes}/>
         </Modal>
         {/* NodeModal for Development Mode for source*/}

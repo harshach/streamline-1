@@ -195,13 +195,19 @@ export default class SqlProcessorNodeForm extends Component {
               }else{
                 let type = 'STRING';
                 let field;
+                let inp_name;
                 field = _.find(inputstream.fields, (inp) => {
-                  return inp.name.toLowerCase() == name;
+                  if(inp.name.toLowerCase() == name){
+                    inp_name = inp.name;
+                    return true;
+                  }else{
+                    return false;
+                  }
                 });
                 if(field){
                   type = field.type;
                   outputStreamsFields.push({
-                    name: res.alias || name,
+                    name: res.alias || inp_name,
                     type: type
                   });
                 }else{

@@ -1068,6 +1068,7 @@ export class arrayobject extends BaseField {
                 let d = this.props.data[this.props.value][index];
                 if(!d.name){
                   d.name = inputFields.fieldName;
+                  d.type = inputFields.type.toLowerCase();
                 }
                 const optionsFields = Utils.genFields(fieldJson.fields, [
                   ...this.props.valuePath.split('.'),

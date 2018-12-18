@@ -112,7 +112,7 @@ class  ZoomPanelComponent extends Component {
           </div>
         </div>
         <div className="col-md-12 zoomWrap clearfix">
-          <div className={`editor-header row ${isActive ? 'active' : ''}`}>
+          <div className={`editor-header row ${isActive ? 'active' : ''} ${isAppRunning ? 'app-running' : ''}`}>
             {mode === 'edit' ?
               <div className="pull-left">
                 <span className="graph-action"><img src="styles/img/uWorc/undo.png" /> Undo</span>

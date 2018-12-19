@@ -34,7 +34,7 @@ class  ZoomPanelComponent extends Component {
     if(isAppRunning){
       btn.push(
         <button key="kill" className="btn btn-primary btn-sm workflow-action-btn m-r-xs" onClick={killTopology}>
-          <i className="fa fa-ban workflow-btn"></i> Kill
+          <i className="fa fa-pause workflow-btn"></i> Pause
         </button>
       );
       if(topologyStatus == 'enabled'){

@@ -85,7 +85,7 @@ class  ZoomPanelComponent extends Component {
     }
     return (
       <div>
-        <div className={`control-widget right ${isActive ? 'active' : ''}`}>
+        <div className={`control-widget right ${isActive ? 'active' : ''} ${isAppRunning ? 'app-running' : ''}`}>
           <div className="control-top">
             <h5>Last Edited <span>{Utils.datetime(lastUpdatedTime).value}</span></h5>
             {isAppRunning ? <h5>Workflow Status<span><i className="fa fa-circle text-primary workflow-status"></i> Running</span></h5> : null}

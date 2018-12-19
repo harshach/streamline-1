@@ -636,7 +636,7 @@ export class TopologyEditorContainer extends Component {
   }
   handleSaveNodeName(editable) {
     if (this.validateNodeName(this.modalTitle)) {
-      this.saveTopologyName(this);
+      this.handleSaveNodeModal(this);
       editable.hideEditor();
     }
   }
@@ -653,9 +653,9 @@ export class TopologyEditorContainer extends Component {
     if (name === '') {
       this.refs.editableNodeName.setState({errorMsg: "Node name cannot be blank"});
       return false;
-    } else if (name.search(' ') !== -1) {
-      this.refs.editableNodeName.setState({errorMsg: "Node name cannot have space in between"});
-      return false;
+    // } else if (name.search(' ') !== -1) {
+    //   this.refs.editableNodeName.setState({errorMsg: "Node name cannot have space in between"});
+    //   return false;
     } else if (nodeNamesList.indexOf(name) !== -1) {
       this.refs.editableNodeName.setState({errorMsg: "Node name is already present. Please use some other name."});
       this.validateFlag = false;

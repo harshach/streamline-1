@@ -153,17 +153,17 @@ export default class BatchMetrics extends Component{
             </div>
             <Tabs id="timeseries-metrics-tabs" className="timeseries-metrics-tabs">
               <Tab eventKey={1} title="Task Duration">
-                <div className="metrics-timeseries-graph" style={{height: '150px'}}>
+                <div className="metrics-timeseries-graph" style={{height: '160px'}}>
                   {this.renderGraph(viewModeData.selectedComponentId, 'taskDuration')}
                 </div>
               </Tab>
               <Tab eventKey={2} title="Avg. CPU Usage">
-                <div className="metrics-timeseries-graph" style={{height: '150px'}}>
+                <div className="metrics-timeseries-graph" style={{height: '160px'}}>
                   {this.renderGraph(viewModeData.selectedComponentId, 'avgCPUUsage')}
                 </div>
               </Tab>
               <Tab eventKey={3} title="Memory Usage">
-                <div className="metrics-timeseries-graph" style={{height: '150px'}}>
+                <div className="metrics-timeseries-graph" style={{height: '160px'}}>
                   {this.renderGraph(viewModeData.selectedComponentId, 'memoryUsage')}
                 </div>
               </Tab>

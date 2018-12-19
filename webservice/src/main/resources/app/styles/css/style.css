@@ -1448,7 +1448,8 @@ label {
 .execution-box.execute-selected::after{
   visibility: visible;
 }
-.execution-box.succeeded{
+.execution-box.succeeded,
+.execution-box.success{
   background: #07A35A;
 }
 .execution-box.done{

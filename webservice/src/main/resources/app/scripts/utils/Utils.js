@@ -520,7 +520,7 @@ const mergeFormDataFields = function(name, clusterArr,clusterName,formData,uiSpe
           }
           _.keys(clusterArr[x].hints).map(k => {
             const nestedKeys = function(pk){
-              if (pk.indexOf('.') !== -1 && pk.indexOf('task_params.') === 1) {
+              if (pk.indexOf('.') !== -1 && pk.indexOf('task_params.') === -1) {
                 let mk = pk.split('.');
                 mk.length > 1 ? mk.splice(0, 1) : '' ;
                 nestedKeys(mk.join('.'));

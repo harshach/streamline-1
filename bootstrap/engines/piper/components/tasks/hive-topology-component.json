@@ -29,7 +29,7 @@
             },
             {
                 "uiName": "Hive Connection ID",
-                "fieldName": "task_params.hive_conn_id",
+                "fieldName": "task_params.hive_cli_conn_id",
                 "tooltip": "Hive Connection",
                 "isOptional": false,
                 "type": "string"

@@ -229,7 +229,18 @@ a:hover, a:focus {
 .dropdown-menu > .active > a:focus{
   background-color: #006bfa;
 }
-
+.text-light {
+  font-weight: 300;
+}
+.text-regular {
+  font-weight: 400;
+}
+.text-medium {
+  font-weight: 500;
+}
+.text-bold {
+  font-weight: 600;
+}
 
 /* Header */
 
@@ -430,7 +441,7 @@ a.dropdown-toggle~ul.dropdown-menu {
 
 label {
   color: #737373;
-  text-transform: uppercase;
+  /* text-transform: uppercase; */
   font-weight: normal;
 }
 
@@ -2148,7 +2159,7 @@ label {
 }
 
 .outputCaption>label, .form-group label {
-  font-size: 12px;
+  font-size: 14px;
   color: #606060;
 }
 
@@ -2478,6 +2489,7 @@ ul.project-engines li.no-workflow .badge{
   line-height: 20px;
   font-weight: 500;
   display: inline-block;
+  cursor: pointer;
 }
 .workflow-widget-footer .engine-name.storm {
   color: #47B275;
@@ -3427,7 +3439,7 @@ input[type="checkbox"]:focus {
 }
 
 .dropdown button.btn-link {
-  color: #484848;
+  color: #1B6DE0;
 }
 
 .col-md-4:nth-child(3n+4) {
@@ -5515,7 +5527,7 @@ h3.empty-project {
   box-shadow: none;
 }
 .u-form .form-group label{
-  text-transform: uppercase;
+  /* text-transform: uppercase; */
   color: #888;
   font-weight: 400;
 }
@@ -5817,6 +5829,7 @@ h6.version-control {
 .workflow-widget {
 	border: 1px #F0F0F0 solid;
 	border-radius: 5px;
+  margin-bottom: 15px;
 }
 .workflow-widget-body {
 	padding: 0 20px;

@@ -67,7 +67,7 @@ export default class Header extends Component {
       <header className="main-header">
       <Link to="/" className="logo">
           <span className="logo-mini">
-            <img src="/styles/img/uWorc/logo_square_light.png" data-stest="logo-collapsed" width="85%"/>
+            <img src="/styles/img/uWorc/logo_square_light.png" data-stest="logo-collapsed" width="40"/>
           </span>
           <span className="logo-lg">
             <img src="/styles/img/uWorc/logo_text_light.png" data-stest="logo-expanded" width="50%"/>

@@ -823,7 +823,7 @@ class TopologyListingContainer extends Component {
       topologyData
     } = this.state;
     const splitData = _.chunk(entities, pageSize) || [];
-    const btnIcon = <span><i className="fa fa-plus"></i> New Workflow</span>;
+    const btnIcon = <span><i className="fa fa-plus"></i> &ensp; New Workflow</span>;
     const sortTitle = <span>Sort:<span style={{
       color: "#006ea0"
     }}>&nbsp;{this.state.sorted.text}</span>
@@ -841,7 +841,7 @@ class TopologyListingContainer extends Component {
           ? <div>
               {hasEditCapability(accessCapabilities.APPLICATION) && (entities.length || filterValue) ?
                 <div className="add-btn text-center">
-                  <DropdownButton title={btnIcon} id="actionDropdown" className="actionDropdown success" noCaret>
+                  <DropdownButton title={btnIcon} id="actionDropdown" className="actionDropdown success text-medium" noCaret>
                     <MenuItem onClick={this.onActionMenuClicked.bind(this, "create")}>
                       &nbsp;New Workflow
                     </MenuItem>

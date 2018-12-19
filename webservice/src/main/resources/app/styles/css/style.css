@@ -5882,6 +5882,7 @@ h6.version-control {
 	font-weight: 600;
 	margin: 0;
 	color: #276EF1;
+  cursor: pointer;
 }
 .workflow-widget-footer h6 {
 	margin: 10px 0 0;

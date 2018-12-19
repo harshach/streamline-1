@@ -438,7 +438,7 @@ export class sql extends BaseField {
       callBack={this.handleChange}
       placeHolder=" "
       editMode={true}
-      width={width}
+      width="100%"
       height={height}
       editMode={false}
       modeOptions={{

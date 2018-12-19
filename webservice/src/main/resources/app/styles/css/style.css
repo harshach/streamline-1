@@ -241,7 +241,6 @@ a:hover, a:focus {
 .text-bold {
   font-weight: 600;
 }
-
 /* Header */
 
 .main-header {
@@ -2033,14 +2032,29 @@ label {
   transition: all .5s ease;
 }
 .graph-region > div > div > .editor-header.active{
-  margin-right: 290px !important;
+  margin-right: 390px !important;
 }
 .editor-header.active{
-  margin-right: 335px !important;
+  margin-right: 435px !important;
 }
 .topology-view-mode-container .editor-header.row.app-running{
   margin-right: 35px;
 }
+.topology-view-mode-container .editor-header.row .pull-right{
+  margin-right: 8px;
+}
+.topology-view-mode-container .editor-header.row.app-running .pull-right{
+  margin-right: 14px;
+}
+.graph-region .editor-header.row .pull-right,
+.graph-region .editor-header.row.app-running .pull-right {
+  margin-right: 6px;
+}
+.graph-region .editor-header.row .pull-right,
+.graph-region .editor-header.row.app-running.active .pull-right {
+  margin-right: 9px;
+}
+
 /* Select 2 */
 
 .menu-outer-top .Select-menu-outer {
@@ -2792,6 +2806,11 @@ h5.environment-title span, .service-box .service-head h4 span {
 .tick>text {
   font-size: 13px;
   fill: #6B6B76;
+}
+
+.metrics-timeseries-graph .x.axis .tick > text,
+.metrics-timeseries-graph .x.axis .tick > line {
+  visibility: hidden;
 }
 
 rect.extent {
@@ -5478,6 +5497,7 @@ h3.empty-project {
 }
 
 .u-form .btn-success{
+  color: white;
   background: #1B6DE0;
   border: none;
 }
@@ -5488,6 +5508,37 @@ h3.empty-project {
   padding: 9px 10px !important;
 }
 
+.u-form .btn-danger{
+  color: white;
+  background: #EB3223;
+  border: none;
+}
+.u-form .btn-danger:hover, .u-form .btn-danger:active, .u-form .btn-danger:focus, .u-form .btn-danger:active:focus{
+  background: #EB3223;
+}
+.u-form .btn-xs,
+.u-form .btn-group-xs > .btn{
+  padding: 1px 5px;
+}
+.u-form .btn-link, .u-form .btn-link:active, .u-form .btn-link.active, .u-form .btn-link[disabled], .u-form fieldset[disabled] .btn-link{
+  background-color: transparent !important;
+  -webkit-box-shadow: none;
+  box-shadow: none;
+}
+.u-form .btn-link, .u-form .btn-link:hover, .u-form .btn-link:focus, .u-form .btn-link:active {
+  border-color: transparent !important;
+}
+.u-form .btn-link {
+  font-weight: normal;
+  color: #337ab7;
+  border-radius: 0;
+}
+.u-form .btn-link.btn-success{
+  color: #5cb85c;
+}
+.u-form .btn-link.btn-danger{
+  color: #d9534f;
+}
 .u-form .modal-dialog .btn-default{
   color: #999999;
   background: transparent;
@@ -5651,9 +5702,9 @@ h3.empty-project {
 aside.right-sidebar {
   background-color: #fff;
   position: fixed;
-  width: 350px;
+  width: 450px;
   top: 60px;
-  right: -300px;
+  right: -400px;
   bottom: 0;
   z-index: 999;
   padding-left: 50px;
@@ -5738,21 +5789,27 @@ h6.version-control {
   background-color: #fff;
   border: 1px #E5E5E5 solid;
   position: absolute;
-  top: 60px;
+  top: 74px;
   transition: all .5s ease;
 }
 .control-widget.left {
-	left: 60px;
+  left: 24px;
   width: 250px;
 }
 .control-widget.right {
-	right: 60px;
+  right: 26px;
 }
-.graph-region > div > .control-widget.right.active{
-  right: 320px;
+.control-widget.right.app-running {
+  right: 74px;
 }
 .control-widget.right.active {
-	right: 360px;
+  right: 474px;
+}
+.graph-region > div > .control-widget.right{
+  right: 35px;
+}
+.graph-region > div > .control-widget.right.active{
+  right: 431px;
 }
 .control-top {
   border-bottom: 1px #e5e5e5 solid;

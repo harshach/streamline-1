@@ -40,6 +40,11 @@ export default class FSForm extends Component {
       this.updateFormData(nextProps.FormData);
     }
   }
+  componentDidUpdate = () => {
+    $('.CodeMirror').each(function(i, el){
+      el.CodeMirror.refresh();
+    });
+  }
 
   updateFormData(newFormData) {
     this.setState({

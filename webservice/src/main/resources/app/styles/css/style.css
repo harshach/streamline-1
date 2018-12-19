@@ -5729,7 +5729,7 @@ h6.version-control {
   border-left: 1px #ccc solid;
 }
 .control-widget {
-  width: 300px;
+  width: 320px;
   padding: 10px 15px;
   background-color: #fff;
   border: 1px #E5E5E5 solid;
@@ -5776,7 +5776,7 @@ h6.version-control {
 .workflow-action-btn{
   font-weight: 500;
   font-size: small;
-  padding: 5px 20px;
+  padding: 5px 18px;
 }
 .image-control-slider {
   background-color: #f7f7f7;
@@ -5904,4 +5904,8 @@ h6.version-control {
 }
 .fa.fa-square.queued{
   color: #F19248;
+}
+.piper-icon {
+  filter: url(#white-wash);
+  height: 16px;
 }

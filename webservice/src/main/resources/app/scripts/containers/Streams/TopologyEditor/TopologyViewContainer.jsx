@@ -738,6 +738,8 @@ class TopologyViewContainer extends TopologyEditorContainer {
                     showConfig={this.showConfig.bind(this)}
                     confirmMode={this.confirmMode.bind(this)}
                     isAppRunning={isAppRunning}
+                    engineType={this.engine.type}
+                    runTimeTopologyId={this.runTimeTopologyId}
                   />,
                   <TopologyViewMode
                     allACL={allACL} key={"1"} {...this.state}

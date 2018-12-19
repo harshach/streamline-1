@@ -1352,6 +1352,7 @@ export class TopologyEditorContainer extends Component {
                   killTopology={this.killTopology.bind(this)}
                   deployTopology={this.handleDeployTopology.bind(this)}
                   topologyStatus={this.state.topologyStatus}
+                  engineType={this.engine.type}
                 />
                 {this.getEditorGraph()}
                 {/*<div className="topology-footer">

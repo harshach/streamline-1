@@ -175,7 +175,6 @@ authorizerConfiguration:
  adminPrincipals:
    - "akira"
    - "amody"
-   - "bzzhang"
    - "harshach"
    - "jchun"
    - "jianyong"

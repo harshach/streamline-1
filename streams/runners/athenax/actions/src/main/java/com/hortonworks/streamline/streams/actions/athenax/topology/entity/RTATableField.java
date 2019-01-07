@@ -12,10 +12,10 @@ public class RTATableField {
     private String name;
 
     @JsonProperty
-    private String rtaType;
+    private String logicalType;
 
     @JsonProperty
-    private String rtaColumnType;
+    private String columnType;
 
     @JsonProperty
     private String cardinality;
@@ -39,20 +39,20 @@ public class RTATableField {
         this.name = name;
     }
 
-    public String rtaType() {
-        return rtaType;
+    public String logicalType() {
+        return logicalType;
     }
 
-    public void setRtaType(String rtaType) {
-        this.rtaType = rtaType;
+    public void setLogicalType(String logicalType) {
+        this.logicalType = logicalType;
     }
 
-    public String rtaColumnType() {
-        return rtaColumnType;
+    public String columnType() {
+        return columnType;
     }
 
-    public void setRtaColumnType(String rtaColumnType) {
-        this.rtaColumnType = rtaColumnType;
+    public void setColumnType(String columnType) {
+        this.columnType = columnType;
     }
 
     public String cardinality() {

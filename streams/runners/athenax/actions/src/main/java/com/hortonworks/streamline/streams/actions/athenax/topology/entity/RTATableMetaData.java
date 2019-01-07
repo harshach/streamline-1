@@ -8,6 +8,7 @@ import java.util.List;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class RTATableMetaData {
     private static final Boolean DEFAULT_IS_FACT_TABLE = true;
+    // TODO: revisit these default values
     private static final Integer DEFAULT_SLA = 2;
     private static final Integer DEFAULT_QPS = 10;
     @JsonProperty
@@ -26,13 +27,13 @@ public class RTATableMetaData {
     private List<String> queryTypes;
 
     @JsonProperty
-    private Integer SLA = DEFAULT_SLA;
+    private Integer slaSeconds = DEFAULT_SLA;
 
     @JsonProperty
     private String sourceName;
 
     @JsonProperty
-    private Integer QPS = DEFAULT_QPS;
+    private Integer qps = DEFAULT_QPS;
 
     public Boolean isFactTable() {
         return isFactTable;
@@ -74,12 +75,12 @@ public class RTATableMetaData {
         this.queryTypes = queryTypes;
     }
 
-    public Integer SLA() {
-        return SLA;
+    public Integer slaSeconds() {
+        return slaSeconds;
     }
 
-    public void setSLA(Integer SLA) {
-        this.SLA = SLA;
+    public void setSlaSeconds(Integer slaSeconds) {
+        this.slaSeconds = slaSeconds;
     }
 
     public String sourceName() {
@@ -90,11 +91,11 @@ public class RTATableMetaData {
         this.sourceName = sourceName;
     }
 
-    public Integer QPS() {
-        return QPS;
+    public Integer qps() {
+        return qps;
     }
 
-    public void setQPS(Integer QPS) {
-        this.QPS = QPS;
+    public void setQps(Integer qps) {
+        this.qps = qps;
     }
 }

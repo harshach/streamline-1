@@ -117,28 +117,31 @@
             "type": "string"
           },
           {
-            "uiName": "RTA Type",
-            "fieldName": "rtaType",
-            "tooltip": "RTA data type",
+            "uiName": "Logical Type",
+            "fieldName": "logicalType",
+            "tooltip": "logical data type",
             "isOptional": true,
             "type": "enumstring",
             "options": [
-              "boolean",
-              "tinyInt",
-              "smallInt",
-              "int",
-              "bigInt",
-              "float",
-              "double",
-              "uuid",
-              "geoPoint",
-              "geoShape"
+              "Boolean",
+              "Integer8",
+              "Integer16",
+              "Integer32",
+              "Long",
+              "Float",
+              "Double",
+              "UUID",
+              "String",
+              "UnixTimeSeconds",
+              "Point",
+              "Polygon",
+              "MultiPolygon"
             ]
           },
           {
-            "uiName": "RTA Column Type",
-            "fieldName": "rtaColumnType",
-            "tooltip": "RTA column type",
+            "uiName": "Column Type",
+            "fieldName": "columnType",
+            "tooltip": "column type",
             "isOptional": false,
             "type": "enumstring",
             "options": ["dimension", "metric", "time"]

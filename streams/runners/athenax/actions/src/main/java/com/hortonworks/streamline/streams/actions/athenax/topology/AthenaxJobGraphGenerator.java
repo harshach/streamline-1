@@ -125,9 +125,9 @@ public class AthenaxJobGraphGenerator extends TopologyDagVisitor {
 
 			rtaTableField.setType((String) fieldConfig.get(RTAConstants.TYPE));
 			rtaTableField.setName((String) fieldConfig.get(RTAConstants.NAME));
-			rtaTableField.setRtaType((String) fieldConfig.get(RTAConstants.RTA_TYPE));
+			rtaTableField.setLogicalType((String) fieldConfig.get(RTAConstants.LOGICAL_TYPE));
 			rtaTableField.setCardinality((String) fieldConfig.get(RTAConstants.CARDINALITY));
-			rtaTableField.setRtaColumnType((String) fieldConfig.get(RTAConstants.RTA_COLUMN_TYPE));
+			rtaTableField.setColumnType((String) fieldConfig.get(RTAConstants.COLUMN_TYPE));
 			rtaTableField.setDoc((String) fieldConfig.get(RTAConstants.DOC));
 
 			rtaTableFields.add(rtaTableField);
@@ -157,7 +157,7 @@ public class AthenaxJobGraphGenerator extends TopologyDagVisitor {
 		List<String> queryTypes = new ArrayList<>();
 		for (RTAQueryTypes rtaQueryTypes : RTAQueryTypes.values()) {
 			if (rtaSinkConfig.getAny(rtaQueryTypes.getUiFieldName())) {
-				queryTypes.add(rtaQueryTypes.getRtaTypeName());
+				queryTypes.add(rtaQueryTypes.getRtaQueryTypeName());
 			}
 		}
 		metaData.setQueryTypes(queryTypes);

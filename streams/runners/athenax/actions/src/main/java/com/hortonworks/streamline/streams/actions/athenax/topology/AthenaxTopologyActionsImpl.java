@@ -62,7 +62,7 @@ public class AthenaxTopologyActionsImpl implements TopologyActions {
   @Override
 	public String deploy(TopologyLayout topology, String mavenArtifacts, TopologyActionContext ctx, String asUser) throws Exception {
 		LOG.debug("Initial Topology config {}", topology.getConfig());
-		AthenaxJobGraphGenerator requestGenerator = new AthenaxJobGraphGenerator(topology, ctx, asUser);
+		AthenaxJobGraphGenerator requestGenerator = new AthenaxJobGraphGenerator(topology, asUser);
 		TopologyDag topologyDag = topology.getTopologyDag();
 		topologyDag.traverse(requestGenerator);
 
@@ -87,7 +87,7 @@ public class AthenaxTopologyActionsImpl implements TopologyActions {
   @Override
 	public Status status(TopologyLayout topology, String applicationId, String asUser) throws Exception {
 		LOG.debug("Initial Topology config {}", topology.getConfig());
-		AthenaxJobGraphGenerator requestGenerator = new AthenaxJobGraphGenerator(topology, null, asUser);
+		AthenaxJobGraphGenerator requestGenerator = new AthenaxJobGraphGenerator(topology, asUser);
 
 		// extract job status request
 		JobStatusRequest request = requestGenerator.extractJobStatusRequest(applicationId, yarnDataCenter, yarnCluster);
@@ -125,7 +125,7 @@ public class AthenaxTopologyActionsImpl implements TopologyActions {
   @Override
 	public void kill(TopologyLayout topology, String applicationId, String asUser) throws Exception {
 		LOG.debug("Initial Topology config {}", topology.getConfig());
-		AthenaxJobGraphGenerator requestGenerator = new AthenaxJobGraphGenerator(topology, null, asUser);
+		AthenaxJobGraphGenerator requestGenerator = new AthenaxJobGraphGenerator(topology, asUser);
 
 		// extract kill job request
 		StopJobRequest request = requestGenerator.extractStopJobRequest(applicationId, yarnDataCenter, yarnCluster);
@@ -137,7 +137,7 @@ public class AthenaxTopologyActionsImpl implements TopologyActions {
   @Override
 	public void validate(TopologyLayout topology) throws Exception {
 		LOG.debug("Initial Topology config {}", topology.getConfig());
-		AthenaxJobGraphGenerator requestGenerator = new AthenaxJobGraphGenerator(topology, null, null);
+		AthenaxJobGraphGenerator requestGenerator = new AthenaxJobGraphGenerator(topology, null);
 		TopologyDag topologyDag = topology.getTopologyDag();
 		topologyDag.traverse(requestGenerator);
 

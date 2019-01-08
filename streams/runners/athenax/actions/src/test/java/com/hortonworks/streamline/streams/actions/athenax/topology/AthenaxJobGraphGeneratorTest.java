@@ -48,7 +48,7 @@ public class AthenaxJobGraphGeneratorTest {
     String topologyName = "toplogy1";
     TopologyLayout topologyLayout = new TopologyLayout(1L, topologyName, cfg, topologyDag);
 
-    AthenaxJobGraphGenerator requestGenerator = new AthenaxJobGraphGenerator(topologyLayout, null, null);
+    AthenaxJobGraphGenerator requestGenerator = new AthenaxJobGraphGenerator(topologyLayout, null);
     topologyDag.traverse(requestGenerator);
 
     JobDefinition job = requestGenerator.extractJobDefinition("localhost:2181");

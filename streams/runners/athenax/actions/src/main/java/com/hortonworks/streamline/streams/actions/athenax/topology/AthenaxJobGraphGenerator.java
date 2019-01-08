@@ -50,16 +50,14 @@ public class AthenaxJobGraphGenerator extends TopologyDagVisitor {
 
 
 	private TopologyLayout topology;
-	private TopologyActionContext topologyActionContext;
 	private String runAsUser;
 	private List<KafkaSource> kafkaSourceList;
 	private RTASink rtaSink;
 	private String sql;
 	private boolean legalAthenaXJob;
 
-	protected AthenaxJobGraphGenerator(TopologyLayout topology, TopologyActionContext ctx, String asUser) {
+	protected AthenaxJobGraphGenerator(TopologyLayout topology, String asUser) {
 		this.topology = topology;
-		this.topologyActionContext = ctx;
 		this.runAsUser = asUser;
 		this.kafkaSourceList = new ArrayList<>();
 		this.legalAthenaXJob = true;
@@ -115,8 +113,8 @@ public class AthenaxJobGraphGenerator extends TopologyDagVisitor {
 
 		Config rtaSinkConfig = rtaSink.getConfig();
 
-		// TODO: change to use runAsUser when available
-		request.setOwner(rtaSinkConfig.get(RTAConstants.OWNER));
+		// TODO: Change to use email in runAsUser when available
+		request.setOwner(runAsUser + "@uber.com");
 		request.setName(rtaSinkConfig.get(RTAConstants.TABLE_NAME));
 		request.setRtaTableMetaData(extractRTATableMetaData());
 

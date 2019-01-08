@@ -51,13 +51,6 @@
         "type": "string"
       },
       {
-        "uiName": "Owner",
-        "fieldName": "owner",
-        "isOptional": false,
-        "tooltip": "owner for the table (with @uber.com)",
-        "type": "string"
-      },
-      {
         "uiName": "Ingestion Rate",
         "fieldName": "ingestionRate",
         "isOptional": false,

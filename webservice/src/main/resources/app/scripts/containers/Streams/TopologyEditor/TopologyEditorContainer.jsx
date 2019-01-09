@@ -232,7 +232,7 @@ export class TopologyEditorContainer extends Component {
             mapTopologyConfig: this.topologyConfig,
             topologyTimeSec: this.topologyTimeSec,
             defaultTimeSec : defaultTimeSecVal,
-            topologyNameValid: true,//!Utils.checkWhiteSpace(this.topologyName),
+            topologyNameValid: true,
             projectData: this.projectData
           }, () => {
             this.onFetchedData();
@@ -267,11 +267,6 @@ export class TopologyEditorContainer extends Component {
     /*Required For view mode */
   }
 
-  // validateTopologyName(){
-  //   if(Utils.checkWhiteSpace(this.topologyName)){
-  //     this.refs.TopologyNameSpace.show();
-  //   }
-  // }
   //To check if a user is deploying the topology
   getDeploymentState(topology) {
     this.interval = setInterval(() => {
@@ -424,10 +419,6 @@ export class TopologyEditorContainer extends Component {
       this.refs.topologyNameEditable.setState({errorMsg: "Topology name is not valid"});
       this.setState({topologyNameValid: false});
       return false;
-    // } else if(Utils.checkWhiteSpace(name)){
-    //   this.refs.topologyNameEditable.setState({errorMsg: "Space is not allowed in topology name"});
-    //   this.setState({topologyNameValid: false});
-    //   return false;
     } else {
       this.refs.topologyNameEditable.setState({errorMsg: ""});
       this.setState({topologyNameValid: true});

@@ -34,7 +34,7 @@ class  ZoomPanelComponent extends Component {
     if(isAppRunning){
       btn.push(
         <button key="kill" className="btn btn-primary btn-sm workflow-action-btn m-r-xs" onClick={killTopology}>
-          <i className="fa fa-ban workflow-btn"></i> Kill
+          <i className="fa fa-pause workflow-btn"></i> Pause
         </button>
       );
       if(topologyStatus == 'enabled'){
@@ -73,7 +73,9 @@ class  ZoomPanelComponent extends Component {
       isAppRunning,
       killTopology,
       deployTopology,
-      topologyStatus
+      topologyStatus,
+      engineType,
+      runTimeTopologyId
     } = this.props;
     let isActive = false;
     if(!app_state.versionPanelCollapsed && mode == 'edit'){
@@ -83,14 +85,21 @@ class  ZoomPanelComponent extends Component {
     }
     return (
       <div>
-        <div className={`control-widget right ${isActive ? 'active' : ''}`}>
+        <div className={`control-widget right ${isActive ? 'active' : ''} ${isAppRunning ? 'app-running' : ''}`}>
           <div className="control-top">
             <h5>Last Edited <span>{Utils.datetime(lastUpdatedTime).value}</span></h5>
             {isAppRunning ? <h5>Workflow Status<span><i className="fa fa-circle text-primary workflow-status"></i> Running</span></h5> : null}
           </div>
           <div className="control-bottom text-center">
             {mode === 'view' ?
-              <button className="btn btn-primary btn-sm workflow-action-btn" onClick={this.onEditClick}><i className="fa fa-pencil workflow-btn"></i> Edit Workflow</button>
+            [
+              <button className="btn btn-primary btn-sm workflow-action-btn m-r-xs" onClick={this.onEditClick}><i className="fa fa-pencil"></i> &ensp; Edit Workflow</button>,
+              engineType === 'batch' && runTimeTopologyId ?
+                <a
+                  href={"https://piper-staging.uberinternal.com/?search="+runTimeTopologyId}
+                  target="_blank" className="btn btn-primary btn-sm workflow-action-btn"
+                > <img src="styles/img/icon-piper.png" className="piper-icon"></img> &ensp; Go to Piper</a>
+              : null]
             :
               this.renderActionButton()
             }

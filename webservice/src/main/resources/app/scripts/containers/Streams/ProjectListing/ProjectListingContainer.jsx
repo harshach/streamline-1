@@ -277,8 +277,8 @@ class ProjectListingContainer extends Component {
             </div>
             {entities.length !== 0 &&
             <div className="add-btn text-center">
-              <a href="javascript:void(0);" className="success actionDropdown" data-target="#addEnvironment" onClick={this.handleAdd.bind(this)}>
-                <i className="fa fa-plus"></i> New Project
+              <a href="javascript:void(0);" className="success actionDropdown text-medium" data-target="#addEnvironment" onClick={this.handleAdd.bind(this)}>
+                <i className="fa fa-plus"></i> &ensp; New Project
               </a>
             </div>
             }

@@ -232,13 +232,13 @@ export class TopologyEditorContainer extends Component {
             mapTopologyConfig: this.topologyConfig,
             topologyTimeSec: this.topologyTimeSec,
             defaultTimeSec : defaultTimeSecVal,
-            topologyNameValid: !Utils.checkWhiteSpace(this.topologyName),
+            topologyNameValid: true,
             projectData: this.projectData
           }, () => {
             this.onFetchedData();
           });
 
-          this.validateTopologyName();
+          // this.validateTopologyName();
         });
       }
     });
@@ -267,11 +267,6 @@ export class TopologyEditorContainer extends Component {
     /*Required For view mode */
   }
 
-  validateTopologyName(){
-    if(Utils.checkWhiteSpace(this.topologyName)){
-      this.refs.TopologyNameSpace.show();
-    }
-  }
   //To check if a user is deploying the topology
   getDeploymentState(topology) {
     this.interval = setInterval(() => {
@@ -422,10 +417,6 @@ export class TopologyEditorContainer extends Component {
       return false;
     } else if (!/[A-Za-z0-9]/g.test(name)) { //to check if name contains only special characters
       this.refs.topologyNameEditable.setState({errorMsg: "Topology name is not valid"});
-      this.setState({topologyNameValid: false});
-      return false;
-    } else if(Utils.checkWhiteSpace(name)){
-      this.refs.topologyNameEditable.setState({errorMsg: "Space is not allowed in topology name"});
       this.setState({topologyNameValid: false});
       return false;
     } else {
@@ -636,7 +627,7 @@ export class TopologyEditorContainer extends Component {
   }
   handleSaveNodeName(editable) {
     if (this.validateNodeName(this.modalTitle)) {
-      this.saveTopologyName(this);
+      this.handleSaveNodeModal(this);
       editable.hideEditor();
     }
   }
@@ -653,9 +644,9 @@ export class TopologyEditorContainer extends Component {
     if (name === '') {
       this.refs.editableNodeName.setState({errorMsg: "Node name cannot be blank"});
       return false;
-    } else if (name.search(' ') !== -1) {
-      this.refs.editableNodeName.setState({errorMsg: "Node name cannot have space in between"});
-      return false;
+    // } else if (name.search(' ') !== -1) {
+    //   this.refs.editableNodeName.setState({errorMsg: "Node name cannot have space in between"});
+    //   return false;
     } else if (nodeNamesList.indexOf(name) !== -1) {
       this.refs.editableNodeName.setState({errorMsg: "Node name is already present. Please use some other name."});
       this.validateFlag = false;
@@ -1352,6 +1343,7 @@ export class TopologyEditorContainer extends Component {
                   killTopology={this.killTopology.bind(this)}
                   deployTopology={this.handleDeployTopology.bind(this)}
                   topologyStatus={this.state.topologyStatus}
+                  engineType={this.engine.type}
                 />
                 {this.getEditorGraph()}
                 {/*<div className="topology-footer">
@@ -1414,7 +1406,12 @@ export class TopologyEditorContainer extends Component {
             }
           </div>
         </div>
-        <Modal className="u-form" ref="TopologyConfigModal" data-title={deployFlag ? "Are you sure want to continue with this configuration?" : "Workflow Configuration"}  onKeyPress={this.handleKeyPress.bind(this)} data-resolve={this.handleSaveConfig.bind(this)} data-reject={this.handleCancelConfig.bind(this)}>
+        <Modal
+          className="u-form" ref="TopologyConfigModal"
+          data-title={deployFlag ? "Are you sure want to continue with this configuration?" : "Workflow Configuration"}
+          onKeyPress={this.handleKeyPress.bind(this)} data-resolve={this.handleSaveConfig.bind(this)}
+          data-reject={this.handleCancelConfig.bind(this)} dialogClassName="modal-fixed-height"
+        >
           <TopologyConfig ref="topologyConfig" topologyData={topologyData} projectId={this.projectId} topologyId={this.topologyId} versionId={this.versionId} data={mapTopologyConfig} topologyName={this.state.topologyName} uiConfigFields={this.topologyConfigData} testRunActivated={this.state.testRunActivated} topologyNodes={this.graphData.nodes}/>
         </Modal>
         {/* NodeModal for Development Mode for source*/}

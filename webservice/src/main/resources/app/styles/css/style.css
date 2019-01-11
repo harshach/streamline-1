@@ -229,8 +229,18 @@ a:hover, a:focus {
 .dropdown-menu > .active > a:focus{
   background-color: #006bfa;
 }
-
-
+.text-light {
+  font-weight: 300;
+}
+.text-regular {
+  font-weight: 400;
+}
+.text-medium {
+  font-weight: 500;
+}
+.text-bold {
+  font-weight: 600;
+}
 /* Header */
 
 .main-header {
@@ -400,7 +410,7 @@ a.dropdown-toggle~ul.dropdown-menu {
 }
 
 .modal-tabs .tab-content {
-  min-height: 395px;
+  min-height: 475px;
   position: relative;
   padding-top: 15px;
 }
@@ -430,7 +440,7 @@ a.dropdown-toggle~ul.dropdown-menu {
 
 label {
   color: #737373;
-  text-transform: uppercase;
+  /* text-transform: uppercase; */
   font-weight: normal;
 }
 
@@ -487,9 +497,9 @@ label {
 }
 .processor-node-fields-container{
   position: absolute;
-  left: 300px;
-  right: 300px;
-  height: 100%;
+  left: 240px;
+  right: 245px;
+  height: 475px;
 }
 
 .form-field.cron-field select{
@@ -1437,7 +1447,8 @@ label {
 .execution-box.execute-selected::after{
   visibility: visible;
 }
-.execution-box.succeeded{
+.execution-box.succeeded,
+.execution-box.success{
   background: #07A35A;
 }
 .execution-box.done{
@@ -2021,14 +2032,29 @@ label {
   transition: all .5s ease;
 }
 .graph-region > div > div > .editor-header.active{
-  margin-right: 290px !important;
+  margin-right: 390px !important;
 }
 .editor-header.active{
-  margin-right: 335px !important;
+  margin-right: 435px !important;
 }
 .topology-view-mode-container .editor-header.row.app-running{
   margin-right: 35px;
 }
+.topology-view-mode-container .editor-header.row .pull-right{
+  margin-right: 8px;
+}
+.topology-view-mode-container .editor-header.row.app-running .pull-right{
+  margin-right: 14px;
+}
+.graph-region .editor-header.row .pull-right,
+.graph-region .editor-header.row.app-running .pull-right {
+  margin-right: 6px;
+}
+.graph-region .editor-header.row .pull-right,
+.graph-region .editor-header.row.app-running.active .pull-right {
+  margin-right: 9px;
+}
+
 /* Select 2 */
 
 .menu-outer-top .Select-menu-outer {
@@ -2148,7 +2174,7 @@ label {
 }
 
 .outputCaption>label, .form-group label {
-  font-size: 12px;
+  font-size: 14px;
   color: #606060;
 }
 
@@ -2478,6 +2504,7 @@ ul.project-engines li.no-workflow .badge{
   line-height: 20px;
   font-weight: 500;
   display: inline-block;
+  cursor: pointer;
 }
 .workflow-widget-footer .engine-name.storm {
   color: #47B275;
@@ -2779,6 +2806,11 @@ h5.environment-title span, .service-box .service-head h4 span {
 .tick>text {
   font-size: 13px;
   fill: #6B6B76;
+}
+
+.metrics-timeseries-graph .x.axis .tick > text,
+.metrics-timeseries-graph .x.axis .tick > line {
+  visibility: hidden;
 }
 
 rect.extent {
@@ -3427,7 +3459,7 @@ input[type="checkbox"]:focus {
 }
 
 .dropdown button.btn-link {
-  color: #484848;
+  color: #1B6DE0;
 }
 
 .col-md-4:nth-child(3n+4) {
@@ -5465,13 +5497,48 @@ h3.empty-project {
 }
 
 .u-form .btn-success{
+  color: white;
   background: #1B6DE0;
   border: none;
 }
 .u-form .btn-success:hover, .u-form .btn-success:active, .u-form .btn-success:focus, .u-form .btn-success:active:focus{
   background: #1B6DE0;
 }
+.u-form .btn-sm{
+  padding: 9px 10px !important;
+}
 
+.u-form .btn-danger{
+  color: white;
+  background: #EB3223;
+  border: none;
+}
+.u-form .btn-danger:hover, .u-form .btn-danger:active, .u-form .btn-danger:focus, .u-form .btn-danger:active:focus{
+  background: #EB3223;
+}
+.u-form .btn-xs,
+.u-form .btn-group-xs > .btn{
+  padding: 1px 5px;
+}
+.u-form .btn-link, .u-form .btn-link:active, .u-form .btn-link.active, .u-form .btn-link[disabled], .u-form fieldset[disabled] .btn-link{
+  background-color: transparent !important;
+  -webkit-box-shadow: none;
+  box-shadow: none;
+}
+.u-form .btn-link, .u-form .btn-link:hover, .u-form .btn-link:focus, .u-form .btn-link:active {
+  border-color: transparent !important;
+}
+.u-form .btn-link {
+  font-weight: normal;
+  color: #337ab7;
+  border-radius: 0;
+}
+.u-form .btn-link.btn-success{
+  color: #5cb85c;
+}
+.u-form .btn-link.btn-danger{
+  color: #d9534f;
+}
 .u-form .modal-dialog .btn-default{
   color: #999999;
   background: transparent;
@@ -5515,7 +5582,7 @@ h3.empty-project {
   box-shadow: none;
 }
 .u-form .form-group label{
-  text-transform: uppercase;
+  /* text-transform: uppercase; */
   color: #888;
   font-weight: 400;
 }
@@ -5635,9 +5702,9 @@ h3.empty-project {
 aside.right-sidebar {
   background-color: #fff;
   position: fixed;
-  width: 350px;
+  width: 450px;
   top: 60px;
-  right: -300px;
+  right: -400px;
   bottom: 0;
   z-index: 999;
   padding-left: 50px;
@@ -5717,26 +5784,32 @@ h6.version-control {
   border-left: 1px #ccc solid;
 }
 .control-widget {
-  width: 300px;
+  width: 320px;
   padding: 10px 15px;
   background-color: #fff;
   border: 1px #E5E5E5 solid;
   position: absolute;
-  top: 60px;
+  top: 74px;
   transition: all .5s ease;
 }
 .control-widget.left {
-	left: 60px;
+  left: 24px;
   width: 250px;
 }
 .control-widget.right {
-	right: 60px;
+  right: 26px;
 }
-.graph-region > div > .control-widget.right.active{
-  right: 320px;
+.control-widget.right.app-running {
+  right: 74px;
 }
 .control-widget.right.active {
-	right: 360px;
+  right: 474px;
+}
+.graph-region > div > .control-widget.right{
+  right: 35px;
+}
+.graph-region > div > .control-widget.right.active{
+  right: 431px;
 }
 .control-top {
   border-bottom: 1px #e5e5e5 solid;
@@ -5764,7 +5837,7 @@ h6.version-control {
 .workflow-action-btn{
   font-weight: 500;
   font-size: small;
-  padding: 5px 20px;
+  padding: 5px 18px;
 }
 .image-control-slider {
   background-color: #f7f7f7;
@@ -5817,6 +5890,7 @@ h6.version-control {
 .workflow-widget {
 	border: 1px #F0F0F0 solid;
 	border-radius: 5px;
+  margin-bottom: 15px;
 }
 .workflow-widget-body {
 	padding: 0 20px;
@@ -5865,6 +5939,7 @@ h6.version-control {
 	font-weight: 600;
 	margin: 0;
 	color: #276EF1;
+  cursor: pointer;
 }
 .workflow-widget-footer h6 {
 	margin: 10px 0 0;
@@ -5891,4 +5966,8 @@ h6.version-control {
 }
 .fa.fa-square.queued{
   color: #F19248;
+}
+.piper-icon {
+  filter: url(#white-wash);
+  height: 16px;
 }

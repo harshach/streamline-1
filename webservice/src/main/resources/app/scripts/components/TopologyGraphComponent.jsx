@@ -851,7 +851,7 @@ export default class TopologyGraphComponent extends Component {
     }).attr('data-source-target',function(d){
       return d.source.uiname;
     }).on("mouseover", function(d) {
-      if (!thisGraph.editMode) {
+      if (!thisGraph.editMode && (thisGraph.props.engine && thisGraph.props.engine.schemaAware)) {
         let elem = document.querySelectorAll('.visible-link[d="' + this.getAttribute('d') + '"]')[0];
         let d3path = d3.select(elem);
         d3.select('.edge-stream').attr('x', thisGraph.getBoundingBoxCenter(d3path)[0] - 100);
@@ -859,7 +859,7 @@ export default class TopologyGraphComponent extends Component {
         TopologyUtils.getEdgeData(d, thisGraph.topologyId, thisGraph.versionId, thisGraph.setEdgeData.bind(thisGraph));
       }
     }).on("mouseout", function(d) {
-      if (!thisGraph.editMode) {
+      if (!thisGraph.editMode && (thisGraph.props.engine && thisGraph.props.engine.schemaAware)) {
         thisGraph.edgeStream.style('display', 'none');
         thisGraph.main_edgestream.style('display', 'none');
       }

@@ -87,7 +87,7 @@ export default class StreamSidebar extends Component {
           : ''
 }
         <Scrollbars style={{
-          height: "355px"
+          height: "475px"
         }} autoHide renderThumbHorizontal={props => <div {...props} style={{
           display: "none"
         }}/>}>

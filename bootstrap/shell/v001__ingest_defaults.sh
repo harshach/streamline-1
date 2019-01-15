@@ -174,6 +174,7 @@ function add_all_bundles {
     add_topology_component_bundle /streams/componentbundles/TASK ${piper_dir}/components/tasks/hive-partition-sensor-topology-component.json
     add_topology_component_bundle /streams/componentbundles/TASK ${piper_dir}/components/tasks/bash-topology-component.json
     add_topology_component_bundle /streams/componentbundles/TASK ${piper_dir}/components/tasks/external-task-sensor-topology-component.json
+    add_topology_component_bundle /streams/componentbundles/TASK ${piper_dir}/components/tasks/dummy-topology-component.json
 
     # === Sink ===
     add_topology_component_bundle /streams/componentbundles/SINK ${storm_dir}/components/sinks/hdfs-sink-topology-component.json

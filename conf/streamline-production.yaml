@@ -161,8 +161,11 @@ authorizerConfiguration:
    - "pawan"
    - "root"
    - "pcullen"
+   - "mustaque"
  containerRequestFilter: "com.hortonworks.streamline.streams.security.authentication.StreamlineOpenIdAuthorizationRequestFilter"
  principalDomain: "uber.com"
+ # To add user for the first time logged-in
+ autoRegisterUser: true
 
 # ------------------------------------------------
 # Truststore configuration

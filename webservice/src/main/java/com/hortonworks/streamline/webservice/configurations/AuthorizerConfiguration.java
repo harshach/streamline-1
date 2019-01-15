@@ -31,6 +31,16 @@ public class AuthorizerConfiguration {
     @NotEmpty
     private String principalDomain;
 
+    private boolean autoRegisterUser;
+
+    public boolean isAutoRegisterUser() {
+        return autoRegisterUser;
+    }
+
+    public void setAutoRegisterUser(boolean autoRegisterUser) {
+        this.autoRegisterUser = autoRegisterUser;
+    }
+
     public String getClassName() {
         return className;
     }

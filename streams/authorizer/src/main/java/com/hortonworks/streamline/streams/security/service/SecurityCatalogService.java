@@ -429,7 +429,7 @@ public class SecurityCatalogService {
         return remaining.isEmpty();
     }
 
-    Set<Role> getAllUserRoles(User user) {
+    public Set<Role> getAllUserRoles(User user) {
         Set<Role> userRoles = user.getRoles().stream().map(this::getRole).filter(Optional::isPresent).map(Optional::get).collect(Collectors.toSet());
         Set<Role> childRoles = userRoles.stream().flatMap(role -> getChildRoles(role.getId()).stream()).collect(Collectors.toSet());
         return Sets.union(userRoles, childRoles);

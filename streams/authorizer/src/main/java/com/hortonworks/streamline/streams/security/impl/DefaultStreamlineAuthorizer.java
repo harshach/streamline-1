@@ -22,6 +22,7 @@ import com.hortonworks.streamline.streams.security.Permission;
 import com.hortonworks.streamline.streams.security.Roles;
 import com.hortonworks.streamline.streams.security.SecurityUtil;
 import com.hortonworks.streamline.streams.security.StreamlineAuthorizer;
+import com.hortonworks.streamline.streams.security.UserDoesnotExistException;
 import com.hortonworks.streamline.streams.security.catalog.AclEntry;
 import com.hortonworks.streamline.streams.security.catalog.Role;
 import com.hortonworks.streamline.streams.security.catalog.User;
@@ -43,10 +44,12 @@ public class DefaultStreamlineAuthorizer implements StreamlineAuthorizer {
     public static final String CONF_CATALOG_SERVICE = "catalogService";
     public static final String CONF_ADMIN_PRINCIPALS = "adminPrincipals";
     public static final String CONF_PRINCIPAL_DOMAIN = "principalDomain";
+    public static final String CONF_AUTO_REGISTRATION_USER = "autoRegisterUser";
 
     private SecurityCatalogService catalogService;
     private Set<String> adminUsers;
     private String prinicipalDomain;
+    private boolean autoRegisterUser;
 
     @SuppressWarnings("unchecked")
     @Override
@@ -57,6 +60,7 @@ public class DefaultStreamlineAuthorizer implements StreamlineAuthorizer {
                 .map(SecurityUtil::getUserName)
                 .collect(Collectors.toSet());
         prinicipalDomain = (String) config.get(CONF_PRINCIPAL_DOMAIN);
+        autoRegisterUser = (Boolean) config.get(CONF_AUTO_REGISTRATION_USER);
         LOG.debug("Admin users: {}", adminUsers);
         mayBeAddAdminUsers();
         mayBeAssignAdminRole();
@@ -125,10 +129,45 @@ public class DefaultStreamlineAuthorizer implements StreamlineAuthorizer {
 
     @Override
     public boolean hasRole(AuthenticationContext ctx, String role) {
-        boolean result = checkRole(ctx, role);
-        LOG.debug("DefaultStreamlineAuthorizer, AuthenticationContext: {}, Role: {}, Result: {}", ctx, role, result);
+        boolean result = false;
+        try {
+            result = checkRole(ctx, role);
+        } catch (UserDoesnotExistException ex) {
+            if (autoRegisterUser) {
+                User user = addUserWithDefaultRole(ctx.getPrincipal().getName());
+                result = userHasRole(user, Roles.ROLE_ADMIN) || userHasRole(user, role);
+            }
+        }
         return result;
     }
+
+    private User addUserWithDefaultRole(String authorizedUserName) {
+        User user = catalogService.getUser(authorizedUserName);
+        try {
+            if (user == null) {
+                user = new User();
+                user.setName(authorizedUserName);
+                user.setEmail(authorizedUserName + "@" + prinicipalDomain);
+                user.setMetadata("{\"colorCode\":\"#8261be\",\"colorLabel\":\"purple\",\"icon\":\"gears\"}");
+                user.addRole(Roles.ROLE_DEVELOPER);
+                user = catalogService.addUser(user);
+                LOG.debug("Added user entry: {}", user);
+            } else {
+                Set<Role> userCurrentRoles = catalogService.getAllUserRoles(user);
+                Optional<Role> developerRole = catalogService.getRole(Roles.ROLE_DEVELOPER);
+                if (developerRole.isPresent()) {
+                    if (!userCurrentRoles.contains(developerRole.get())) {
+                        catalogService.addUserRole(user.getId(), developerRole.get().getId());
+                    }
+                }
+            }
+        } catch (DuplicateEntityException exception) {
+            // In HA setup the other server may have already added the user.
+            LOG.debug("Caught exception: " + ExceptionUtils.getStackTrace(exception));
+        }
+        return user;
+    }
+
 
     @Override
     public void addAcl(AuthenticationContext ctx, String targetEntityNamespace, Long targetEntityId, boolean owner, boolean grant, EnumSet<Permission> permissions) {
@@ -206,14 +245,14 @@ public class DefaultStreamlineAuthorizer implements StreamlineAuthorizer {
         }
     }
 
-    private boolean checkRole(AuthenticationContext ctx, String role) {
+    private boolean checkRole(AuthenticationContext ctx, String role) throws UserDoesnotExistException {
         validateAuthenticationContext(ctx);
         String userName = SecurityUtil.getUserName(ctx);
         User user = catalogService.getUser(userName);
         if (user == null) {
             String msg = String.format("No such user '%s'", userName);
             LOG.warn(msg);
-            throw new AuthorizationException(msg);
+            throw new UserDoesnotExistException(msg);
         }
         return userHasRole(user, Roles.ROLE_ADMIN) || userHasRole(user, role);
     }

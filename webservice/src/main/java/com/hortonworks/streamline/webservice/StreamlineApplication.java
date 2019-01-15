@@ -241,6 +241,7 @@ public class StreamlineApplication extends Application<StreamlineConfiguration> 
             authorizerConfig.put(DefaultStreamlineAuthorizer.CONF_CATALOG_SERVICE, securityCatalogService);
             authorizerConfig.put(DefaultStreamlineAuthorizer.CONF_ADMIN_PRINCIPALS, authorizerConf.getAdminPrincipals());
             authorizerConfig.put(DefaultStreamlineAuthorizer.CONF_PRINCIPAL_DOMAIN, authorizerConf.getPrincipalDomain());
+            authorizerConfig.put(DefaultStreamlineAuthorizer.CONF_AUTO_REGISTRATION_USER, authorizerConf.isAutoRegisterUser());
             authorizer.init(authorizerConfig);
             String filterClazzName = authorizerConf.getContainerRequestFilter();
             ContainerRequestFilter filter;

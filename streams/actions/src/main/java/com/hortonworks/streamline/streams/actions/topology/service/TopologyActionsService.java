@@ -99,11 +99,11 @@ public class TopologyActionsService implements ContainingNamespaceAwareContainer
         String runtimeId = getRuntimeTopologyId(topology, asUser);
 
         TopologyStateMachine topologyStateMachine = getTopologyStateMachineInstance(topology);
-        if (runtimeId != null && ctx.getState() == topologyStateMachine.deployedState()) {
+        if (runtimeId != null && ctx.getState().equals(topologyStateMachine.deployedState())) {
             return redeployTopology(topology, asUser);
         }
 
-        while (ctx.getState() != topologyStateMachine.deployedState()) {
+        while (!ctx.getState().equals(topologyStateMachine.deployedState())) {
             managedTransaction.executeConsumer((topologyContext) -> {
                 LOG.debug("Current state {}", topologyContext.getStateName());
                 topologyContext.deploy();

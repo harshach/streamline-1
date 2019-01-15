@@ -47,4 +47,18 @@ public abstract class TopologyState {
     public String toString() {
         return this.getName();
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof TopologyState)) return false;
+        TopologyState that = (TopologyState) o;
+        return getName().equals(that.getName());
+    }
+
+    @Override
+    public int hashCode() {
+        return (getName() != null) ? getName().hashCode() : 0;
+    }
+
 }

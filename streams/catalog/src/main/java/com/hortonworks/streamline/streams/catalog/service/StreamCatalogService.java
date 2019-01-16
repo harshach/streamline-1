@@ -21,7 +21,6 @@ import static com.hortonworks.streamline.common.util.WSUtils.CURRENT_VERSION;
 import static com.hortonworks.streamline.common.util.WSUtils.buildEdgesFromQueryParam;
 import static com.hortonworks.streamline.common.util.WSUtils.buildEdgesToQueryParam;
 import static com.hortonworks.streamline.common.util.WSUtils.currentVersionQueryParam;
-import static com.hortonworks.streamline.common.util.WSUtils.versionIdQueryParam;
 import static com.hortonworks.streamline.streams.catalog.TopologyEdge.StreamGrouping;
 import static com.hortonworks.streamline.streams.catalog.TopologyEditorMetadata.TopologyUIData;
 
@@ -96,6 +95,7 @@ import com.hortonworks.streamline.streams.catalog.topology.TopologyData;
 import com.hortonworks.streamline.streams.catalog.topology.component.TopologyDagBuilder;
 import com.hortonworks.streamline.streams.catalog.topology.component.TopologyExportVisitor;
 import com.hortonworks.streamline.streams.catalog.topology.state.TopologyState;
+import com.hortonworks.streamline.common.exception.service.exception.request.EntityNotFoundException;
 import com.hortonworks.streamline.streams.layout.TopologyLayoutConstants;
 import com.hortonworks.streamline.streams.layout.component.Stream;
 import com.hortonworks.streamline.streams.layout.component.TopologyDag;
@@ -1471,6 +1471,13 @@ public class StreamCatalogService {
             topologyRuntimeIdMap = dao.remove(topologyRuntimeIdMap.getStorableKey());
         }
         return topologyRuntimeIdMap;
+    }
+
+    public TopologyRuntimeIdMap getTopologyRuntimeIdMap(String applicationId) throws EntityNotFoundException {
+        Collection<TopologyRuntimeIdMap> topologyRuntimeIdMaps  = this.dao.find(TOPOLOGY_RUNTIME_ID_NAMESPACE, QueryParam.params(TopologyRuntimeIdMap.FIELD_APPLICATION_ID, applicationId));
+        if (!topologyRuntimeIdMaps.isEmpty())
+            return topologyRuntimeIdMaps.iterator().next();
+        throw EntityNotFoundException.byMessage(String.format("Workflow not found : \"%s\"", applicationId));
     }
 
     public TopologyRuntimeIdMap getTopologyRuntimeIdMap(Long topologyId, Long namespaceId) {

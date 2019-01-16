@@ -51,9 +51,11 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.SecurityContext;
+import javax.ws.rs.core.UriInfo;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URI;
 import java.nio.charset.StandardCharsets;
 import java.util.Collection;
 import java.util.Collections;
@@ -75,6 +77,7 @@ import static javax.ws.rs.core.Response.Status.OK;
 public class TopologyCatalogResource {
     private static final Logger LOG = LoggerFactory.getLogger(TopologyCatalogResource.class);
 
+    private final String urlApplication = "%s://%s/#/projects/%d/applications/%d/view";
     private final StreamlineAuthorizer authorizer;
     private final StreamCatalogService catalogService;
     private final TopologyActionsService actionsService;
@@ -84,6 +87,25 @@ public class TopologyCatalogResource {
         this.authorizer = authorizer;
         this.catalogService = catalogService;
         this.actionsService = actionsService;
+    }
+
+    @GET
+    @Path("/applications/{applicationId}")
+    @Timed
+    public Response getApplicationStatus (@PathParam("applicationId") String applicationId,
+                                       @Context SecurityContext securityContext,
+                                       @Context UriInfo uriInfo) throws Exception {
+        TopologyRuntimeIdMap topologyRuntimeIdMap = catalogService.getTopologyRuntimeIdMap(applicationId);
+        SecurityUtil.checkRoleOrPermissions(authorizer, securityContext, Roles.ROLE_TOPOLOGY_SUPER_ADMIN,
+                        NAMESPACE, topologyRuntimeIdMap.getTopologyId(), READ, EXECUTE);
+        Topology result = catalogService.getTopology(topologyRuntimeIdMap.getTopologyId());
+        if (result != null) {
+            Long projectId  = result.getProjectId();
+            String url = String.format(urlApplication, uriInfo.getBaseUri().getScheme(),uriInfo.getBaseUri().getAuthority(), projectId, topologyRuntimeIdMap.getTopologyId());
+            return Response.seeOther(new URI(url)).build();
+        }
+
+        throw EntityNotFoundException.byId(applicationId);
     }
 
 

@@ -65,7 +65,7 @@ public class ComponentUISpecification {
         STRING("string"), ENUMSTRING("enumstring"), ARRAYSTRING("array.string"), ARRAYENUMSTRING("array.enumstring"),
         NUMBER("number"), ARRAYNUMBER("array.number"), BOOLEAN("boolean"), ARRAYBOOLEAN("array.boolean"),
         OBJECT("object"), ENUMOBJECT("enumobject"), ARRAYOBJECT("array.object"), ARRAYENUMOBJECT("array.enumobject"),
-        FILE("file"), DATE("date"), DATETIME("datetime"), SQL("sql"), KEYVALUE("keyvalue"), CRONTAB("cron");
+        FILE("file"), DATE("date"), DATETIME("datetime"), SQL("sql"), KEYVALUE("keyvalue"), CRONTAB("cron"), USER("user");
 
         private String uiFieldTypeText;
 
@@ -341,7 +341,7 @@ public class ComponentUISpecification {
 
         private void validateStringField () throws ComponentConfigException {
             UIFieldType[] stringTypes = {UIFieldType.STRING, UIFieldType.ENUMSTRING, UIFieldType.ARRAYSTRING, UIFieldType.ARRAYENUMSTRING,
-                                         UIFieldType.DATE, UIFieldType.DATETIME, UIFieldType.SQL, UIFieldType.KEYVALUE, UIFieldType.CRONTAB};
+                                         UIFieldType.DATE, UIFieldType.DATETIME, UIFieldType.SQL, UIFieldType.KEYVALUE, UIFieldType.CRONTAB, UIFieldType.USER};
             if (!Arrays.asList(stringTypes).contains(this.type)) {
                 return;
             }

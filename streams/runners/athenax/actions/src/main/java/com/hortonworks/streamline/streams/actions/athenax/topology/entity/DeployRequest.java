@@ -7,7 +7,6 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 public class DeployRequest {
   private static final int DEFAULT_YARN_CONTAINER_COUNT = 2;
   private static final int DEFAULT_YARN_CONTAINER_MEM = 2048;
-  private static final int DEFAULT_SLOT_PER_YARN_CONTAINER = 1;
   private static final boolean DEFAULT_BACKFILL_VALUE = false;
   private static final String STREAM_JOB_TYPE = "Stream";
   private static final String BATCH_JOB_TYPE = "Batch";
@@ -18,8 +17,6 @@ public class DeployRequest {
   private int yarnContainerCount = DEFAULT_YARN_CONTAINER_COUNT;
   @JsonProperty
   private int yarnMemoryPerContainerInMB = DEFAULT_YARN_CONTAINER_MEM;
-  @JsonProperty
-  private int slotPerYarnContainer = DEFAULT_SLOT_PER_YARN_CONTAINER;
   @JsonProperty
   private String dataCenter;
   @JsonProperty
@@ -35,10 +32,6 @@ public class DeployRequest {
 
   public void setYarnContainerCount(int yarnContainerCount) {
     this.yarnContainerCount = yarnContainerCount;
-  }
-
-  public void setSlotPerYarnContainer(int slotPerYarnContainer) {
-    this.slotPerYarnContainer = slotPerYarnContainer;
   }
 
   public void setYarnMemoryPerContainerInMB(int yarnMemoryPerContainerInMB) {
@@ -64,10 +57,6 @@ public class DeployRequest {
 
   public int yarnContainerCount() {
     return yarnContainerCount;
-  }
-
-  public int slotPerYarnContainer() {
-    return slotPerYarnContainer;
   }
 
   public int yarnMemoryPerContainerInMB() {

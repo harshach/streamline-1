@@ -103,7 +103,6 @@ public class AthenaXRestAPIClientTest {
     request.setDataCenter("sjc1");
     request.setCluster("staging");
     request.setBackfill(false);
-    request.setSlotPerYarnContainer(1);
     request.setYarnContainerCount(2);
     request.setYarnMemoryPerContainerInMB(2048);
 

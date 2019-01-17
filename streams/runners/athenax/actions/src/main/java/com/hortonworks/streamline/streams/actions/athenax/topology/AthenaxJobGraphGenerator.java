@@ -1,7 +1,6 @@
 package com.hortonworks.streamline.streams.actions.athenax.topology;
 
 import com.hortonworks.streamline.common.Config;
-import com.hortonworks.streamline.streams.actions.TopologyActionContext;
 import com.hortonworks.streamline.streams.actions.athenax.topology.entity.Connector;
 import com.hortonworks.streamline.streams.actions.athenax.topology.entity.DeployRequest;
 import com.hortonworks.streamline.streams.actions.athenax.topology.entity.JobDefinition;
@@ -34,9 +33,8 @@ public class AthenaxJobGraphGenerator extends TopologyDagVisitor {
 	private static final Logger LOG = LoggerFactory.getLogger(AthenaxJobGraphGenerator.class);
 
 	private static final String UWORC_SERVICE_NAME = "uworc";
-	private static final String YARN_CONTAINER_COUNT = "yarnContainerCount";
-	private static final String SLOT_PER_YARN_CONTAINER = "slotPerYarnContainer";
-	private static final String YARN_MEMORY_PER_CONTAINER_IN_MB = "yarnMemoryPerContainerInMB";
+	private static final String YARN_CONTAINER_COUNT = "topology.yarn.containerCount";
+	private static final String YARN_CONTAINER_MEM = "topology.yarn.containerMem";
 	private static final String BOOTSTRAP_SERVERS = "bootstrap.servers";
 	private static final String GROUP_ID = "group.id";
 	private static final String CLIENT_ID = "client.id";
@@ -212,9 +210,8 @@ public class AthenaxJobGraphGenerator extends TopologyDagVisitor {
 		Config cfg = topology.getConfig();
 		request.setDataCenter(dataCenter);
 		request.setCluster(cluster);
-		request.setYarnContainerCount(cfg.getInt(YARN_CONTAINER_COUNT, 1));
-		request.setSlotPerYarnContainer(cfg.getInt(SLOT_PER_YARN_CONTAINER, 1));
-		request.setYarnMemoryPerContainerInMB(cfg.getInt(YARN_MEMORY_PER_CONTAINER_IN_MB, 1024));
+		request.setYarnContainerCount(cfg.getAny(YARN_CONTAINER_COUNT));
+		request.setYarnMemoryPerContainerInMB(cfg.getAny(YARN_CONTAINER_MEM));
 
 		return request;
 	}

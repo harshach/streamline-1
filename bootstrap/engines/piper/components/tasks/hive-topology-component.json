@@ -32,7 +32,9 @@
                 "fieldName": "task_params.hive_cli_conn_id",
                 "tooltip": "Hive Connection",
                 "isOptional": false,
-                "type": "string"
+                "type": "enumstring",
+                "options": [],
+                "hint": "override"
             },
             {
                 "uiName": "Database",

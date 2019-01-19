@@ -29,10 +29,18 @@
                 "height": "200"
             },
             {
+              "uiName": "Yarn Queue",
+              "fieldName": "task_params.yarn_queue",
+              "tooltip": "Yarn Queue (spark.yarn.queue). To select right queue, you can visit : https://ugrafana.uberinternal.com/d/000076896/piper-dc-selection-guide?orgId=1",
+              "isOptional": false,
+              "type": "string",
+              "height": "200"
+            },
+            {
                 "uiName": "Hive Connection ID",
                 "fieldName": "task_params.hive_cli_conn_id",
                 "tooltip": "Hive Connection",
-                "isOptional": false,
+                "isOptional": true,
                 "type": "enumstring",
                 "options": [],
                 "hint": "override"
@@ -49,7 +57,7 @@
                 "fieldName": "pool",
                 "isUserInput": true,
                 "tooltip": "Piper pool to run task in",
-                "isOptional": false,
+                "isOptional": true,
                 "type": "string"
             },
             {
@@ -83,7 +91,8 @@
                 "tooltip": "Trigger Rule for running task looking at task dependencies",
                 "isOptional": true,
                 "type": "enumstring",
-                "options": ["all_success", "all_failed", "all_done", "one_success", "one_failed", "dummy"]
+                "options": ["all_success", "all_failed", "all_done", "one_success", "one_failed"],
+                "defaultValue": "all_success"
             }
         ]
     }

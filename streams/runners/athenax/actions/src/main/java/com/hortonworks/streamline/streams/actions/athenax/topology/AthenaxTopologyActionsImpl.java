@@ -96,9 +96,6 @@ public class AthenaxTopologyActionsImpl implements TopologyActions {
 
 		// send request via Athenax-vm API
 		String response = athenaXRestAPIClient.jobStatus(JsonClientUtil.convertRequestToJson(request));
-		if (response == null) {
-			return null;
-		}
 
 		// convert response(JSON string) into Map
 		ObjectMapper mapper = new ObjectMapper();
@@ -106,11 +103,30 @@ public class AthenaxTopologyActionsImpl implements TopologyActions {
 
 		// convert into Status
 		StatusImpl status = new StatusImpl();
-		status.setStatus((String)map.get(YARN_APPLICATION_STATE));
-		status.putExtra(FINAL_APPLICATION_STATUS, (String)map.get(FINAL_APPLICATION_STATUS));
-		status.putExtra(FINISH_TIME, (String)map.get(FINISH_TIME));
-		
+		String yarnApplicationState = AthenaxConstants.YARN_APPLICATION_STATE_UNKNOWN;
+		if (map != null) {
+			yarnApplicationState = (String)map.get(YARN_APPLICATION_STATE);
+			status.putExtra(FINAL_APPLICATION_STATUS, (String)map.get(FINAL_APPLICATION_STATUS));
+			status.putExtra(FINISH_TIME, (String)map.get(FINISH_TIME));
+		}
+		status.setStatus(getRuntimeStatus(yarnApplicationState));
+
 		return status;
+	}
+
+	private String getRuntimeStatus(String yarnApplicationState) {
+		String runtimeStatus;
+		switch (yarnApplicationState) {
+			case AthenaxConstants.YARN_APPLICATION_STATE_RUNNING:
+				runtimeStatus = AthenaxConstants.ATHENAX_RUNTIME_STATUS_ENABLED;
+				break;
+			case AthenaxConstants.YARN_APPLICATION_STATE_FINISHED:
+				runtimeStatus = AthenaxConstants.ATHENAX_RUNTIME_STATUS_INACTIVE;
+				break;
+			default:
+				runtimeStatus = AthenaxConstants.ATHENAX_RUNTIME_STATUS_UNKNOWN;
+		}
+		return runtimeStatus;
 	}
 
   @Override

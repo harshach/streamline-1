@@ -20,8 +20,8 @@ public class RTARestAPIClient {
     private static final Logger LOG = LoggerFactory.getLogger(RTARestAPIClient.class);
     private static final String RPC_SERVICE = "RPC-Service";
     private static final String RPC_CALLER = "RPC-Caller";
-    private static final String RTA_VIRTUAL_TABLE_PATH = "virtual_tables/";
-    private static final String RTA_VIRTUAL_TABLE_DEPLOY_PATH = "virtual_tables/deploy/";
+    private static final String RTA_TABLE_PATH = "tables/";
+    private static final String RTA_TABLE_DEPLOY_PATH = "tables/deploy/";
     private static final String API_ROOT_URL = "http://127.0.0.1:5436";
     private final Subject subject;
     private final Client client;
@@ -44,14 +44,14 @@ public class RTARestAPIClient {
     }
 
     public String createVirtualTable(Object request) {
-        String response = doPostRequest(generateRequestUrl(RTA_VIRTUAL_TABLE_PATH), request, MediaType.APPLICATION_JSON_TYPE);
-        LOG.debug("Create virtual table response: " + response);
+        String response = doPostRequest(generateRequestUrl(RTA_TABLE_PATH), request, MediaType.APPLICATION_JSON_TYPE);
+        LOG.debug("Create RTA table response: " + response);
         return response;
     }
 
     public String deployVirtualTable(Object request, String uuid) {
-        String response = doPostRequest(generateRequestUrl(RTA_VIRTUAL_TABLE_DEPLOY_PATH + uuid), request, MediaType.APPLICATION_JSON_TYPE);
-        LOG.debug("Deploy virtual table response: " + response);
+        String response = doPostRequest(generateRequestUrl(RTA_TABLE_DEPLOY_PATH + uuid), request, MediaType.APPLICATION_JSON_TYPE);
+        LOG.debug("Deploy RTA table response: " + response);
         return response;
     }
 

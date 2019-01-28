@@ -27,6 +27,7 @@ import com.hortonworks.streamline.streams.catalog.*;
 import com.hortonworks.streamline.streams.catalog.service.StreamCatalogService;
 import com.hortonworks.streamline.streams.catalog.topology.TopologyData;
 import com.hortonworks.streamline.streams.cluster.service.EnvironmentService;
+import com.hortonworks.streamline.streams.exception.FailedToKillDeployedTopologyException;
 import com.hortonworks.streamline.streams.exception.TopologyNotAliveException;
 import com.hortonworks.streamline.streams.security.Permission;
 import com.hortonworks.streamline.streams.security.Roles;
@@ -422,16 +423,9 @@ public class TopologyCatalogResource {
         if (!force && !result.getNamespaceId().equals(EnvironmentService.TEST_ENVIRONMENT_ID)) {
             String asUser = WSUtils.getUserFromSecurityContext(securityContext);
             try {
-                String runtimeTopologyId = actionsService.getRuntimeTopologyId(result, asUser);
-                if (StringUtils.isNotEmpty(runtimeTopologyId)) {
-                    throw BadRequestException.message("Can't remove topology while Topology is running - topology id: " + topologyId);
-                }
+                actionsService.killTopology(result, asUser);
             } catch (TopologyNotAliveException e) {
                 // OK to continue
-            } catch (StormNotReachableException | IOException e) {
-                // We don't know whether topology is running or not
-                // users need to make a request with force parameter on
-                throw new EngineNotReachableException(e.getMessage(), e);
             }
         }
 

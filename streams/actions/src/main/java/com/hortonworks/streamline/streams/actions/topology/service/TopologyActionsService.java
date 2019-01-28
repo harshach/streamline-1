@@ -35,6 +35,7 @@ import com.hortonworks.streamline.streams.catalog.topology.component.TopologyDag
 import com.hortonworks.streamline.streams.cluster.catalog.Namespace;
 import com.hortonworks.streamline.streams.cluster.container.ContainingNamespaceAwareContainer;
 import com.hortonworks.streamline.streams.cluster.service.EnvironmentService;
+import com.hortonworks.streamline.streams.exception.FailedToKillDeployedTopologyException;
 import com.hortonworks.streamline.streams.layout.component.TopologyDag;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -131,8 +132,12 @@ public class TopologyActionsService implements ContainingNamespaceAwareContainer
         return topologyTestRunner.killTest(topologyActions, history);
     }
 
-    public void killTopology(Topology topology, String asUser) throws Exception {
-        managedTransaction.executeConsumer(TopologyContext::kill, getTopologyContext(topology, asUser));
+    public void killTopology(Topology topology, String asUser) throws FailedToKillDeployedTopologyException  {
+        try {
+            managedTransaction.executeConsumer(TopologyContext::kill, getTopologyContext(topology, asUser));
+        } catch(Exception e) {
+            throw new FailedToKillDeployedTopologyException(e);
+        }
     }
 
     public void suspendTopology(Topology topology, String asUser) throws Exception {

@@ -45,6 +45,7 @@ import com.hortonworks.streamline.streams.logsearch.topology.service.TopologyLog
 import com.hortonworks.streamline.streams.metrics.topology.service.TopologyMetricsService;
 import com.hortonworks.streamline.streams.notification.service.NotificationServiceImpl;
 import com.hortonworks.streamline.streams.registry.StreamlineSchemaRegistryClient;
+import com.hortonworks.streamline.streams.registry.table.RTARestAPIClient;
 import com.hortonworks.streamline.streams.sampling.service.TopologySamplingService;
 import com.hortonworks.streamline.streams.security.StreamlineAuthorizer;
 import com.hortonworks.streamline.streams.security.service.SecurityCatalogResource;
@@ -119,6 +120,7 @@ public class StreamsModule implements ModuleRegistration, StorageManagerAware, T
         result.add(new NamespaceCatalogResource(authorizer, streamcatalogService, topologyActionsService, environmentService));
         result.add(new SearchCatalogResource(authorizer, streamcatalogService, environmentService,
                 topologyActionsService, topologyMetricsService));
+        result.add(new DataSchemaResource(new RTARestAPIClient((String)config.get(Constants.CONFIG_RTA_METADATA_SERVICE_URL), subject)));
         watchFiles(streamcatalogService);
         setupPlaceholderEntities(streamcatalogService, environmentService);
         return result;

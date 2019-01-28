@@ -2,6 +2,7 @@ package com.hortonworks.streamline.streams.actions.athenax.topology;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.hortonworks.streamline.common.Constants;
 import com.hortonworks.streamline.common.JsonClientUtil;
 import com.hortonworks.streamline.streams.actions.StatusImpl;
 import com.hortonworks.streamline.streams.actions.TopologyActionContext;
@@ -9,8 +10,6 @@ import com.hortonworks.streamline.streams.actions.TopologyActions;
 import com.hortonworks.streamline.streams.actions.athenax.topology.entity.DeployRequest;
 import com.hortonworks.streamline.streams.actions.athenax.topology.entity.JobDefinition;
 import com.hortonworks.streamline.streams.actions.athenax.topology.entity.JobStatusRequest;
-import com.hortonworks.streamline.streams.actions.athenax.topology.entity.RTACreateTableRequest;
-import com.hortonworks.streamline.streams.actions.athenax.topology.entity.RTADeployTableRequest;
 import com.hortonworks.streamline.streams.actions.athenax.topology.entity.StopJobRequest;
 import com.hortonworks.streamline.streams.actions.topology.service.TopologyActionsService;
 import com.hortonworks.streamline.streams.catalog.Topology;
@@ -21,7 +20,9 @@ import com.hortonworks.streamline.streams.layout.component.impl.testing.TestRunP
 import com.hortonworks.streamline.streams.layout.component.impl.testing.TestRunRulesProcessor;
 import com.hortonworks.streamline.streams.layout.component.impl.testing.TestRunSink;
 import com.hortonworks.streamline.streams.layout.component.impl.testing.TestRunSource;
-
+import com.hortonworks.streamline.streams.registry.table.RTACreateTableRequest;
+import com.hortonworks.streamline.streams.registry.table.RTADeployTableRequest;
+import com.hortonworks.streamline.streams.registry.table.RTARestAPIClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -52,7 +53,7 @@ public class AthenaxTopologyActionsImpl implements TopologyActions {
 	public void init(Map<String, Object> conf, TopologyActionsService topologyActionsService) {
 		String athenaxServiceRootUrl = (String) conf.get(AthenaxConstants.ATHENAX_SERVICE_ROOT_URL_KEY);
 		athenaXRestAPIClient = new AthenaXRestAPIClient(athenaxServiceRootUrl, null/*subject*/);
-		rtaRestAPIClient = new RTARestAPIClient(null);
+		rtaRestAPIClient = new RTARestAPIClient((String)conf.get(Constants.CONFIG_RTA_METADATA_SERVICE_URL), null);
 
 		yarnDataCenter = (String) conf.get(AthenaxConstants.ATHENAX_YARN_DATA_CENTER_KEY);
 		yarnCluster = (String) conf.get(AthenaxConstants.ATHENAX_YARN_CLUSTER_KEY);
@@ -67,10 +68,10 @@ public class AthenaxTopologyActionsImpl implements TopologyActions {
 		topologyDag.traverse(requestGenerator);
 
 		RTACreateTableRequest rtaCreateTableRequest = requestGenerator.extractRTACreateTableRequest();
-		String tableId = rtaRestAPIClient.createVirtualTable(JsonClientUtil.convertRequestToJson(rtaCreateTableRequest));
+		rtaRestAPIClient.createTable(JsonClientUtil.convertRequestToJson(rtaCreateTableRequest));
 
 		RTADeployTableRequest rtaDeployTableRequest = requestGenerator.extractRTADeployTableRequest();
-		rtaRestAPIClient.deployVirtualTable(rtaDeployTableRequest, tableId);
+		rtaRestAPIClient.deployTable(rtaDeployTableRequest, rtaCreateTableRequest.name());
 		// extract AthenaX deploy job request
 		DeployRequest deployRequest = requestGenerator.extractDeployJobRequest(yarnDataCenter, yarnCluster, zkConnectionStr);
 

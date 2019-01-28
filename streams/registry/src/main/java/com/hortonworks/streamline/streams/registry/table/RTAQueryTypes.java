@@ -1,4 +1,4 @@
-package com.hortonworks.streamline.streams.actions.athenax.topology.entity;
+package com.hortonworks.streamline.streams.registry.table;
 
 public enum RTAQueryTypes {
     PRE_DEFINED("pre-defined", "supportPredefinedQueries"),

@@ -1,5 +1,6 @@
 package com.hortonworks.streamline.streams.actions.athenax.topology;
 
+import com.hortonworks.streamline.common.Constants;
 import com.hortonworks.streamline.streams.actions.TopologyActions;
 import com.hortonworks.streamline.streams.actions.builder.TopologyActionsBuilder;
 import com.hortonworks.streamline.streams.actions.common.ServiceUtils;
@@ -25,6 +26,7 @@ public class AthenaxTopologyActionBuilder implements TopologyActionsBuilder<Map<
     public void init(Map<String, String> conf, Engine engine, TopologyActionsService topologyActionsService,
                      Namespace namespace, Subject subject) throws Exception {
         this.conf = new HashMap<>();
+        this.conf.put(Constants.CONFIG_RTA_METADATA_SERVICE_URL, conf.get(Constants.CONFIG_RTA_METADATA_SERVICE_URL));
         this.topologyActionsService = topologyActionsService;
         buildKafkaTopologyActionsConfigMap(namespace);
         buildAthenaxTopologyActionsConfigMap(namespace);

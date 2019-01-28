@@ -5,11 +5,6 @@ import com.hortonworks.streamline.streams.actions.athenax.topology.entity.Connec
 import com.hortonworks.streamline.streams.actions.athenax.topology.entity.DeployRequest;
 import com.hortonworks.streamline.streams.actions.athenax.topology.entity.JobDefinition;
 import com.hortonworks.streamline.streams.actions.athenax.topology.entity.JobStatusRequest;
-import com.hortonworks.streamline.streams.actions.athenax.topology.entity.RTADeployTableRequest;
-import com.hortonworks.streamline.streams.actions.athenax.topology.entity.RTAQueryTypes;
-import com.hortonworks.streamline.streams.actions.athenax.topology.entity.RTACreateTableRequest;
-import com.hortonworks.streamline.streams.actions.athenax.topology.entity.RTATableField;
-import com.hortonworks.streamline.streams.actions.athenax.topology.entity.RTATableMetaData;
 import com.hortonworks.streamline.streams.actions.athenax.topology.entity.StopJobRequest;
 import com.hortonworks.streamline.streams.layout.component.Edge;
 import com.hortonworks.streamline.streams.layout.component.StreamlineProcessor;
@@ -21,6 +16,11 @@ import com.hortonworks.streamline.streams.layout.component.impl.KafkaSource;
 import com.hortonworks.streamline.streams.layout.component.impl.RTASink;
 import com.hortonworks.streamline.streams.layout.component.impl.RulesProcessor;
 import com.hortonworks.streamline.streams.layout.component.impl.SqlProcessor;
+import com.hortonworks.streamline.streams.registry.table.RTACreateTableRequest;
+import com.hortonworks.streamline.streams.registry.table.RTADeployTableRequest;
+import com.hortonworks.streamline.streams.registry.table.RTAQueryTypes;
+import com.hortonworks.streamline.streams.registry.table.RTATableField;
+import com.hortonworks.streamline.streams.registry.table.RTATableMetaData;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

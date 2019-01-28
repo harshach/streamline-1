@@ -68,6 +68,16 @@ public class JsonClientUtil {
         }
     }
 
+    public static <T> T getEntityWithHeaders(WebTarget target, Map<String, String> headers, MediaType mediaType, Class<T> clazz) {
+        Invocation.Builder builder = target.request();
+        for (Map.Entry<String, String> entry : headers.entrySet()) {
+            builder.header(entry.getKey(), entry.getValue());
+        }
+        builder.accept(mediaType);
+
+        return builder.get(clazz);
+    }
+
     public static <T> List<T> getEntities(WebTarget target, Class<T> clazz) {
         return getEntities(target, DEFAULT_MEDIA_TYPE, clazz);
     }

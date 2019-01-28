@@ -8,27 +8,19 @@ import joptsimple.internal.Strings;
 
 import javax.security.auth.Subject;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 
 public class TopologyActionsFactory {
-    private static final String ENGINE_CONFIGURATION = "engineConfiguration";
-    private static final String ENGINE_NAME = "engineName";
-    private static final String PROPERTIES = "properties";
-    private static final String TOPOLOGY_ACTIONS_CLASS = "topologyActionsClass";
-
-    Map<String, Object> config;
     private final Map<Engine, Map<Namespace, TopologyActionsBuilder>> topologyActionsBuilderMap;
 
 
-    public TopologyActionsFactory(Map<String, Object> config) {
-        this.config = config;
+    public TopologyActionsFactory() {
         this.topologyActionsBuilderMap = new HashMap<>();
     }
 
     public TopologyActionsBuilder getTopologyActionsBuilder(Engine engine, Namespace namespace, TopologyActionsService topologyActionsService,
-                                                            Map<String, String> streamlineConfig, Subject subject) {
+                                                            Map<String, String> streamlineConfig, Subject subject) throws Exception {
         topologyActionsBuilderMap.putIfAbsent(engine,
                 new HashMap<>());
         Map<Namespace, TopologyActionsBuilder> topologyActionsMap = topologyActionsBuilderMap.get(engine);
@@ -36,9 +28,9 @@ public class TopologyActionsFactory {
         String className = Strings.EMPTY;
         if (topologyActionsBuilder == null) {
             try {
-                String topologyActionsBuilderClazz = getConfiguredClass(engine, TOPOLOGY_ACTIONS_CLASS);
+                String topologyActionsBuilderClazz = engine.getTopologyActionClass();
                 topologyActionsBuilder = instantiateTopologyActionsBuilder(topologyActionsBuilderClazz);
-                topologyActionsBuilder.init(streamlineConfig, topologyActionsService, namespace, subject);
+                topologyActionsBuilder.init(streamlineConfig, engine, topologyActionsService, namespace, subject);
                 topologyActionsMap.put(namespace, topologyActionsBuilder);
                 topologyActionsBuilderMap.put(engine, topologyActionsMap);
             } catch (IllegalAccessException | InstantiationException | ClassNotFoundException e) {
@@ -48,16 +40,6 @@ public class TopologyActionsFactory {
         return topologyActionsBuilder;
     }
 
-    private String getConfiguredClass(Engine engine, String implClass) {
-        List<Map<String, Object>> engineConfigurations = (List<Map<String, Object>>) config.get(ENGINE_CONFIGURATION);
-        Map<String, String> engineClassConfigs = new HashMap<>();
-        for (Map<String, Object> engineConfig: engineConfigurations) {
-            String engineName = (String) engineConfig.get(ENGINE_NAME);
-            if (engineName.equalsIgnoreCase(engine.getName()))
-                engineClassConfigs = (Map<String, String>) engineConfig.get(PROPERTIES);
-        }
-        return engineClassConfigs.get(implClass);
-    }
 
     private TopologyActionsBuilder instantiateTopologyActionsBuilder(String className) throws
             ClassNotFoundException, IllegalAccessException, InstantiationException {

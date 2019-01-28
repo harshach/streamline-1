@@ -45,7 +45,7 @@ public class AthenaxTopologyMetricsImpl implements TopologyMetrics {
 
 	@Override
 	public void init(Engine engine, Namespace namespace, TopologyCatalogHelperService topologyCatalogHelperService,
-					 Subject subject, Map<String, Object> conf) throws ConfigException {
+					 Subject subject) throws ConfigException {
 
 	}
 

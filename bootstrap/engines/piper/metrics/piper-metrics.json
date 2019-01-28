@@ -133,7 +133,7 @@
       "name": "memoryUsage",
       "uiName": "Memory Usage",
       "metricKeyName": ["task_monitoring"],
-      "metricQuery": "fetch env:$dc service:piper name:piper_task_monitoring reason:memory_usage pipeline:$pipelineId | aliasByTags task,
+      "metricQuery": "fetch env:$dc service:piper name:piper_task_monitoring reason:memory_usage pipeline:$pipelineId | aliasByTags task",
       "params": {
         "pipeline":"application_id",
         "deployment":"namespace"

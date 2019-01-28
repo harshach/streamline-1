@@ -5,5 +5,14 @@
     "deploymentModes": "[\"DEPLOY\",\"BACKFILL\"]",
     "componentTypes": "[\"SOURCE\",\"PROCESSOR\",\"SINK\"]",
     "schemaAware": "true",
-    "config": "{}"
+    "enabled": "true",
+    "topologyActionClass": "com.hortonworks.streamline.streams.actions.storm.topology.StormTopologyActionsBuilder",
+    "topologyStateMachineClass": "com.hortonworks.streamline.streams.actions.topology.state.DefaultTopologyStateMachine",
+    "topologyStatusMetricsClass": "com.hortonworks.streamline.streams.metrics.storm.topology.StormTopologyMetricsImpl",
+    "topologyTimeseriesMetricsClass": "com.hortonworks.streamline.streams.metrics.storm.ambari.AmbariMetricsServiceWithStormQuerier",
+    "config": "{
+        \"stormHomeDir\": \"/usr/local/Cellar/storm/0.10.0/\",
+        \"mavenRepoUrl\": \"hwx-public^http://repo.hortonworks.com/content/groups/public/,hwx-private^http://nexus-private.hortonworks.com/nexus/content/groups/public/\",
+        \"streamlineStormJar\": \"/tmp/streamline-runtime-storm-0.6.0-SNAPSHOT.jar\"
+    }"
 }

@@ -4,6 +4,7 @@ import com.hortonworks.streamline.streams.actions.TopologyActions;
 import com.hortonworks.streamline.streams.actions.builder.TopologyActionsBuilder;
 import com.hortonworks.streamline.streams.actions.common.ServiceUtils;
 import com.hortonworks.streamline.streams.actions.topology.service.TopologyActionsService;
+import com.hortonworks.streamline.streams.catalog.Engine;
 import com.hortonworks.streamline.streams.cluster.catalog.Namespace;
 import com.hortonworks.streamline.streams.cluster.catalog.Service;
 import com.hortonworks.streamline.streams.cluster.catalog.ServiceConfiguration;
@@ -21,7 +22,8 @@ public class AthenaxTopologyActionBuilder implements TopologyActionsBuilder<Map<
     private Map<String, Object> conf;
 
     @Override
-    public void init(Map<String, String> conf, TopologyActionsService topologyActionsService, Namespace namespace, Subject subject) {
+    public void init(Map<String, String> conf, Engine engine, TopologyActionsService topologyActionsService,
+                     Namespace namespace, Subject subject) throws Exception {
         this.conf = new HashMap<>();
         this.topologyActionsService = topologyActionsService;
         buildKafkaTopologyActionsConfigMap(namespace);

@@ -44,7 +44,9 @@ import org.slf4j.LoggerFactory;
 import javax.security.auth.Subject;
 import java.io.File;
 import java.io.IOException;
-import java.util.*;
+import java.util.Map;
+import java.util.HashMap;
+
 
 
 public class TopologyActionsService implements ContainingNamespaceAwareContainer {
@@ -85,8 +87,8 @@ public class TopologyActionsService implements ContainingNamespaceAwareContainer
         if (topologyTestRunResultDir.endsWith(File.separator)) {
             topologyTestRunResultDir = topologyTestRunResultDir.substring(0, topologyTestRunResultDir.length() - 1);
         }
-        this.topologyActionsFactory = new TopologyActionsFactory(configuration);
-        this.topologyStateMachineFactory = new TopologyStateMachineFactory(configuration);
+        this.topologyActionsFactory = new TopologyActionsFactory();
+        this.topologyStateMachineFactory = new TopologyStateMachineFactory();
         this.topologyTestRunner = new TopologyTestRunner(catalogService, this, topologyTestRunResultDir);
         this.managedTransaction = new ManagedTransaction(transactionManager, TransactionIsolation.DEFAULT);
     }
@@ -127,7 +129,7 @@ public class TopologyActionsService implements ContainingNamespaceAwareContainer
         return topologyTestRunner.runTest(topologyActions, topology, testCase, durationSecs);
     }
 
-    public boolean killTestRunTopology(Topology topology, TopologyTestRunHistory history) {
+    public boolean killTestRunTopology(Topology topology, TopologyTestRunHistory history) throws Exception {
         TopologyActions topologyActions = getTopologyActionsInstance(topology);
         return topologyTestRunner.killTest(topologyActions, history);
     }
@@ -186,7 +188,7 @@ public class TopologyActionsService implements ContainingNamespaceAwareContainer
     @Override
     public void invalidateInstance(Long namespaceId) { }
 
-    private TopologyActions getTopologyActionsInstance(Topology topology) {
+    private TopologyActions getTopologyActionsInstance(Topology topology) throws Exception {
         Namespace namespace = environmentService.getNamespace(topology.getNamespaceId());
         if (namespace == null) {
             throw new RuntimeException("Corresponding namespace not found: " + topology.getNamespaceId());
@@ -202,7 +204,7 @@ public class TopologyActionsService implements ContainingNamespaceAwareContainer
         return topologyStateMachineFactory.getTopologyStateMachine(engine);
     }
 
-    private TopologyContext getTopologyContext(Topology topology, String asUser) {
+    private TopologyContext getTopologyContext(Topology topology, String asUser) throws Exception {
         TopologyStateMachine topologyStateMachine = getTopologyStateMachineInstance(topology);
         TopologyState state = catalogService
                 .getTopologyState(topology.getId())

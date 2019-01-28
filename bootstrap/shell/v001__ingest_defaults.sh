@@ -37,6 +37,14 @@ function run_cmd {
     echo $cmd
   fi
   response=$(eval $cmd)
+  http_body=$(echo $response | sed -e 's/HTTPSTATUS\:.*//g')
+  http_status=$(echo $response | tr -d '\n' | sed -e 's/.*HTTPSTATUS://')
+
+  if [ ! $http_status -eq 200  ] && [ ! $http_status -eq 201  ]; then
+      echo "Error [HTTP status: $http_status]"
+      echo "$http_body"
+      exit 1
+  fi
 
   if [ $? -ne 0 ] ; then
      echo "Command failed to execute, quiting the migration ..."
@@ -66,7 +74,7 @@ function getAdminRoleId {
 function put {
   uri=$1/$2
   data=$3
-  cmd="curl -i --negotiate -u:anyUser  -b /tmp/cookiejar.txt -c /tmp/cookiejar.txt -sS -X PUT ${CATALOG_ROOT_URL}$uri --data @$data -H 'Content-Type: application/json' ${HTTP_HEADERS_FOR_OTHERS}"
+  cmd="curl --silent --write-out HTTPSTATUS:%{http_code} -i --negotiate -u:anyUser  -b /tmp/cookiejar.txt -c /tmp/cookiejar.txt -sS -X PUT ${CATALOG_ROOT_URL}$uri --data @$data -H 'Content-Type: application/json' ${HTTP_HEADERS_FOR_OTHERS}"
   echo "PUT $data"
   run_cmd $cmd
 }
@@ -74,21 +82,21 @@ function put {
 function post {
   uri=$1
   data=$2
-  cmd="curl -i --negotiate -u:anyUser  -b /tmp/cookiejar.txt -c /tmp/cookiejar.txt -sS -X POST ${CATALOG_ROOT_URL}$uri --data @$data -H 'Content-Type: application/json' ${HTTP_HEADERS_FOR_OTHERS}"
+  cmd="curl --silent --write-out HTTPSTATUS:%{http_code} -i --negotiate -u:anyUser  -b /tmp/cookiejar.txt -c /tmp/cookiejar.txt -sS -X POST ${CATALOG_ROOT_URL}$uri --data @$data -H 'Content-Type: application/json' ${HTTP_HEADERS_FOR_OTHERS}"
   echo "POST $data"
   run_cmd $cmd
 }
 
 function add_sample_topology_component_bundle {
   echo "POST sample_bundle"
-  cmd="curl -i --negotiate -u:anyUser  -b /tmp/cookiejar.txt -c /tmp/cookiejar.txt -sS -X POST -i -F topologyComponentBundle=@$bootstrap_dir/kafka-topology-bundle ${CATALOG_ROOT_URL}/streams/componentbundles/SOURCE/ ${HTTP_HEADERS_FOR_OTHERS}"
+  cmd="curl -i --silent --write-out HTTPSTATUS:%{http_code} --negotiate -u:anyUser  -b /tmp/cookiejar.txt -c /tmp/cookiejar.txt -sS -X POST -i -F topologyComponentBundle=@$bootstrap_dir/kafka-topology-bundle ${CATALOG_ROOT_URL}/streams/componentbundles/SOURCE/ ${HTTP_HEADERS_FOR_OTHERS}"
   run_cmd $cmd
 }
 
 function add_topology_component_bundle {
   uri=$1
   data=$2
-  cmd="curl -i --negotiate -u:anyUser  -b /tmp/cookiejar.txt -c /tmp/cookiejar.txt -sS -X POST -i -F topologyComponentBundle=@$data ${CATALOG_ROOT_URL}$uri ${HTTP_HEADERS_FOR_OTHERS}"
+  cmd="curl --silent --write-out HTTPSTATUS:%{http_code} -i --negotiate -u:anyUser  -b /tmp/cookiejar.txt -c /tmp/cookiejar.txt -sS -X POST -i -F topologyComponentBundle=@$data ${CATALOG_ROOT_URL}$uri ${HTTP_HEADERS_FOR_OTHERS}"
   echo "POST $data"
   run_cmd $cmd
 }

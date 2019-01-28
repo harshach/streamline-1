@@ -5,5 +5,10 @@
     "deploymentModes": "[\"DEPLOY\",\"BACKFILL\"]",
     "componentTypes": "[\"SOURCE\",\"PROCESSOR\",\"SINK\"]",
     "schemaAware": "true",
+    "enabled": "true",
+    "topologyActionClass": "com.hortonworks.streamline.streams.actions.athenax.topology.AthenaxTopologyActionBuilder",
+    "topologyStateMachineClass": "com.hortonworks.streamline.streams.actions.topology.state.DefaultTopologyStateMachine",
+    "topologyStatusMetricsClass": "default",
+    "topologyTimeseriesMetricsClass": "default",
     "config": "{}"
 }

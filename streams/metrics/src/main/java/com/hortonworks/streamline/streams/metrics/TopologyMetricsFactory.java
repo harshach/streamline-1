@@ -9,17 +9,9 @@ import joptsimple.internal.Strings;
 
 import javax.security.auth.Subject;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 public class TopologyMetricsFactory {
-
-    private static final String ENGINE_CONFIGURATION = "engineConfiguration";
-    private static final String ENGINE_NAME = "engineName";
-    private static final String PROPERTIES = "properties";
-    private static final String TOPOLOGY_METRICS_CLASS = "topologyMetricsClass";
-    private static final String TIMESERIES_METRICS_CLASS = "timeseriesMetricsClass";
-
     Map<String, Object> config;
     private final Map<Engine, Map<Namespace, TopologyMetrics>> topologyMetricsMap;
 
@@ -37,11 +29,11 @@ public class TopologyMetricsFactory {
         String className = Strings.EMPTY;
         if (topologyMetrics == null) {
             try {
-                String topologyMetricsClazz = getConfiguredClass(engine, TOPOLOGY_METRICS_CLASS);
+                String topologyMetricsClazz = engine.getTopologyStatusMetricsClass();
                 if (topologyMetricsClazz != null && !topologyMetricsClazz.isEmpty()) {
                     topologyMetrics = instantiateTopologyMetrics(topologyMetricsClazz);
-                    topologyMetrics.init(engine, namespace, topologyCatalogHelperService, subject, config);
-                    String topologyTimeseriesClazz = getConfiguredClass(engine, TIMESERIES_METRICS_CLASS);
+                    topologyMetrics.init(engine, namespace, topologyCatalogHelperService, subject);
+                    String topologyTimeseriesClazz = engine.getTopologyTimeseriesMetricsClass();
                     TimeSeriesQuerier timeSeriesQuerier = instantiateTimeSeriesQuerier(topologyTimeseriesClazz);
                     timeSeriesQuerier.init(engine, namespace, topologyCatalogHelperService, subject, config);
                     topologyMetrics.setTimeSeriesQuerier(timeSeriesQuerier);
@@ -49,7 +41,7 @@ public class TopologyMetricsFactory {
                     topologyMetricsMap.put(engine, metricsMap);
                 }
             } catch (IllegalAccessException | InstantiationException | ClassNotFoundException  | ConfigException e) {
-                throw new RuntimeException("Can't initialize Topology actions instance - Class Name: " + className, e);
+                throw new RuntimeException("Can't initialize Topology Metrics instance - Class Name: " + className, e);
             }
         }
         return topologyMetrics;
@@ -67,19 +59,6 @@ public class TopologyMetricsFactory {
         Class<TimeSeriesQuerier> clazz = (Class<TimeSeriesQuerier>) Class.forName(className);
         return clazz.newInstance();
     }
-
-    private String getConfiguredClass(Engine engine, String implClass) {
-        List<Map<String, Object>> engineConfigurations = (List<Map<String, Object>>) config.get(ENGINE_CONFIGURATION);
-        Map<String, String> engineClassConfigs = new HashMap<>();
-        for (Map<String, Object> engineConfig: engineConfigurations) {
-            String engineName = (String) engineConfig.get(ENGINE_NAME);
-            if (engineName.equalsIgnoreCase(engine.getName()))
-                engineClassConfigs = (Map<String, String>) engineConfig.get(PROPERTIES);
-        }
-        return engineClassConfigs.get(implClass);
-    }
-
-
 
 
 }

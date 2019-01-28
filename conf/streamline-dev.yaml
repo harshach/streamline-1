@@ -2,35 +2,12 @@ modules:
   - name: streams
     className: com.hortonworks.streamline.streams.service.StreamsModule
     config:
-      #change the below to the path on your local machine
-      streamlineStormJar: /tmp/streamline-runtime-storm-0.6.0-SNAPSHOT.jar
-      stormHomeDir: /usr/local/Cellar/storm/0.10.0/
       # directory to store the results of topology test run
       topologyTestRunResultDir: /tmp
       # schema registry configuration
       streamlineSchemaRegistryClientClass: "com.hortonworks.streamline.streams.registry.HeatpipeSchemaServiceClientAdapter"
       # streamlineSchemaRegistryClientClass: "com.hortonworks.streamline.streams.registry.SchemaRegistryClientAdapter"
       # schemaRegistryUrl: "http://localhost:9090/api/v1"
-      mavenRepoUrl: "hwx-public^http://repo.hortonworks.com/content/groups/public/,hwx-private^http://nexus-private.hortonworks.com/nexus/content/groups/public/"
-      engineConfiguration:
-       - engineName: PIPER
-         properties:
-           topologyActionsClass: "com.hortonworks.streamline.streams.actions.piper.topology.PiperTopologyActionsBuilder"
-           topologyMetricsClass: "com.hortonworks.streamline.streams.metrics.piper.topology.PiperTopologyMetricsImpl"
-           timeseriesMetricsClass: "com.hortonworks.streamline.streams.metrics.piper.m3.M3MetricsWithPiperQuerier"
-           topologyStateMachineClass: "com.hortonworks.streamline.streams.actions.topology.state.DefaultTopologyStateMachine"
-           topologySamplingClass: ""
-       - engineName: STORM
-         properties:
-           topologyActionsClass: "com.hortonworks.streamline.streams.actions.storm.topology.StormTopologyActionsBuilder"
-           topologyMetricsClass: "com.hortonworks.streamline.streams.metrics.storm.topology.StormTopologyMetricsImpl"
-           timeseriesMetricsClass: "com.hortonworks.streamline.streams.metrics.storm.ambari.AmbariMetricsServiceWithStormQuerier"
-           topologyStateMachineClass: "com.hortonworks.streamline.streams.actions.topology.state.DefaultTopologyStateMachine"
-           topologySamplingClass: "com.hortonworks.streamline.streams.sampling.service.storm.StormTopologySamplingService"
-       - engineName: ATHENAX
-         properties:
-           topologyActionsClass: "com.hortonworks.streamline.streams.actions.athenax.topology.AthenaxTopologyActionBuilder"
-           topologyStateMachineClass: "com.hortonworks.streamline.streams.actions.topology.state.DefaultTopologyStateMachine"
 
 
 catalogRootUrl: "http://localhost:8080/api/v1/catalog"

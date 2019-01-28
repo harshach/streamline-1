@@ -36,11 +36,10 @@ public interface TopologyMetrics extends TopologyTimeSeriesMetrics {
     /**
      * Initialize method. Any one time initialization is done here.
      *
-     * @param conf Configuration for implementation of TopologyMetrics.
      * @throws ConfigException throw when instance can't be initialized with this configuration (misconfigured).
      */
     void init (Engine engine, Namespace namespace, TopologyCatalogHelperService topologyCatalogHelperService,
-               Subject subject, Map<String, Object> conf) throws ConfigException;
+               Subject subject) throws ConfigException;
 
     /**
      * Retrieves topology metric for Streamline topology/

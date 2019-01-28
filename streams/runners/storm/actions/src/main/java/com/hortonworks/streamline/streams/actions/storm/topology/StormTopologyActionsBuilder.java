@@ -1,8 +1,10 @@
 package com.hortonworks.streamline.streams.actions.storm.topology;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.hortonworks.streamline.streams.actions.TopologyActions;
 import com.hortonworks.streamline.streams.actions.builder.TopologyActionsBuilder;
 import com.hortonworks.streamline.streams.actions.topology.service.TopologyActionsService;
+import com.hortonworks.streamline.streams.catalog.Engine;
 import com.hortonworks.streamline.streams.cluster.catalog.*;
 import com.hortonworks.streamline.streams.cluster.discovery.ambari.ComponentPropertyPattern;
 import com.hortonworks.streamline.streams.cluster.discovery.ambari.ServiceConfigurations;
@@ -32,6 +34,7 @@ public class StormTopologyActionsBuilder implements TopologyActionsBuilder<Map<S
     private static final String NIMBUS_PORT = "nimbus.port";
     public static final String STREAMLINE_STORM_JAR = "streamlineStormJar";
     public static final String STORM_HOME_DIR = "stormHomeDir";
+    public static final String MAVEN_REPO_URL = "mavenRepoUrl";
 
     public static final String RESERVED_PATH_STREAMLINE_HOME = "${STREAMLINE_HOME}";
     public static final String SYSTEM_PROPERTY_STREAMLINE_HOME = "streamline.home";
@@ -39,15 +42,17 @@ public class StormTopologyActionsBuilder implements TopologyActionsBuilder<Map<S
     private static final String DEFAULT_STORM_JAR_FILE_PREFIX = "streamline-runtime-storm-";
 
     private Map<String, String> streamlineConf;
+    private Map<String, Object> engineConf;
     private TopologyActionsService topologyActionsService;
     private TopologyActions stormTopologyActions;
     private Map<String, Object> conf;
 
-    public void init(Map<String, String> streamlineConf, TopologyActionsService topologyActionsService, Namespace namespace,
-                     Subject subject) {
+    public void init(Map<String, String> streamlineConf, Engine engine, TopologyActionsService topologyActionsService, Namespace namespace,
+                     Subject subject) throws Exception {
         this.conf = new HashMap<>();
         this.topologyActionsService = topologyActionsService;
         this.streamlineConf = streamlineConf;
+        this.engineConf = new ObjectMapper().readValue(engine.getConfig(), HashMap.class);
         buildStormTopologyActionsConfigMap(namespace, subject);
         stormTopologyActions = new StormTopologyActionsImpl();
         stormTopologyActions.init(conf, topologyActionsService);
@@ -112,7 +117,7 @@ public class StormTopologyActionsBuilder implements TopologyActionsBuilder<Map<S
 
 
         // We need to have some local configurations anyway because topology submission can't be done with REST API.
-        String stormJarLocation = streamlineConf.get(STREAMLINE_STORM_JAR);
+        String stormJarLocation = (String) engineConf.get(STREAMLINE_STORM_JAR);
         if (stormJarLocation == null) {
             String jarFindDir = applyReservedPaths(DEFAULT_STORM_JAR_LOCATION_DIR);
             stormJarLocation = findFirstMatchingJarLocation(jarFindDir);
@@ -121,7 +126,8 @@ public class StormTopologyActionsBuilder implements TopologyActionsBuilder<Map<S
         }
 
         conf.put(STREAMLINE_STORM_JAR, stormJarLocation);
-        conf.put(STORM_HOME_DIR, streamlineConf.get(STORM_HOME_DIR));
+        conf.put(STORM_HOME_DIR, engineConf.get(STORM_HOME_DIR));
+        conf.put(MAVEN_REPO_URL, engineConf.get(MAVEN_REPO_URL));
 
         // Since we're loading the class dynamically so we can't rely on any enums or constants from there
         conf.put(NIMBUS_SEEDS, String.join(",", nimbusHosts));

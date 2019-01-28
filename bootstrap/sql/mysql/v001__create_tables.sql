@@ -91,6 +91,11 @@ CREATE TABLE IF NOT EXISTS engine (
    deploymentModes TEXT NOT NULL,
    componentTypes TEXT NOT NULL,
    schemaAware BOOLEAN NOT NULL,
+   enabled BOOLEAN NOT NULL,
+   topologyActionClass TEXT NOT NULL,
+   topologyStateMachineClass TEXT NOT NULL,
+   topologyStatusMetricsClass TEXT NOT NULL,
+   topologyTimeSeriesMetricsClass TEXT NOT NULL,
    config TEXT NOT NULL,
    PRIMARY KEY (id),
    UNIQUE KEY `engine_UK_name` (name)

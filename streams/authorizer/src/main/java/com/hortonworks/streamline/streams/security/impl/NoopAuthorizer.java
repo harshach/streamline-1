@@ -18,13 +18,12 @@ package com.hortonworks.streamline.streams.security.impl;
 import com.hortonworks.streamline.streams.security.AuthenticationContext;
 import com.hortonworks.streamline.streams.security.Permission;
 import com.hortonworks.streamline.streams.security.StreamlineAuthorizer;
+import com.hortonworks.streamline.streams.security.catalog.AclEntry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Collections;
 import java.util.EnumSet;
 import java.util.Map;
-import java.util.Set;
 
 public class NoopAuthorizer implements StreamlineAuthorizer {
     private static final Logger LOG = LoggerFactory.getLogger(NoopAuthorizer.class);
@@ -50,6 +49,13 @@ public class NoopAuthorizer implements StreamlineAuthorizer {
     public void addAcl(AuthenticationContext ctx, String targetEntityNamespace, Long targetEntityId, boolean owner, boolean grant, EnumSet<Permission> permissions) {
         LOG.debug("NoopAuthorizer addAcl, AuthenticationContext: {}, targetEntityNamespace: {}, targetEntityId: {}, " +
                 "permissions: {}", ctx, targetEntityNamespace, targetEntityId, permissions);
+    }
+
+    @Override
+    public AclEntry addAcl(AuthenticationContext ctx, String targetEntityNamespace, Long targetEntityId, Long userId, EnumSet<Permission> permissions) {
+        LOG.debug("NoopAuthorizer addAcl, AuthenticationContext: {}, targetEntityNamespace: {}, targetEntityId: {}, " +
+                "permissions: {}", ctx, targetEntityNamespace, targetEntityId, permissions);
+        throw new UnsupportedOperationException("Not implemented, yet");
     }
 
     @Override

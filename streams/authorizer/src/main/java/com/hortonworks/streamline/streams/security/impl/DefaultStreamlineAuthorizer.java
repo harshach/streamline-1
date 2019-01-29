@@ -26,6 +26,7 @@ import com.hortonworks.streamline.streams.security.catalog.AclEntry;
 import com.hortonworks.streamline.streams.security.catalog.Role;
 import com.hortonworks.streamline.streams.security.catalog.User;
 import com.hortonworks.streamline.streams.security.service.SecurityCatalogService;
+import jdk.nashorn.internal.runtime.regexp.joni.Option;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -148,6 +149,26 @@ public class DefaultStreamlineAuthorizer implements StreamlineAuthorizer {
         aclEntry.setGrant(grant);
         aclEntry.setPermissions(permissions);
         catalogService.addAcl(aclEntry);
+    }
+
+    @Override
+    public AclEntry addAcl(AuthenticationContext ctx, String targetEntityNamespace, Long targetEntityId, Long userId,  EnumSet<Permission> permissions) {
+        validateAuthenticationContext(ctx);
+        User user = catalogService.getUser(userId);
+        if (user == null || user.getId() == null) {
+            String msg = String.format("No such user-id '%d'", userId);
+            LOG.warn(msg);
+            throw new AuthorizationException(msg);
+        }
+        AclEntry aclEntry = new AclEntry();
+        aclEntry.setObjectId(targetEntityId);
+        aclEntry.setObjectNamespace(targetEntityNamespace);
+        aclEntry.setSidId(user.getId());
+        aclEntry.setSidType(AclEntry.SidType.USER);
+        aclEntry.setOwner(false);
+        aclEntry.setGrant(true);
+        aclEntry.setPermissions(permissions);
+        return catalogService.addAcl(aclEntry);
     }
 
     @Override

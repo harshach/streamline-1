@@ -15,8 +15,11 @@
  **/
 package com.hortonworks.streamline.streams.security;
 
+import com.hortonworks.streamline.streams.security.catalog.AclEntry;
+
 import java.util.EnumSet;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 
 public interface StreamlineAuthorizer {
@@ -40,6 +43,11 @@ public interface StreamlineAuthorizer {
      * Grant permissions for the currently authenticated user on the target entity
      */
     void addAcl(AuthenticationContext ctx, String targetEntityNamespace, Long targetEntityId, boolean owner, boolean grant, EnumSet<Permission> permissions);
+
+    /**
+     * Grant permissions to user on the target entity
+     */
+    AclEntry addAcl(AuthenticationContext ctx, String targetEntityNamespace, Long targetEntityId, Long userId, EnumSet<Permission> permissions);
 
     /**
      * Remove permissions for the currently authenticated user on the target entity

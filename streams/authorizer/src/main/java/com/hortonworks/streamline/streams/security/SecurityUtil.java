@@ -19,6 +19,7 @@ import com.hortonworks.streamline.storage.Storable;
 import com.hortonworks.streamline.common.exception.service.exception.request.WebserviceAuthorizationException;
 import com.hortonworks.streamline.common.function.SupplierException;
 import com.hortonworks.streamline.streams.security.authentication.StreamlineSecurityContext;
+import com.hortonworks.streamline.streams.security.catalog.AclEntry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -30,6 +31,7 @@ import java.security.PrivilegedActionException;
 import java.security.PrivilegedExceptionAction;
 import java.util.Collection;
 import java.util.EnumSet;
+import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -85,6 +87,13 @@ public final class SecurityUtil {
         AuthenticationContext ctx = SecurityUtil.getAuthenticationContext(securityContext.getUserPrincipal());
         authorizer.addAcl(ctx, targetEntityNamespace, targetEntityId, true, true, permissions);
 
+    }
+
+    public static AclEntry addAcl(StreamlineAuthorizer authorizer, SecurityContext securityContext,
+                                            String targetEntityNamespace, Long targetEntityId, Long userId,
+                                            EnumSet<Permission> permissions) {
+        AuthenticationContext ctx = SecurityUtil.getAuthenticationContext(securityContext.getUserPrincipal());
+        return authorizer.addAcl(ctx, targetEntityNamespace, targetEntityId, userId, permissions);
     }
 
     public static void removeAcl(StreamlineAuthorizer authorizer, SecurityContext securityContext,

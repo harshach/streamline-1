@@ -33,10 +33,12 @@ import com.hortonworks.streamline.streams.security.SecurityUtil;
 import com.hortonworks.streamline.streams.security.StreamlineAuthorizer;
 import com.hortonworks.streamline.streams.security.catalog.User;
 import com.hortonworks.streamline.streams.security.service.SecurityCatalogService;
+import com.hortonworks.streamline.streams.security.catalog.AclEntry;
 import org.apache.commons.lang3.StringUtils;
 import org.glassfish.jersey.media.multipart.FormDataParam;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
@@ -373,6 +375,24 @@ public class TopologyCatalogResource {
         }
 
         throw EntityNotFoundException.byId(topologyId.toString());
+    }
+
+    @POST
+    @Path("/topologies/{topologyId}")
+    @Timed
+    public Response shareTopology(@PathParam("topologyId") Long topologyId,
+                                  @Context SecurityContext securityContext,
+                                  @javax.ws.rs.QueryParam("sidId") long sidId,
+                                  @javax.ws.rs.QueryParam("permission") String permission) {
+        SecurityUtil.checkRoleOrPermissions(authorizer, securityContext, Roles.ROLE_TOPOLOGY_USER,
+                NAMESPACE, topologyId, READ);
+        Topology topology = Optional.ofNullable(catalogService.getTopology(topologyId))
+                .orElseThrow(() -> EntityNotFoundException.byId(topologyId.toString()));
+
+        AclEntry aclEntry = SecurityUtil.addAcl(authorizer, securityContext, NAMESPACE, topology.getId(), sidId, EnumSet.of(Permission.valueOf(permission.toUpperCase())));
+        // Also, giving read permission to the Project
+        SecurityUtil.addAcl(authorizer, securityContext, Project.NAMESPACE, topology.getProjectId(), sidId, EnumSet.of(Permission.READ));
+        return WSUtils.respondEntity(aclEntry, CREATED);
     }
 
     @GET

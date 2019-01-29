@@ -36,6 +36,7 @@ import ProcessorUtils from '../../utils/ProcessorUtils';
 import DatetimeRangePicker from 'react-bootstrap-datetimerangepicker';
 import moment from 'moment';
 import Cron from '../cron';
+import app_state from '../../app_state';
 
 import CodeMirror from 'codemirror';
 import CommonCodeMirror from '../../components/CommonCodeMirror';
@@ -310,12 +311,16 @@ export class string extends BaseField {
     if (this.props.fieldJson.isUserInput !== undefined) {
       disabledField = disabledField || !this.props.fieldJson.isUserInput;
     }
+    let value = this.props.data[this.props.value] || '';
+    if(inputHint && inputHint.toLowerCase().indexOf("user") !== -1 && value.trim() == ''){
+      value = app_state.user_profile.name || "";
+    }
     return (inputHint !== null && inputHint.toLowerCase().indexOf("hidden") !== -1
       ? ''
       : this.props.fieldJson.hint !== undefined && this.props.fieldJson.hint.toLowerCase().indexOf("textarea") !== -1
           ? <textarea className={this.context.Form.state.Errors[this.props.valuePath]
               ? "form-control invalidInput"
-              : "form-control"} ref="input" disabled={disabledField} value={this.props.data[this.props.value] || ''} {...this.props.attrs} onChange={this.handleChange}/>
+              : "form-control"} ref="input" disabled={disabledField} value={value} {...this.props.attrs} onChange={this.handleChange}/>
             : <input name={this.props.value} type={this.props.fieldJson.hint !== undefined
             ? this.props.fieldJson.hint.toLowerCase().indexOf("password") !== -1
               ? "password"
@@ -324,7 +329,7 @@ export class string extends BaseField {
                 : "text"
             : "text"} className={this.context.Form.state.Errors[this.props.valuePath]
             ? "form-control invalidInput"
-            : "form-control"} ref="input" value={this.props.data[this.props.value] || ''} disabled={disabledField} {...this.props.attrs} onChange={this.handleChange} onBlur={this.handleOnBlur}/>
+            : "form-control"} ref="input" value={value} disabled={disabledField} {...this.props.attrs} onChange={this.handleChange} onBlur={this.handleOnBlur}/>
     );
   }
 }

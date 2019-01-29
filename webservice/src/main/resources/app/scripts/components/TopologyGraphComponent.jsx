@@ -154,7 +154,8 @@ export default class TopologyGraphComponent extends Component {
     rectangleHeight: 52,
     testDataRectHeight: 210,
     testNoDataRectHeight: 75,
-    metricsDataRectHeight: 131
+    metricsDataRectHeight: 131,
+    nodeTitleLength: (this.props.engine.name.toLocaleLowerCase() === 'storm' ? 11 : 18)
   };
 
   componentDidUpdate() {
@@ -958,8 +959,8 @@ export default class TopologyGraphComponent extends Component {
       // append "Test" if testRunActivated is true for source and sink
       const titleNode = TopologyUtils.getNodeRectClass(d);
       let title = thisGraph.testRunActivated ? (titleNode === "source" || titleNode === "datasink") ? `TEST-${d.parentType}` : d.uiname : d.uiname;
-      if (title.length > 11) {
-        return title.slice(0, 10) + '...';
+      if (title.length > thisGraph.constants.nodeTitleLength) {
+        return title.slice(0, thisGraph.constants.nodeTitleLength-1) + '...';
       } else {
         return title;
       };
@@ -1101,55 +1102,57 @@ export default class TopologyGraphComponent extends Component {
       thisGraph.updateGraph();
     }).call(thisGraph.drag);
 
-    //Parallelism Icons
-    newGs.append("text").attr("class", "fa fa-caret-right")
-    .attr("x", function(d){
-      return (GraphUtils.getSpecificNodeBboxData.call(thisGraph,d).width - 14);
-    })
-    .attr("y", "26px").text(function(d) {
-      return '\uf0da';
-    }).on("click", function(d) {
-      if (thisGraph.editMode && !thisGraph.testRunActivated) {
-        let value = parseInt(d.parallelismCount, 10) + 1;
-        d.parallelismCount = value <= 1
-          ? 1
-          : value;
-        clearTimeout(thisGraph.clickTimeout);
-        thisGraph.clickTimeout = setTimeout(function() {
-          TopologyUtils.updateParallelismCount(thisGraph.topologyId, this.versionId, d, thisGraph.setLastChange);
-        }, 500);
-        thisGraph.updateGraph();
-      }
-    });
+    if(thisGraph.props.engine.name.toLocaleLowerCase() === 'storm'){
+      //Parallelism Icons
+      newGs.append("text").attr("class", "fa fa-caret-right")
+      .attr("x", function(d){
+        return (GraphUtils.getSpecificNodeBboxData.call(thisGraph,d).width - 14);
+      })
+      .attr("y", "26px").text(function(d) {
+        return '\uf0da';
+      }).on("click", function(d) {
+        if (thisGraph.editMode && !thisGraph.testRunActivated) {
+          let value = parseInt(d.parallelismCount, 10) + 1;
+          d.parallelismCount = value <= 1
+            ? 1
+            : value;
+          clearTimeout(thisGraph.clickTimeout);
+          thisGraph.clickTimeout = setTimeout(function() {
+            TopologyUtils.updateParallelismCount(thisGraph.topologyId, this.versionId, d, thisGraph.setLastChange);
+          }, 500);
+          thisGraph.updateGraph();
+        }
+      });
 
-    newGs.append("text").attr("class", "fa fa-caret-left")
-    .attr("x", function(d){
-      return (GraphUtils.getSpecificNodeBboxData.call(thisGraph,d).width - 40);
-    })
-    .attr("y", "26px").text(function(d) {
-      return '\uf0d9';
-    }).on("click", function(d) {
-      if (thisGraph.editMode && !thisGraph.testRunActivated) {
-        let value = parseInt(d.parallelismCount, 10) - 1;
-        d.parallelismCount = value <= 1
-          ? 1
-          : value;
-        clearTimeout(thisGraph.clickTimeout);
-        thisGraph.clickTimeout = setTimeout(function() {
-          TopologyUtils.updateParallelismCount(thisGraph.topologyId, this.versionId, d, thisGraph.setLastChange);
-        }, 500);
-        thisGraph.updateGraph();
-      }
-    });
+      newGs.append("text").attr("class", "fa fa-caret-left")
+      .attr("x", function(d){
+        return (GraphUtils.getSpecificNodeBboxData.call(thisGraph,d).width - 40);
+      })
+      .attr("y", "26px").text(function(d) {
+        return '\uf0d9';
+      }).on("click", function(d) {
+        if (thisGraph.editMode && !thisGraph.testRunActivated) {
+          let value = parseInt(d.parallelismCount, 10) - 1;
+          d.parallelismCount = value <= 1
+            ? 1
+            : value;
+          clearTimeout(thisGraph.clickTimeout);
+          thisGraph.clickTimeout = setTimeout(function() {
+            TopologyUtils.updateParallelismCount(thisGraph.topologyId, this.versionId, d, thisGraph.setLastChange);
+          }, 500);
+          thisGraph.updateGraph();
+        }
+      });
 
-    newGs.append("text").attr("class", "parallelism-count")
-    .attr("x", function(d){
-      return (GraphUtils.getSpecificNodeBboxData.call(thisGraph,d).width - 23);
-    }).attr("y", "24px").attr("text-anchor", "middle").text(function(d) {
-      return d.parallelismCount.toString().length < 2
-        ? "0" + d.parallelismCount
-        : d.parallelismCount;
-    });
+      newGs.append("text").attr("class", "parallelism-count")
+      .attr("x", function(d){
+        return (GraphUtils.getSpecificNodeBboxData.call(thisGraph,d).width - 23);
+      }).attr("y", "24px").attr("text-anchor", "middle").text(function(d) {
+        return d.parallelismCount.toString().length < 2
+          ? "0" + d.parallelismCount
+          : d.parallelismCount;
+      });
+    }
 
     const {componentsBundle} = this.props;
 
@@ -1247,7 +1250,7 @@ export default class TopologyGraphComponent extends Component {
         return ((constants.rectangleHeight / 2) - 5);
       }).on("mouseover", function(d) {
         if (thisGraph.editMode) {
-          !thisGraph.testRunActivated && nodeTitle.trim().length > 11 ? GraphUtils.showNodeTypeToolTip.call(thisGraph,d, this) : '';
+          !thisGraph.testRunActivated && nodeTitle.trim().length > thisGraph.constants.nodeTitleLength ? GraphUtils.showNodeTypeToolTip.call(thisGraph,d, this) : '';
           d3.select(this.parentElement).select('text.fa.fa-times').style('display', thisGraph.testRunActivated ? 'none' : 'block');
         } else {
           if(engine.schemaAware){
@@ -1270,8 +1273,8 @@ export default class TopologyGraphComponent extends Component {
         thisGraph.rectangleMouseDown.call(thisGraph, d3.select(this.parentNode), d);
         thisGraph.rectangleMouseUp.call(thisGraph, d3.select(this.parentNode), d);
       }).call(thisGraph.drag);
-      if (nodeTitle.trim().length > 11) {
-        nodeTitle = nodeTitle.trim().slice(0, 10) + '...';
+      if (nodeTitle.trim().length > thisGraph.constants.nodeTitleLength) {
+        nodeTitle = nodeTitle.trim().slice(0, thisGraph.constants.nodeTitleLength-1) + '...';
       } else {
         nodeTitle = nodeTitle.trim();
       }
@@ -1282,7 +1285,7 @@ export default class TopologyGraphComponent extends Component {
     newGs.each(function(d) {
       let gEl = d3.select(this),
         title = d.nodeLabel.length > 15
-          ? d.nodeLabel.slice(0, 10) + '...'
+          ? d.nodeLabel.slice(0, thisGraph.constants.nodeTitleLength-1) + '...'
           : d.nodeLabel;
       let el = gEl.append("text").attr("class", function(d) {
         return 'node-type-label';

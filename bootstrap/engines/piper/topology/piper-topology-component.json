@@ -20,7 +20,8 @@
         "fieldName": "topology.owner",
         "isOptional": false,
         "tooltip": "Owner of pipeline",
-        "type": "user"
+        "type": "string",
+        "hint": "user"
       },
       {
         "uiName": "Owner LDAP Groups",

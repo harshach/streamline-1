@@ -62,6 +62,10 @@
         </dependency>
         <dependency>
             <groupId>com.hortonworks.streamline</groupId>
+            <artifactId>streamline-metrics-athenax</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.hortonworks.streamline</groupId>
             <artifactId>streamline-notification</artifactId>
         </dependency>
         <dependency>

@@ -26,10 +26,10 @@ public class TopologyMetricsFactory {
         topologyMetricsMap.putIfAbsent(engine, new HashMap<>());
         Map<Namespace, TopologyMetrics> metricsMap = topologyMetricsMap.get(engine);
         TopologyMetrics topologyMetrics = metricsMap.get(namespace);
-        String className = Strings.EMPTY;
+        String topologyMetricsClazz = Strings.EMPTY;
         if (topologyMetrics == null) {
             try {
-                String topologyMetricsClazz = engine.getTopologyStatusMetricsClass();
+                topologyMetricsClazz = engine.getTopologyStatusMetricsClass();
                 if (topologyMetricsClazz != null && !topologyMetricsClazz.isEmpty()) {
                     topologyMetrics = instantiateTopologyMetrics(topologyMetricsClazz);
                     topologyMetrics.init(engine, namespace, topologyCatalogHelperService, subject);
@@ -41,7 +41,7 @@ public class TopologyMetricsFactory {
                     topologyMetricsMap.put(engine, metricsMap);
                 }
             } catch (IllegalAccessException | InstantiationException | ClassNotFoundException  | ConfigException e) {
-                throw new RuntimeException("Can't initialize Topology Metrics instance - Class Name: " + className, e);
+                throw new RuntimeException("Can't initialize Topology Metrics instance - Class Name: " + topologyMetricsClazz, e);
             }
         }
         return topologyMetrics;

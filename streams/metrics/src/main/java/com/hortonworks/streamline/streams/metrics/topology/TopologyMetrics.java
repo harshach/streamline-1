@@ -18,11 +18,11 @@ package com.hortonworks.streamline.streams.metrics.topology;
 import com.hortonworks.streamline.common.exception.ConfigException;
 import com.hortonworks.streamline.streams.catalog.Engine;
 import com.hortonworks.streamline.streams.cluster.catalog.Namespace;
-import com.hortonworks.streamline.streams.cluster.service.EnvironmentService;
 import com.hortonworks.streamline.streams.layout.component.TopologyLayout;
 import com.hortonworks.streamline.streams.metrics.topology.service.TopologyCatalogHelperService;
 
 import javax.security.auth.Subject;
+import java.io.IOException;
 import java.util.Map;
 
 /**
@@ -48,7 +48,7 @@ public interface TopologyMetrics extends TopologyTimeSeriesMetrics {
      * @param asUser   username if request needs impersonation to specific user
      * @return TopologyMetrics
      */
-    TopologyMetric getTopologyMetric(TopologyLayout topology, String asUser);
+    TopologyMetric getTopologyMetric(TopologyLayout topology, String asUser) throws IOException;
 
     /**
      * Retrieves metrics data for Streamline topology.

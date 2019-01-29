@@ -15,11 +15,14 @@
         <dependency>
             <groupId>com.hortonworks.streamline</groupId>
             <artifactId>streamline-common</artifactId>
-            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>com.hortonworks.streamline</groupId>
             <artifactId>streamline-metrics</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.hortonworks.streamline</groupId>
+            <artifactId>streamline-common-athenax</artifactId>
         </dependency>
         <dependency>
             <groupId>junit</groupId>

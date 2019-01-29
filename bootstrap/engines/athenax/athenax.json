@@ -8,7 +8,7 @@
     "enabled": "true",
     "topologyActionClass": "com.hortonworks.streamline.streams.actions.athenax.topology.AthenaxTopologyActionBuilder",
     "topologyStateMachineClass": "com.hortonworks.streamline.streams.actions.topology.state.DefaultTopologyStateMachine",
-    "topologyStatusMetricsClass": "default",
+    "topologyStatusMetricsClass": "com.hortonworks.streamline.streams.metrics.athenax.topology.AthenaxTopologyMetricsImpl",
     "topologyTimeseriesMetricsClass": "default",
     "config": "{}"
 }

@@ -1,13 +1,11 @@
 package com.hortonworks.streamline.streams.common.athenax;
 
-import com.hortonworks.streamline.common.JsonClientUtil;
 import com.hortonworks.streamline.streams.common.athenax.entity.Connector;
 import com.hortonworks.streamline.streams.common.athenax.entity.DeployRequest;
 import com.hortonworks.streamline.streams.common.athenax.entity.JobDefinition;
 import com.hortonworks.streamline.streams.common.athenax.entity.JobStatusRequest;
 import com.hortonworks.streamline.streams.common.athenax.entity.StopJobRequest;
 
-import javax.security.auth.Subject;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
@@ -15,8 +13,7 @@ import java.util.Properties;
 public class AthenaXRestAPIClientTest {
   public static void main(String[] args) {
     String athenaXAPIRootUrl = "http://127.0.0.1:5436";
-    Subject subject = null;
-    AthenaXRestAPIClient client = new AthenaXRestAPIClient(athenaXAPIRootUrl, subject);
+    AthenaXRestAPIClient client = new AthenaXRestAPIClient(athenaXAPIRootUrl, null);
 
     if (args.length == 0) {
       System.out.println("Error: Need operation name.");
@@ -25,26 +22,26 @@ public class AthenaXRestAPIClientTest {
 
     try {
       if (args[0].equals("deploy")) {
-        Object request = AthenaXRestAPIClientTest.getTestDeployRequest();
+        DeployRequest request = AthenaXRestAPIClientTest.getTestDeployRequest();
         client.deployJob(request);
 
       } else if (args[0].equals("validate")) {
 
-        Object request = AthenaXRestAPIClientTest.getTestValidateRequest();
-        client.validateJob(request);
+        JobDefinition jobDef = AthenaXRestAPIClientTest.getTestJobDef();
+        client.validateJob(jobDef);
       } else if (args[0].equals("kill")) {
         if (args.length == 1) {
           System.out.println("Need app id");
           System.exit(0);
         }
-        Object request = AthenaXRestAPIClientTest.getTestStopRequest(args[1]);
+        StopJobRequest request = AthenaXRestAPIClientTest.getTestStopRequest(args[1]);
         client.stopJob(request);
       } else if (args[0].equals("status")) {
         if (args.length == 1) {
           System.out.println("Need app id");
           System.exit(0);
         }
-        Object request = AthenaXRestAPIClientTest.getTestJobStatusRequest(args[1]);
+        JobStatusRequest request = AthenaXRestAPIClientTest.getTestJobStatusRequest(args[1]);
         client.jobStatus(request);
       } else {
         System.out.print("Unsupported operations");
@@ -96,13 +93,9 @@ public class AthenaXRestAPIClientTest {
     return jobDef;
   }
 
-  private static Object getTestValidateRequest() throws Exception {
-    JobDefinition job = getTestJobDef();
-    return JsonClientUtil.convertRequestToJson(job);
-  }
-
-  private static Object getTestDeployRequest() throws Exception {
+  private static DeployRequest getTestDeployRequest() {
     DeployRequest request = new DeployRequest();
+
     request.setJobDefinition(getTestJobDef());
     request.setDataCenter("sjc1");
     request.setCluster("staging");
@@ -110,28 +103,26 @@ public class AthenaXRestAPIClientTest {
     request.setYarnContainerCount(2);
     request.setYarnMemoryPerContainerInMB(2048);
 
-    // convert to json format
-    return JsonClientUtil.convertRequestToJson(request);
+    return request;
   }
 
-  private static Object getTestJobStatusRequest(String appId) throws Exception {
+  private static JobStatusRequest getTestJobStatusRequest(String appId) {
     JobStatusRequest request = new JobStatusRequest();
 
     request.setDataCenter("sjc1");
     request.setCluster("staging");
     request.setYarnApplicationId(appId);
 
-    // convert to json format
-    return JsonClientUtil.convertRequestToJson(request);
+    return request;
   }
 
-  private static Object getTestStopRequest(String appId) throws Exception {
+  private static StopJobRequest getTestStopRequest(String appId) {
     StopJobRequest request = new StopJobRequest();
 
     request.setDataCenter("sjc1");
     request.setCluster("staging");
     request.setAppId(appId);
 
-    return JsonClientUtil.convertRequestToJson(request);
+    return request;
   }
 }

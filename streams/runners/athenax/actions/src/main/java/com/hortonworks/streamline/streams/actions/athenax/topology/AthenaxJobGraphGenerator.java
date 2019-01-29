@@ -4,8 +4,6 @@ import com.hortonworks.streamline.common.Config;
 import com.hortonworks.streamline.streams.common.athenax.entity.Connector;
 import com.hortonworks.streamline.streams.common.athenax.entity.DeployRequest;
 import com.hortonworks.streamline.streams.common.athenax.entity.JobDefinition;
-import com.hortonworks.streamline.streams.common.athenax.entity.JobStatusRequest;
-import com.hortonworks.streamline.streams.common.athenax.entity.StopJobRequest;
 import com.hortonworks.streamline.streams.layout.component.Edge;
 import com.hortonworks.streamline.streams.layout.component.StreamlineProcessor;
 import com.hortonworks.streamline.streams.layout.component.StreamlineSink;
@@ -213,22 +211,6 @@ public class AthenaxJobGraphGenerator extends TopologyDagVisitor {
 		request.setYarnContainerCount(cfg.getAny(YARN_CONTAINER_COUNT));
 		request.setYarnMemoryPerContainerInMB(cfg.getAny(YARN_CONTAINER_MEM));
 
-		return request;
-	}
-
-	public StopJobRequest extractStopJobRequest(String applicationId, String dataCenter, String cluster) {
-		StopJobRequest request = new StopJobRequest();
-		request.setDataCenter(dataCenter);
-		request.setCluster(cluster);
-		request.setAppId(applicationId);
-		return request;
-	}
-
-	public JobStatusRequest extractJobStatusRequest(String applicationId, String dataCenter, String cluster){
-		JobStatusRequest request = new JobStatusRequest();
-		request.setDataCenter(dataCenter);
-		request.setCluster(cluster);
-		request.setYarnApplicationId(applicationId);
 		return request;
 	}
 

@@ -1,4 +1,4 @@
-package com.hortonworks.streamline.streams.actions.athenax.topology;
+package com.hortonworks.streamline.streams.common.athenax;
 
 public class AthenaxConstants {
     public static final String YARN_APPLICATION_STATE_RUNNING = "RUNNING";

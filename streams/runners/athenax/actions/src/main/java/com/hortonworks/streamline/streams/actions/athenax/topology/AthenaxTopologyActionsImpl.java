@@ -1,7 +1,5 @@
 package com.hortonworks.streamline.streams.actions.athenax.topology;
 
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.hortonworks.streamline.common.Constants;
 import com.hortonworks.streamline.common.JsonClientUtil;
 import com.hortonworks.streamline.streams.actions.StatusImpl;
@@ -11,6 +9,8 @@ import com.hortonworks.streamline.streams.actions.topology.service.TopologyActio
 import com.hortonworks.streamline.streams.catalog.Topology;
 import com.hortonworks.streamline.streams.catalog.TopologyTestRunHistory;
 import com.hortonworks.streamline.streams.common.athenax.AthenaXRestAPIClient;
+import com.hortonworks.streamline.streams.common.athenax.AthenaxConstants;
+import com.hortonworks.streamline.streams.common.athenax.AthenaxUtils;
 import com.hortonworks.streamline.streams.common.athenax.entity.DeployRequest;
 import com.hortonworks.streamline.streams.common.athenax.entity.JobDefinition;
 import com.hortonworks.streamline.streams.common.athenax.entity.JobStatusRequest;
@@ -77,7 +77,7 @@ public class AthenaxTopologyActionsImpl implements TopologyActions {
 		DeployRequest deployRequest = requestGenerator.extractDeployJobRequest(yarnDataCenter, yarnCluster, zkConnectionStr);
 
 		// submit job via Athenax-vm API
-		return this.athenaXRestAPIClient.deployJob(JsonClientUtil.convertRequestToJson(deployRequest));
+		return this.athenaXRestAPIClient.deployJob(deployRequest);
 	}
 
   @Override
@@ -89,25 +89,20 @@ public class AthenaxTopologyActionsImpl implements TopologyActions {
   @Override
 	public Status status(TopologyLayout topology, String applicationId, String asUser) throws Exception {
 		LOG.debug("Initial Topology config {}", topology.getConfig());
-		AthenaxJobGraphGenerator requestGenerator = new AthenaxJobGraphGenerator(topology, asUser);
 
 		// extract job status request
-		JobStatusRequest request = requestGenerator.extractJobStatusRequest(applicationId, yarnDataCenter, yarnCluster);
+		JobStatusRequest request = AthenaxUtils.extractJobStatusRequest(applicationId, yarnDataCenter, yarnCluster);
 
 		// send request via Athenax-vm API
-		String response = athenaXRestAPIClient.jobStatus(JsonClientUtil.convertRequestToJson(request));
-
-		// convert response(JSON string) into Map
-		ObjectMapper mapper = new ObjectMapper();
-		Map<String, Object> map = mapper.readValue(response, new TypeReference<Map<String, String>>(){}); ;
+		Map<String, String> statusMap = athenaXRestAPIClient.jobStatus(request);
 
 		// convert into Status
 		StatusImpl status = new StatusImpl();
 		String yarnApplicationState = AthenaxConstants.YARN_APPLICATION_STATE_UNKNOWN;
-		if (map != null) {
-			yarnApplicationState = (String)map.get(YARN_APPLICATION_STATE);
-			status.putExtra(FINAL_APPLICATION_STATUS, (String)map.get(FINAL_APPLICATION_STATUS));
-			status.putExtra(FINISH_TIME, (String)map.get(FINISH_TIME));
+		if (statusMap != null) {
+			yarnApplicationState = statusMap.get(YARN_APPLICATION_STATE);
+			status.putExtra(FINAL_APPLICATION_STATUS, statusMap.get(FINAL_APPLICATION_STATUS));
+			status.putExtra(FINISH_TIME, statusMap.get(FINISH_TIME));
 		}
 		status.setStatus(getRuntimeStatus(yarnApplicationState));
 
@@ -143,13 +138,12 @@ public class AthenaxTopologyActionsImpl implements TopologyActions {
   @Override
 	public void kill(TopologyLayout topology, String applicationId, String asUser) throws Exception {
 		LOG.debug("Initial Topology config {}", topology.getConfig());
-		AthenaxJobGraphGenerator requestGenerator = new AthenaxJobGraphGenerator(topology, asUser);
 
 		// extract kill job request
-		StopJobRequest request = requestGenerator.extractStopJobRequest(applicationId, yarnDataCenter, yarnCluster);
+		StopJobRequest stopJobRequest = AthenaxUtils.extractStopJobRequest(applicationId, yarnDataCenter, yarnCluster);
 
 		// send request via Athenax-vm API
-		athenaXRestAPIClient.stopJob(JsonClientUtil.convertRequestToJson(request));
+		athenaXRestAPIClient.stopJob(stopJobRequest);
 	}
 
   @Override
@@ -160,10 +154,10 @@ public class AthenaxTopologyActionsImpl implements TopologyActions {
 		topologyDag.traverse(requestGenerator);
 
 		// extract AthenaX job description
-    JobDefinition jobDef = requestGenerator.extractJobDefinition(zkConnectionStr);
+		JobDefinition jobDefinition = requestGenerator.extractJobDefinition(zkConnectionStr);
 
 		// send request via Athenax-vm API
-    athenaXRestAPIClient.validateJob(JsonClientUtil.convertRequestToJson(jobDef));
+		athenaXRestAPIClient.validateJob(jobDefinition);
 	}
 
   @Override

@@ -25,6 +25,7 @@ import javax.ws.rs.client.Invocation;
 import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.MultivaluedMap;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -186,7 +187,7 @@ public class JsonClientUtil {
         return builder.post(Entity.json(entity), clazz);
     }
 
-    public static Object convertRequestToJson(Object request) throws Exception {
+    public static Object convertRequestToJson(Object request) throws IOException {
         ObjectMapper mapper = new ObjectMapper();
         return mapper.writeValueAsString(request);
     }

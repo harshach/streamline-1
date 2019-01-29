@@ -816,6 +816,11 @@
             </dependency>
             <dependency>
                 <groupId>com.hortonworks.streamline</groupId>
+                <artifactId>streamline-metrics-athenax</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.hortonworks.streamline</groupId>
                 <artifactId>streamline-notification</artifactId>
                 <version>${project.version}</version>
                 <exclusions>

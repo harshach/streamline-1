@@ -13,6 +13,7 @@
     <packaging>pom</packaging>
     <modules>
         <module>actions</module>
+        <module>common</module>
         <module>layout</module>
         <module>metrics</module>
         <module>sampling</module>

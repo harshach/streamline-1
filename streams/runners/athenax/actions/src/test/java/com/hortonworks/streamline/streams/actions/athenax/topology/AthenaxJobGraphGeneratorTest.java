@@ -1,8 +1,10 @@
 package com.hortonworks.streamline.streams.actions.athenax.topology;
 
 import com.hortonworks.streamline.common.Config;
-import com.hortonworks.streamline.streams.actions.athenax.topology.entity.JobDefinition;
-import com.hortonworks.streamline.streams.layout.component.*;
+import com.hortonworks.streamline.streams.common.athenax.entity.JobDefinition;
+import com.hortonworks.streamline.streams.layout.component.Stream;
+import com.hortonworks.streamline.streams.layout.component.TopologyDag;
+import com.hortonworks.streamline.streams.layout.component.TopologyLayout;
 import com.hortonworks.streamline.streams.layout.component.impl.KafkaSource;
 import com.hortonworks.streamline.streams.layout.component.impl.RTASink;
 import com.hortonworks.streamline.streams.layout.component.impl.SqlProcessor;

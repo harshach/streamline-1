@@ -1,7 +1,11 @@
-package com.hortonworks.streamline.streams.actions.athenax.topology;
+package com.hortonworks.streamline.streams.common.athenax;
 
 import com.hortonworks.streamline.common.JsonClientUtil;
-import com.hortonworks.streamline.streams.actions.athenax.topology.entity.*;
+import com.hortonworks.streamline.streams.common.athenax.entity.Connector;
+import com.hortonworks.streamline.streams.common.athenax.entity.DeployRequest;
+import com.hortonworks.streamline.streams.common.athenax.entity.JobDefinition;
+import com.hortonworks.streamline.streams.common.athenax.entity.JobStatusRequest;
+import com.hortonworks.streamline.streams.common.athenax.entity.StopJobRequest;
 
 import javax.security.auth.Subject;
 import java.util.ArrayList;

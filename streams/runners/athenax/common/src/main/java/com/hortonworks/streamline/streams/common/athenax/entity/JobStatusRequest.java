@@ -1,4 +1,4 @@
-package com.hortonworks.streamline.streams.actions.athenax.topology.entity;
+package com.hortonworks.streamline.streams.common.athenax.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;

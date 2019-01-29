@@ -1,11 +1,11 @@
 package com.hortonworks.streamline.streams.actions.athenax.topology;
 
 import com.hortonworks.streamline.common.Config;
-import com.hortonworks.streamline.streams.actions.athenax.topology.entity.Connector;
-import com.hortonworks.streamline.streams.actions.athenax.topology.entity.DeployRequest;
-import com.hortonworks.streamline.streams.actions.athenax.topology.entity.JobDefinition;
-import com.hortonworks.streamline.streams.actions.athenax.topology.entity.JobStatusRequest;
-import com.hortonworks.streamline.streams.actions.athenax.topology.entity.StopJobRequest;
+import com.hortonworks.streamline.streams.common.athenax.entity.Connector;
+import com.hortonworks.streamline.streams.common.athenax.entity.DeployRequest;
+import com.hortonworks.streamline.streams.common.athenax.entity.JobDefinition;
+import com.hortonworks.streamline.streams.common.athenax.entity.JobStatusRequest;
+import com.hortonworks.streamline.streams.common.athenax.entity.StopJobRequest;
 import com.hortonworks.streamline.streams.layout.component.Edge;
 import com.hortonworks.streamline.streams.layout.component.StreamlineProcessor;
 import com.hortonworks.streamline.streams.layout.component.StreamlineSink;

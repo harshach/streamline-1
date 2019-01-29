@@ -1,4 +1,4 @@
-package com.hortonworks.streamline.streams.actions.athenax.topology;
+package com.hortonworks.streamline.streams.common.athenax;
 
 import com.hortonworks.streamline.common.JsonClientUtil;
 import org.glassfish.jersey.client.ClientConfig;

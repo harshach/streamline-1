@@ -15,12 +15,17 @@ import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.security.PrivilegedAction;
+import java.util.HashMap;
 import java.util.Map;
+
+import static com.hortonworks.streamline.streams.piper.common.PiperConstants.X_UBER_SOURCE;
+import static com.hortonworks.streamline.streams.piper.common.PiperConstants.UWORC_UBER_SERVICE_NAME;
+
 
 public class PiperRestAPIClient {
     private static final Logger LOG = LoggerFactory.getLogger(PiperRestAPIClient.class);
 
-    public static final MediaType REST_API_MEDIA_TYPE = MediaType.TEXT_PLAIN_TYPE;
+    public static final MediaType REST_API_MEDIA_TYPE = MediaType.APPLICATION_JSON_TYPE;
     public static final Integer DEFAULT_PAGE_SIZE = 2000;
 
     private final String apiRootUrl;
@@ -84,10 +89,15 @@ public class PiperRestAPIClient {
     }
     private String doPutRequest(final String requestUrl, final Object bodyObject) {
         try {
+
+            Map<String, String> headers = new HashMap<>();
+            headers.put(X_UBER_SOURCE, UWORC_UBER_SERVICE_NAME);
+
             return Subject.doAs(subject, new PrivilegedAction<String>() {
                 @Override
                 public String run() {
-                    return JsonClientUtil.putEntity(client.target(requestUrl), bodyObject, REST_API_MEDIA_TYPE, String.class);
+                    return JsonClientUtil.putEntity(client.target(requestUrl), headers, bodyObject,
+                            REST_API_MEDIA_TYPE, String.class);
                 }
             });
         } catch (javax.ws.rs.ProcessingException e) {
@@ -104,10 +114,14 @@ public class PiperRestAPIClient {
 
     private String doPostRequest(final String requestUrl, final Object bodyObject) {
         try {
+            Map<String, String> headers = new HashMap<>();
+            headers.put(X_UBER_SOURCE, UWORC_UBER_SERVICE_NAME);
+
             return Subject.doAs(subject, new PrivilegedAction<String>() {
                 @Override
                 public String run() {
-                    return JsonClientUtil.postEntity(client.target(requestUrl), bodyObject, REST_API_MEDIA_TYPE, String.class);
+                    return JsonClientUtil.postEntityWithHeaders(client.target(requestUrl), headers,
+                            bodyObject, REST_API_MEDIA_TYPE, String.class);
                 }
             });
         } catch (javax.ws.rs.ProcessingException e) {
@@ -125,10 +139,14 @@ public class PiperRestAPIClient {
     private Map doGetRequest(final String requestUrl) {
         try {
             LOG.debug("GET request to Piper: " + requestUrl);
+
+            Map<String, String> headers = new HashMap<>();
+            headers.put(X_UBER_SOURCE, UWORC_UBER_SERVICE_NAME);
+
             return Subject.doAs(subject, new PrivilegedAction<Map>() {
                 @Override
                 public Map run() {
-                    return JsonClientUtil.getEntity(client.target(requestUrl), REST_API_MEDIA_TYPE, Map.class);
+                    return JsonClientUtil.getEntity(client.target(requestUrl), headers, REST_API_MEDIA_TYPE, Map.class);
                 }
             });
         } catch (RuntimeException ex) {

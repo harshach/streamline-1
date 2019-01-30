@@ -66,13 +66,8 @@ public class M3RestAPIClient {
     private List<Map> doGetRequest(final URI requestUrl, String asUser) {
         try {
             Map<String, String> headers = new HashMap<>();
-            if (asUser == null || asUser.trim().isEmpty()) {
-                String msg = "User empty, setting %s to %s instead of user";
-                LOG.warn(String.format(msg, X_UBER_SOURCE, UWORC_UBER_SERVICE_NAME));
-                asUser = UWORC_UBER_SERVICE_NAME;
-            }
             headers.put(X_UBER_ORIGIN, UWORC_UBER_SERVICE_NAME);
-            headers.put(X_UBER_SOURCE, asUser);
+            headers.put(X_UBER_SOURCE, UWORC_UBER_SERVICE_NAME);
 
             LOG.debug("GET request to M3: " + requestUrl);
             return Subject.doAs(subject, new PrivilegedAction<List>() {

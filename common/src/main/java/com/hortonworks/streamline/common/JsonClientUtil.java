@@ -26,6 +26,7 @@ import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.MultivaluedMap;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -39,8 +40,19 @@ public class JsonClientUtil {
     }
 
     public static <T> T getEntity(WebTarget target, MediaType mediaType, Class<T> clazz) {
+        return getEntity(target, new HashMap<>(), mediaType, clazz);
+
+    }
+
+    public static <T> T getEntity(WebTarget target, Map<String, String> headers,
+                                  MediaType mediaType, Class<T> clazz) {
         try {
-            String response = target.request(mediaType).get(String.class);
+            Invocation.Builder builder = target.request();
+            for ( Map.Entry<String, String> entry : headers.entrySet()) {
+                builder.header(entry.getKey(), entry.getValue());
+            }
+            builder.accept(mediaType);
+            String response = builder.get(String.class);
             ObjectMapper mapper = new ObjectMapper();
             JsonNode node = mapper.readTree(response);
             return mapper.treeToValue(node, clazz);
@@ -79,38 +91,26 @@ public class JsonClientUtil {
     }
 
     public static <T> List<T> getEntities(WebTarget target, Class<T> clazz) {
-        return getEntities(target, DEFAULT_MEDIA_TYPE, clazz);
+        return getEntities(target, new HashMap<>(), DEFAULT_MEDIA_TYPE, clazz);
     }
 
     public static <T> List<T> getEntities(WebTarget target, Map<String, String> headers, Class<T> clazz) {
+        return getEntities(target, headers, DEFAULT_MEDIA_TYPE, clazz);
+    }
+
+    public static <T> List<T> getEntities(WebTarget target, Map<String, String> headers,
+                                          MediaType mediaType, Class<T> clazz) {
+
         Invocation.Builder builder = target.request();
         for ( Map.Entry<String, String> entry : headers.entrySet()) {
             builder.header(entry.getKey(), entry.getValue());
         }
 
-        builder.accept(DEFAULT_MEDIA_TYPE);
+        builder.accept(mediaType);
 
         List<T> entities = new ArrayList<>();
         try {
-            String response = builder.get(String.class);
-            ObjectMapper mapper = new ObjectMapper();
-            JsonNode node = mapper.readTree(response);
-            Iterator<JsonNode> it = node.elements();
-            while (it.hasNext()) {
-                entities.add(mapper.treeToValue(it.next(), clazz));
-            }
-            return entities;
-        }  catch (WebApplicationException e) {
-            throw WrappedWebApplicationException.of(e);
-        } catch (Exception ex) {
-            throw new RuntimeException(ex);
-        }
-    }
-
-    public static <T> List<T> getEntities(WebTarget target, MediaType mediaType, Class<T> clazz) {
-        List<T> entities = new ArrayList<>();
-        try {
-            String response = target.request(mediaType).get(String.class);
+            String response = target.request().get(String.class);
             ObjectMapper mapper = new ObjectMapper();
             JsonNode node = mapper.readTree(response);
             Iterator<JsonNode> it = node.elements();
@@ -160,7 +160,20 @@ public class JsonClientUtil {
     }
 
     public static <T> T putEntity(WebTarget target, Object entity, MediaType mediaType, Class<T> clazz) {
-        return target.request(mediaType).put(Entity.json(entity), clazz);
+        return putEntity(target, new HashMap<>(), entity, mediaType, clazz);
+    }
+
+    public static <T> T putEntity(WebTarget target, Map<String, String> headers, Object entity,
+                                        MediaType mediaType, Class<T> clazz) {
+
+        Invocation.Builder builder = target.request();
+        for ( Map.Entry<String, String> entry : headers.entrySet()) {
+            builder.header(entry.getKey(), entry.getValue());
+        }
+        builder.accept(mediaType);
+
+        return builder.put(Entity.json(entity), clazz);
+
     }
 
     public static <T> T postEntityWithHeaders(WebTarget target, Map<String, String> headers, Object entity, MediaType mediaType, Class<T> clazz) {

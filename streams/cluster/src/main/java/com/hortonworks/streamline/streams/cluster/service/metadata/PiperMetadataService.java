@@ -29,6 +29,9 @@ public class PiperMetadataService {
     public static final String PIPER_SERVICE_CONFIG_NAME = "properties";
     public static final String PIPER_SERVICE_CONFIG_KEY_HOST = "piper.service.host";
     public static final String PIPER_SERVICE_CONFIG_KEY_PORT = "piper.service.port";
+    public static final String TOTAL_RESULTS = "total_results" ;
+    public static final String PAGE_SIZE = "page_size" ;
+
 
     private final PiperRestAPIClient piperRestAPIClient;
 
@@ -80,11 +83,7 @@ public class PiperMetadataService {
     public Collection getConnections(String type) {
         Map response = this.piperRestAPIClient.getConnections(type);
 
-        Integer results = (Integer)response.get("total_results");
-        Integer pageSize = (Integer)response.get("page_size");
-        if (results > pageSize) {
-            throw new IllegalArgumentException("results truncated");
-        }
+        assertNotTruncated(response);
 
         Collection data = (Collection)response.get("data");
         Collection result = new ArrayList<String>();
@@ -95,4 +94,28 @@ public class PiperMetadataService {
         }
         return result;
     }
+
+    public Collection getPools() {
+        Map response = this.piperRestAPIClient.getPools();
+
+        assertNotTruncated(response);
+
+        Collection data = (Collection)response.get("data");
+        Collection result = new ArrayList<String>();
+        Iterator<Object> iterator = data.iterator();
+        while (iterator.hasNext()) {
+            Map pool = (Map)iterator.next();
+            result.add(pool.get("pool_id"));
+        }
+        return result;
+    }
+
+    private void assertNotTruncated(Map response) {
+        Integer results = (Integer)response.get(TOTAL_RESULTS);
+        Integer pageSize = (Integer)response.get(PAGE_SIZE);
+        if (results > pageSize) {
+            throw new IllegalArgumentException("results truncated");
+        }
+    }
+
 }

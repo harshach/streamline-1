@@ -5,6 +5,7 @@
     "engine": "PIPER",
     "template": ["Blank"],
     "builtin": true,
+    "fieldHintProviderClass": "com.hortonworks.streamline.streams.cluster.bundle.impl.PiperTaskBundleHintProvider",
     "transformationClass": "com.hortonworks.streamline.streams.layout.piper.GenericPiperTaskComponent",
     "input": true,
     "output": true,

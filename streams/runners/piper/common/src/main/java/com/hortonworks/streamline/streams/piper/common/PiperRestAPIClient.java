@@ -59,6 +59,11 @@ public class PiperRestAPIClient {
                 this.apiRootUrl, DEFAULT_PAGE_SIZE, encodeParam(type)));
     }
 
+    public Map getPools() {
+        return doGetRequest(String.format("%s/api/v1/pools/search?page_size=%d",
+                this.apiRootUrl, DEFAULT_PAGE_SIZE));
+    }
+
     public Map getPipelineRuns(String uuid, Long from, Long to, Integer page, Integer pageSize) {
         return doGetRequest(String.format(
                 "%s/api/v1/pipelines/%s/runs/search?page=%d&page_size=%d&start_date=%d&end_date=%d&order_by=desc(execution_date)",

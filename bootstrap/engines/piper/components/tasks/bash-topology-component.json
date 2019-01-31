@@ -24,14 +24,8 @@
         "fieldName": "task_params.bash_command",
         "tooltip": "Shell command to execute.",
         "isOptional": false,
-        "type": "string"
-      },
-      {
-        "uiName": "XCOM push",
-        "fieldName": "task_params.xcom_push",
-        "tooltip": "Push last line of stdout to XCOM variable.",
-        "isOptional": true,
-        "type": "boolean"
+        "type": "sql",
+        "height": "200"
       },
       {
         "uiName": "Environment",

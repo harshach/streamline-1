@@ -302,7 +302,19 @@ export class string extends BaseField {
   }
 
   validate() {
-    return super.validate(this.props.data[this.props.value]);
+    let {validation} = this.props.fieldJson;
+    let value = this.props.data[this.props.value];
+    let isValid = super.validate(value);
+    if(isValid){
+      if(validation && validation.regex){
+        let reg = new RegExp(validation.regex);
+        if(!reg.test(value)){
+          this.context.Form.state.Errors[this.props.valuePath] = validation.errorMessage;
+          isValid = false;
+        }
+      }
+    }
+    return isValid;
   }
 
   getField = () => {
@@ -646,16 +658,27 @@ export class number extends BaseField {
     this.validate();
   }
   validate() {
-    return super.validate(this.props.data[this.props.value]);
+    let {validation} = this.props.fieldJson;
+    let value = this.props.data[this.props.value];
+    let isValid = super.validate(value);
+    if(isValid){
+      if(validation && validation.min && value < validation.min){
+        isValid = false;
+      }
+      if(validation && validation.max && value > validation.max){
+        isValid = false;
+      }
+      if(!isValid){
+        this.context.Form.state.Errors[this.props.valuePath] = validation.errorMessage;
+      }
+    }
+    return isValid;
   }
   getField = () => {
     const numberHint = this.props.fieldJson.hint || null;
-    const min = this.props.fieldJson.min !== undefined
-      ? this.props.fieldJson.min
-      : 0;
-    const max = this.props.fieldJson.max !== undefined
-      ? this.props.fieldJson.max
-      : Number.MAX_SAFE_INTEGER;
+    let {validation} = this.props.fieldJson;
+    const min = (validation && validation.min) ? validation.min : 0;
+    const max = (validation && validation.max) ? validation.max : Number.MAX_SAFE_INTEGER;
     let disabledField = this.context.Form.props.readOnly;
     if (this.props.fieldJson.isUserInput !== undefined) {
       disabledField = disabledField || !this.props.fieldJson.isUserInput;

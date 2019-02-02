@@ -5,6 +5,7 @@
   "engine": "PIPER",
   "template": ["Blank"],
   "builtin": true,
+  "fieldHintProviderClass": "com.hortonworks.streamline.streams.cluster.bundle.impl.PiperMetaStoreTaskBundleHintProvider",
   "transformationClass": "com.hortonworks.streamline.streams.layout.piper.GenericPiperTaskComponent",
   "input": true,
   "output": true,
@@ -38,39 +39,29 @@
         "uiName": "Metastore Connection ID",
         "fieldName": "task_params.metastore_conn_id",
         "tooltip": "Connection ID for Hive Metastore",
-        "isOptional": false,
-        "type": "string"
-      },
-      {
-        "uiName": "Schema",
-        "fieldName": "task_params.schema",
-        "tooltip": "Schema name",
-        "defaultValue": "default",
-        "isOptional": false,
-        "type": "string"
-      },
-      {
-        "uiName": "Poke Interval",
-        "fieldName": "task_params.poke_interval",
-        "tooltip": "Poke interval in seconds. How often to check for partition. ",
-        "defaultValue": 180,
-        "isOptional": false,
-        "type": "number"
-      },
+        "defaultValue": "uworc_hive_metastore_default",
+        "isOptional": true,
+        "type": "enumstring",
+        "options": ["uworc_hive_metastore_default"],
+        "hint": "override"      },
       {
         "uiName": "Pool",
         "fieldName": "pool",
         "isUserInput": true,
         "tooltip": "Piper pool to run task in",
-        "isOptional": false,
-        "type": "string"
+        "defaultValue": "uworc_pool",
+        "isOptional": true,
+        "type": "enumstring",
+        "options": ["uworc_pool"],
+        "hint": "override"
       },
       {
         "uiName": "Retries",
         "fieldName": "retries",
         "isUserInput": true,
         "tooltip": "Number of Retries",
-        "isOptional": true,
+        "isOptional": false,
+        "defaultValue": 100,
         "type": "number"
       },
       {
@@ -78,7 +69,8 @@
         "fieldName": "retry_delay",
         "isUserInput": true,
         "tooltip": "Retry delay in seconds between retries",
-        "isOptional": true,
+        "isOptional": false,
+        "defaultValue": 300,
         "type": "number"
       },
       {

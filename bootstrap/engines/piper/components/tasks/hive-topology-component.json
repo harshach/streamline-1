@@ -5,7 +5,7 @@
     "engine": "PIPER",
     "template": ["Blank"],
     "builtin": true,
-    "fieldHintProviderClass": "com.hortonworks.streamline.streams.cluster.bundle.impl.PiperTaskBundleHintProvider",
+    "fieldHintProviderClass": "com.hortonworks.streamline.streams.cluster.bundle.impl.PiperHiveTaskBundleHintProvider",
     "transformationClass": "com.hortonworks.streamline.streams.layout.piper.GenericPiperTaskComponent",
     "input": true,
     "output": true,
@@ -57,8 +57,11 @@
                 "fieldName": "pool",
                 "isUserInput": true,
                 "tooltip": "Piper pool to run task in",
+                "defaultValue": "uworc_pool",
                 "isOptional": true,
-                "type": "string"
+                "type": "enumstring",
+                "options": ["uworc_pool"],
+                "hint": "override"
             },
             {
                 "uiName": "Retries",

@@ -5,6 +5,7 @@
   "engine": "PIPER",
   "template": ["Blank"],
   "builtin": true,
+  "fieldHintProviderClass": "com.hortonworks.streamline.streams.cluster.bundle.impl.PiperTaskBundleHintProvider",
   "transformationClass": "com.hortonworks.streamline.streams.layout.piper.ExternalTaskSensorTaskComponent",
   "input": true,
   "output": true,
@@ -88,8 +89,11 @@
         "fieldName": "pool",
         "isUserInput": true,
         "tooltip": "Piper pool to run task in",
-        "isOptional": false,
-        "type": "string"
+        "isOptional": true,
+        "defaultValue": "uworc_pool",
+        "type": "enumstring",
+        "options": ["uworc_pool"],
+        "hint": "override"
       },
       {
         "uiName": "Retries",

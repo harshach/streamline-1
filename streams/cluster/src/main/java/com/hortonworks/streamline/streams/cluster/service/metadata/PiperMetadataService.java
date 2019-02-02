@@ -105,7 +105,7 @@ public class PiperMetadataService {
         Iterator<Object> iterator = data.iterator();
         while (iterator.hasNext()) {
             Map pool = (Map)iterator.next();
-            result.add(pool.get("pool_id"));
+            result.add(pool.get("pool"));
         }
         return result;
     }

@@ -388,7 +388,7 @@ public class NamespaceCatalogResource {
             .filter(t -> Objects.equals(t.getNamespaceId(), namespaceId))
             .filter(t -> {
               try {
-                topologyActionsService.getRuntimeTopologyId(t, asUser);
+                topologyActionsService.getRuntimeTopologyId(t, namespaceId, asUser);
                 return true;
               } catch (TopologyNotAliveException | IOException e) {
                 // if engine is not accessible, we just treat it as not running

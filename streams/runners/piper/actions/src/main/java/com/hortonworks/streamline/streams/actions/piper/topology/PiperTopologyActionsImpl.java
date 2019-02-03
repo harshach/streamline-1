@@ -78,7 +78,7 @@ public class PiperTopologyActionsImpl implements TopologyActions {
     }
 
     @Override
-    public String redeploy(TopologyLayout topology, String runtimeId, String asUser) throws Exception {
+    public String redeploy(TopologyLayout topology, TopologyActionContext context, String runtimeId, String asUser) throws Exception {
         ManagedPipelineGenerator dagVisitor = new ManagedPipelineGenerator(topology);
         Pipeline pipeline = dagVisitor.generatePipeline();
         pipeline.setPipelineId(runtimeId);

@@ -1458,15 +1458,16 @@ public class StreamCatalogService {
         return topologyEditorMetadata;
     }
 
-    public TopologyRuntimeIdMap addOrUpdateTopologyRuntimeIdMap(Topology topology, String applicationId) {
-        TopologyRuntimeIdMap topologyRuntimeIdMap = new TopologyRuntimeIdMap(topology.getId(), topology.getNamespaceId(),
-                applicationId);
-        this.dao.addOrUpdate(topologyRuntimeIdMap);
-        return topologyRuntimeIdMap;
+    public void addOrUpdateTopologyRuntimeIdMap(Topology topology, List<Long> namespaceIds, String applicationId) {
+        for (Long namespaceId: namespaceIds) {
+            TopologyRuntimeIdMap topologyRuntimeIdMap = new TopologyRuntimeIdMap(topology.getId(), namespaceId,
+                    applicationId);
+            this.dao.addOrUpdate(topologyRuntimeIdMap);
+        }
     }
 
-    public TopologyRuntimeIdMap removeTopologyRuntimeIdMap(Long topologyId, Long namespaceId) {
-        TopologyRuntimeIdMap topologyRuntimeIdMap = getTopologyRuntimeIdMap(topologyId, namespaceId);
+    public TopologyRuntimeIdMap removeTopologyRuntimeIdMap(Long topologyId, List<Long> namespaceIds) {
+        TopologyRuntimeIdMap topologyRuntimeIdMap = getTopologyRuntimeIdMap(topologyId, namespaceIds);
         if (topologyRuntimeIdMap != null) {
             topologyRuntimeIdMap = dao.remove(topologyRuntimeIdMap.getStorableKey());
         }
@@ -1480,15 +1481,17 @@ public class StreamCatalogService {
         throw EntityNotFoundException.byMessage(String.format("Workflow not found : \"%s\"", applicationId));
     }
 
-    public TopologyRuntimeIdMap getTopologyRuntimeIdMap(Long topologyId, Long namespaceId) {
-        TopologyRuntimeIdMap topologyRuntimeIdMap = new TopologyRuntimeIdMap();
-        topologyRuntimeIdMap.setTopologyId(topologyId);
-        topologyRuntimeIdMap.setNamespaceId(namespaceId);
-        TopologyRuntimeIdMap topologyRuntimeIdMapRet = dao.get(new StorableKey(TOPOLOGY_RUNTIME_ID_NAMESPACE, topologyRuntimeIdMap.getPrimaryKey()));
-        if (topologyRuntimeIdMapRet == null || !topologyRuntimeIdMapRet.getTopologyId().equals(topologyId)) {
-            return null;
+    public TopologyRuntimeIdMap getTopologyRuntimeIdMap(Long topologyId, List<Long> namespaceIds) {
+        for (Long namespaceId : namespaceIds) {
+            TopologyRuntimeIdMap topologyRuntimeIdMap = new TopologyRuntimeIdMap();
+            topologyRuntimeIdMap.setTopologyId(topologyId);
+            topologyRuntimeIdMap.setNamespaceId(namespaceId);
+            TopologyRuntimeIdMap topologyRuntimeIdMapRet = dao.get(new StorableKey(TOPOLOGY_RUNTIME_ID_NAMESPACE, topologyRuntimeIdMap.getPrimaryKey()));
+            if (topologyRuntimeIdMapRet != null && topologyRuntimeIdMapRet.getTopologyId().equals(topologyId)) {
+                return topologyRuntimeIdMap;
+            }
         }
-        return topologyRuntimeIdMapRet;
+        return null;
     }
 
     /**

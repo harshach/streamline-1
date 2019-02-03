@@ -22,6 +22,7 @@ import com.hortonworks.streamline.streams.catalog.Topology;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.List;
 import java.util.Objects;
 
 public class TopologyContext implements TopologyActionContext {
@@ -30,20 +31,23 @@ public class TopologyContext implements TopologyActionContext {
     private final Topology topology;
     private final TopologyActions topologyActions;
     private final TopologyActionsService topologyActionsService;
+    private final List<Long> namespaceIds;
     private String mavenArtifacts;
     private TopologyState state;
     private String asUser;
 
     public TopologyContext(Topology topology, TopologyActions topologyActions, TopologyActionsService topologyActionsService,
-                           TopologyState state, String asUser) {
+                           TopologyState state, List<Long> namespaceIds, String asUser) {
         Objects.requireNonNull(topology, "null topology");
         Objects.requireNonNull(topologyActions, "null topologyActions");
         Objects.requireNonNull(topologyActionsService, "null topologyActionsService");
+        Objects.requireNonNull(namespaceIds, "null namespaceIds");
         Objects.requireNonNull(state, "null state");
         this.topology = topology;
         this.topologyActions = topologyActions;
         this.topologyActionsService = topologyActionsService;
         this.state = state;
+        this.namespaceIds = namespaceIds;
         this.asUser = asUser;
     }
 
@@ -70,6 +74,8 @@ public class TopologyContext implements TopologyActionContext {
     public Topology getTopology() {
         return topology;
     }
+
+    public List<Long> getNamespaceIds() { return namespaceIds; }
 
     public String getMavenArtifacts() {
         return mavenArtifacts;
@@ -104,10 +110,10 @@ public class TopologyContext implements TopologyActionContext {
     }
 
     public void storeRuntimeApplicationId(String applicationId) throws Exception {
-        topologyActionsService.storeRuntimeApplicationId(topology, applicationId);
+        topologyActionsService.storeRuntimeApplicationId(topology, namespaceIds, applicationId);
     }
     public String getRuntimeApplicationId() throws Exception {
-        return topologyActionsService.getRuntimeTopologyId(topology, asUser);
+        return topologyActionsService.getRuntimeTopologyId(topology, namespaceIds, asUser);
     }
 
 

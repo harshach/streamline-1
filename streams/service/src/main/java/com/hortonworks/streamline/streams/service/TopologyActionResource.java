@@ -35,6 +35,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.SecurityContext;
 
+import java.util.List;
 import java.util.concurrent.ForkJoinPool;
 
 import static com.hortonworks.streamline.streams.catalog.Topology.NAMESPACE;
@@ -64,13 +65,14 @@ public class TopologyActionResource {
     @Path("/topologies/{topologyId}/actions/status")
     @Timed
     public Response topologyStatus (@PathParam("topologyId") Long topologyId,
+                                    @QueryParam("namespaceId") Long namespaceId,
                                     @Context SecurityContext securityContext) throws Exception {
         SecurityUtil.checkRoleOrPermissions(authorizer, securityContext, Roles.ROLE_TOPOLOGY_SUPER_ADMIN,
                 NAMESPACE, topologyId, READ, EXECUTE);
         Topology result = catalogService.getTopology(topologyId);
         if (result != null) {
             String asUser = WSUtils.getUserFromSecurityContext(securityContext);
-            TopologyActions.Status status = actionsService.topologyStatus(result, asUser);
+            TopologyActions.Status status = actionsService.topologyStatus(result,namespaceId,asUser);
             return WSUtils.respondEntity(status, OK);
         }
 
@@ -82,13 +84,14 @@ public class TopologyActionResource {
     @Timed
     public Response topologyStatusVersion(@PathParam("topologyId") Long topologyId,
                                           @PathParam("versionId") Long versionId,
+                                          @QueryParam("namespaceId") Long namespaceId,
                                           @Context SecurityContext securityContext) throws Exception {
         SecurityUtil.checkRoleOrPermissions(authorizer, securityContext, Roles.ROLE_TOPOLOGY_SUPER_ADMIN,
                 NAMESPACE, topologyId, READ, EXECUTE);
         Topology result = catalogService.getTopology(topologyId, versionId);
         if (result != null) {
             String asUser = WSUtils.getUserFromSecurityContext(securityContext);
-            TopologyActions.Status status = actionsService.topologyStatus(result, asUser);
+            TopologyActions.Status status = actionsService.topologyStatus(result, namespaceId, asUser);
             return WSUtils.respondEntity(status, OK);
         }
 
@@ -129,12 +132,14 @@ public class TopologyActionResource {
     @POST
     @Path("/topologies/{topologyId}/actions/deploy")
     @Timed
-    public Response deployTopology (@PathParam("topologyId") Long topologyId, @Context SecurityContext securityContext) throws Exception {
+    public Response deployTopology (@PathParam("topologyId") Long topologyId,
+                                    @QueryParam("namespaceId") List<Long> namespaceId,
+                                    @Context SecurityContext securityContext) throws Exception {
         SecurityUtil.checkRoleOrPermissions(authorizer, securityContext, Roles.ROLE_TOPOLOGY_SUPER_ADMIN,
                 NAMESPACE, topologyId, READ, EXECUTE);
         Topology topology = catalogService.getTopology(topologyId);
         if (topology != null) {
-            return deploy(topology, securityContext);
+            return deploy(topology, namespaceId, securityContext);
         }
         throw EntityNotFoundException.byId(topologyId.toString());
     }
@@ -145,20 +150,21 @@ public class TopologyActionResource {
     @Timed
     public Response deployTopologyVersion(@PathParam("topologyId") Long topologyId,
                                           @PathParam("versionId") Long versionId,
+                                          @QueryParam("namespaceId") List<Long> namespaceId,
                                           @Context SecurityContext securityContext) throws Exception {
         SecurityUtil.checkRoleOrPermissions(authorizer, securityContext, Roles.ROLE_TOPOLOGY_SUPER_ADMIN,
                 NAMESPACE, topologyId, READ, EXECUTE);
         Topology topology = catalogService.getTopology(topologyId, versionId);
         if (topology != null) {
-            return deploy(topology, securityContext);
+            return deploy(topology, namespaceId, securityContext);
         }
         throw EntityNotFoundException.byVersion(topologyId.toString(), versionId.toString());
     }
 
-    private Response deploy(Topology topology, SecurityContext securityContext) {
+    private Response deploy(Topology topology, List<Long> namespaceId, SecurityContext securityContext) {
         String asUser = WSUtils.getUserFromSecurityContext(securityContext);
         try {
-            ParallelStreamUtil.runAsync(() -> actionsService.deployTopology(topology, asUser), forkJoinPool);
+            ParallelStreamUtil.runAsync(() -> actionsService.deployTopology(topology, namespaceId, asUser), forkJoinPool);
             return WSUtils.respondEntity(topology, OK);
         } catch (TopologyAlreadyExistsOnCluster ex) {
             return ex.getResponse();
@@ -168,12 +174,14 @@ public class TopologyActionResource {
     @POST
     @Path("/topologies/{topologyId}/actions/kill")
     @Timed
-    public Response killTopology (@PathParam("topologyId") Long topologyId, @Context SecurityContext securityContext) throws Exception {
+    public Response killTopology (@PathParam("topologyId") Long topologyId,
+                                  @QueryParam("namespaceId") List<Long> namespaceId,
+                                  @Context SecurityContext securityContext) throws Exception {
         SecurityUtil.checkRoleOrPermissions(authorizer, securityContext, Roles.ROLE_TOPOLOGY_SUPER_ADMIN,
                 NAMESPACE, topologyId, READ, EXECUTE);
         Topology result = catalogService.getTopology(topologyId);
         if (result != null) {
-            actionsService.killTopology(result, WSUtils.getUserFromSecurityContext(securityContext));
+            actionsService.killTopology(result, namespaceId, WSUtils.getUserFromSecurityContext(securityContext));
             return WSUtils.respondEntity(result, OK);
         }
 
@@ -185,12 +193,13 @@ public class TopologyActionResource {
     @Timed
     public Response killTopologyVersion(@PathParam("topologyId") Long topologyId,
                                         @PathParam("versionId") Long versionId,
+                                        @QueryParam("namespaceId") List<Long> namespaceId,
                                         @Context SecurityContext securityContext) throws Exception {
         SecurityUtil.checkRoleOrPermissions(authorizer, securityContext, Roles.ROLE_TOPOLOGY_SUPER_ADMIN,
                 NAMESPACE, topologyId, READ, EXECUTE);
         Topology result = catalogService.getTopology(topologyId, versionId);
         if (result != null) {
-            actionsService.killTopology(result, WSUtils.getUserFromSecurityContext(securityContext));
+            actionsService.killTopology(result, namespaceId, WSUtils.getUserFromSecurityContext(securityContext));
             return WSUtils.respondEntity(result, OK);
         }
 
@@ -200,12 +209,14 @@ public class TopologyActionResource {
     @POST
     @Path("/topologies/{topologyId}/actions/suspend")
     @Timed
-    public Response suspendTopology (@PathParam("topologyId") Long topologyId, @Context SecurityContext securityContext) throws Exception {
+    public Response suspendTopology (@PathParam("topologyId") Long topologyId,
+                                     @QueryParam("namespaceId") List<Long> namespaceId,
+                                     @Context SecurityContext securityContext) throws Exception {
         SecurityUtil.checkRoleOrPermissions(authorizer, securityContext, Roles.ROLE_TOPOLOGY_SUPER_ADMIN,
                 NAMESPACE, topologyId, READ, EXECUTE);
         Topology result = catalogService.getTopology(topologyId);
         if (result != null) {
-            actionsService.suspendTopology(result, WSUtils.getUserFromSecurityContext(securityContext));
+            actionsService.suspendTopology(result, namespaceId,WSUtils.getUserFromSecurityContext(securityContext));
             return WSUtils.respondEntity(result, OK);
         }
 
@@ -217,12 +228,13 @@ public class TopologyActionResource {
     @Timed
     public Response suspendTopologyVersion(@PathParam("topologyId") Long topologyId,
                                            @PathParam("versionId") Long versionId,
+                                           @QueryParam("namespaceId") List<Long> namespaceId,
                                            @Context SecurityContext securityContext) throws Exception {
         SecurityUtil.checkRoleOrPermissions(authorizer, securityContext, Roles.ROLE_TOPOLOGY_SUPER_ADMIN,
                 NAMESPACE, topologyId, READ, EXECUTE);
         Topology result = catalogService.getTopology(topologyId, versionId);
         if (result != null) {
-            actionsService.suspendTopology(result, WSUtils.getUserFromSecurityContext(securityContext));
+            actionsService.suspendTopology(result, namespaceId, WSUtils.getUserFromSecurityContext(securityContext));
             return WSUtils.respondEntity(result, OK);
         }
 
@@ -233,12 +245,13 @@ public class TopologyActionResource {
     @Path("/topologies/{topologyId}/actions/resume")
     @Timed
     public Response resumeTopology (@PathParam("topologyId") Long topologyId,
+                                    @QueryParam("namespaceId") List<Long> namespaceId,
                                     @Context SecurityContext securityContext) throws Exception {
         SecurityUtil.checkRoleOrPermissions(authorizer, securityContext, Roles.ROLE_TOPOLOGY_SUPER_ADMIN,
                 NAMESPACE, topologyId, READ, EXECUTE);
         Topology result = catalogService.getTopology(topologyId);
         if (result != null) {
-            actionsService.resumeTopology(result, WSUtils.getUserFromSecurityContext(securityContext));
+            actionsService.resumeTopology(result, namespaceId, WSUtils.getUserFromSecurityContext(securityContext));
             return WSUtils.respondEntity(result, OK);
         }
 
@@ -250,12 +263,13 @@ public class TopologyActionResource {
     @Timed
     public Response resumeTopologyVersion(@PathParam("topologyId") Long topologyId,
                                           @PathParam("versionId") Long versionId,
+                                          @QueryParam("namespaceId") List<Long> namespaceId,
                                           @Context SecurityContext securityContext) throws Exception {
         SecurityUtil.checkRoleOrPermissions(authorizer, securityContext, Roles.ROLE_TOPOLOGY_SUPER_ADMIN,
                 NAMESPACE, topologyId, READ, EXECUTE);
         Topology result = catalogService.getTopology(topologyId, versionId);
         if (result != null) {
-            actionsService.resumeTopology(result, WSUtils.getUserFromSecurityContext(securityContext));
+            actionsService.resumeTopology(result, namespaceId, WSUtils.getUserFromSecurityContext(securityContext));
             return WSUtils.respondEntity(result, OK);
         }
 

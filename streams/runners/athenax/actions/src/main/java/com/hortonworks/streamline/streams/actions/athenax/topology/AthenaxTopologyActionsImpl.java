@@ -81,7 +81,7 @@ public class AthenaxTopologyActionsImpl implements TopologyActions {
 	}
 
   @Override
-	public String redeploy(TopologyLayout topology, String runtimeId, String asUser) throws Exception {
+	public String redeploy(TopologyLayout topology, TopologyActionContext context, String runtimeId, String asUser) throws Exception {
 		return "";
 	}
 

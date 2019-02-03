@@ -9,6 +9,7 @@ import com.hortonworks.streamline.streams.catalog.service.StreamCatalogService;
 import com.hortonworks.streamline.streams.cluster.catalog.*;
 import com.hortonworks.streamline.streams.cluster.service.EnvironmentService;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
@@ -34,7 +35,9 @@ public class TopologyCatalogHelperService {
     }
 
     public TopologyRuntimeIdMap getTopologyRuntimeIdMap(Long topologyId, Long namespaceId) {
-        return streamCatalogService.getTopologyRuntimeIdMap(topologyId, namespaceId);
+        List<Long> namespaceIds = new ArrayList<>();
+        namespaceIds.add(namespaceId);
+        return streamCatalogService.getTopologyRuntimeIdMap(topologyId, namespaceIds);
     }
 
     public Service getFirstOccurenceServiceForNamespace(Namespace namespace, String serviceName) {

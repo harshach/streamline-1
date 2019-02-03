@@ -117,12 +117,12 @@ public final class CatalogResourceUtil {
             }
 
             try {
-                String runtimeTopologyId = actionsService.getRuntimeTopologyId(topology, asUser);
+                String runtimeTopologyId = actionsService.getRuntimeTopologyId(topology, topology.getNamespaceId(), asUser);
                 TopologyMetrics.TopologyMetric topologyMetric = metricsService.getTopologyMetric(topology, asUser);
                 detailedResponse = new TopologyDashboardResponse(topology);
                 Map<String, TopologyRuntimeResponse> namespaces = new HashMap<>();
                 TopologyRuntimeResponse runtimeResponse = new TopologyRuntimeResponse(namespaceName,runtimeTopologyId, topologyMetric);
-                runtimeResponse.setStatus(actionsService.topologyStatus(topology, asUser));
+                runtimeResponse.setStatus(actionsService.topologyStatus(topology, topology.getNamespaceId(), asUser));
                 namespaces.put(namespaceName, runtimeResponse);
                 detailedResponse.setNamespaces(namespaces);
             } catch (Exception e) {

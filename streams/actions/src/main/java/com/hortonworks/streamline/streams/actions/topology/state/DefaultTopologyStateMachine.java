@@ -215,7 +215,7 @@ public class DefaultTopologyStateMachine implements TopologyStateMachine {
 
             try {
                 context.setCurrentAction("Redeploying topology");
-                topologyActions.redeploy(layout, runtimeId, context.getAsUser());
+                topologyActions.redeploy(layout, context, runtimeId, context.getAsUser());
                 context.setCurrentAction("Topology Redeployed");
             } catch (Exception ex) {
                 LOG.error("Error while trying to redeploy the topology", ex);
@@ -293,7 +293,7 @@ public class DefaultTopologyStateMachine implements TopologyStateMachine {
     private static void invokeKill(TopologyContext context) throws Exception {
         Topology topology = context.getTopology();
         String runAsUser = context.getAsUser();
-        String applicationId = context.getTopologyActionsService().getRuntimeTopologyId(topology, runAsUser);
+        String applicationId = context.getTopologyActionsService().getRuntimeTopologyId(topology, context.getNamespaceIds(), runAsUser);
 
         TopologyActions topologyActions = context.getTopologyActions();
         topologyActions.kill(CatalogToLayoutConverter.getTopologyLayout(topology), applicationId, runAsUser);

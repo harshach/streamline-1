@@ -58,10 +58,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
 import java.nio.charset.StandardCharsets;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.EnumSet;
-import java.util.Optional;
+import java.util.*;
 
 import static com.hortonworks.streamline.streams.catalog.Topology.NAMESPACE;
 import static com.hortonworks.streamline.streams.catalog.TopologyVersion.VERSION_PREFIX;
@@ -409,6 +406,7 @@ public class TopologyCatalogResource {
     @Path("/topologies/{topologyId}")
     @Timed
     public Response removeTopology(@PathParam("topologyId") Long topologyId,
+                                   @QueryParam("namespaceId") List<Long> namespaceId,
                                    @javax.ws.rs.QueryParam("onlyCurrent") boolean onlyCurrent,
                                    @javax.ws.rs.QueryParam("force") boolean force,
                                    @Context SecurityContext securityContext) throws Exception {
@@ -423,7 +421,7 @@ public class TopologyCatalogResource {
         if (!force && !result.getNamespaceId().equals(EnvironmentService.TEST_ENVIRONMENT_ID)) {
             String asUser = WSUtils.getUserFromSecurityContext(securityContext);
             try {
-                actionsService.killTopology(result, asUser);
+                actionsService.killTopology(result, namespaceId, asUser);
             } catch (TopologyNotAliveException e) {
                 // OK to continue
             }

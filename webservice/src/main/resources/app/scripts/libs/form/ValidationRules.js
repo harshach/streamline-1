@@ -16,14 +16,14 @@ import _ from 'lodash';
 
 let ValidationRules = {
   required: (value, form, component) => {
-    if (!value) {
+    if (!value && value !== 0) {
       return 'Required!';
     } else {
       if (value instanceof Array) {
         if (value.length === 0) {
           return 'Required!';
         }
-      } else if (value == '' || (typeof value == 'string' && value.trim() == '') || _.isUndefined(value)) {
+      } else if (value === '' || (typeof value == 'string' && value.trim() == '') || _.isUndefined(value)) {
         return 'Required!';
       } else {
         return '';

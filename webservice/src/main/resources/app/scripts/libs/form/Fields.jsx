@@ -662,10 +662,10 @@ export class number extends BaseField {
     let value = this.props.data[this.props.value];
     let isValid = super.validate(value);
     if(isValid){
-      if(validation && validation.min && value < validation.min){
+      if(validation && !_.isUndefined(validation.min) && value < validation.min){
         isValid = false;
       }
-      if(validation && validation.max && value > validation.max){
+      if(validation && !_.isUndefined(validation.max) && value > validation.max){
         isValid = false;
       }
       if(!isValid){
@@ -677,8 +677,8 @@ export class number extends BaseField {
   getField = () => {
     const numberHint = this.props.fieldJson.hint || null;
     let {validation} = this.props.fieldJson;
-    const min = (validation && validation.min) ? validation.min : 0;
-    const max = (validation && validation.max) ? validation.max : Number.MAX_SAFE_INTEGER;
+    const min = (validation && !_.isUndefined(validation.min)) ? validation.min : 0;
+    const max = (validation && !_.isUndefined(validation.max)) ? validation.max : Number.MAX_SAFE_INTEGER;
     let disabledField = this.context.Form.props.readOnly;
     if (this.props.fieldJson.isUserInput !== undefined) {
       disabledField = disabledField || !this.props.fieldJson.isUserInput;

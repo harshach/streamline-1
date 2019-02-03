@@ -121,8 +121,8 @@ export default class FSForm extends Component {
             isFieldValid = true;
           } else {
             let {validation} = component.props.fieldJson;
-            const min = (validation && validation.min) ? validation.min : 0;
-            const max = (validation && validation.max) ? validation.max : Number.MAX_SAFE_INTEGER;
+            const min = (validation && !_.isUndefined(validation.min)) ? validation.min : 0;
+            const max = (validation && !_.isUndefined(validation.max)) ? validation.max : Number.MAX_SAFE_INTEGER;
             isFieldValid = (val >= min && val <= max)
               ? true
               : false;

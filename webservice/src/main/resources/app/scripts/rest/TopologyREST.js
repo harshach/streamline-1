@@ -102,13 +102,13 @@ const TopologyREST = {
         return response.json();
       });
   },
-  deployTopology(id, versionId, options) {
+  deployTopology(id, versionId, namespaceId, options) {
     options = options || {};
     options.method = options.method || 'POST';
     options.credentials = 'same-origin';
-    let url = baseUrl + 'topologies/' + id + '/actions/deploy';
+    let url = baseUrl + 'topologies/' + id + '/actions/deploy?namespaceId=' + namespaceId;
     if (versionId) {
-      url = baseUrl + 'topologies/' + id + "/versions/" + versionId + '/actions/deploy';
+      url = baseUrl + 'topologies/' + id + "/versions/" + versionId + '/actions/deploy?namespaceId=' + namespaceId;
     }
     return fetch(url, options)
       .then((response) => {
@@ -125,14 +125,11 @@ const TopologyREST = {
         return response.json();
       });
   },
-  killTopology(id, versionId, options) {
+  killTopology(id, namespaceId, options) {
     options = options || {};
     options.method = options.method || 'POST';
     options.credentials = 'same-origin';
-    let url = baseUrl + 'topologies/' + id + '/actions/kill';
-    if (versionId) {
-      url = baseUrl + 'topologies/' + id + "/versions/" + versionId + '/actions/kill';
-    }
+    let url = baseUrl + 'topologies/' + id + '/actions/kill?namespaceId=' + namespaceId;
     return fetch(url, options)
       .then((response) => {
         return response.json();
@@ -556,11 +553,11 @@ const TopologyREST = {
         return response.json();
       });
   },
-  getTopologyActionStatus(topologyId, options){
+  getTopologyActionStatus(topologyId, namespaceId, options){
     options = options || {};
     options.method = options.method || 'GET';
     options.credentials = 'same-origin';
-    const url = baseUrl + 'topologies/'+topologyId+'/actions/status';
+    const url = baseUrl + 'topologies/'+topologyId+'/actions/status?namespaceId=' + namespaceId;
     return fetch(url, options)
       .then(Utils.checkStatus);
   }

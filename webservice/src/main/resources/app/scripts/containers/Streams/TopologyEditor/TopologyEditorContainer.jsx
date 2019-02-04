@@ -517,7 +517,7 @@ export class TopologyEditorContainer extends Component {
         this.refs.deployLoadingModal.hide();
         this.setState({topologyStatus: this.status});
       } else {
-        TopologyREST.deployTopology(this.topologyId, this.versionId).then(topology => {
+        TopologyREST.deployTopology(this.topologyId, this.versionId, this.namespaceId).then(topology => {
           if (topology.responseMessage !== undefined) {
             FSReactToastr.error(
               <CommonNotification flag="error" content={topology.responseMessage}/>, '', toastOpt);
@@ -565,7 +565,7 @@ export class TopologyEditorContainer extends Component {
     this.refs.BaseContainer.refs.Confirm.show({title: 'Are you sure you want to stop this Workflow?'}).then((confirmBox) => {
       document.getElementsByClassName('loader-overlay')[0].className = "loader-overlay";
       this.setState({topologyStatus: 'KILLING...'});
-      TopologyREST.killTopology(this.topologyId).then(topology => {
+      TopologyREST.killTopology(this.topologyId, this.namespaceId).then(topology => {
         if (topology.responseMessage !== undefined) {
           FSReactToastr.error(
             <CommonNotification flag="error" content={topology.responseMessage}/>, '', toastOpt);

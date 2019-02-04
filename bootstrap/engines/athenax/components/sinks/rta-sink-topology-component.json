@@ -41,7 +41,8 @@
         "isOptional": false,
         "tooltip": "Kafka topic to write data to",
         "type": "enumstring",
-        "options": []
+        "options": [],
+        "hint": "schema,override"
       },
       {
         "uiName": "Table Name",

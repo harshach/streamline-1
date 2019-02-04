@@ -152,7 +152,7 @@ public class StreamsModule implements ModuleRegistration, StorageManagerAware, T
                                                      SecurityCatalogService securityCatalogService,
                                                      Subject subject) {
         return Arrays.asList(
-                new TopologyCatalogResource(authorizer, streamcatalogService, actionsService),
+                new TopologyCatalogResource(authorizer, streamcatalogService, actionsService, securityCatalogService),
                 new TopologyActionResource(authorizer, streamcatalogService, actionsService),
                 new TopologyDashboardResource(authorizer, streamcatalogService, environmentService, actionsService,
                         metricsService, transactionManager),

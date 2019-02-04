@@ -20,20 +20,19 @@ import com.codahale.metrics.annotation.Timed;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.hortonworks.streamline.common.exception.service.exception.request.BadRequestException;
 import com.hortonworks.streamline.common.exception.service.exception.request.EntityNotFoundException;
-import com.hortonworks.streamline.common.exception.service.exception.server.EngineNotReachableException;
 import com.hortonworks.streamline.common.util.WSUtils;
 import com.hortonworks.streamline.streams.actions.topology.service.TopologyActionsService;
 import com.hortonworks.streamline.streams.catalog.*;
 import com.hortonworks.streamline.streams.catalog.service.StreamCatalogService;
 import com.hortonworks.streamline.streams.catalog.topology.TopologyData;
 import com.hortonworks.streamline.streams.cluster.service.EnvironmentService;
-import com.hortonworks.streamline.streams.exception.FailedToKillDeployedTopologyException;
 import com.hortonworks.streamline.streams.exception.TopologyNotAliveException;
 import com.hortonworks.streamline.streams.security.Permission;
 import com.hortonworks.streamline.streams.security.Roles;
 import com.hortonworks.streamline.streams.security.SecurityUtil;
 import com.hortonworks.streamline.streams.security.StreamlineAuthorizer;
-import com.hortonworks.streamline.streams.storm.common.StormNotReachableException;
+import com.hortonworks.streamline.streams.security.catalog.User;
+import com.hortonworks.streamline.streams.security.service.SecurityCatalogService;
 import org.apache.commons.lang3.StringUtils;
 import org.glassfish.jersey.media.multipart.FormDataParam;
 import org.slf4j.Logger;
@@ -53,11 +52,13 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.SecurityContext;
 import javax.ws.rs.core.UriInfo;
+import javax.ws.rs.core.MultivaluedMap;
+import javax.ws.rs.core.MultivaluedHashMap;
 import java.io.ByteArrayInputStream;
-import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
 import java.nio.charset.StandardCharsets;
+import java.util.List;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.EnumSet;
@@ -82,12 +83,17 @@ public class TopologyCatalogResource {
     private final StreamlineAuthorizer authorizer;
     private final StreamCatalogService catalogService;
     private final TopologyActionsService actionsService;
+    private final SecurityCatalogService securityCatalogService;
 
-    public TopologyCatalogResource(StreamlineAuthorizer authorizer, StreamCatalogService catalogService,
-                                   TopologyActionsService actionsService) {
+
+    public TopologyCatalogResource(StreamlineAuthorizer authorizer,
+                                   StreamCatalogService catalogService,
+                                   TopologyActionsService actionsService,
+                                   SecurityCatalogService securityCatalogService) {
         this.authorizer = authorizer;
         this.catalogService = catalogService;
         this.actionsService = actionsService;
+        this.securityCatalogService = securityCatalogService;
     }
 
     @GET
@@ -190,7 +196,6 @@ public class TopologyCatalogResource {
     }
 
 
-
     @GET
     @Path("/system/engines/metrics")
     @Timed
@@ -213,6 +218,7 @@ public class TopologyCatalogResource {
         return response;
     }
 
+
     @POST
     @Path("/system/engines/metrics")
     @Timed
@@ -231,13 +237,29 @@ public class TopologyCatalogResource {
     @GET
     @Path("/projects")
     @Timed
-    public Response listProjects (@Context SecurityContext securityContext) {
-        boolean topologyUser = SecurityUtil.hasRole(authorizer, securityContext, Roles.ROLE_TOPOLOGY_USER);
-        Collection<Project>  projects = catalogService.listProjects();
-        if (topologyUser) {
-            LOG.debug("Returning all projects since user has role: {}", Roles.ROLE_TOPOLOGY_USER);
+    public Response listProjects (@Context SecurityContext securityContext,
+                                  @javax.ws.rs.QueryParam("sharedByOther") boolean sharedByOther) {
+        boolean adminUser = SecurityUtil.hasRole(authorizer, securityContext, Roles.ROLE_ADMIN);
+        Collection<Project>  projects = null;
+        if (adminUser) {
+            projects = catalogService.listProjects();
+            LOG.debug("Returning all projects since user has role: {}", Roles.ROLE_ADMIN);
         } else {
-            projects = SecurityUtil.filter(authorizer, securityContext, NAMESPACE, projects, READ);
+            String userName = SecurityUtil.getUserName(securityContext.getUserPrincipal().getName());
+            User user = securityCatalogService.getUser(userName);
+            List<String> listProjectIds = null;
+            if (sharedByOther == true) {
+                listProjectIds = securityCatalogService.listObjectIdSharedByOthers(user.getId(), Project.NAMESPACE);
+            } else {
+                listProjectIds = securityCatalogService.listOjectIdByOwner(user.getId(), Project.NAMESPACE);
+            }
+
+            if (listProjectIds.size() > 0) {
+                MultivaluedMap<String, String> params = new MultivaluedHashMap<>();
+                params.addAll(Project.ID, listProjectIds);
+                List<com.hortonworks.streamline.common.QueryParam> queryParams = WSUtils.buildQueryParameters(params);
+                projects = catalogService.listProjects(queryParams);
+            }
         }
         Response response;
         if (projects != null) {
@@ -248,6 +270,7 @@ public class TopologyCatalogResource {
 
         return response;
     }
+
 
     @GET
     @Path("/projects/{projectId}")

@@ -50,6 +50,9 @@ import static com.hortonworks.streamline.streams.security.catalog.AclEntry.SidTy
 public class SecurityCatalogService {
     private static final Logger LOG = LoggerFactory.getLogger(SecurityCatalogService.class);
 
+    private final String IsOwner                = "1";
+    private final String IsNotOwner             = "0";
+    private final String HasAccessPermission    = "1";
     private final StorageManager dao;
 
     public SecurityCatalogService(StorageManager storageManager) {
@@ -283,6 +286,31 @@ public class SecurityCatalogService {
                 AclEntry.OBJECT_NAMESPACE, targetEntityNamespace,
                 AclEntry.OBJECT_ID, targetEntityId.toString());
         return listAcls(qps);
+    }
+
+    public List<String> listOjectIdByOwner(Long userId, String targetEntityNamespace) {
+        List<QueryParam> qps = QueryParam.params(AclEntry.OBJECT_NAMESPACE, targetEntityNamespace,
+                AclEntry.SID_ID, userId.toString(),
+                AclEntry.SID_TYPE, AclEntry.SidType.USER.toString(),
+                AclEntry.OWNER, IsOwner);
+        Collection<AclEntry> acls = listAcls(qps);
+        List<String> listObjectIds = acls.stream()
+                .map(acl -> acl.getObjectId().toString())
+                .collect(Collectors.toList());
+        return listObjectIds;
+    }
+
+    public List<String> listObjectIdSharedByOthers(Long userId, String targetEntityNamespace) {
+        List<QueryParam> qps = QueryParam.params(AclEntry.OBJECT_NAMESPACE, targetEntityNamespace,
+                AclEntry.SID_ID, userId.toString(),
+                AclEntry.SID_TYPE, AclEntry.SidType.USER.toString(),
+                AclEntry.OWNER, IsNotOwner,
+                AclEntry.GRANT, HasAccessPermission);
+        Collection<AclEntry> acls = listAcls(qps);
+        List<String> listObjectIds = acls.stream()
+                .map(acl -> acl.getObjectId().toString())
+                .collect(Collectors.toList());
+        return listObjectIds;
     }
 
     public Collection<AclEntry> listRoleAcls(Long roleId, String targetEntityNamespace, Long targetEntityId) {

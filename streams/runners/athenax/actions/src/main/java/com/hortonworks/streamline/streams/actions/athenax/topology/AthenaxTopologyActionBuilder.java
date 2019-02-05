@@ -25,14 +25,14 @@ public class AthenaxTopologyActionBuilder implements TopologyActionsBuilder<Map<
 
     @Override
     public void init(Map<String, String> conf, Engine engine, TopologyActionsService topologyActionsService,
-                     Namespace namespace, Subject subject) throws Exception {
+                     EnvironmentService environmentService, Namespace namespace, Subject subject) throws Exception {
         this.conf = new HashMap<>();
         this.conf.put(Constants.CONFIG_RTA_METADATA_SERVICE_URL, conf.get(Constants.CONFIG_RTA_METADATA_SERVICE_URL));
         this.topologyActionsService = topologyActionsService;
         buildKafkaTopologyActionsConfigMap(namespace);
         buildAthenaxTopologyActionsConfigMap(namespace);
         athenaxTopologyActions = new AthenaxTopologyActionsImpl();
-        athenaxTopologyActions.init(this.conf, topologyActionsService);
+        athenaxTopologyActions.init(this.conf, topologyActionsService, environmentService);
     }
 
     private void buildKafkaTopologyActionsConfigMap(Namespace namespace) {

@@ -17,7 +17,10 @@ package com.hortonworks.streamline.streams.actions;
 
 import com.hortonworks.streamline.streams.actions.topology.service.TopologyActionsService;
 import com.hortonworks.streamline.streams.catalog.Topology;
+import com.hortonworks.streamline.streams.catalog.TopologyDeployment;
 import com.hortonworks.streamline.streams.catalog.TopologyTestRunHistory;
+import com.hortonworks.streamline.streams.cluster.catalog.Namespace;
+import com.hortonworks.streamline.streams.cluster.service.EnvironmentService;
 import com.hortonworks.streamline.streams.layout.component.TopologyDag;
 import com.hortonworks.streamline.streams.layout.component.TopologyLayout;
 import com.hortonworks.streamline.streams.layout.component.impl.testing.TestRunProcessor;
@@ -27,6 +30,7 @@ import com.hortonworks.streamline.streams.layout.component.impl.testing.TestRunS
 
 import java.io.IOException;
 import java.nio.file.Path;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
@@ -36,7 +40,7 @@ import java.util.Optional;
  */
 public interface TopologyActions {
     // Any one time initialization is done here
-    void init (Map<String, Object> conf, TopologyActionsService topologyActionsService);
+    void init (Map<String, Object> conf, TopologyActionsService topologyActionsService, EnvironmentService environmentService);
 
 
     // Setup extra jars needed for deploying the topology
@@ -49,9 +53,11 @@ public interface TopologyActions {
 
     // Deploy the artifact generated using the underlying streaming
     // engine
-    String deploy(TopologyLayout topology, String mavenArtifacts, TopologyActionContext ctx, String asUser) throws Exception;
+    List<DeployedRuntimeId> deploy(TopologyLayout topology, String mavenArtifacts, TopologyDeployment deployment,
+                                   TopologyActionContext ctx, String asUser) throws Exception;
 
-    String redeploy(TopologyLayout topology, String runtimeId, String asUser) throws Exception;
+    List<DeployedRuntimeId> redeploy(TopologyLayout topology, String runtimeId, TopologyDeployment deployment,
+                                     TopologyActionContext ctx, String asUser) throws Exception;
 
     // Compose and run parameter topology as test mode using the underlying engine.
     // The parameter 'topology' should contain its own topology DAG.
@@ -119,6 +125,24 @@ public interface TopologyActions {
         Map<String, String> getExtra();
     }
 
+    class DeployedRuntimeId {
+        private final Long namespaceId;
+        private final String applicationId;
+
+        public DeployedRuntimeId(Long namespaceId, String applicationId) {
+            this.namespaceId = namespaceId;
+            this.applicationId = applicationId;
+        }
+
+        public Long getNamesapceId() {
+            return namespaceId;
+        }
+
+        public String getApplicationId() {
+            return applicationId;
+        }
+    }
+
     enum LogLevel {
         TRACE, DEBUG, INFO, WARN, ERROR
     }
@@ -154,4 +178,6 @@ public interface TopologyActions {
             return epoch;
         }
     }
+
+
 }

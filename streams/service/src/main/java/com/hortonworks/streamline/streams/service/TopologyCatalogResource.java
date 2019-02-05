@@ -454,7 +454,7 @@ public class TopologyCatalogResource {
     public Response removeTopology(@PathParam("topologyId") Long topologyId,
                                    @javax.ws.rs.QueryParam("onlyCurrent") boolean onlyCurrent,
                                    @javax.ws.rs.QueryParam("force") boolean force,
-                                   @Context SecurityContext securityContext) throws Exception {
+                                   @Context SecurityContext securityContext)  {
         SecurityUtil.checkRoleOrPermissions(authorizer, securityContext, Roles.ROLE_TOPOLOGY_SUPER_ADMIN,
                 NAMESPACE, topologyId, DELETE);
 
@@ -510,6 +510,7 @@ public class TopologyCatalogResource {
 
         throw EntityNotFoundException.byId(topologyId.toString());
     }
+
 
     @PUT
     @Path("/topologies/{topologyId}")

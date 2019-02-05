@@ -1458,26 +1458,35 @@ public class StreamCatalogService {
         return topologyEditorMetadata;
     }
 
-    public TopologyRuntimeIdMap addOrUpdateTopologyRuntimeIdMap(Topology topology, String applicationId) {
-        TopologyRuntimeIdMap topologyRuntimeIdMap = new TopologyRuntimeIdMap(topology.getId(), topology.getNamespaceId(),
+    public TopologyRuntimeIdMap addOrUpdateTopologyRuntimeIdMap(Topology topology, Long namespaceId, String applicationId) {
+        TopologyRuntimeIdMap topologyRuntimeIdMap = new TopologyRuntimeIdMap(topology.getId(), namespaceId,
                 applicationId);
         this.dao.addOrUpdate(topologyRuntimeIdMap);
         return topologyRuntimeIdMap;
     }
 
-    public TopologyRuntimeIdMap removeTopologyRuntimeIdMap(Long topologyId, Long namespaceId) {
-        TopologyRuntimeIdMap topologyRuntimeIdMap = getTopologyRuntimeIdMap(topologyId, namespaceId);
-        if (topologyRuntimeIdMap != null) {
-            topologyRuntimeIdMap = dao.remove(topologyRuntimeIdMap.getStorableKey());
+
+    public void removeTopologyRuntimeIdMap(Long topologyId) {
+        Collection<TopologyRuntimeIdMap> runtimeIdMaps = getTopologyRuntimeIdMap(topologyId);
+        for (TopologyRuntimeIdMap topologyRuntimeIdMap: runtimeIdMaps) {
+            dao.remove(topologyRuntimeIdMap.getStorableKey());
         }
-        return topologyRuntimeIdMap;
     }
 
     public TopologyRuntimeIdMap getTopologyRuntimeIdMap(String applicationId) throws EntityNotFoundException {
-        Collection<TopologyRuntimeIdMap> topologyRuntimeIdMaps  = this.dao.find(TOPOLOGY_RUNTIME_ID_NAMESPACE, QueryParam.params(TopologyRuntimeIdMap.FIELD_APPLICATION_ID, applicationId));
+        Collection<TopologyRuntimeIdMap> topologyRuntimeIdMaps  = this.dao.find(TOPOLOGY_RUNTIME_ID_NAMESPACE,
+                QueryParam.params(TopologyRuntimeIdMap.FIELD_APPLICATION_ID, applicationId));
         if (!topologyRuntimeIdMaps.isEmpty())
             return topologyRuntimeIdMaps.iterator().next();
-        throw EntityNotFoundException.byMessage(String.format("Workflow not found : \"%s\"", applicationId));
+        throw EntityNotFoundException.byMessage(String.format("Runtime not found for applicationId : \"%s\"", applicationId));
+    }
+
+    public Collection<TopologyRuntimeIdMap> getTopologyRuntimeIdMap(Long topologyId) throws EntityNotFoundException {
+        Collection<TopologyRuntimeIdMap> topologyRuntimeIdMaps  = this.dao.find(TOPOLOGY_RUNTIME_ID_NAMESPACE,
+                QueryParam.params(TopologyRuntimeIdMap.FIELD_TOPOLOGY_ID, Long.toString(topologyId)));
+        if (topologyRuntimeIdMaps.isEmpty())
+            throw EntityNotFoundException.byMessage(String.format("Runtime ID not found for the workflow : %d", topologyId));
+        return topologyRuntimeIdMaps;
     }
 
     public TopologyRuntimeIdMap getTopologyRuntimeIdMap(Long topologyId, Long namespaceId) {

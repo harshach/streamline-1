@@ -4,6 +4,7 @@ import com.hortonworks.streamline.streams.actions.builder.TopologyActionsBuilder
 import com.hortonworks.streamline.streams.actions.topology.service.TopologyActionsService;
 import com.hortonworks.streamline.streams.catalog.Engine;
 import com.hortonworks.streamline.streams.cluster.catalog.Namespace;
+import com.hortonworks.streamline.streams.cluster.service.EnvironmentService;
 import joptsimple.internal.Strings;
 
 import javax.security.auth.Subject;
@@ -20,7 +21,7 @@ public class TopologyActionsFactory {
     }
 
     public TopologyActionsBuilder getTopologyActionsBuilder(Engine engine, Namespace namespace, TopologyActionsService topologyActionsService,
-                                                            Map<String, String> streamlineConfig, Subject subject) throws Exception {
+                                                            EnvironmentService envinronmentService, Map<String, String> streamlineConfig, Subject subject) throws Exception {
         topologyActionsBuilderMap.putIfAbsent(engine,
                 new HashMap<>());
         Map<Namespace, TopologyActionsBuilder> topologyActionsMap = topologyActionsBuilderMap.get(engine);
@@ -30,7 +31,7 @@ public class TopologyActionsFactory {
             try {
                 String topologyActionsBuilderClazz = engine.getTopologyActionClass();
                 topologyActionsBuilder = instantiateTopologyActionsBuilder(topologyActionsBuilderClazz);
-                topologyActionsBuilder.init(streamlineConfig, engine, topologyActionsService, namespace, subject);
+                topologyActionsBuilder.init(streamlineConfig, engine, topologyActionsService, envinronmentService, namespace, subject);
                 topologyActionsMap.put(namespace, topologyActionsBuilder);
                 topologyActionsBuilderMap.put(engine, topologyActionsMap);
             } catch (IllegalAccessException | InstantiationException | ClassNotFoundException e) {

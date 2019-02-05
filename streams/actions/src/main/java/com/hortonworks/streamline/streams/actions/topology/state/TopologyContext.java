@@ -19,9 +19,11 @@ import com.hortonworks.streamline.streams.actions.TopologyActionContext;
 import com.hortonworks.streamline.streams.actions.TopologyActions;
 import com.hortonworks.streamline.streams.actions.topology.service.TopologyActionsService;
 import com.hortonworks.streamline.streams.catalog.Topology;
+import com.hortonworks.streamline.streams.catalog.TopologyDeployment;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.List;
 import java.util.Objects;
 
 public class TopologyContext implements TopologyActionContext {
@@ -32,10 +34,11 @@ public class TopologyContext implements TopologyActionContext {
     private final TopologyActionsService topologyActionsService;
     private String mavenArtifacts;
     private TopologyState state;
+    private TopologyDeployment deployment;
     private String asUser;
 
     public TopologyContext(Topology topology, TopologyActions topologyActions, TopologyActionsService topologyActionsService,
-                           TopologyState state, String asUser) {
+                           TopologyState state, TopologyDeployment deployment, String asUser) {
         Objects.requireNonNull(topology, "null topology");
         Objects.requireNonNull(topologyActions, "null topologyActions");
         Objects.requireNonNull(topologyActionsService, "null topologyActionsService");
@@ -44,6 +47,7 @@ public class TopologyContext implements TopologyActionContext {
         this.topologyActions = topologyActions;
         this.topologyActionsService = topologyActionsService;
         this.state = state;
+        this.deployment = deployment;
         this.asUser = asUser;
     }
 
@@ -79,6 +83,10 @@ public class TopologyContext implements TopologyActionContext {
         this.mavenArtifacts = mavenArtifacts;
     }
 
+    public TopologyDeployment getTopologyDeployment() {
+        return deployment;
+    }
+
     public String getAsUser() {
         return asUser;
     }
@@ -103,9 +111,14 @@ public class TopologyContext implements TopologyActionContext {
         state.resume(this);
     }
 
-    public void storeRuntimeApplicationId(String applicationId) throws Exception {
-        topologyActionsService.storeRuntimeApplicationId(topology, applicationId);
+    public void storeRuntimeApplicationId(List<TopologyActions.DeployedRuntimeId> deployedRuntimeIds) throws Exception {
+        topologyActionsService.storeRuntimeApplicationId(topology, deployedRuntimeIds);
     }
+
+    public void updateRuntimeApplicationId(List<TopologyActions.DeployedRuntimeId> deployedRuntimeIds) throws Exception {
+        topologyActionsService.updateRuntimeApplicationId(topology, deployedRuntimeIds);
+    }
+
     public String getRuntimeApplicationId() throws Exception {
         return topologyActionsService.getRuntimeTopologyId(topology, asUser);
     }

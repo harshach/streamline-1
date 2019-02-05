@@ -7,7 +7,9 @@ import com.hortonworks.streamline.streams.actions.TopologyActionContext;
 import com.hortonworks.streamline.streams.actions.TopologyActions;
 import com.hortonworks.streamline.streams.actions.topology.service.TopologyActionsService;
 import com.hortonworks.streamline.streams.catalog.Topology;
+import com.hortonworks.streamline.streams.catalog.TopologyDeployment;
 import com.hortonworks.streamline.streams.catalog.TopologyTestRunHistory;
+import com.hortonworks.streamline.streams.cluster.service.EnvironmentService;
 import com.hortonworks.streamline.streams.common.athenax.AthenaXRestAPIClient;
 import com.hortonworks.streamline.streams.common.athenax.AthenaxConstants;
 import com.hortonworks.streamline.streams.common.athenax.AthenaxUtils;
@@ -29,6 +31,8 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
@@ -51,7 +55,7 @@ public class AthenaxTopologyActionsImpl implements TopologyActions {
 	private String zkConnectionStr;
 
 	@Override
-	public void init(Map<String, Object> conf, TopologyActionsService topologyActionsService) {
+	public void init(Map<String, Object> conf, TopologyActionsService topologyActionsService, EnvironmentService environmentService) {
 		String athenaxServiceRootUrl = (String) conf.get(AthenaxConstants.ATHENAX_SERVICE_ROOT_URL_KEY);
 		athenaXRestAPIClient = new AthenaXRestAPIClient(athenaxServiceRootUrl, null/*subject*/);
 		rtaRestAPIClient = new RTARestAPIClient((String)conf.get(Constants.CONFIG_RTA_METADATA_SERVICE_URL), null);
@@ -62,8 +66,10 @@ public class AthenaxTopologyActionsImpl implements TopologyActions {
 	}
 
   @Override
-	public String deploy(TopologyLayout topology, String mavenArtifacts, TopologyActionContext ctx, String asUser) throws Exception {
+	public List<DeployedRuntimeId> deploy(TopologyLayout topology, String mavenArtifacts, TopologyDeployment deployment,
+										  TopologyActionContext ctx, String asUser) throws Exception {
 		LOG.debug("Initial Topology config {}", topology.getConfig());
+		List<DeployedRuntimeId> deployedRuntimeIds = new ArrayList<>();
 		AthenaxJobGraphGenerator requestGenerator = new AthenaxJobGraphGenerator(topology, asUser);
 		TopologyDag topologyDag = topology.getTopologyDag();
 		topologyDag.traverse(requestGenerator);
@@ -77,12 +83,18 @@ public class AthenaxTopologyActionsImpl implements TopologyActions {
 		DeployRequest deployRequest = requestGenerator.extractDeployJobRequest(yarnDataCenter, yarnCluster, zkConnectionStr);
 
 		// submit job via Athenax-vm API
-		return this.athenaXRestAPIClient.deployJob(deployRequest);
+		String applicationId =  this.athenaXRestAPIClient.deployJob(deployRequest);
+		for (Long region: deployment.getRegions()) {
+			  deployedRuntimeIds.add(new DeployedRuntimeId(region, applicationId));
+	    }
+	    return deployedRuntimeIds;
 	}
 
   @Override
-	public String redeploy(TopologyLayout topology, String runtimeId, String asUser) throws Exception {
-		return "";
+	public  List<DeployedRuntimeId> redeploy(TopologyLayout topology, String runtimeId, TopologyDeployment deployment,
+											 TopologyActionContext ctx, String asUser) throws Exception {
+	    List<DeployedRuntimeId> deployedRuntimeIds = new ArrayList<>();
+		return deployedRuntimeIds;
 	}
 
 

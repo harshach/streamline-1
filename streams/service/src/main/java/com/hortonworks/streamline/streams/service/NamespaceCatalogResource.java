@@ -243,6 +243,20 @@ public class NamespaceCatalogResource {
     }
   }
 
+
+  @GET
+  @Path("/namespaces/{serviceName}")
+  @Timed
+  public Response findServicesToClusterMappingInNamespace(@PathParam("serviceName") String serviceName,
+                                                          @Context SecurityContext securityContext) {
+    Collection<NamespaceServiceClusterMap> mappings = environmentService.listServiceClusterMapping(serviceName);
+    if (mappings != null) {
+      return WSUtils.respondEntities(mappings, OK);
+    } else {
+      return WSUtils.respondEntities(Collections.emptyList(), OK);
+    }
+  }
+
   @POST
   @Path("/namespaces/{id}/mapping/bulk")
   @Timed

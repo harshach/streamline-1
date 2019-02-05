@@ -47,15 +47,15 @@ public class StormTopologyActionsBuilder implements TopologyActionsBuilder<Map<S
     private TopologyActions stormTopologyActions;
     private Map<String, Object> conf;
 
-    public void init(Map<String, String> streamlineConf, Engine engine, TopologyActionsService topologyActionsService, Namespace namespace,
-                     Subject subject) throws Exception {
+    public void init(Map<String, String> streamlineConf, Engine engine, TopologyActionsService topologyActionsService,
+                     EnvironmentService environmentService, Namespace namespace, Subject subject) throws Exception {
         this.conf = new HashMap<>();
         this.topologyActionsService = topologyActionsService;
         this.streamlineConf = streamlineConf;
         this.engineConf = new ObjectMapper().readValue(engine.getConfig(), HashMap.class);
         buildStormTopologyActionsConfigMap(namespace, subject);
         stormTopologyActions = new StormTopologyActionsImpl();
-        stormTopologyActions.init(conf, topologyActionsService);
+        stormTopologyActions.init(conf, topologyActionsService, environmentService);
     }
 
     public TopologyActions getTopologyActions() {

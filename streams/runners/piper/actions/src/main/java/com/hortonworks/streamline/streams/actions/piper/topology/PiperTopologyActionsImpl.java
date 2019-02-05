@@ -3,6 +3,8 @@ package com.hortonworks.streamline.streams.actions.piper.topology;
 import com.hortonworks.streamline.streams.actions.StatusImpl;
 import com.hortonworks.streamline.streams.actions.TopologyActionContext;
 import com.hortonworks.streamline.streams.actions.TopologyActions;
+import com.hortonworks.streamline.streams.catalog.TopologyDeployment;
+import com.hortonworks.streamline.streams.cluster.service.EnvironmentService;
 import com.hortonworks.streamline.streams.piper.common.PiperConstants;
 import com.hortonworks.streamline.streams.piper.common.PiperUtil;
 import com.hortonworks.streamline.streams.piper.common.pipeline.Pipeline;
@@ -25,6 +27,8 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
@@ -40,6 +44,7 @@ public class PiperTopologyActionsImpl implements TopologyActions {
 
     private static final Logger LOG = LoggerFactory.getLogger(PiperTopologyActionsImpl.class);
     private static final String PIPER_RESPONSE_APPLICATION_ID = "pipeline_id";
+    private EnvironmentService environmentService;
 
     private PiperRestAPIClient client;
 
@@ -47,8 +52,9 @@ public class PiperTopologyActionsImpl implements TopologyActions {
     }
 
     @Override
-    public void init(Map<String, Object> conf, TopologyActionsService topologyActionsService) {
+    public void init(Map<String, Object> conf, TopologyActionsService topologyActionsService, EnvironmentService environmentService) {
         String piperAPIRootUrl = (String)conf.get(PIPER_ROOT_URL_KEY);
+        this.environmentService = environmentService;
         this.client = new PiperRestAPIClient(piperAPIRootUrl, null);
     }
 
@@ -68,22 +74,34 @@ public class PiperTopologyActionsImpl implements TopologyActions {
     }
 
     @Override
-    public String deploy(TopologyLayout topology, String mavenArtifacts, TopologyActionContext ctx, String asUser) throws Exception {
+    public List<DeployedRuntimeId> deploy(TopologyLayout topology, String mavenArtifacts, TopologyDeployment deployment,
+                                          TopologyActionContext ctx, String asUser) throws Exception {
         LOG.info("XXXXXXXXXXXXXX deploy() XXXXXXXXXXXXXXXXXXX");
+        List<DeployedRuntimeId> deployedRuntimeIds = new ArrayList<>();
 
         ManagedPipelineGenerator dagVisitor = new ManagedPipelineGenerator(topology);
         Pipeline pipeline = dagVisitor.generatePipeline();
         String piperResponse = this.client.deployPipeline(pipeline);
-        return parseApplicationId(piperResponse);
+        String applicationId = parseApplicationId(piperResponse);
+        for (Long region: deployment.getRegions()) {
+            deployedRuntimeIds.add(new DeployedRuntimeId(region, applicationId));
+        }
+        return deployedRuntimeIds;
     }
 
     @Override
-    public String redeploy(TopologyLayout topology, String runtimeId, String asUser) throws Exception {
+    public List<DeployedRuntimeId> redeploy(TopologyLayout topology, String runtimeId, TopologyDeployment deployment,
+                                            TopologyActionContext ctx, String asUser) throws Exception {
+        List<DeployedRuntimeId> deployedRuntimeIds = new ArrayList<>();
         ManagedPipelineGenerator dagVisitor = new ManagedPipelineGenerator(topology);
         Pipeline pipeline = dagVisitor.generatePipeline();
         pipeline.setPipelineId(runtimeId);
         String piperResponse = this.client.redeployPipeline(pipeline, runtimeId);
-        return parseApplicationId(piperResponse);
+        String applicationId =  parseApplicationId(piperResponse);
+        for (Long region: deployment.getRegions()) {
+            deployedRuntimeIds.add(new DeployedRuntimeId(region, applicationId));
+        }
+        return deployedRuntimeIds;
     }
 
     @Override

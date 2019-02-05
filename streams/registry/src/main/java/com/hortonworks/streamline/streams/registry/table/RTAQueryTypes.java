@@ -1,7 +1,7 @@
 package com.hortonworks.streamline.streams.registry.table;
 
 public enum RTAQueryTypes {
-    PRE_DEFINED("pre-defined", "supportPredefinedQueries"),
+    PRE_DEFINED("pre_defined", "supportPredefinedQueries"),
     ADHOC("adhoc", "supportAdhocQueries");
 
     private final String rtaQueryTypeName;

@@ -126,7 +126,7 @@ public class Engine implements Storable {
         map.put(ENABLED, this.enabled);
         map.put(TOPOLOGY_ACTION_CLASS, this.topologyActionClass);
         map.put(TOPOLOGY_STATE_MACHINE_CLASS, this.topologyStateMachineClass);
-        map.put(TOPOLOGY_STATUS_METRICS_CLASS, this.topologyStateMachineClass);
+        map.put(TOPOLOGY_STATUS_METRICS_CLASS, this.topologyStatusMetricsClass);
         map.put(TOPOLOGY_TIME_SERIES_METRICS_CLASS, this.topologyTimeseriesMetricsClass);
         map.put(CONFIG, this.config);
         return map;

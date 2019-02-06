@@ -311,6 +311,7 @@ export class TopologyEditorContainer extends Component {
           this.setState({deployStatus : topologyState.name});
         } else {
           if(topology) {
+            this.refs.deployLoadingModal.hide();
             FSReactToastr.error(
               <CommonNotification flag="error" content={topologyState.responseMessage}/>, '', toastOpt);
           }
@@ -1412,7 +1413,12 @@ export class TopologyEditorContainer extends Component {
           onKeyPress={this.handleKeyPress.bind(this)} data-resolve={this.handleSaveConfig.bind(this)}
           data-reject={this.handleCancelConfig.bind(this)} dialogClassName="modal-fixed-height"
         >
-          <TopologyConfig ref="topologyConfig" topologyData={topologyData} projectId={this.projectId} topologyId={this.topologyId} versionId={this.versionId} data={mapTopologyConfig} topologyName={this.state.topologyName} uiConfigFields={this.topologyConfigData} testRunActivated={this.state.testRunActivated} topologyNodes={this.graphData.nodes}/>
+          <TopologyConfig ref="topologyConfig" topologyData={topologyData}
+            projectId={this.projectId} topologyId={this.topologyId}
+            versionId={this.versionId} data={mapTopologyConfig}
+            topologyName={this.state.topologyName} uiConfigFields={this.topologyConfigData}
+            testRunActivated={this.state.testRunActivated} topologyNodes={this.graphData.nodes}
+          />
         </Modal>
         {/* NodeModal for Development Mode for source*/}
         <Modal className="u-form" ref="NodeModal" onKeyPress={this.handleKeyPress.bind(this)}

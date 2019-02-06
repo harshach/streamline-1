@@ -44,6 +44,7 @@ import org.slf4j.LoggerFactory;
 import javax.security.auth.Subject;
 import java.io.File;
 import java.io.IOException;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.HashMap;
@@ -158,10 +159,8 @@ public class TopologyActionsService implements ContainingNamespaceAwareContainer
     }
 
     public String getRuntimeTopologyId(Topology topology, String asUser) throws IOException {
-        TopologyDeployment topologyDeployment = CatalogToDeploymentConverter.getTopologyDeployment(topology);
-        Long namespaceId = topologyDeployment.getRegions().iterator().next();
-        TopologyRuntimeIdMap topologyRuntimeIdMap = catalogService.getTopologyRuntimeIdMap(topology.getId(), namespaceId);
-        return topologyRuntimeIdMap != null ? topologyRuntimeIdMap.getApplicationId() : null;
+        Collection<TopologyRuntimeIdMap> runtimeIdMaps = catalogService.getTopologyRuntimeIdMap(topology.getId());
+        return (runtimeIdMaps != null && runtimeIdMaps.size() > 0) ? runtimeIdMaps.iterator().next().getApplicationId() : null;
     }
 
     public TopologyActions.LogLevelInformation configureLogLevel(Topology topology, TopologyActions.LogLevel targetLogLevel, int durationSecs,

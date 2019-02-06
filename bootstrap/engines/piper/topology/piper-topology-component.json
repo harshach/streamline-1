@@ -20,7 +20,7 @@
         "fieldName": "deploymentSettings.namespaceIds",
         "isOptional": false,
         "tooltip": "On which datacenter to run workflow upon",
-        "type": "arrayenumstring",
+        "type": "array.enumstring",
         "options": [],
         "hint": "datacenter-showAll"
       },
@@ -162,53 +162,6 @@
                 "isOptional": false,
                 "tooltip": "Proxy User",
                 "type": "string"
-              }
-            ]
-          }
-        ]
-      },
-      {
-        "uiName": "Datacenter Choice Mode",
-        "fieldName": "topology.datacenterChoiceMode",
-        "isOptional": true,
-        "tooltip": "Datacenter Choice Mode",
-        "type": "enumobject",
-        "defaultValue": "topology.runAllDatacentersOption",
-        "options": [
-          {
-            "uiName": "Run in All Datacenters",
-            "fieldName": "topology.runAllDatacentersOption",
-            "tooltip": "Run on all datacenters",
-            "isOptional": false,
-            "type": "object",
-            "fields": []
-          },
-          {
-            "uiName": "Run in Master Datacenter",
-            "fieldName": "topology.runOneDatacenterOption",
-            "tooltip": "Run on Master Datacenter",
-            "isOptional": false,
-            "type": "object",
-            "fields": []
-          },
-          {
-            "uiName": "Run in Chosen Datacenter",
-            "fieldName": "topology.runChosenDatacenterOption",
-            "tooltip": "Run in Chosen Datacenter",
-            "isOptional": false,
-            "type": "object",
-            "fields": [
-              {
-                "uiName": "Selected Datacenter",
-                "fieldName": "topology.selectedDatacenter",
-                "isOptional": false,
-                "tooltip": "Selected Datacenter if RUN_IN_CHOSEN",
-                "type": "enumstring",
-                "options": [
-                  "SJC1",
-                  "DCA1",
-                  "PHX2"
-                ]
               }
             ]
           }

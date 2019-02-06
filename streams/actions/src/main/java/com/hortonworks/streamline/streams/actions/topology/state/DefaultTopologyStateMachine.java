@@ -300,11 +300,12 @@ public class DefaultTopologyStateMachine implements TopologyStateMachine {
         Topology topology = context.getTopology();
         String runAsUser = context.getAsUser();
         String applicationId = context.getTopologyActionsService().getRuntimeTopologyId(topology, runAsUser);
-
-        TopologyActions topologyActions = context.getTopologyActions();
-        topologyActions.kill(CatalogToLayoutConverter.getTopologyLayout(topology), applicationId, runAsUser);
-        LOG.debug("Killed topology='{}' applicationId='{}'", topology.getName(), applicationId);
-    }
+        if (applicationId != null) {
+            TopologyActions topologyActions = context.getTopologyActions();
+            topologyActions.kill(CatalogToLayoutConverter.getTopologyLayout(topology), applicationId, runAsUser);
+            LOG.debug("Killed topology='{}' applicationId='{}'", topology.getName(), applicationId);
+        }
+     }
 
     @Override
     public TopologyState initialState() {

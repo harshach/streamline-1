@@ -16,6 +16,7 @@
 
 package com.hortonworks.streamline.streams.service;
 
+import akka.dispatch.sysmsg.Failed;
 import com.codahale.metrics.annotation.Timed;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.hortonworks.streamline.common.exception.service.exception.request.BadRequestException;

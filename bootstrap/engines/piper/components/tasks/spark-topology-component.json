@@ -21,14 +21,6 @@
         "type": "string"
       },
       {
-        "uiName": "Use Drogon",
-        "fieldName": "use_drogon",
-        "isOptional": false,
-        "tooltip": "Whether to use Drogon or Spark Submit",
-        "defaultValue": true,
-        "type": "boolean"
-      },
-      {
         "uiName": "Spark JAR filename",
         "fieldName": "task_params.jar",
         "tooltip": "Spark Jar file, for example hdfs:///user/my_user/my_file.jar",
@@ -43,6 +35,73 @@
         "type": "string"
       },
       {
+       "uiName": "YARN Queue name",
+        "fieldName": "tasks_params.queue",
+        "tooltip": "The name of the YARN queue to which the application is submitted",
+        "isOptional": false,
+        "type": "string"
+      },
+      {
+        "uiName": "Spark Version",
+        "fieldName": "task_params.spark_version",
+        "tooltip": "Spark Version to use for running the spark application",
+        "isOptional": false,
+        "type": "enumstring",
+        "defaultValue": "SPARK_24",
+        "options": ["SPARK_24", "SPARK_232", "SPARK_210"]
+      },
+      {
+        "uiName": "Driver Memory",
+        "fieldName": "task_params.spark_opts.driver_memory",
+        "tooltip": "Amount of memory to use for the driver process",
+        "isOptional": false,
+        "defaultValue": "8g",
+        "type": "string"
+      },
+      {
+        "uiName": "Driver Cores",
+        "fieldName": "task_params.spark_opts.driver_cores",
+        "tooltip": "Number of cores to use for the driver process",
+        "isOptional": false,
+        "defaultValue": 1,
+        "type": "number"
+      },
+      {
+        "uiName": "Executor Memory",
+        "fieldName": "task_params.spark_opts.executor_memory",
+        "tooltip": "Amount of memory to use for the executor process",
+        "isOptional": false,
+        "defaultValue": "8g",
+        "type": "string"
+      },
+      {
+        "uiName": "Executor Cores",
+        "fieldName": "task_params.spark_opts.executor_cores",
+        "tooltip": "Number of cores to use for each executor process",
+        "isOptional": false,
+        "defaultValue": 1,
+        "min": 1,
+        "max": 50,
+        "type": "number"
+      },
+      {
+        "uiName": "Number of Executors",
+        "fieldName": "task_params.spark_opts.num_executors",
+        "tooltip": "The number of executors to use",
+        "isOptional": false,
+        "defaultValue": 2,
+        "min": 1,
+        "max": 50,
+        "type": "number"
+      },
+      {
+        "uiName": "Spark Connection ID",
+        "fieldName": "task_params.spark_conn_id",
+        "tooltip": "Spark Connection ID",
+        "isOptional": true,
+        "type": "string"
+      },
+      {
         "uiName": "Spark JAR arguments",
         "fieldName": "task_params.spark_args",
         "tooltip": "Spark Args, for example --nPartitions,15",
@@ -50,25 +109,18 @@
         "type": "keyvalue"
       },
       {
-        "uiName": "Spark Opts",
+        "uiName": "Additional Spark Opts",
         "fieldName": "task_params.spark_opts",
-        "tooltip": "Spark Opts --executor-memory:12g",
+        "tooltip": "Spark Opts, for example --driver-java-options,-XX:MaxPermSize=1000m",
         "isOptional": true,
         "type": "keyvalue"
       },
       {
-        "uiName": "Spark ENV additions",
+        "uiName": "Additional Spark ENV additions",
         "fieldName": "task_params.env_additions",
         "tooltip": "Spark environment additions. For example, ENV1:foo",
         "isOptional": true,
         "type": "keyvalue"
-      },
-      {
-        "uiName": "Spark Connection ID",
-        "fieldName": "task_params.spark_conn_id",
-        "tooltip": "Spark Connection ID",
-        "isOptional": false,
-        "type": "string"
       },
       {
         "uiName": "Pool",

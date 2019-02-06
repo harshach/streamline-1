@@ -1484,8 +1484,6 @@ public class StreamCatalogService {
     public Collection<TopologyRuntimeIdMap> getTopologyRuntimeIdMap(Long topologyId) throws EntityNotFoundException {
         Collection<TopologyRuntimeIdMap> topologyRuntimeIdMaps  = this.dao.find(TOPOLOGY_RUNTIME_ID_NAMESPACE,
                 QueryParam.params(TopologyRuntimeIdMap.FIELD_TOPOLOGY_ID, Long.toString(topologyId)));
-        if (topologyRuntimeIdMaps.isEmpty())
-            throw EntityNotFoundException.byMessage(String.format("Runtime ID not found for the workflow : %d", topologyId));
         return topologyRuntimeIdMaps;
     }
 

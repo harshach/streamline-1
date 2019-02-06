@@ -160,7 +160,7 @@ public class TopologyActionsService implements ContainingNamespaceAwareContainer
 
     public String getRuntimeTopologyId(Topology topology, String asUser) throws IOException {
         Collection<TopologyRuntimeIdMap> runtimeIdMaps = catalogService.getTopologyRuntimeIdMap(topology.getId());
-        return (runtimeIdMaps != null && runtimeIdMaps.size() > 0) ? runtimeIdMaps.iterator().next().getApplicationId() : null;
+        return (runtimeIdMaps != null && !runtimeIdMaps.isEmpty()) ? runtimeIdMaps.iterator().next().getApplicationId() : null;
     }
 
     public TopologyActions.LogLevelInformation configureLogLevel(Topology topology, TopologyActions.LogLevel targetLogLevel, int durationSecs,

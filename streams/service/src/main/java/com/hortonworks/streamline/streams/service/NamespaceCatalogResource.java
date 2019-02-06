@@ -245,7 +245,7 @@ public class NamespaceCatalogResource {
 
 
   @GET
-  @Path("/namespaces/{serviceName}")
+  @Path("/namespaces/service/{serviceName}")
   @Timed
   public Response findServicesToClusterMappingInNamespace(@PathParam("serviceName") String serviceName,
                                                           @Context SecurityContext securityContext) {

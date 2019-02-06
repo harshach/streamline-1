@@ -46,21 +46,45 @@ export default class TopologyConfigContainer extends Component {
       }],
       clustersArr: []
     };
+    this.allClusterList = [];
     this.fetchData();
   }
 
   fetchData = () => {
-    const {topologyId, versionId} = this.props;
+    const {topologyId, versionId, uiConfigFields} = this.props;
     let promiseArr = [
       TopologyREST.getTopologyWithoutMetrics(topologyId, versionId),
-      ClusterREST.getAllCluster()
+      ClusterREST.getAllCluster(),
+      EnvironmentREST.getAllNameSpaceFromEngine(uiConfigFields.engine.toLowerCase())
     ];
     Promise.all(promiseArr).then(result => {
-      const formField = JSON.parse(JSON.stringify(this.props.uiConfigFields.topologyComponentUISpecification));
+      const formField = JSON.parse(JSON.stringify(uiConfigFields.topologyComponentUISpecification));
+
       const config = result[0].config;
       const {f_Data,adv_Field}= this.fetchAdvanedField(formField,JSON.parse(config));
       this.namespaceId = result[0].namespaceId;
       const clustersConfig = result[1].entities;
+      this.allClusterList = result[2].entities;
+
+      let dcListObj = formField.fields.find((o)=>{return o.hint === 'datacenter-showAll';});
+      if(dcListObj){
+        result[2].entities.map((o)=>{
+          let c = clustersConfig.find((c)=>{return c.cluster.id === o.clusterId;});
+          dcListObj.options.push({value: o.namespaceId, label: c.cluster.name});
+        });
+        dcListObj.defaultValue = result[0].namespaceId;
+      } else {
+        dcListObj = formField.fields.find((o)=>{return o.hint === 'datacenter-showCurrent';});
+        if(dcListObj){
+          let currentNamepaceObj = result[2].entities.find((e)=>{return e.namespaceId === result[0].namespaceId;});
+          if(currentNamepaceObj){
+            let c = clustersConfig.find((c)=>{return c.cluster.id === currentNamepaceObj.clusterId;});
+            dcListObj.options.push({value: currentNamepaceObj.namespaceId, label: c.cluster.name});
+          }
+          dcListObj.defaultValue = result[0].namespaceId;
+        }
+      }
+
       EnvironmentREST.getNameSpace(this.namespaceId)
         .then((r)=>{
           let mappings = r.mappings.filter((c)=>{
@@ -195,6 +219,8 @@ export default class TopologyConfigContainer extends Component {
       const index = _.findIndex(formField.fields, (fd) => { return fd.fieldName === key;});
       if(index !== -1){
         f_Data[key] = config[key];
+      } else if(key === "deploymentSettings"){
+        f_Data['deploymentSettings.namespaceIds'] = config[key].namespaceIds;
       } else {
         adv_Field.push({fieldName : key , fieldValue : config[key] instanceof Array ? JSON.stringify(config[key]) : config[key]});
       }
@@ -294,6 +320,22 @@ export default class TopologyConfigContainer extends Component {
         }
         delete c.id;
       });
+    }
+
+    if(data['deploymentSettings.namespaceIds']){
+      let namespaceIdList = data['deploymentSettings.namespaceIds'];
+      if(!(namespaceIdList instanceof Array)){
+        namespaceIdList = [namespaceIdList];
+      }
+      data.deploymentSettings = {
+        namespaceIds: namespaceIdList
+      };
+      if(namespaceIdList.length === this.allClusterList.length){
+        data.deploymentSettings.deploymentMode = "ALL";
+      } else {
+        data.deploymentSettings.deploymentMode = "CHOSEN_REGION";
+      }
+      delete data['deploymentSettings.namespaceIds'];
     }
 
     let dataObj = {

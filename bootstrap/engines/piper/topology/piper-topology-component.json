@@ -16,6 +16,15 @@
         "type": "string"
       },
       {
+        "uiName": "Datacenter to run on?",
+        "fieldName": "deploymentSettings.namespaceIds",
+        "isOptional": false,
+        "tooltip": "On which datacenter to run workflow upon",
+        "type": "arrayenumstring",
+        "options": [],
+        "hint": "datacenter-showAll"
+      },
+      {
         "uiName": "Owner",
         "fieldName": "topology.owner",
         "isOptional": false,

@@ -31,6 +31,15 @@ const EnvironmentREST = {
         return response.json();
       });
   },
+  getAllNameSpaceFromEngine(engineName, options) {
+    options = options || {};
+    options.method = options.method || 'GET';
+    options.credentials = 'same-origin';
+    return fetch(baseUrl + nameSpaceBaseURL+'/service/'+engineName, options)
+      .then((response) => {
+        return response.json();
+      });
+  },
   getAllNameSpaceWithoutMappingDetail(options) {
     options = options || {};
     options.method = options.method || 'GET';

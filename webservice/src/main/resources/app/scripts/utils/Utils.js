@@ -368,6 +368,8 @@ const genFields = function(fieldsJSON, _fieldName = [], FormData = {}, inputFiel
         d.options.forEach((d) => {
           if (!_.isObject(d)) {
             options.push({value: d, label: d});
+          } else if(d.hasOwnProperty('value') && d.hasOwnProperty('label')){
+            options.push({value: d.value, label: d.label});
           } else {
             options.push({...d, value: d.fieldName, label: d.uiName, type: d.fieldType});
           }

@@ -470,6 +470,7 @@ public class EnvironmentService {
         return null;
     }
 
+
     public Namespace addNamespace(Namespace namespace) {
         if (namespace.getId() == null) {
             namespace.setId(this.dao.nextId(NAMESPACE_NAMESPACE));
@@ -517,6 +518,11 @@ public class EnvironmentService {
         return this.dao.find(NAMESPACE_SERVICE_CLUSTER_MAPPING_NAMESPACE,
                 Lists.newArrayList(new QueryParam("namespaceId", namespaceId.toString()),
                         new QueryParam("serviceName", serviceName)));
+    }
+
+    public Collection<NamespaceServiceClusterMap> listServiceClusterMapping(String serviceName) {
+        return this.dao.find(NAMESPACE_SERVICE_CLUSTER_MAPPING_NAMESPACE,
+                Lists.newArrayList(new QueryParam("serviceName", serviceName)));
     }
 
     public NamespaceServiceClusterMap getServiceClusterMapping(Long namespaceId,

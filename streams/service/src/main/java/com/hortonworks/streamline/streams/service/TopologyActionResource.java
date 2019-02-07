@@ -35,6 +35,8 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.SecurityContext;
 
+import java.util.Collections;
+import java.util.List;
 import java.util.concurrent.ForkJoinPool;
 
 import static com.hortonworks.streamline.streams.catalog.Topology.NAMESPACE;
@@ -70,11 +72,17 @@ public class TopologyActionResource {
         Topology result = catalogService.getTopology(topologyId);
         if (result != null) {
             String asUser = WSUtils.getUserFromSecurityContext(securityContext);
-            TopologyActions.Status status = actionsService.topologyStatus(result, asUser);
-            return WSUtils.respondEntity(status, OK);
+            List<TopologyActions.Status> statuses = actionsService.topologyStatus(result, asUser);
+            Response response;
+            if (statuses != null) {
+                response = WSUtils.respondEntities(statuses, OK);
+            } else {
+                response = WSUtils.respondEntities(Collections.emptyList(), OK);
+            }
+            return response;
         }
 
-        throw EntityNotFoundException.byId(topologyId.toString());
+        throw EntityNotFoundException.byMessage("There is no workflow with %s".format(topologyId.toString()));
     }
 
     @GET
@@ -88,11 +96,17 @@ public class TopologyActionResource {
         Topology result = catalogService.getTopology(topologyId, versionId);
         if (result != null) {
             String asUser = WSUtils.getUserFromSecurityContext(securityContext);
-            TopologyActions.Status status = actionsService.topologyStatus(result, asUser);
-            return WSUtils.respondEntity(status, OK);
+            List<TopologyActions.Status> statuses = actionsService.topologyStatus(result, asUser);
+            Response response;
+            if (statuses != null) {
+                response =  WSUtils.respondEntities(statuses, OK);
+            } else {
+                response = WSUtils.respondEntities(Collections.emptyList(), OK);
+            }
+            return response;
         }
 
-        throw EntityNotFoundException.byVersion(topologyId.toString(), versionId.toString());
+        throw EntityNotFoundException.byMessage("There is no workflow with %s version %s".format(topologyId.toString(), versionId.toString()));
     }
 
     @POST

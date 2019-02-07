@@ -44,9 +44,7 @@ import org.slf4j.LoggerFactory;
 import javax.security.auth.Subject;
 import java.io.File;
 import java.io.IOException;
-import java.util.Map;
-import java.util.HashMap;
-
+import java.util.*;
 
 
 public class TopologyActionsService implements ContainingNamespaceAwareContainer {
@@ -150,15 +148,24 @@ public class TopologyActionsService implements ContainingNamespaceAwareContainer
         managedTransaction.executeConsumer(TopologyContext::resume, getTopologyContext(topology, asUser));
     }
 
-    public TopologyActions.Status topologyStatus(Topology topology, String asUser) throws Exception {
-        String applicationId =  this.getRuntimeTopologyId(topology, asUser);
+    public List<TopologyActions.Status> topologyStatus(Topology topology, String asUser) throws Exception {
+        Collection<TopologyRuntimeIdMap> runtimeIdMaps =  this.getRuntimeTopologyId(topology);
         TopologyActions topologyActions = getTopologyActionsInstance(topology);
-        return topologyActions.status(CatalogToLayoutConverter.getTopologyLayout(topology), applicationId, asUser);
+        List<TopologyActions.Status> statuses = new ArrayList<>();
+        for (TopologyRuntimeIdMap topologyRuntimeIdMap : runtimeIdMaps) {
+            statuses.add(topologyActions.status(CatalogToLayoutConverter.getTopologyLayout(topology), topologyRuntimeIdMap.getApplicationId(), asUser));
+        }
+        return statuses;
     }
 
     public String getRuntimeTopologyId(Topology topology, String asUser) throws IOException {
-        TopologyRuntimeIdMap topologyRuntimeIdMap = catalogService.getTopologyRuntimeIdMap(topology.getId(), topology.getNamespaceId());
-        return topologyRuntimeIdMap != null ? topologyRuntimeIdMap.getApplicationId() : null;
+        Collection<TopologyRuntimeIdMap> runtimeIdMaps = catalogService.getTopologyRuntimeIdMap(topology.getId());
+        return (runtimeIdMaps != null && !runtimeIdMaps.isEmpty()) ? runtimeIdMaps.iterator().next().getApplicationId() : null;
+    }
+
+    public Collection<TopologyRuntimeIdMap> getRuntimeTopologyId(Topology topology) throws IOException {
+        Collection<TopologyRuntimeIdMap> runtimeIdMaps = catalogService.getTopologyRuntimeIdMap(topology.getId());
+        return runtimeIdMaps;
     }
 
     public TopologyActions.LogLevelInformation configureLogLevel(Topology topology, TopologyActions.LogLevel targetLogLevel, int durationSecs,
@@ -173,8 +180,16 @@ public class TopologyActionsService implements ContainingNamespaceAwareContainer
         return topologyActions.getLogLevel(CatalogToLayoutConverter.getTopologyLayout(topology), asUser);
     }
 
-    public void storeRuntimeApplicationId(Topology topology, String applicationId) throws Exception {
-        catalogService.addOrUpdateTopologyRuntimeIdMap(topology, applicationId);
+    public void storeRuntimeApplicationId(Topology topology, List<TopologyActions.DeployedRuntimeId> deployedRuntimeIds) throws Exception {
+        for (TopologyActions.DeployedRuntimeId deployedRuntimeId: deployedRuntimeIds) {
+            catalogService.addOrUpdateTopologyRuntimeIdMap(topology, deployedRuntimeId.getNamesapceId(), deployedRuntimeId.getApplicationId());
+        }
+    }
+
+    public void updateRuntimeApplicationId(Topology topology, List<TopologyActions.DeployedRuntimeId> deployedRuntimeIds) throws Exception {
+        // remove all the existing runtime-id maps for the given topology
+        catalogService.removeTopologyRuntimeIdMap(topology.getId());
+        storeRuntimeApplicationId(topology, deployedRuntimeIds);
     }
 
     public StreamCatalogService getCatalogService() {
@@ -195,7 +210,7 @@ public class TopologyActionsService implements ContainingNamespaceAwareContainer
         }
         Engine engine = catalogService.getEngine(topology.getEngineId());
         TopologyActionsBuilder topologyActionsBuilder = topologyActionsFactory.getTopologyActionsBuilder(engine, namespace,
-                this, conf, subject);
+                this, environmentService, conf, subject);
         return topologyActionsBuilder.getTopologyActions();
     }
 
@@ -206,11 +221,12 @@ public class TopologyActionsService implements ContainingNamespaceAwareContainer
 
     private TopologyContext getTopologyContext(Topology topology, String asUser) throws Exception {
         TopologyStateMachine topologyStateMachine = getTopologyStateMachineInstance(topology);
+        TopologyDeployment topologyDeployment = CatalogToDeploymentConverter.getTopologyDeployment(topology);
         TopologyState state = catalogService
                 .getTopologyState(topology.getId())
                 .map(s -> topologyStateMachine.getTopologyState(s.getName()))
                 .orElse(topologyStateMachine.initialState());
         TopologyActions topologyActions = getTopologyActionsInstance(topology);
-        return new TopologyContext(topology, topologyActions, this, state, asUser);
+        return new TopologyContext(topology, topologyActions, this, state, topologyDeployment, asUser);
     }
 }

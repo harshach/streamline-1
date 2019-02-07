@@ -20,6 +20,7 @@ import com.hortonworks.streamline.storage.exception.IgnoreTransactionRollbackExc
 import com.hortonworks.streamline.streams.actions.TopologyActions;
 import com.hortonworks.streamline.streams.catalog.CatalogToLayoutConverter;
 import com.hortonworks.streamline.streams.catalog.Topology;
+import com.hortonworks.streamline.streams.catalog.TopologyDeployment;
 import com.hortonworks.streamline.streams.exception.TopologyNotAliveException;
 import com.hortonworks.streamline.streams.layout.component.TopologyDag;
 import com.hortonworks.streamline.streams.layout.component.TopologyLayout;
@@ -146,25 +147,28 @@ public class DefaultTopologyStateMachine implements TopologyStateMachine {
             }
 
             String applicationId = null;
+            List<TopologyActions.DeployedRuntimeId> deployedRuntimeIds = null;
             try {
                 context.setCurrentAction("Submitting topology to streaming engine");
                 String mavenArtifacts = context.getMavenArtifacts();
-                applicationId = topologyActions.deploy(layout, mavenArtifacts, context, context.getAsUser());
-                context.storeRuntimeApplicationId(applicationId);
+                TopologyDeployment deployment = context.getTopologyDeployment();
+                deployedRuntimeIds = topologyActions.deploy(layout, mavenArtifacts, deployment, context, context.getAsUser());
+                context.storeRuntimeApplicationId(deployedRuntimeIds);
                 context.setState(deployedState());
                 context.setCurrentAction("Topology deployed");
             } catch (Exception ex) {
                 LOG.error("Error while trying to deploy the topology in the streaming engine", ex);
                 LOG.error("Trying to kill any running instance of topology '{}'", context.getTopology().getName());
-                killTopologyIfRunning(context, applicationId, layout);
+                killTopologyIfRunning(context, deployedRuntimeIds, layout);
                 context.setState(deploymentFailedState());
                 context.setCurrentAction("Topology submission failed due to: " + ex);
                 throw new IgnoreTransactionRollbackException(ex);
             }
         }
 
-        private void killTopologyIfRunning(TopologyContext context, String applicationId, TopologyLayout layout) {
+        private void killTopologyIfRunning(TopologyContext context, List<TopologyActions.DeployedRuntimeId> deploymentIds, TopologyLayout layout) {
             try {
+                String applicationId = deploymentIds.iterator().next().getApplicationId();
                 TopologyActions.Status engineStatus = context.getTopologyActions().status(layout, applicationId, context.getAsUser());
                 if (!engineStatus.getStatus().equals(TopologyActions.Status.STATUS_UNKNOWN)) {
                     invokeKill(context);
@@ -215,7 +219,9 @@ public class DefaultTopologyStateMachine implements TopologyStateMachine {
 
             try {
                 context.setCurrentAction("Redeploying topology");
-                topologyActions.redeploy(layout, runtimeId, context.getAsUser());
+                TopologyDeployment deployment = context.getTopologyDeployment();
+                List<TopologyActions.DeployedRuntimeId> deployedRuntimeIds = topologyActions.redeploy(layout, runtimeId, deployment, context, context.getAsUser());
+                context.updateRuntimeApplicationId(deployedRuntimeIds);
                 context.setCurrentAction("Topology Redeployed");
             } catch (Exception ex) {
                 LOG.error("Error while trying to redeploy the topology", ex);
@@ -294,11 +300,12 @@ public class DefaultTopologyStateMachine implements TopologyStateMachine {
         Topology topology = context.getTopology();
         String runAsUser = context.getAsUser();
         String applicationId = context.getTopologyActionsService().getRuntimeTopologyId(topology, runAsUser);
-
-        TopologyActions topologyActions = context.getTopologyActions();
-        topologyActions.kill(CatalogToLayoutConverter.getTopologyLayout(topology), applicationId, runAsUser);
-        LOG.debug("Killed topology='{}' applicationId='{}'", topology.getName(), applicationId);
-    }
+        if (applicationId != null) {
+            TopologyActions topologyActions = context.getTopologyActions();
+            topologyActions.kill(CatalogToLayoutConverter.getTopologyLayout(topology), applicationId, runAsUser);
+            LOG.debug("Killed topology='{}' applicationId='{}'", topology.getName(), applicationId);
+        }
+     }
 
     @Override
     public TopologyState initialState() {

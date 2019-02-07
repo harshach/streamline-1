@@ -30,6 +30,7 @@ import com.hortonworks.streamline.streams.actions.topology.service.StormTopology
 import com.hortonworks.streamline.streams.actions.topology.service.TopologyActionsService;
 import com.hortonworks.streamline.streams.catalog.CatalogToLayoutConverter;
 import com.hortonworks.streamline.streams.catalog.Topology;
+import com.hortonworks.streamline.streams.catalog.TopologyDeployment;
 import com.hortonworks.streamline.streams.catalog.TopologyTestRunHistory;
 import com.hortonworks.streamline.streams.catalog.topology.TopologyComponentBundle;
 import com.hortonworks.streamline.streams.cluster.Constants;
@@ -166,7 +167,7 @@ public class StormTopologyActionsImpl implements TopologyActions {
     }
 
     @Override
-    public void init(Map<String, Object> conf, TopologyActionsService topologyActionsService) {
+    public void init(Map<String, Object> conf, TopologyActionsService topologyActionsService, EnvironmentService environmentService) {
         this.topologyActionsService = topologyActionsService;
         this.conf = conf;
         if (conf != null) {
@@ -211,7 +212,6 @@ public class StormTopologyActionsImpl implements TopologyActions {
 
             setupSecuredStormCluster(conf);
 
-            EnvironmentService environmentService = (EnvironmentService) conf.get(TopologyLayoutConstants.ENVIRONMENT_SERVICE_OBJECT);
             Number namespaceId = (Number) conf.get(TopologyLayoutConstants.NAMESPACE_ID);
             this.serviceConfigurationReader = new AutoCredsServiceConfigurationReader(environmentService,
                     namespaceId.longValue());
@@ -353,8 +353,10 @@ public class StormTopologyActionsImpl implements TopologyActions {
 
 
     @Override
-    public String deploy(TopologyLayout topology, String mavenArtifacts, TopologyActionContext ctx, String asUser) throws Exception {
+    public List<DeployedRuntimeId> deploy(TopologyLayout topology, String mavenArtifacts, TopologyDeployment deployment,
+                                          TopologyActionContext ctx, String asUser) throws Exception {
         ctx.setCurrentAction("Adding artifacts to jar");
+        List<DeployedRuntimeId> deployedRuntimeIds = new ArrayList<>();
         Path jarToDeploy = addArtifactsToJar(getArtifactsLocation(topology));
         ctx.setCurrentAction("Creating Storm topology YAML file");
         String fileName = createYamlFileForDeploy(topology);
@@ -390,12 +392,19 @@ public class StormTopologyActionsImpl implements TopologyActions {
                 throw new Exception("Topology could not be deployed successfully: storm deploy command failed with " + errors);
             }
         }
-        return getRuntimeTopologyId(topology, asUser);
+        String applicationId =  getRuntimeTopologyId(topology, asUser);
+        for (Long region: deployment.getRegions()) {
+            deployedRuntimeIds.add(new DeployedRuntimeId(region, applicationId));
+        }
+        return deployedRuntimeIds;
+
     }
 
     @Override
-    public String redeploy(TopologyLayout topology, String runtimeId, String asUser) throws Exception {
-        return "";
+    public List<DeployedRuntimeId> redeploy(TopologyLayout topology, String runtimeId,  TopologyDeployment deployment,
+                                            TopologyActionContext ctx, String asUser) throws Exception {
+        List<DeployedRuntimeId> deployedRuntimeIds = new ArrayList<>();
+        return deployedRuntimeIds;
     }
 
     @Override

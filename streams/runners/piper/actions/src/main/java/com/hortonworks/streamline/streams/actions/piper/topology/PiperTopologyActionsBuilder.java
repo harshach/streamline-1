@@ -29,12 +29,12 @@ public class PiperTopologyActionsBuilder implements TopologyActionsBuilder<Map<S
 
     @Override
     public void init(Map<String, String> streamlineConf, Engine engine, TopologyActionsService topologyActionsService,
-                     Namespace namespace, Subject subject) throws Exception {
+                     EnvironmentService environmentService,  Namespace namespace, Subject subject) throws Exception {
         this.conf = new HashMap<>();
         this.topologyActionsService = topologyActionsService;
         buildPiperTopologyActionsConfigMap(namespace, subject);
         piperTopologyActions = new PiperTopologyActionsImpl();
-        piperTopologyActions.init(this.conf, topologyActionsService);
+        piperTopologyActions.init(this.conf, topologyActionsService, environmentService);
     }
 
     private void buildPiperTopologyActionsConfigMap(Namespace namespace, Subject subject) {

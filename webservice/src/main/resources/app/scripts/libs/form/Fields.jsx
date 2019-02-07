@@ -759,10 +759,14 @@ export class enumstring extends BaseField {
     if (this.props.fieldJson.isUserInput !== undefined) {
       disabledField = disabledField || !this.props.fieldJson.isUserInput;
     }
+    let value = this.props.data[this.props.value];
+    if(value instanceof Array){
+      value = value[0];
+    }
     return (enumStringHint !== null && enumStringHint.toLowerCase().indexOf("hidden") !== -1
       ? ''
       : <div>
-        <Select name={this.props.value} ref="select2" clearable={false} onChange={this.handleChange} {...this.props.fieldAttr} disabled={disabledField} value={this.props.data[this.props.value]} className={`${lastChild.props.label === this.props.fieldJson.uiName && fieldsShown.length > 4
+        <Select name={this.props.value} ref="select2" clearable={false} onChange={this.handleChange} {...this.props.fieldAttr} disabled={disabledField} value={value} className={`${lastChild.props.label === this.props.fieldJson.uiName && fieldsShown.length > 4
         ? "menu-outer-top"
         : ''}${this.context.Form.state.Errors[this.props.valuePath]
           ? "invalidSelect"

@@ -18,7 +18,7 @@ import com.hortonworks.streamline.streams.registry.table.RTACreateTableRequest;
 import com.hortonworks.streamline.streams.registry.table.RTADeployTableRequest;
 import com.hortonworks.streamline.streams.registry.table.RTAQueryTypes;
 import com.hortonworks.streamline.streams.registry.table.RTATableField;
-import com.hortonworks.streamline.streams.registry.table.RTATableMetaData;
+import com.hortonworks.streamline.streams.registry.table.RTATableMetadata;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -112,7 +112,7 @@ public class AthenaxJobGraphGenerator extends TopologyDagVisitor {
 		// TODO: Change to use email in runAsUser when available
 		request.setOwner(runAsUser + "@uber.com");
 		request.setName(rtaSinkConfig.get(RTAConstants.TABLE_NAME));
-		request.setRtaTableMetaData(extractRTATableMetaData());
+		request.setRtaTableMetadata(extractRTATableMetadata());
 
 		List<RTATableField> rtaTableFields = new ArrayList<>();
 		List<Map<String, Object>> tableFieldConfigs = rtaSinkConfig.getAny(RTAConstants.TABLE_FIELDS);
@@ -133,8 +133,8 @@ public class AthenaxJobGraphGenerator extends TopologyDagVisitor {
 		return request;
 	}
 
-	private RTATableMetaData extractRTATableMetaData() {
-		RTATableMetaData metaData = new RTATableMetaData();
+	private RTATableMetadata extractRTATableMetadata() {
+		RTATableMetadata metaData = new RTATableMetadata();
 
 		Config rtaSinkConfig = rtaSink.getConfig();
 

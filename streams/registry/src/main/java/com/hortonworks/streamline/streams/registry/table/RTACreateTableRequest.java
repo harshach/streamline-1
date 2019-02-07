@@ -20,7 +20,7 @@ public class RTACreateTableRequest {
     private String name;
 
     @JsonProperty
-    private RTATableMetaData rtaTableMetaData;
+    private RTATableMetadata rtaTableMetadata;
 
     @JsonProperty
     private List<RTATableField> fields;
@@ -52,12 +52,12 @@ public class RTACreateTableRequest {
         this.name = name;
     }
 
-    public RTATableMetaData rtaTableMetaData() {
-        return rtaTableMetaData;
+    public RTATableMetadata rtaTableMetadata() {
+        return rtaTableMetadata;
     }
 
-    public void setRtaTableMetaData(RTATableMetaData rtaTableMetaData) {
-        this.rtaTableMetaData = rtaTableMetaData;
+    public void setRtaTableMetadata(RTATableMetadata rtaTableMetadata) {
+        this.rtaTableMetadata = rtaTableMetadata;
     }
 
     public List<RTATableField> fields() {

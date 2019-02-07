@@ -6,7 +6,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.List;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class RTATableMetaData {
+public class RTATableMetadata {
     private static final Boolean DEFAULT_IS_FACT_TABLE = true;
     // TODO: revisit these default values
     private static final Integer DEFAULT_SLA = 2;

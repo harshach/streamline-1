@@ -44,11 +44,7 @@ import org.slf4j.LoggerFactory;
 import javax.security.auth.Subject;
 import java.io.File;
 import java.io.IOException;
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
-import java.util.HashMap;
-
+import java.util.*;
 
 
 public class TopologyActionsService implements ContainingNamespaceAwareContainer {
@@ -152,15 +148,24 @@ public class TopologyActionsService implements ContainingNamespaceAwareContainer
         managedTransaction.executeConsumer(TopologyContext::resume, getTopologyContext(topology, asUser));
     }
 
-    public TopologyActions.Status topologyStatus(Topology topology, String asUser) throws Exception {
-        String applicationId =  this.getRuntimeTopologyId(topology, asUser);
+    public List<TopologyActions.Status> topologyStatus(Topology topology, String asUser) throws Exception {
+        Collection<TopologyRuntimeIdMap> runtimeIdMaps =  this.getRuntimeTopologyId(topology);
         TopologyActions topologyActions = getTopologyActionsInstance(topology);
-        return topologyActions.status(CatalogToLayoutConverter.getTopologyLayout(topology), applicationId, asUser);
+        List<TopologyActions.Status> statuses = new ArrayList<>();
+        for (TopologyRuntimeIdMap topologyRuntimeIdMap : runtimeIdMaps) {
+            statuses.add(topologyActions.status(CatalogToLayoutConverter.getTopologyLayout(topology), topologyRuntimeIdMap.getApplicationId(), asUser));
+        }
+        return statuses;
     }
 
     public String getRuntimeTopologyId(Topology topology, String asUser) throws IOException {
         Collection<TopologyRuntimeIdMap> runtimeIdMaps = catalogService.getTopologyRuntimeIdMap(topology.getId());
         return (runtimeIdMaps != null && !runtimeIdMaps.isEmpty()) ? runtimeIdMaps.iterator().next().getApplicationId() : null;
+    }
+
+    public Collection<TopologyRuntimeIdMap> getRuntimeTopologyId(Topology topology) throws IOException {
+        Collection<TopologyRuntimeIdMap> runtimeIdMaps = catalogService.getTopologyRuntimeIdMap(topology.getId());
+        return runtimeIdMaps;
     }
 
     public TopologyActions.LogLevelInformation configureLogLevel(Topology topology, TopologyActions.LogLevel targetLogLevel, int durationSecs,

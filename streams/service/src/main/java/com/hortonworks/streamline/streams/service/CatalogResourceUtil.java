@@ -122,7 +122,11 @@ public final class CatalogResourceUtil {
                 detailedResponse = new TopologyDashboardResponse(topology);
                 Map<String, TopologyRuntimeResponse> namespaces = new HashMap<>();
                 TopologyRuntimeResponse runtimeResponse = new TopologyRuntimeResponse(namespaceName,runtimeTopologyId, topologyMetric);
-                runtimeResponse.setStatus(actionsService.topologyStatus(topology, asUser));
+                // TODO: to fix this by adding a method or refactor
+                List<TopologyActions.Status> statuses = actionsService.topologyStatus(topology, asUser);
+                if (statuses != null && !statuses.isEmpty()) {
+                    runtimeResponse.setStatus(statuses.iterator().next());
+                }
                 namespaces.put(namespaceName, runtimeResponse);
                 detailedResponse.setNamespaces(namespaces);
             } catch (Exception e) {

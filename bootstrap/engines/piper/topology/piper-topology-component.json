@@ -20,7 +20,7 @@
         "fieldName": "deploymentSettings.namespaceIds",
         "isOptional": false,
         "tooltip": "On which datacenter to run workflow upon",
-        "type": "arrayenumstring",
+        "type": "array.enumstring",
         "options": [],
         "hint": "datacenter-showAll"
       },

@@ -157,10 +157,10 @@
             "type": "object",
             "fields": [
               {
-                "uiName": "Proxy User",
+                "uiName": "Hadoop Service Account",
                 "fieldName": "topology.proxyUser",
-                "isOptional": false,
-                "tooltip": "Proxy User",
+                "isOptional": true,
+                "tooltip": "Hadoop Service Account maps to proxy_user",
                 "type": "string"
               }
             ]

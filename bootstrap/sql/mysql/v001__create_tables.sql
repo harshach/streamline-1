@@ -143,6 +143,7 @@ CREATE TABLE IF NOT EXISTS topology_version (
   name VARCHAR(256) NOT NULL,
   description TEXT NOT NULL,
   timestamp  BIGINT,
+  UNIQUE KEY `unique_topologyId_name` (topologyId, name),
   PRIMARY KEY (id)
 );
 

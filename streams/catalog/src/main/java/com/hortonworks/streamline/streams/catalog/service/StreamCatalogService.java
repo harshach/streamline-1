@@ -49,6 +49,7 @@ import com.hortonworks.streamline.common.util.WSUtils;
 import com.hortonworks.streamline.registries.model.client.MLModelRegistryClient;
 import com.hortonworks.streamline.storage.StorableKey;
 import com.hortonworks.streamline.storage.StorageManager;
+import com.hortonworks.streamline.storage.exception.AlreadyExistsException;
 import com.hortonworks.streamline.storage.exception.StorageException;
 import com.hortonworks.streamline.storage.search.SearchQuery;
 import com.hortonworks.streamline.storage.util.StorageUtils;
@@ -378,7 +379,11 @@ public class StreamCatalogService {
         if (topologyVersion.getTimestamp() == null) {
             topologyVersion.setTimestamp(System.currentTimeMillis());
         }
-        dao.add(topologyVersion);
+        try {
+            dao.add(topologyVersion);
+        } catch (AlreadyExistsException ex) {
+            LOG.debug("TopologyVersion {} already exist", topologyVersion.getName());
+        }
         return topologyVersion;
     }
 

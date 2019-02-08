@@ -192,12 +192,13 @@ class TopologyComponentMetrics extends Component {
       )
       : ''
       }
-      {engine.type == 'stream' &&
+      {/*
+      engine.type == 'stream' &&
       <div className="metric-bg bottom">
         <span className="pull-left">Log: <span style={{color: '#2787ad'}}>{logLevels}</span></span>
         <span className="pull-right">Sampling: <span style={{color: '#2787ad'}}>{samplingVal}%</span></span>
       </div>
-      }
+      */}
       </div>
     );
   }

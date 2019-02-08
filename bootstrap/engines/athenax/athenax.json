@@ -9,6 +9,6 @@
     "topologyActionClass": "com.hortonworks.streamline.streams.actions.athenax.topology.AthenaxTopologyActionBuilder",
     "topologyStateMachineClass": "com.hortonworks.streamline.streams.actions.topology.state.DefaultTopologyStateMachine",
     "topologyStatusMetricsClass": "com.hortonworks.streamline.streams.metrics.athenax.topology.AthenaxTopologyMetricsImpl",
-    "topologyTimeseriesMetricsClass": "default",
+    "topologyTimeseriesMetricsClass": "com.hortonworks.streamline.streams.metrics.M3MetricsQuerier",
     "config": "{}"
 }

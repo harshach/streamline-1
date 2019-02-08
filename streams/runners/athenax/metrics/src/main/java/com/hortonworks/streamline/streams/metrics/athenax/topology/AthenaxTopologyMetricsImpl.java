@@ -1,8 +1,11 @@
 package com.hortonworks.streamline.streams.metrics.athenax.topology;
 
+import com.hortonworks.streamline.common.QueryParam;
 import com.hortonworks.streamline.common.exception.ConfigException;
+import com.hortonworks.streamline.common.util.WSUtils;
 import com.hortonworks.streamline.streams.catalog.Engine;
 import com.hortonworks.streamline.streams.catalog.Topology;
+import com.hortonworks.streamline.streams.catalog.TopologyComponent;
 import com.hortonworks.streamline.streams.catalog.TopologyRuntimeIdMap;
 import com.hortonworks.streamline.streams.cluster.catalog.Namespace;
 import com.hortonworks.streamline.streams.cluster.catalog.Service;
@@ -14,17 +17,23 @@ import com.hortonworks.streamline.streams.common.athenax.entity.JobStatusRequest
 import com.hortonworks.streamline.streams.layout.component.Component;
 import com.hortonworks.streamline.streams.layout.component.TopologyLayout;
 import com.hortonworks.streamline.streams.metrics.TimeSeriesQuerier;
+import com.hortonworks.streamline.streams.metrics.M3MetricsQuerier;
 import com.hortonworks.streamline.streams.metrics.topology.TopologyMetrics;
 import com.hortonworks.streamline.streams.metrics.topology.service.TopologyCatalogHelperService;
 
 import javax.security.auth.Subject;
 import java.io.IOException;
+import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class AthenaxTopologyMetricsImpl implements TopologyMetrics {
 
     private static final String ATHENAX_METRIC_FRAMEWORK = "ATHENAX";
+    private static final String ATHENAX_METRIC_PARAM_JOB_NAME = "jobName";
+    private static final String ATHENAX_METRIC_PARAM_DC = "dc";
+    private static final String ATHENAX_METRIC_PARAM_ENV = "env";
 
     private Map<String, String> configMap;
     private TimeSeriesQuerier timeSeriesQuerier;
@@ -93,6 +102,48 @@ public class AthenaxTopologyMetricsImpl implements TopologyMetrics {
     public Map<String, ComponentMetric> getMetricsForTopology(TopologyLayout topologyLayout, String asUser) {
         Map<String, ComponentMetric> metricMap = new HashMap<>();
         return metricMap;
+    }
+
+    public Map<Long, Object> getTimeSeriesMetrics(Topology topology, String metricKeyName,
+                                                  String metricQueryFormat, Map<String, String> clientMetricParams, long from, long to, String asUser) {
+
+        Map<Long, Object> results = new HashMap<>();
+
+        M3MetricsQuerier timeSeriesQuerier = (M3MetricsQuerier) this.timeSeriesQuerier;
+
+        Map<String, String> metricParams = new HashMap<>();
+        String jobName = topology.getName();
+        String yarnDataCenter = configMap.get(AthenaxConstants.ATHENAX_YARN_DATA_CENTER_KEY);
+        String yarnCluster = configMap.get(AthenaxConstants.ATHENAX_YARN_CLUSTER_KEY);
+        metricParams.put(ATHENAX_METRIC_PARAM_JOB_NAME, jobName);
+        metricParams.put(ATHENAX_METRIC_PARAM_DC, yarnDataCenter);
+        metricParams.put(ATHENAX_METRIC_PARAM_ENV, yarnCluster);
+
+        // merge (overwrite) params from client
+        for (Map.Entry<String,String> entry : clientMetricParams.entrySet()) {
+            metricParams.put(entry.getKey(), (entry.getValue()));
+        }
+
+        Map<String, Object> metricsByTag =
+                timeSeriesQuerier.getMetricsByTag(metricQueryFormat, metricParams, from, to, asUser);
+
+        Collection<? extends TopologyComponent> components = getTopologyComponents(topology);
+
+        if (components != null) {
+            for (TopologyComponent component : components) {
+                Object metrics = metricsByTag.get(component.getName().toLowerCase());  // M3 downcases all tags
+                results.put(component.getId(), metrics);
+            }
+        }
+        return results;
+    }
+
+    private Collection<? extends TopologyComponent> getTopologyComponents(Topology topology) {
+        Long currentVersionId = topologyCatalogHelperService.getCurrentVersionId(topology.getId());
+
+        List<QueryParam> queryParams = WSUtils.buildTopologyIdAndVersionIdAwareQueryParams(topology.getId(), currentVersionId, null);
+
+        return topologyCatalogHelperService.listTopologyTasks(queryParams);
     }
 
     private Map<String, String> getConfigMap(Namespace namespace, Engine engine) throws ConfigException {

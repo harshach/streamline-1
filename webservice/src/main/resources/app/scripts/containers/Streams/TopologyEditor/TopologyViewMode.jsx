@@ -244,7 +244,8 @@ class TopologyViewMode extends Component {
     return (
       <div>
         <div className="view-mode-title-box">
-          { engine.type == 'stream' &&
+          {/*
+          engine.type == 'stream' &&
           <div className="col-sm-4">
             <DropdownButton title={titleContent}
               id="log-duration-dropdown"
@@ -266,19 +267,20 @@ class TopologyViewMode extends Component {
               />
             </DropdownButton>
           </div>
-          }
-          { engine.type == 'stream' &&
+          */}
+          {/*
+          engine.type == 'stream' &&
           <div className="col-sm-4 text-right">
             <div>
               <span className="text-muted">Mode: </span>
                 <ToggleButtonGroup type="radio" name="mode-select-options" defaultValue={viewModeData.selectedMode} onChange={this.changeMode}>
                   <ToggleButton className="mode-select-btn left" disabled={!isAppRunning} value="Overview">OVERVIEW</ToggleButton>
-                  {/*<ToggleButton className="mode-select-btn right" disabled={!isAppRunning} value="Metrics">METRICS</ToggleButton>*/}
+                  {<ToggleButton className="mode-select-btn right" disabled={!isAppRunning} value="Metrics">METRICS</ToggleButton>}
                   <ToggleButton className="mode-select-btn right" disabled={!isAppRunning} value="Sample">SAMPLE</ToggleButton>
               </ToggleButtonGroup>
             </div>
           </div>
-          }
+          */}
           {showLogSearchBtn ?
             <div className="pull-right">
               <a href="javascript:void(0)" style={{marginLeft: '10px', top: '5px'}} key={3}
@@ -289,7 +291,8 @@ class TopologyViewMode extends Component {
               </a>
             </div>
           : null}
-          {engine.type == 'stream' &&
+          {/*
+          engine.type == 'stream' &&
           <div className="pull-right" style={{marginLeft: '10px'}}>
             <DateTimePickerDropdown
               dropdownId="datepicker-dropdown"
@@ -300,7 +303,7 @@ class TopologyViewMode extends Component {
               isDisabled={!isAppRunning}
               datePickerCallback={this.props.datePickerCallback} />
           </div>
-          }
+          */}
           <div className="pull-right">
             {stormViewUrl.length
             ? <a href={stormViewUrl} target="_blank" className="btn btn-default"><img src="styles/img/storm-btn.png" width="20"/></a>

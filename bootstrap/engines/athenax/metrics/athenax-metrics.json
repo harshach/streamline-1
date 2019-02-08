@@ -1,0 +1,162 @@
+{
+  "name": "Athenax METRICS",
+  "engine": "ATHENAX",
+  "template": ["Blank"],
+  "metricsUISpec": {
+    "metrics": [
+      {
+        "name": "status",
+        "uiName": "Status",
+        "metricKeyName": "status",
+        "metricPrevKeyName": "status",
+        "valueFormat": "string",
+        "defaultValue": "",
+        "comment": ""
+      }
+    ],
+    "timeseries": [
+      {
+        "name": "jobHealth",
+        "uiName": "Job Health",
+        "metricKeyName": ["job_health"],
+        "metricQuery": "fetch service:* job-name:$jobName dc:$dc env:$env name:jobmanager-numrunningjobs | sumSeries | alias job_health",
+        "params": {},
+        "interpolate": "stepped"
+      },{
+        "name": "containerCPUUsageAggregated",
+        "uiName": "Aggregate Container CPU Usage",
+        "metricKeyName": ["container_cpu_usage_aggregated"],
+        "metricQuery": "fetch service:* job-name:$jobName dc:$dc env:$env name:taskmanager-status-jvm-cpu-load | averageSeries | alias container_cpu_usage_aggregated",
+        "params": {},
+        "interpolate": "stepped"
+      },{
+        "name": "containerMemoryUsageAggregated",
+        "uiName": "Aggregated Container Memory Usage",
+        "metricKeyName": ["container_memory_usage_aggregated"],
+        "metricQuery": "fetch service:* job-name:$jobName dc:$dc env:$env name:taskmanager-status-jvm-memory-heap-used | sumSeries | asPercent (fetch service:* job-name:$jobName dc:$dc env:$env name:taskmanager-status-jvm-memory-heap-committed | sumSeries) | alias container_memory_usage_aggregated",
+        "params": {},
+        "interpolate": "stepped"
+      },{
+        "name": "containerCount",
+        "uiName": "Number of Containers",
+        "metricKeyName": ["number_of_running_container"],
+        "metricQuery": "fetch service:* job-name:$jobName dc:$dc env:$env name:jobmanager-numregisteredtaskmanagers | sumSeries | alias number_of_running_container",
+        "params": {},
+        "interpolate": "stepped"
+      },{
+        "name": "messageInputRate",
+        "uiName": "Message Input Rate per Second",
+        "metricKeyName": ["message_input_rate"],
+        "metricQuery": "fetch service:* job-name:$jobName dc:$dc env:$env name:taskmanager-sinkunnamed-numrecordsin | sumSeries | perSecond | alias message_input_rate | transformNull 0",
+        "params": {},
+        "interpolate": "stepped"
+      },{
+        "name": "totalMessageInput",
+        "uiName": "Total Message Input",
+        "metricKeyName": ["total_message_input"],
+        "metricQuery": "fetch service:* job-name:$jobName dc:$dc env:$env name:taskmanager-sinkunnamed-numrecordsin | sumSeries | alias total_message_input | transformNull 0",
+        "params": {},
+        "interpolate": "stepped"
+      },{
+        "name": "messageOutputRate",
+        "uiName": "Message Output Rate per Second",
+        "metricKeyName": ["message_output_rate"],
+        "metricQuery": "fetch service:* job-name:$jobName dc:$dc env:$env name:taskmanager-sourcecustomsource-numrecordsout | sumSeries | perSecond | alias message_output_rate | transformNull 0",
+        "params": {},
+        "interpolate": "stepped"
+      },{
+        "name": "totalMessageOutput",
+        "uiName": "Total Message Output",
+        "metricKeyName": ["total_message_output"],
+        "metricQuery": "fetch service:* job-name:$jobName dc:$dc env:$env name:taskmanager-sourcecustomsource-numrecordsout | sumSeries | alias total_message_out | transformNull 0",
+        "params": {},
+        "interpolate": "stepped"
+      },{
+        "name": "kafkaLag",
+        "uiName": "Kafka Lag",
+        "metricKeyName": ["kafka_lag"],
+        "metricQuery": "fetch service:* job-name:$jobName dc:$dc env:$env name:taskmanager-sourcecustomsource-kafkaconsumer-records-lag-max | removeEmpty | alias kafka_lag",
+        "params": {},
+        "interpolate": "stepped"
+      }
+    ],
+    "layout":{
+      "listing": [{
+        "left": [{
+          "name": "dc",
+          "type": "title"
+        }],
+        "right": [{
+          "name": "status",
+          "type": "status"
+        }]
+      }],
+      "viewmode": {
+        "DAG": {
+          "metrics": {
+            "topology": [],
+            "source": {
+              "baseMetrics" : [],
+              "component_metrics": {}
+            },
+            "processor": {
+              "baseMetrics" : [],
+              "component_metrics": {}
+            },
+            "sink": {
+              "baseMetrics" : [],
+              "component_metrics": {}
+            }
+          },
+          "timeseries": {
+            "topology": [],
+            "source": {
+              "baseMetrics" : ["messageInputRate", "totalMessageInput"],
+              "component_metrics": {}
+            },
+            "processor": {
+              "baseMetrics" : [],
+              "component_metrics": {}
+            },
+            "sink": {
+              "baseMetrics" : ["messageOutputRate", "totalMessageOutput"],
+              "component_metrics": {}
+            }
+          }
+        },
+        "metricsSection": {
+          "metrics": {
+            "topology": [],
+            "source": {
+              "baseMetrics" : [],
+              "component_metrics": {}
+            },
+            "processor": {
+              "baseMetrics" : [],
+              "component_metrics": {}
+            },
+            "sink": {
+              "baseMetrics" : [],
+              "component_metrics": {}
+            }
+          },
+          "timeseries": {
+            "topology": [],
+            "source": {
+              "baseMetrics" : [],
+              "component_metrics": {}
+            },
+            "processor": {
+              "baseMetrics" : [],
+              "component_metrics": {}
+            },
+            "sink": {
+              "baseMetrics" : [],
+              "component_metrics": {}
+            }
+          }
+        }
+      }
+    }
+  }
+}

@@ -6,7 +6,6 @@ import com.hortonworks.streamline.common.exception.service.exception.request.Ent
 import com.hortonworks.streamline.common.util.WSUtils;
 import com.hortonworks.streamline.streams.catalog.*;
 import com.hortonworks.streamline.streams.catalog.service.StreamCatalogService;
-import com.hortonworks.streamline.streams.metrics.piper.m3.M3MetricsWithPiperQuerier;
 import com.hortonworks.streamline.streams.metrics.piper.topology.PiperTopologyMetricsImpl;
 import com.hortonworks.streamline.streams.metrics.topology.TopologyTimeSeriesMetrics;
 import com.hortonworks.streamline.streams.metrics.topology.service.TopologyMetricsService;

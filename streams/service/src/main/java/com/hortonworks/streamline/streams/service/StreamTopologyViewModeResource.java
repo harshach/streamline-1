@@ -6,6 +6,7 @@ import com.hortonworks.streamline.common.exception.service.exception.request.Ent
 import com.hortonworks.streamline.common.util.WSUtils;
 import com.hortonworks.streamline.streams.catalog.*;
 import com.hortonworks.streamline.streams.catalog.service.StreamCatalogService;
+import com.hortonworks.streamline.streams.metrics.athenax.topology.AthenaxTopologyMetricsImpl;
 import com.hortonworks.streamline.streams.metrics.topology.TopologyTimeSeriesMetrics;
 import com.hortonworks.streamline.streams.metrics.topology.service.TopologyMetricsService;
 import com.hortonworks.streamline.streams.security.Roles;
@@ -27,6 +28,7 @@ import javax.ws.rs.core.SecurityContext;
 import javax.ws.rs.core.UriInfo;
 import java.io.IOException;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -49,6 +51,41 @@ public class StreamTopologyViewModeResource {
         this.authorizer = authorizer;
         this.catalogService = catalogService;
         this.metricsService = metricsService;
+    }
+
+    @GET
+    @Path("/topologies/{topologyId}/metrics/{metricKeyName}")
+    @Timed
+    public Response getTopologyMetrics(@PathParam("topologyId") Long topologyId,
+                                       @PathParam("metricKeyName") String metricKeyName,
+                                       @QueryParam("metricQuery") String metricQuery,
+                                       @QueryParam("from") Long from,
+                                       @QueryParam("to") Long to,
+                                       @Context UriInfo uriInfo,
+                                       @Context SecurityContext securityContext) throws IOException {
+
+        SecurityUtil.checkRoleOrPermissions(authorizer, securityContext, Roles.ROLE_TOPOLOGY_USER,
+                Topology.NAMESPACE, topologyId, READ);
+
+        assertTimeRange(from, to);
+
+        Topology topology = catalogService.getTopology(topologyId);
+        if (topology == null) {
+            throw new EntityNotFoundException("Topology not found topologyId: " + topologyId);
+        }
+
+        String asUser = WSUtils.getUserFromSecurityContext(securityContext);
+
+        Map<String, String> metricParams = new HashMap<>();
+
+        // FIXME T2184621 remove hack, need interface updates
+        AthenaxTopologyMetricsImpl topologyMetricsService = (AthenaxTopologyMetricsImpl)
+                metricsService.getTopologyMetricsInstanceHack(topology);
+
+        Map<Long, Object> topologyMetrics = topologyMetricsService.getTimeSeriesMetrics(
+                topology, metricKeyName, metricQuery, metricParams, from, to, asUser);
+
+        return WSUtils.respondEntity(topologyMetrics, OK);
     }
 
     @GET

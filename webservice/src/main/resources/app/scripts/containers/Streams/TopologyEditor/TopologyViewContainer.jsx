@@ -150,10 +150,11 @@ class TopologyViewContainer extends TopologyEditorContainer {
   }
 
   fetchTopologyLevelSampling(){
+    return;
     const {viewModeData} = this.state;
-    if(this.engine.type != 'stream'){
-      return;
-    }
+    //if(this.engine.type != 'stream'){
+    //  return;
+    //}
     ViewModeREST.getTopologySamplingStatus(this.topologyId).then((result)=>{
       if(result.responseMessage !== undefined){
         FSReactToastr.error(
@@ -674,21 +675,25 @@ class TopologyViewContainer extends TopologyEditorContainer {
   }
 
   getRightSideBar = () => {
-    const {topologyName, executionInfo, selectedExecution} = this.state;
-    return <BatchMetrics
-      {...this.state}
-      executionInfo={executionInfo}
-      lastUpdatedTime={this.lastUpdatedTime}
-      topologyName={topologyName}
-      onSelectExecution={this.onSelectExecution}
-      getPrevPageExecutions={this.getPrevPageExecutions}
-      getNextPageExecutions={this.getNextPageExecutions}
-      compSelectCallback={this.compSelectCallback}
-      components={this.graphData.nodes}
-      selectedExecution={selectedExecution}
-      datePickerCallback={this.datePickerCallback}
-      batchTimeseries={this.batchTimeseries}
-    />;
+    if (this.engine.type == 'batch') {
+      const {topologyName, executionInfo, selectedExecution} = this.state;
+      return <BatchMetrics
+          {...this.state}
+          executionInfo={executionInfo}
+          lastUpdatedTime={this.lastUpdatedTime}
+          topologyName={topologyName}
+          onSelectExecution={this.onSelectExecution}
+          getPrevPageExecutions={this.getPrevPageExecutions}
+          getNextPageExecutions={this.getNextPageExecutions}
+          compSelectCallback={this.compSelectCallback}
+          components={this.graphData.nodes}
+          selectedExecution={selectedExecution}
+          datePickerCallback={this.datePickerCallback}
+          batchTimeseries={this.batchTimeseries}
+      />;
+    } else {
+      return null;
+    }
   }
 
   render() {

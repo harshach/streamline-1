@@ -1,11 +1,10 @@
-package com.hortonworks.streamline.streams.metrics.piper.m3;
+package com.hortonworks.streamline.streams.metrics;
 
 import com.hortonworks.streamline.common.exception.ConfigException;
 import com.hortonworks.streamline.streams.catalog.Engine;
 import com.hortonworks.streamline.streams.cluster.catalog.Namespace;
 import com.hortonworks.streamline.streams.cluster.catalog.Service;
 import com.hortonworks.streamline.streams.cluster.catalog.ServiceConfiguration;
-import com.hortonworks.streamline.streams.metrics.AbstractTimeSeriesQuerier;
 import com.hortonworks.streamline.streams.metrics.topology.client.M3RestAPIClient;
 import com.hortonworks.streamline.streams.metrics.topology.service.TopologyCatalogHelperService;
 import org.apache.commons.lang3.text.StrSubstitutor;
@@ -23,9 +22,9 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class M3MetricsWithPiperQuerier extends AbstractTimeSeriesQuerier{
+public class M3MetricsQuerier extends AbstractTimeSeriesQuerier {
 
-    private static final Logger LOG = LoggerFactory.getLogger(M3MetricsWithPiperQuerier.class);
+    private static final Logger LOG = LoggerFactory.getLogger(M3MetricsQuerier.class);
 
     private static final String M3_SERVICE_NAME = "M3";
     private static final String M3_SERVICE_CONFIG_NAME = "properties";
@@ -43,7 +42,7 @@ public class M3MetricsWithPiperQuerier extends AbstractTimeSeriesQuerier{
     private M3RestAPIClient client;
     private TopologyCatalogHelperService topologyCatalogHelperService;
 
-    public M3MetricsWithPiperQuerier() {
+    public M3MetricsQuerier() {
     }
 
     /**
@@ -56,7 +55,7 @@ public class M3MetricsWithPiperQuerier extends AbstractTimeSeriesQuerier{
         this.topologyCatalogHelperService = topologyCatalogHelperService;
 
         try {
-            Map<String, String> m3Conf = buildPiperM3TimeSeriesQuerierConfigMap(namespace, engine);
+            Map<String, String> m3Conf = buildM3TimeSeriesQuerierConfigMap(namespace, engine);
 
             client = new M3RestAPIClient(m3Conf.get(M3_ROOT_URL_KEY), subject);
         } catch (URISyntaxException e) {
@@ -68,7 +67,7 @@ public class M3MetricsWithPiperQuerier extends AbstractTimeSeriesQuerier{
     public Map<String, Object> getMetricsByTag(String metricQueryTemplate, Map<String, String> metricParams,
                                                long from, long to, String asUser) {
 
-        // M3 discourages UUIDs, Piper masks to prevent M3 from dropping
+        // M3 discourages UUIDs, masks to prevent M3 from dropping
         maskUUIDs(metricParams);
 
         // Substitute params into query
@@ -168,7 +167,7 @@ public class M3MetricsWithPiperQuerier extends AbstractTimeSeriesQuerier{
         return s + " ";
     }
 
-    private Map<String, String> buildPiperM3TimeSeriesQuerierConfigMap(Namespace namespace, Engine engine)
+    private Map<String, String> buildM3TimeSeriesQuerierConfigMap(Namespace namespace, Engine engine)
         throws ConfigException {
 
         Map<String, String> conf = new HashMap<>();

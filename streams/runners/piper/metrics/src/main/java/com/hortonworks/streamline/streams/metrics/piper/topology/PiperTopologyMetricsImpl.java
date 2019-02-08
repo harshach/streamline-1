@@ -12,7 +12,7 @@ import com.hortonworks.streamline.streams.cluster.catalog.ServiceConfiguration;
 import com.hortonworks.streamline.streams.layout.component.Component;
 import com.hortonworks.streamline.streams.layout.component.TopologyLayout;
 import com.hortonworks.streamline.streams.metrics.TimeSeriesQuerier;
-import com.hortonworks.streamline.streams.metrics.piper.m3.M3MetricsWithPiperQuerier;
+import com.hortonworks.streamline.streams.metrics.M3MetricsQuerier;
 import com.hortonworks.streamline.streams.metrics.topology.TopologyMetrics;
 import com.hortonworks.streamline.streams.metrics.topology.service.TopologyCatalogHelperService;
 import com.hortonworks.streamline.streams.piper.common.PiperRestAPIClient;
@@ -22,7 +22,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.security.auth.Subject;
-import javax.ws.rs.core.MultivaluedMap;
 import java.io.IOException;
 import java.util.*;
 
@@ -284,7 +283,7 @@ public class PiperTopologyMetricsImpl implements TopologyMetrics {
 
         Map<Long, Object> results = new HashMap<>();
 
-        M3MetricsWithPiperQuerier timeSeriesQuerier = (M3MetricsWithPiperQuerier) this.timeSeriesQuerier;
+        M3MetricsQuerier timeSeriesQuerier = (M3MetricsQuerier) this.timeSeriesQuerier;
 
         Map<String, String> metricParams = getServerSubstitutionParams(topology);
 

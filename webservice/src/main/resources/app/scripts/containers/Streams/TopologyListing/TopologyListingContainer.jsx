@@ -154,14 +154,7 @@ class TopologyItems extends Component {
 
   getMetrics(){
     const {topologyList} = this.props;
-    const {
-      topology,
-      namespaces
-    } = topologyList;
-    let clusterNamesList = _.keys(namespaces);
-    const namespaceName = namespaces[clusterNamesList[0]].clusterName;
-    const status = namespaces[clusterNamesList[0]].status.status.toLowerCase();
-    const metricWrap = namespaces[clusterNamesList[0]].metric ?  namespaces[clusterNamesList[0]].metric.metrics : {};
+    const {topology, namespaces } = topologyList;
 
     const engine = Utils.getEngineById(topologyList.topology.engineId);
     const template = Utils.getListingMetricsTemplate(engine);
@@ -173,58 +166,68 @@ class TopologyItems extends Component {
       });
     };
 
-    const designs = {
-      title: (metricName) => {
-        return <h5 className="metric-title">{namespaceName}</h5>;
-      },
-      status: (metricName) => {
-        return <h6 className="activity">{Utils.capitaliseFirstLetter(status)} &nbsp;</h6>;
-      },
-      labelValue: (metricName) => {
-        const metric = getMetric(metricName);
-        const val = Utils[metric.valueFormat](metricWrap[metric.metricKeyName]);
-        return [
-          <h6 className="metric-label">{metric.uiName}</h6>,
-          <p className="metric-value">{val.value} &nbsp;</p>
-        ];
-      },
-      duration: (metricName) => {
-        const metric = getMetric(metricName);
-        const oVal = metricWrap[metric.metricKeyName] || 0;
-        const val = Utils[metric.valueFormat](oVal);
-        return <p className="activity">Duration {val.value + (val.prefix || '')}</p>;
-      },
-      legendValue: (metricName) => {
-        const metric = getMetric(metricName);
-        let value = metricWrap[metric.metricKeyName];;
-        if(value){
-          return <p><i className={"fa fa-square "+value.toLowerCase()}></i> {Utils.capitaliseFirstLetter(value)}</p>;
-        } else {
-          return null;
-        }
+    let clusterNamesList = _.keys(namespaces);
+    return clusterNamesList.map((clusterName, i)=>{
+      const namespaceName = namespaces[clusterName].clusterName;
+      let status = "unknown";
+      if(namespaces[clusterName].status && namespaces[clusterName].status.status){
+        status = namespaces[clusterName].status.status.toLowerCase();
       }
-    };
+      const metricWrap = namespaces[clusterName].metric ?  namespaces[clusterName].metric.metrics : {};
 
-    const leftMetrics = [];
-    const rightMetrics = [];
+      const designs = {
+        title: (metricName) => {
+          return <h5 className="metric-title">{namespaceName}</h5>;
+        },
+        status: (metricName) => {
+          return <h6 className="activity">{Utils.capitaliseFirstLetter(status)} &nbsp;</h6>;
+        },
+        labelValue: (metricName) => {
+          const metric = getMetric(metricName);
+          const val = Utils[metric.valueFormat](metricWrap[metric.metricKeyName]);
+          return [
+            <h6 className="metric-label">{metric.uiName}</h6>,
+            <p className="metric-value">{val.value} &nbsp;</p>
+          ];
+        },
+        duration: (metricName) => {
+          const metric = getMetric(metricName);
+          const oVal = metricWrap[metric.metricKeyName] || 0;
+          const val = Utils[metric.valueFormat](oVal);
+          return <p className="activity">Duration {val.value + (val.prefix || '')}</p>;
+        },
+        legendValue: (metricName) => {
+          const metric = getMetric(metricName);
+          let value = metricWrap[metric.metricKeyName];;
+          if(value){
+            return <p><i className={"fa fa-square "+value.toLowerCase()}></i> {Utils.capitaliseFirstLetter(value)}</p>;
+          } else {
+            return null;
+          }
+        }
+      };
 
-    _.each(layout, (row, index) => {
-      const left = _.map(row.left, (m) => {
-        return designs[m.type](m.name);
+      const leftMetrics = [];
+      const rightMetrics = [];
+
+      _.each(layout, (row, index) => {
+        const left = _.map(row.left, (m) => {
+          return designs[m.type](m.name);
+        });
+        const right = _.map(row.right, (m) => {
+          return designs[m.type](m.name);
+        });
+        leftMetrics.push(left);
+        rightMetrics.push(right);
       });
-      const right = _.map(row.right, (m) => {
-        return designs[m.type](m.name);
-      });
-      leftMetrics.push(left);
-      rightMetrics.push(right);
+
+      return (
+        <div className="row" key={i}>
+          <div className="col-sm-8">{leftMetrics}</div>
+          <div className="col-sm-4 text-right">{rightMetrics}</div>
+        </div>
+      );
     });
-
-    return (
-      <div className="row">
-        <div className="col-sm-8">{leftMetrics}</div>
-        <div className="col-sm-4 text-right">{rightMetrics}</div>
-      </div>
-    );
   }
   getFooter(dropdown){
     const {topologyList} = this.props;
@@ -261,7 +264,10 @@ class TopologyItems extends Component {
       namespaces
     } = topologyList;
     let clusterNamesList = _.keys(namespaces);
-    const status = namespaces[clusterNamesList[0]].status.status.toLowerCase();
+    let status = "unknown";
+    if(namespaces[clusterNamesList[0]].status && namespaces[clusterNamesList[0]].status.status){
+      status = namespaces[clusterNamesList[0]].status.status.toLowerCase();
+    }
     const ellipseIcon = <i className="fa fa-ellipsis-h"></i>;
     const userInfo = app_state.user_profile !== undefined ? app_state.user_profile.admin :false;
     let permission=true,rights_share=true,aclObject={};

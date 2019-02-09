@@ -111,7 +111,7 @@ public class JsonClientUtil {
 
         List<T> entities = new ArrayList<>();
         try {
-            String response = target.request().get(String.class);
+            String response = builder.get(String.class);
             ObjectMapper mapper = new ObjectMapper();
             JsonNode node = mapper.readTree(response);
             Iterator<JsonNode> it = node.elements();

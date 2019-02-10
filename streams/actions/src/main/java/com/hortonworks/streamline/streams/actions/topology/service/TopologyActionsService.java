@@ -150,9 +150,9 @@ public class TopologyActionsService implements ContainingNamespaceAwareContainer
 
     public List<TopologyActions.Status> topologyStatus(Topology topology, String asUser) throws Exception {
         Collection<TopologyRuntimeIdMap> runtimeIdMaps =  this.getRuntimeTopologyId(topology);
-        TopologyActions topologyActions = getTopologyActionsInstance(topology);
         List<TopologyActions.Status> statuses = new ArrayList<>();
         for (TopologyRuntimeIdMap topologyRuntimeIdMap : runtimeIdMaps) {
+            TopologyActions topologyActions = getTopologyActionsInstance(topology, topologyRuntimeIdMap.getNamespaceId());
             statuses.add(topologyActions.status(CatalogToLayoutConverter.getTopologyLayout(topology), topologyRuntimeIdMap.getApplicationId(), asUser));
         }
         return statuses;
@@ -204,9 +204,17 @@ public class TopologyActionsService implements ContainingNamespaceAwareContainer
     public void invalidateInstance(Long namespaceId) { }
 
     private TopologyActions getTopologyActionsInstance(Topology topology) throws Exception {
-        Namespace namespace = environmentService.getNamespace(topology.getNamespaceId());
+        return getTopologyActionsInstance(topology, null);
+    }
+
+    private TopologyActions getTopologyActionsInstance(Topology topology, Long namespaceId) throws Exception {
+        if (namespaceId == null) {
+            namespaceId = topology.getNamespaceId();
+        }
+
+        Namespace namespace = environmentService.getNamespace(namespaceId);
         if (namespace == null) {
-            throw new RuntimeException("Corresponding namespace not found: " + topology.getNamespaceId());
+            throw new RuntimeException("Corresponding namespace not found: " + namespaceId);
         }
         Engine engine = catalogService.getEngine(topology.getEngineId());
         TopologyActionsBuilder topologyActionsBuilder = topologyActionsFactory.getTopologyActionsBuilder(engine, namespace,

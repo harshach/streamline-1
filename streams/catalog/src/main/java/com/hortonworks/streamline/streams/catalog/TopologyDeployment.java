@@ -1,6 +1,7 @@
 package com.hortonworks.streamline.streams.catalog;
 
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class TopologyDeployment {
@@ -12,15 +13,11 @@ public class TopologyDeployment {
         this.regions = regions;
     }
 
-    public DeploymentSetting getDeploymentSetting() {
-        return deploymentSetting;
-    }
+    public DeploymentSetting getDeploymentSetting() {return deploymentSetting;}
 
-    public List<Long> getRegions() {
-        return regions;
-    }
+     public List<Long> getRegions() { return regions; }
 
-    enum DeploymentSetting {
+    public enum DeploymentSetting {
         ALL_REGIONS, CHOSEN_REGION
     }
 }

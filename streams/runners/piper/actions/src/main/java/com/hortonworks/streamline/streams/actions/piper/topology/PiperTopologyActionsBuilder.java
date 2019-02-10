@@ -26,6 +26,8 @@ public class PiperTopologyActionsBuilder implements TopologyActionsBuilder<Map<S
     private TopologyActions piperTopologyActions;
     private TopologyActionsService topologyActionsService;
     private Map<String, Object> conf;
+    protected static final String UWORC_NAMESPACE_ID = "UWORC_NAMESPACE_ID";
+    protected static final String UWORC_NAMESPACE_NAME = "UWORC_NAMESPACE_NAME";
 
     @Override
     public void init(Map<String, String> streamlineConf, Engine engine, TopologyActionsService topologyActionsService,
@@ -58,6 +60,8 @@ public class PiperTopologyActionsBuilder implements TopologyActionsBuilder<Map<S
         String port = configMap.get(PIPER_SERVICE_CONFIG_KEY_PORT);
         String rootUrl = PiperUtil.buildPiperRestApiRootUrl(host, port);
         conf.put(PIPER_ROOT_URL_KEY, rootUrl);
+        conf.put(UWORC_NAMESPACE_ID, namespace.getId());
+        conf.put(UWORC_NAMESPACE_NAME, namespace.getName());
     }
 
     @Override

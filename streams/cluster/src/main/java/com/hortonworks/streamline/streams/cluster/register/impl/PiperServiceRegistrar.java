@@ -31,6 +31,8 @@ public class PiperServiceRegistrar extends AbstractServiceRegistrar {
 
     public static final String PARAM_PIPER_UI_HOST = "piper.service.host";
     public static final String PARAM_PIPER_UI_PORT= "piper.service.port";
+    public static final String PARAM_PIPER_UI_DATACENTER= "piper.service.datacenter";
+    public static final String PARAM_PIPER_UI_ENVIRONMENT= "piper.service.environment";
     public static final String SERVICE_NAME = "piper";
     public static final String CONF_TYPE_PROPERTIES = "properties";
 
@@ -52,7 +54,9 @@ public class PiperServiceRegistrar extends AbstractServiceRegistrar {
 
         Map<String, String> confMap = new HashMap<>();
         confMap.put(PARAM_PIPER_UI_HOST, config.get(PARAM_PIPER_UI_HOST));
-        confMap.put(PARAM_PIPER_UI_PORT, String.valueOf((Integer) config.getAny(PARAM_PIPER_UI_PORT)));
+        confMap.put(PARAM_PIPER_UI_PORT, config.get(PARAM_PIPER_UI_PORT));
+        confMap.put(PARAM_PIPER_UI_DATACENTER, config.get(PARAM_PIPER_UI_DATACENTER));
+        confMap.put(PARAM_PIPER_UI_ENVIRONMENT, config.get(PARAM_PIPER_UI_ENVIRONMENT));
 
         ObjectMapper objectMapper = new ObjectMapper();
         try {

@@ -1,6 +1,9 @@
 package com.hortonworks.streamline.streams.actions.piper.topology;
 
 import com.hortonworks.streamline.common.Config;
+import com.hortonworks.streamline.streams.catalog.CatalogToDeploymentConverter;
+import com.hortonworks.streamline.streams.catalog.CatalogToLayoutConverter;
+import com.hortonworks.streamline.streams.catalog.TopologyDeployment;
 import com.hortonworks.streamline.streams.layout.component.Component;
 import com.hortonworks.streamline.streams.layout.component.Edge;
 import com.hortonworks.streamline.streams.layout.component.StreamlineProcessor;
@@ -42,11 +45,11 @@ public class ManagedPipelineGenerator extends TopologyDagVisitor {
     private static final String PIPER_TOPOLOGY_TAGS = "topology.tags";
     private static final String PIPER_TOPOLOGY_EMAILS = "topology.email";
 
-    private static final String PIPER_TOPOLOGY_CONFIG_DATACENTER_CHOICE_MODE = "topology.datacenterChoiceMode";
-    private static final String PIPER_TOPOLOGY_CONFIG_CHOSEN_DATACENTER = "topology.runChosenDatacenterOption";
-    private static final String PIPER_TOPOLOGY_CONFIG_ALL_DATACENTERS = "topology.runAllDatacentersOption";
-    private static final String PIPER_TOPOLOGY_CONFIG_ONE_DATACENTER = "topology.runOneDatacenterOption";
-    private static final String PIPER_TOPOLOGY_CONFIG_SELECTED_DATACENTER = "topology.selectedDatacenter";
+    protected static final String PIPER_TOPOLOGY_CONFIG_DATACENTER_CHOICE_MODE = "topology.datacenterChoiceMode";
+    protected static final String PIPER_TOPOLOGY_CONFIG_CHOSEN_DATACENTER = "topology.runChosenDatacenterOption";
+    protected static final String PIPER_TOPOLOGY_CONFIG_ALL_DATACENTERS = "topology.runAllDatacentersOption";
+    protected static final String PIPER_TOPOLOGY_CONFIG_ONE_DATACENTER = "topology.runOneDatacenterOption";
+    protected static final String PIPER_TOPOLOGY_CONFIG_SELECTED_DATACENTER = "topology.selectedDatacenter";
 
     private static final String PIPER_TOPOLOGY_CONFIG_SECURE_SELECTION = "topology.secureSelection";
     private static final String PIPER_TOPOLOGY_CONFIG_SECURE_OPTION = "topology.secureTrueOption";
@@ -67,9 +70,13 @@ public class ManagedPipelineGenerator extends TopologyDagVisitor {
     private static final String PIPER_TOPOLOGY_CONFIG_TIME_TYPE_DAY = "Day";
     private static final String PIPER_TOPOLOGY_CONFIG_TIME_TYPE_WEEK = "Week";
 
-    private static final String PIPER_CONFIG_RUN_ONE_DATACENTER = "run_in_one_datacenter";
-    private static final String PIPER_CONFIG_RUN_CHOSEN_DATACENTER = "run_in_chosen_datacenters";
-    private static final String PIPER_CONFIG_RUN_ALL_DATACENTERS = "run_in_all_datacenters";
+
+    protected static final String PIPER_CONFIG_DATACENTER_CHOICE_MODE = "datacenter_choice_mode";
+    protected static final String PIPER_CONFIG_SELECTED_DATACENTERS = "selected_datacenters";
+
+    protected static final String PIPER_CONFIG_RUN_ONE_DATACENTER = "run_in_one_datacenter";
+    protected static final String PIPER_CONFIG_RUN_CHOSEN_DATACENTER = "run_in_chosen_datacenters";
+    protected static final String PIPER_CONFIG_RUN_ALL_DATACENTERS = "run_in_all_datacenters";
     private static final String PIPER_CONFIG_TRIGGER_BASED = "external_trigger";
     private static final String PIPER_CONFIG_TIME_INTERVAL = "time_interval";
 
@@ -82,12 +89,14 @@ public class ManagedPipelineGenerator extends TopologyDagVisitor {
     private List<StreamlineSink> sinkList;
     private List<Edge> edgeList;
     private TopologyLayout topology;
+    private Map<String, Object> piperDeployment;
 
-    protected ManagedPipelineGenerator(TopologyLayout topology) {
+    protected ManagedPipelineGenerator(TopologyLayout topology, Map<String, Object> piperDeployment) {
         sourceList = new ArrayList<>();
         sinkList = new ArrayList<>();
         edgeList = new ArrayList<>();
         this.topology = topology;
+        this.piperDeployment = piperDeployment;
     }
 
     @Override
@@ -204,25 +213,17 @@ public class ManagedPipelineGenerator extends TopologyDagVisitor {
         }
     }
 
+
     private void configureDatacenterOptions(Config topologyConfig, Pipeline pipeline) {
-        if (topologyConfig.contains(PIPER_TOPOLOGY_CONFIG_DATACENTER_CHOICE_MODE)) {
-            Map datacenterProp = (Map<String,Object>)topologyConfig.getProperties().get(PIPER_TOPOLOGY_CONFIG_DATACENTER_CHOICE_MODE);
-            String dcChoiceMode;
-            if (datacenterProp.containsKey(PIPER_TOPOLOGY_CONFIG_CHOSEN_DATACENTER)) {
-                dcChoiceMode = PIPER_CONFIG_RUN_CHOSEN_DATACENTER;
-                Map chosenDatacenterProp = (Map<String,Object>)datacenterProp.get(PIPER_TOPOLOGY_CONFIG_CHOSEN_DATACENTER);
-                if (chosenDatacenterProp.containsKey(PIPER_TOPOLOGY_CONFIG_SELECTED_DATACENTER)) {
-                    pipeline.setSelectedDatacenters(((String)chosenDatacenterProp.get(PIPER_TOPOLOGY_CONFIG_SELECTED_DATACENTER)).toLowerCase());
-                }
-            } else if (datacenterProp.containsKey(PIPER_TOPOLOGY_CONFIG_ALL_DATACENTERS)) {
-                dcChoiceMode = PIPER_CONFIG_RUN_ALL_DATACENTERS;
-            } else if (datacenterProp.containsKey(PIPER_TOPOLOGY_CONFIG_ONE_DATACENTER)) {
-                dcChoiceMode = PIPER_CONFIG_RUN_ONE_DATACENTER;
-            } else {
-                throw new IllegalArgumentException("Invalid choice mode for pipeline");
-            }
-            Pipeline.DatacenterChoiceMode choiceEnum = Pipeline.DatacenterChoiceMode.fromValue(dcChoiceMode);
-            pipeline.setDatacenterChoiceMode(choiceEnum);
+        String dcChoiceMode = (String) this.piperDeployment.get(PIPER_TOPOLOGY_CONFIG_DATACENTER_CHOICE_MODE);
+        Pipeline.DatacenterChoiceMode choiceEnum = Pipeline.DatacenterChoiceMode.fromValue(dcChoiceMode);
+        pipeline.setDatacenterChoiceMode(choiceEnum);
+
+        if (this.piperDeployment.containsKey(PIPER_TOPOLOGY_CONFIG_SELECTED_DATACENTER)) {
+            List<String> datacenters = (List<String>)
+                    this.piperDeployment.get(PIPER_TOPOLOGY_CONFIG_SELECTED_DATACENTER);
+
+            pipeline.setSelectedDatacenters(datacenters);
         }
     }
 

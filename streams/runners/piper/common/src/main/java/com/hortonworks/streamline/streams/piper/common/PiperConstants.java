@@ -14,6 +14,7 @@ public class PiperConstants {
     public static final String RESPONSE_PAGE_SIZE = "pageSize";
 
     public static final String PIPER_RESPONSE_DATA = "data";
+    public static final String PIPER_RESPONSE_METADATA = "metadata";
     public static final String PIPER_RESPONSE_TOTAL_RESULTS = "total_results";
     public static final String PIPER_RESPONSE_PAGE = "page";
     public static final String PIPER_RESPONSE_PAGE_SIZE = "page_size";

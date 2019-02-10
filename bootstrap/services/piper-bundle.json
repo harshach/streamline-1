@@ -8,14 +8,32 @@
         "fieldName": "piper.service.host",
         "isOptional": false,
         "tooltip": "A Piper Host for REST API",
-        "type": "string"
+        "type": "string",
+        "defaultValue": "localhost"
       },
       {
         "uiName": "Piper REST API Port",
         "fieldName": "piper.service.port",
         "isOptional": false,
         "tooltip": "A Port for REST API",
-        "type": "number"
+        "type": "enumstring",
+        "options": ["4310", "14310", "17861", "16133", "18432", "24117"]
+      },
+      {
+        "uiName": "Datacenter",
+        "fieldName": "piper.service.datacenter",
+        "isOptional": false,
+        "tooltip": "Datacenter - used for mapping between uWorc namespace and Piper configuration",
+        "type": "enumstring",
+        "options": ["dca1", "sjc1", "phx2"]
+      },
+      {
+        "uiName": "Environment",
+        "fieldName": "piper.service.environment",
+        "isOptional": false,
+        "tooltip": "Environment - maps to config/{env}.yaml, used when fetching M3 metrics",
+        "type": "enumstring",
+        "options": ["production", "dca1", "phx2", "staging", "staging-dca1", "sandbox"]
       }
     ]
   }

@@ -122,6 +122,8 @@ public interface TopologyActions {
     interface Status {
         String STATUS_UNKNOWN = "Unknown";
         String getStatus();
+        Long getNamespaceId();
+        String getNamespaceName();
         Map<String, String> getExtra();
     }
 

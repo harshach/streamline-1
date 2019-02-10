@@ -31,7 +31,20 @@ public final class CatalogToDeploymentConverter {
               } else {
                   deploymentSetting = TopologyDeployment.DeploymentSetting.CHOSEN_REGION;
               }
-              List<Long> regions = (ArrayList<Long>) deploymentConfig.get(NAMESPACE_IDS);
+
+              //List<Long> regions = (ArrayList<Long>) deploymentConfig.get(NAMESPACE_IDS);
+              // FIXME can we prevent integers in the first place
+              // FIXME better way to do this?
+              List<Long> regions = new ArrayList<Long>();
+              List untyped = (ArrayList) deploymentConfig.get(NAMESPACE_IDS);
+              for (int i=0; i<untyped.size(); i++) {
+                  Object o = untyped.get(i);
+                  if (o instanceof Integer) {
+                    regions.add(Long.valueOf(((Integer)o).longValue()));
+                  } else if (o instanceof Long) {
+                    regions.add((Long)o);
+                  }
+              }
               return new TopologyDeployment(deploymentSetting, regions);
           }
 

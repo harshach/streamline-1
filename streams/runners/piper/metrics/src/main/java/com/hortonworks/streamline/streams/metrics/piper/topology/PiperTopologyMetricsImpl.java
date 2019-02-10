@@ -9,6 +9,7 @@ import com.hortonworks.streamline.streams.catalog.TopologyRuntimeIdMap;
 import com.hortonworks.streamline.streams.cluster.catalog.Namespace;
 import com.hortonworks.streamline.streams.cluster.catalog.Service;
 import com.hortonworks.streamline.streams.cluster.catalog.ServiceConfiguration;
+import com.hortonworks.streamline.streams.cluster.register.impl.PiperServiceRegistrar;
 import com.hortonworks.streamline.streams.layout.component.Component;
 import com.hortonworks.streamline.streams.layout.component.TopologyLayout;
 import com.hortonworks.streamline.streams.metrics.TimeSeriesQuerier;
@@ -49,6 +50,7 @@ public class PiperTopologyMetricsImpl implements TopologyMetrics {
 	private PiperRestAPIClient client;
 	private TopologyCatalogHelperService topologyCatalogHelperService;
 	private TimeSeriesQuerier timeSeriesQuerier;
+	private Namespace namespace;
 
 	// Piper JSON API keys
 	private static final String STATE_KEY_SCHEDULE_INTERVAL = "schedule_interval";
@@ -145,16 +147,22 @@ public class PiperTopologyMetricsImpl implements TopologyMetrics {
 		Map<String, Object> piperConf = buildPiperTopologyMetricsConfigMap(namespace, engine);
 		String piperAPIRootUrl = (String) piperConf.get(PIPER_ROOT_URL_KEY);
 		this.client = new PiperRestAPIClient(piperAPIRootUrl, subject);
+		this.namespace = namespace;
 	}
 
 	@Override
 	// FIXME we could use this for getExecutions if it accepted params
 	// FIXME Workaround pending T2184545
 	public TopologyMetric getTopologyMetric(TopologyLayout topologyLayout, String asUser) {
+        Topology topology = getTopologyForLayout(topologyLayout);
+        return getTopologyMetric(topologyLayout, topology.getNamespaceId(), asUser);
+    }
+
+    public TopologyMetric getTopologyMetric(TopologyLayout topologyLayout, Long namespaceId, String asUser) {
         Map<String, Object> metrics = new HashMap<>();
 
         Topology topology = getTopologyForLayout(topologyLayout);
-		String runtimeId = getRuntimeTopologyId(topology);
+		String runtimeId = getRuntimeTopologyId(topology, namespaceId);
 		if (runtimeId != null) {
             Map response = client.getPipelineState(runtimeId);
             String runtimeStatus = PiperUtil.getRuntimeStatus(response);
@@ -314,6 +322,17 @@ public class PiperTopologyMetricsImpl implements TopologyMetrics {
         return topology;
     }
 
+    private String getRuntimeTopologyId(Topology topology, Long namespaceId) {
+        String runtimeId = null;
+        TopologyRuntimeIdMap topologyRuntimeIdMap =
+                topologyCatalogHelperService.getTopologyRuntimeIdMap(
+                        topology.getId(), namespaceId);
+        if (topologyRuntimeIdMap != null) {
+            runtimeId = topologyRuntimeIdMap.getApplicationId();
+        }
+        return runtimeId;
+    }
+
 	private String getRuntimeTopologyId(Topology topology) {
 	    String runtimeId = null;
         TopologyRuntimeIdMap topologyRuntimeIdMap =
@@ -342,8 +361,56 @@ public class PiperTopologyMetricsImpl implements TopologyMetrics {
             params.put("pipelineId", runtimeId);
             params.put("applicationId", runtimeId);
         }
+
+        String environment = getPiperEnvironment();
+        params.put("dc", environment);
+        params.put("env", environment);
+        params.put("deployment", environment);
         return params;
     }
+
+    // Piper m3 metrics use an environment tag that seems to map 1:1
+    // with the piper yaml config.  The tag muddles environment (prod, staging, dev)
+    // and datacenter (sjc1, dca1, phx2).  FIXME unmuddle https://code.uberinternal.com/T2514145
+    private String getPiperEnvironment() {
+        Map<String, String> configMap = getPiperServiceConfigurationMap(namespace.getId());
+        if (configMap == null) {
+            throw new IllegalStateException("Piper service config doesn't exist");
+        }
+
+        String environment = configMap.get(PiperServiceRegistrar.PARAM_PIPER_UI_ENVIRONMENT);
+        if (environment == null) {
+            throw new IllegalStateException("Piper service config key doesn't exist" + PiperServiceRegistrar.PARAM_PIPER_UI_ENVIRONMENT);
+        }
+
+        return environment;
+    }
+
+    private Map<String, String> getPiperServiceConfigurationMap(Long namespaceId) {
+        Map<String, String> piperServiceConfigurationMap = null;
+
+        Namespace namespace = topologyCatalogHelperService.getNamespace(namespaceId);
+        if (namespace != null) {
+            Service piperService = topologyCatalogHelperService.getFirstOccurenceServiceForNamespace(namespace,
+                    PiperServiceRegistrar.SERVICE_NAME);
+
+            if (piperService != null) {
+                ServiceConfiguration piperServiceConfig = topologyCatalogHelperService.
+                        getServiceConfigurationByName(piperService.getId(), PiperServiceRegistrar.CONF_TYPE_PROPERTIES);
+
+                if (piperServiceConfig != null) {
+                    try {
+                        piperServiceConfigurationMap = piperServiceConfig.getConfigurationMap();
+                    } catch (IOException e) {
+                        // Ignored
+                    }
+                }
+            }
+        }
+
+        return piperServiceConfigurationMap;
+    }
+
 
     private Map<String, Object> toTaskMap(List<Map<String, Object>> tasks) {
         Map<String, Object> map = new HashMap<>();

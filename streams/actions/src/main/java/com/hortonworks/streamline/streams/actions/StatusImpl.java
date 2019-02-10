@@ -21,9 +21,19 @@ import java.util.Map;
 public class StatusImpl implements TopologyActions.Status {
     private String status = STATUS_UNKNOWN; // default
     private final Map<String, String> extra = new HashMap<>();
+    private Long namespaceId;
+    private String namespaceName;
 
     public void setStatus(String status) {
         this.status = status;
+    }
+
+    public void setNamespaceId(Long namespaceId) {
+        this.namespaceId = namespaceId;
+    }
+
+    public void setNamespaceName(String namespaceName) {
+        this.namespaceName = namespaceName;
     }
 
     public void putExtra(String key, String val) {
@@ -33,6 +43,16 @@ public class StatusImpl implements TopologyActions.Status {
     @Override
     public String getStatus() {
         return status;
+    }
+
+    @Override
+    public Long getNamespaceId() {
+        return namespaceId;
+    }
+
+    @Override
+    public String getNamespaceName() {
+        return namespaceName;
     }
 
     @Override

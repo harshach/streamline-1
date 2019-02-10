@@ -68,6 +68,7 @@ public class BatchTopologyViewModeResource {
                                        @QueryParam("metricQuery") String metricQuery,
                                        @QueryParam("from") Long from,
                                        @QueryParam("to") Long to,
+                                       @QueryParam("namespaceId") Long namespaceId,
                                        @Context UriInfo uriInfo,
                                        @Context SecurityContext securityContext) throws IOException {
 
@@ -89,9 +90,14 @@ public class BatchTopologyViewModeResource {
         List<String> ignore = Arrays.asList(PARAM_TO, PARAM_FROM, PARAM_METRIC_KEY_NAME, PARAM_METRIC_QUERY);
         Map<String, String> metricParams = toSingleValueMap(queryParams, ignore);
 
+        // FIXME remove once UI is passing namespaceId
+        if (namespaceId == null) {
+            namespaceId = topology.getNamespaceId();
+        }
+
         // FIXME T2184621 remove hack, need interface updates
         PiperTopologyMetricsImpl topologyMetricsService = (PiperTopologyMetricsImpl)
-                metricsService.getTopologyMetricsInstanceHack(topology);
+                metricsService.getTopologyMetricsInstanceHack(topology, namespaceId);
 
         Map<Long, Object> topologyMetrics = topologyMetricsService.getTimeSeriesMetrics(
                 topology, metricKeyName, metricQuery, metricParams, from, to, asUser);
@@ -107,6 +113,7 @@ public class BatchTopologyViewModeResource {
     public Response getTopology(@PathParam("topologyId") Long topologyId,
                                 @QueryParam("from") Long from,
                                 @QueryParam("to") Long to,
+                                @QueryParam("namespaceId") Long namespaceId,
                                 @Context SecurityContext securityContext) throws IOException {
         SecurityUtil.checkRoleOrPermissions(authorizer, securityContext, Roles.ROLE_TOPOLOGY_USER,
                 Topology.NAMESPACE, topologyId, READ);
@@ -116,13 +123,20 @@ public class BatchTopologyViewModeResource {
         Topology topology = catalogService.getTopology(topologyId);
         if (topology != null) {
             String asUser = WSUtils.getUserFromSecurityContext(securityContext);
+
+            // FIXME remove once UI is passing namespaceId
+            if (namespaceId == null) {
+                namespaceId = topology.getNamespaceId();
+            }
+
             TopologyTimeSeriesMetrics.TimeSeriesComponentMetric topologyMetrics =
-                    metricsService.getTopologyStats(topology, from, to, asUser);
+                    metricsService.getTopologyStats(topology, from, to, namespaceId, asUser);
 
             long prevFrom = from - (to - from);
             long prevTo = from - 1;
+
             TopologyTimeSeriesMetrics.TimeSeriesComponentMetric prevTopologyMetrics =
-                    metricsService.getTopologyStats(topology, prevFrom, prevTo, asUser);
+                    metricsService.getTopologyStats(topology, prevFrom, prevTo, namespaceId, asUser);
 
             if (!checkMetricsResponseHasFullRangeOfTime(prevTopologyMetrics, prevFrom, prevTo)) {
                 prevTopologyMetrics = null;
@@ -191,6 +205,7 @@ public class BatchTopologyViewModeResource {
                                   @QueryParam("to") Long to,
                                   @DefaultValue("0") @QueryParam("page") Integer page,
                                   @DefaultValue("20") @QueryParam("pageSize") Integer pageSize,
+                                  @QueryParam("namespaceId") Long namespaceId,
                                   @Context UriInfo uriInfo,
                                   @Context SecurityContext securityContext) throws IOException {
 
@@ -205,9 +220,14 @@ public class BatchTopologyViewModeResource {
             throw new EntityNotFoundException("Topology not found topologyId: " + topologyId);
         }
 
+        // FIXME remove once UI is passing namespaceId
+        if (namespaceId == null) {
+            namespaceId = topology.getNamespaceId();
+        }
+
         // FIXME T2184621 remove hack, need interface updates
         PiperTopologyMetricsImpl topologyMetrics = (PiperTopologyMetricsImpl)
-                metricsService.getTopologyMetricsInstanceHack(topology);
+                metricsService.getTopologyMetricsInstanceHack(topology, namespaceId);
 
         Map executions = topologyMetrics.getExecutions(
                 CatalogToLayoutConverter.getTopologyLayout(topology), from, to, page, pageSize);
@@ -221,6 +241,7 @@ public class BatchTopologyViewModeResource {
     @Timed
     public Response getExecution(@PathParam("topologyId") Long topologyId,
                                  @PathParam("executionDate") String executionDate,
+                                 @QueryParam("namespaceId") Long namespaceId,
                                  @Context UriInfo uriInfo,
                                  @Context SecurityContext securityContext) throws IOException {
 
@@ -233,9 +254,14 @@ public class BatchTopologyViewModeResource {
             throw new EntityNotFoundException("Topology not found topologyId: " + topologyId);
         }
 
+        // FIXME remove once UI is passing namespaceId
+        if (namespaceId == null) {
+            namespaceId = topology.getNamespaceId();
+        }
+
         // FIXME T2184621 remove hack, need interface updates
         PiperTopologyMetricsImpl topologyMetrics = (PiperTopologyMetricsImpl)
-                metricsService.getTopologyMetricsInstanceHack(topology);
+                metricsService.getTopologyMetricsInstanceHack(topology, namespaceId);
 
         Map execution = topologyMetrics.getExecution(
                             CatalogToLayoutConverter.getTopologyLayout(topology),

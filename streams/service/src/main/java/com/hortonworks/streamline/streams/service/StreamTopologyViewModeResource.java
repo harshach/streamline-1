@@ -80,7 +80,7 @@ public class StreamTopologyViewModeResource {
 
         // FIXME T2184621 remove hack, need interface updates
         AthenaxTopologyMetricsImpl topologyMetricsService = (AthenaxTopologyMetricsImpl)
-                metricsService.getTopologyMetricsInstanceHack(topology);
+                metricsService.getTopologyMetricsInstanceHack(topology, topology.getNamespaceId());
 
         Map<Long, Object> topologyMetrics = topologyMetricsService.getTimeSeriesMetrics(
                 topology, metricKeyName, metricQuery, metricParams, from, to, asUser);
@@ -104,12 +104,12 @@ public class StreamTopologyViewModeResource {
         if (topology != null) {
             String asUser = WSUtils.getUserFromSecurityContext(securityContext);
             TopologyTimeSeriesMetrics.TimeSeriesComponentMetric topologyMetrics =
-                    metricsService.getTopologyStats(topology, from, to, asUser);
+                    metricsService.getTopologyStats(topology, from, to, topology.getNamespaceId(), asUser);
 
             long prevFrom = from - (to - from);
             long prevTo = from - 1;
             TopologyTimeSeriesMetrics.TimeSeriesComponentMetric prevTopologyMetrics =
-                    metricsService.getTopologyStats(topology, prevFrom, prevTo, asUser);
+                    metricsService.getTopologyStats(topology, prevFrom, prevTo, topology.getNamespaceId(), asUser);
 
             if (!checkMetricsResponseHasFullRangeOfTime(prevTopologyMetrics, prevFrom, prevTo)) {
                 prevTopologyMetrics = null;
@@ -269,8 +269,10 @@ public class StreamTopologyViewModeResource {
                 List<TopologyComponentWithMetric> componentsWithMetrics = components.stream()
                         .map(Unchecked.function(s -> {
                             ComponentMetricSummary overviewMetric;
-                            TopologyTimeSeriesMetrics.TimeSeriesComponentMetric currentMetric = metricsService.getComponentStats(topology, s, from, to, asUser);
-                            TopologyTimeSeriesMetrics.TimeSeriesComponentMetric previousMetric = metricsService.getComponentStats(topology, s, from - (to - from), from - 1, asUser);
+                            TopologyTimeSeriesMetrics.TimeSeriesComponentMetric currentMetric =
+                                    metricsService.getComponentStats(topology, s, from, to, topology.getNamespaceId(), asUser);
+                            TopologyTimeSeriesMetrics.TimeSeriesComponentMetric previousMetric =
+                                    metricsService.getComponentStats(topology, s, from - (to - from), from - 1, topology.getNamespaceId(), asUser);
                             if (clazz.equals(TopologySource.class)) {
                                 overviewMetric = ComponentMetricSummary.convertStreamingComponentMetric(
                                         currentMetric, previousMetric);
@@ -317,8 +319,10 @@ public class StreamTopologyViewModeResource {
                 String asUser = WSUtils.getUserFromSecurityContext(securityContext);
 
                 ComponentMetricSummary overviewMetric;
-                TopologyTimeSeriesMetrics.TimeSeriesComponentMetric currentMetric = metricsService.getComponentStats(topology, component, from, to, asUser);
-                TopologyTimeSeriesMetrics.TimeSeriesComponentMetric previousMetric = metricsService.getComponentStats(topology, component, from - (to - from), from - 1, asUser);
+                TopologyTimeSeriesMetrics.TimeSeriesComponentMetric currentMetric =
+                        metricsService.getComponentStats(topology, component, from, to, topology.getNamespaceId(), asUser);
+                TopologyTimeSeriesMetrics.TimeSeriesComponentMetric previousMetric =
+                        metricsService.getComponentStats(topology, component, from - (to - from), from - 1, topology.getNamespaceId(), asUser);
                 if (clazz.equals(TopologySource.class)) {
                     overviewMetric = ComponentMetricSummary.convertStreamingComponentMetric(currentMetric, previousMetric);
                 } else if (clazz.equals(TopologyProcessor.class) || clazz.equals(TopologySink.class)) {

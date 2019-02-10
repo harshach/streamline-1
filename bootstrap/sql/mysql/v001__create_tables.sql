@@ -156,7 +156,7 @@ CREATE TABLE IF NOT EXISTS topology (
     namespaceId BIGINT NOT NULL,
     engineId BIGINT NOT NULL,
     templateId BIGINT NOT NULL,
-    config TEXT NOT NULL,
+    configData TEXT NOT NULL,
     PRIMARY KEY (id, versionId),
     FOREIGN KEY (versionId) REFERENCES topology_version(id),
     FOREIGN KEY (namespaceId) REFERENCES namespace(id),

@@ -65,7 +65,7 @@ public class Config extends AbstractConfig {
         fromProperties(properties);
     }
 
-    public Config(Map<String, String> properties) {
+    public Config(Map<String, Object> properties) {
         super(properties);
     }
 
@@ -118,6 +118,7 @@ public class Config extends AbstractConfig {
     public boolean getBoolean(String key, boolean defaultValue) {
         return Boolean.parseBoolean(get(key, String.valueOf(defaultValue)));
     }
+
 
     public void put(String key, int value) {
         put(key, String.valueOf(value));

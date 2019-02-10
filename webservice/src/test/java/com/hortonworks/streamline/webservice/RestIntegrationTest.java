@@ -667,7 +667,7 @@ public class RestIntegrationTest {
         return namespace;
     }
 
-    private Topology storeTestTopology(Client client, Long topologyId, String topologyName, Long namespaceId) {
+    private Topology storeTestTopology(Client client, Long topologyId, String topologyName, Long namespaceId) throws Exception {
         Topology topology = createTopology(topologyId, topologyName, namespaceId);
         String topologyBaseUrl = rootUrl + String.format("topologies");
         client.target(topologyBaseUrl).request().post(Entity.json(topology));
@@ -675,7 +675,7 @@ public class RestIntegrationTest {
     }
 
     @Test
-    public void testRemoveNamespaceButTopologyRefersThatNamespace() {
+    public void testRemoveNamespaceButTopologyRefersThatNamespace() throws Exception {
         Client client = ClientBuilder.newClient(new ClientConfig());
 
         Long namespaceId = 999L;
@@ -900,17 +900,17 @@ public class RestIntegrationTest {
         return topologyComponentBundle;
     }
 
-    private Topology createTopology (Long id, String name) {
+    private Topology createTopology (Long id, String name) throws Exception {
         return createTopology(id, name, 1L);
     }
 
-    private Topology createTopology (Long id, String name, Long namespaceId) {
+    private Topology createTopology (Long id, String name, Long namespaceId) throws Exception {
         Topology topology = new Topology();
         topology.setId(id);
         topology.setVersionId(1L);
         topology.setName(name);
         topology.setNamespaceId(namespaceId);
-        topology.setConfig("{}");
+        topology.setConfigData("{}");
         topology.setVersionTimestamp(System.currentTimeMillis());
         return topology;
     }

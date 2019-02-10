@@ -16,9 +16,9 @@
 
 package com.hortonworks.streamline.streams.service;
 
-import akka.dispatch.sysmsg.Failed;
 import com.codahale.metrics.annotation.Timed;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.hortonworks.streamline.common.Config;
 import com.hortonworks.streamline.common.exception.service.exception.request.BadRequestException;
 import com.hortonworks.streamline.common.exception.service.exception.request.EntityNotFoundException;
 import com.hortonworks.streamline.common.util.WSUtils;
@@ -61,11 +61,7 @@ import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.net.URI;
 import java.nio.charset.StandardCharsets;
-import java.util.List;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.EnumSet;
-import java.util.Optional;
+import java.util.*;
 
 import static com.hortonworks.streamline.streams.catalog.Topology.NAMESPACE;
 import static com.hortonworks.streamline.streams.catalog.TopologyVersion.VERSION_PREFIX;
@@ -439,9 +435,7 @@ public class TopologyCatalogResource {
         if (StringUtils.isEmpty(topology.getName())) {
             throw BadRequestException.missingParameter(Topology.NAME);
         }
-        if (StringUtils.isEmpty(topology.getConfig())) {
-            throw BadRequestException.missingParameter(Topology.CONFIG);
-        }
+
         topology.setProjectId(projectId);
         Topology createdTopology = catalogService.addTopology(topology);
         SecurityUtil.addAcl(authorizer, securityContext, NAMESPACE, createdTopology.getId(),
@@ -468,10 +462,12 @@ public class TopologyCatalogResource {
             String asUser = WSUtils.getUserFromSecurityContext(securityContext);
             try {
                 actionsService.killTopology(result, asUser);
-            } catch (TopologyNotAliveException e) {
+            } catch (Exception e) {
                 // OK to continue
+                LOG.debug("Failed to kill running workflow " + e.getLocalizedMessage());
             }
         }
+
 
         Response response;
         if (onlyCurrent) {
@@ -523,7 +519,7 @@ public class TopologyCatalogResource {
         if (StringUtils.isEmpty(topology.getName())) {
             throw BadRequestException.missingParameter(Topology.NAME);
         }
-        if (StringUtils.isEmpty(topology.getConfig())) {
+        if (topology.getConfig() == null) {
             throw BadRequestException.missingParameter(Topology.CONFIG);
         }
         if (topology.getNamespaceId() == null) {
@@ -533,6 +529,7 @@ public class TopologyCatalogResource {
         Topology existingTopology = catalogService.getTopology(topologyId);
         Topology result = catalogService.addOrUpdateTopology(topologyId, topology);
 
+
         if (existingTopology != null) {
             Long prevNamespaceId = existingTopology.getNamespaceId();
             if (!result.getNamespaceId().equals(prevNamespaceId)) {
@@ -541,7 +538,7 @@ public class TopologyCatalogResource {
                 catalogService.setReconfigureOnAllComponentsInTopology(result);
             }
         }
-        return WSUtils.respondEntity(result, OK);
+        return WSUtils.respondEntity(existingTopology, OK);
     }
 
     /**

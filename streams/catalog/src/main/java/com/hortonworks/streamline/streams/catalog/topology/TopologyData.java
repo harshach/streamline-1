@@ -27,6 +27,9 @@ import com.hortonworks.streamline.streams.catalog.TopologySource;
 import com.hortonworks.streamline.streams.catalog.TopologyWindow;
 import com.hortonworks.streamline.streams.catalog.TopologyTask;
 import com.hortonworks.streamline.streams.catalog.TopologyEditorMetadata;
+import com.hortonworks.streamline.common.Config;
+
+
 import java.util.ArrayList;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -36,7 +39,7 @@ import java.util.stream.Collectors;
  */
 public final class TopologyData {
     private String topologyName;
-    private String config;
+    private Config config;
     private Long engineId;
     private Long templateId;
     private List<TopologySource> sources = new ArrayList<>();
@@ -81,11 +84,11 @@ public final class TopologyData {
         this.topologyName = name;
     }
 
-    public String getConfig() {
+    public Config getConfig() {
         return config;
     }
 
-    public void setConfig(String config) {
+    public void setConfig(Config config) {
         Preconditions.checkNotNull(config);
 
         this.config = config;

@@ -322,7 +322,7 @@ public class StormTopologyTimeSeriesMetricsImplTest {
         source.setId("11");
         source.setName("device");
 
-        Map<String, String> configurations = buildSourceConfigWithKafkaTopic(TOPIC_NAME);
+        Map<String, Object> configurations = buildSourceConfigWithKafkaTopic(TOPIC_NAME);
         source.setConfig(new Config(configurations));
         return source;
     }
@@ -349,8 +349,8 @@ public class StormTopologyTimeSeriesMetricsImplTest {
         return sink;
     }
 
-    private Map<String, String> buildSourceConfigWithKafkaTopic(String topicName) {
-        Map<String, String> configurations = new HashMap<>();
+    private Map<String, Object> buildSourceConfigWithKafkaTopic(String topicName) {
+        Map<String, Object> configurations = new HashMap<>();
         configurations.put(TopologyLayoutConstants.JSON_KEY_TOPIC, topicName);
         return configurations;
     }

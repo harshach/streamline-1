@@ -60,8 +60,8 @@ export default class TopologyConfigContainer extends Component {
     Promise.all(promiseArr).then(result => {
       const formField = JSON.parse(JSON.stringify(uiConfigFields.topologyComponentUISpecification));
 
-      const config = result[0].config;
-      const {f_Data,adv_Field}= this.fetchAdvanedField(formField,JSON.parse(config));
+      const config = result[0].config && result[0].config.properties ? result[0].config.properties : {};
+      const {f_Data,adv_Field}= this.fetchAdvanedField(formField, config);
       this.namespaceId = result[0].namespaceId;
       const clustersConfig = result[1].entities;
       this.allClusterList = result[2].entities;
@@ -219,8 +219,8 @@ export default class TopologyConfigContainer extends Component {
       const index = _.findIndex(formField.fields, (fd) => { return fd.fieldName === key;});
       if(index !== -1){
         f_Data[key] = config[key];
-      } else if(key === "deploymentSettings"){
-        f_Data['deploymentSettings.namespaceIds'] = config[key].namespaceIds;
+      } else if(key === "topology.namespaceIds"){
+        f_Data['deploymentSettings.namespaceIds'] = JSON.parse(config[key]);
       } else {
         adv_Field.push({fieldName : key , fieldValue : config[key] instanceof Array ? JSON.stringify(config[key]) : config[key]});
       }
@@ -327,20 +327,20 @@ export default class TopologyConfigContainer extends Component {
       if(!(namespaceIdList instanceof Array)){
         namespaceIdList = [namespaceIdList];
       }
-      data.deploymentSettings = {
-        namespaceIds: namespaceIdList
-      };
+      data['topology.namespaceIds'] = JSON.stringify(namespaceIdList);
       if(namespaceIdList.length === this.allClusterList.length){
-        data.deploymentSettings.deploymentMode = "ALL";
+        data['topology.deploymentMode'] = "ALL";
       } else {
-        data.deploymentSettings.deploymentMode = "CHOSEN_REGION";
+        data['topology.deploymentMode'] = "CHOSEN_REGION";
       }
       delete data['deploymentSettings.namespaceIds'];
     }
 
     let dataObj = {
       name: topologyName,
-      config: JSON.stringify(data),
+      config: {
+        properties: data
+      },
       namespaceId: this.namespaceId,
       projectId: projectId,
       engineId: topologyData.engineId,

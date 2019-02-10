@@ -3,55 +3,47 @@ package com.hortonworks.streamline.streams.catalog;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.hortonworks.streamline.streams.exception.NoTopologyDeploymentConfigException;
+import com.hortonworks.streamline.common.Config;
 import org.apache.commons.lang3.StringUtils;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+
 public final class CatalogToDeploymentConverter {
-    private static final String DEPLOYMENT_SETTINGS = "deploymentSettings";
-    private static final String DEPLOYMENT_MODE = "deploymentMode";
-    private static final String NAMESPACE_IDS = "namespaceIds";
+    private static final String DEPLOYMENT_MODE = "topology.deploymentMode";
+    private static final String NAMESPACE_IDS = "topology.namespaceIds";
 
     private CatalogToDeploymentConverter() {
     }
 
     public static TopologyDeployment getTopologyDeployment(Topology topology) throws NoTopologyDeploymentConfigException {
-      try {
-          if (!StringUtils.isEmpty(topology.getConfig())) {
-              ObjectMapper mapper = new ObjectMapper();
-              Map<String, Object> config = mapper.readValue(topology.getConfig(), new TypeReference<Map<String, Object>>() {
-              });
-              Map<String, Object> deploymentConfig = (Map<String, Object>) config.get(DEPLOYMENT_SETTINGS);
-              TopologyDeployment.DeploymentSetting deploymentSetting;
-              if (deploymentConfig.get(DEPLOYMENT_MODE).equals("ALL")) {
-                  deploymentSetting = TopologyDeployment.DeploymentSetting.ALL_REGIONS;
-              } else {
-                  deploymentSetting = TopologyDeployment.DeploymentSetting.CHOSEN_REGION;
-              }
-
-              //List<Long> regions = (ArrayList<Long>) deploymentConfig.get(NAMESPACE_IDS);
-              // FIXME can we prevent integers in the first place
-              // FIXME better way to do this?
-              List<Long> regions = new ArrayList<Long>();
-              List untyped = (ArrayList) deploymentConfig.get(NAMESPACE_IDS);
-              for (int i=0; i<untyped.size(); i++) {
-                  Object o = untyped.get(i);
-                  if (o instanceof Integer) {
-                    regions.add(Long.valueOf(((Integer)o).longValue()));
-                  } else if (o instanceof Long) {
-                    regions.add((Long)o);
-                  }
-              }
-              return new TopologyDeployment(deploymentSetting, regions);
+      Config config = topology.getConfig();
+      if (config != null) {
+          Map<String, Object> topologyConfig =  config.getProperties();
+          TopologyDeployment.DeploymentSetting deploymentSetting;
+          String deploymentMode = (String) topologyConfig.get(DEPLOYMENT_MODE);
+          if (deploymentMode.equals("ALL")) {
+              deploymentSetting = TopologyDeployment.DeploymentSetting.ALL_REGIONS;
+          } else {
+              deploymentSetting = TopologyDeployment.DeploymentSetting.CHOSEN_REGION;
           }
 
-        } catch (IOException e) {
-              throw new NoTopologyDeploymentConfigException("There is no deployment config found for topology %s".format(topology.getName()));
-        }
-        return null;
+          List<Long> regions;
+          String namespaceIdStr = (String) topologyConfig.get(NAMESPACE_IDS);
+          if (!StringUtils.isEmpty(namespaceIdStr)) {
+              try {
+                  ObjectMapper mapper = new ObjectMapper();
+                  regions = mapper.readValue(namespaceIdStr, new TypeReference<List<Long>>() {
+                  });
+                  return new TopologyDeployment(deploymentSetting, regions);
+              } catch(IOException e) {
+                  throw new NoTopologyDeploymentConfigException("Failed to parse topology deployment settings for %s".format(topology.getName()));
+              }
+          }
+      }
+       throw new NoTopologyDeploymentConfigException("Failed to parse topology deployment settings for %s".format(topology.getName()));
     }
 
 }

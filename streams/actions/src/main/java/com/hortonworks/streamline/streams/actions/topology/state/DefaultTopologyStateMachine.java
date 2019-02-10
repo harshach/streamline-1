@@ -267,6 +267,11 @@ public class DefaultTopologyStateMachine implements TopologyStateMachine {
     // deployment error state from where we can attempt to redeploy
     private TopologyState TOPOLOGY_STATE_DEPLOYMENT_FAILED = new TopologyState() {
         @Override
+        public void kill(TopologyContext context) throws Exception {
+            doKill(context);
+        }
+
+        @Override
         public void deploy(TopologyContext context) throws Exception {
             context.setState(initialState());
             context.setCurrentAction("Redeploying");
@@ -289,6 +294,7 @@ public class DefaultTopologyStateMachine implements TopologyStateMachine {
                     "probably the topology was killed externally.");
             context.setState(initialState());
             context.setCurrentAction("Setting topology to initial state since its not alive in the cluster");
+            throw new TopologyNotAliveException(ex.getMessage());
         } catch (Exception ex) {
             LOG.error("Error while trying to kill the topology", ex);
             context.setCurrentAction("Killing the topology failed due to: " + ex);
@@ -304,6 +310,8 @@ public class DefaultTopologyStateMachine implements TopologyStateMachine {
             TopologyActions topologyActions = context.getTopologyActions();
             topologyActions.kill(CatalogToLayoutConverter.getTopologyLayout(topology), applicationId, runAsUser);
             LOG.debug("Killed topology='{}' applicationId='{}'", topology.getName(), applicationId);
+        } else {
+            throw new TopologyNotAliveException("There is no runtime applicationId associated with topology %s".format(topology.getId().toString()));
         }
      }
 

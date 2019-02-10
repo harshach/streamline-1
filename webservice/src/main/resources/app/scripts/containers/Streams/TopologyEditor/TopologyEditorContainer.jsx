@@ -190,7 +190,7 @@ export class TopologyEditorContainer extends Component {
         this.lastUpdatedTime = new Date(result.topology.timestamp);
 
         this.topologyName = data.topology.name;
-        this.topologyConfig = JSON.parse(data.topology.config);
+        this.topologyConfig = (data.topology.config && data.topology.config.properties) ? data.topology.config.properties : {};
         this.topologyTimeSec = this.topologyConfig["topology.message.timeout.secs"];
 
         this.status = this.getStatusFromNamespaces(data.namespaces);
@@ -368,7 +368,9 @@ export class TopologyEditorContainer extends Component {
   setTopologyConfig = (topologyName, topologyVersion) => {
     let dataObj = {
       name: topologyName,
-      config: JSON.stringify(this.state.mapTopologyConfig),
+      config: {
+        properties: this.state.mapTopologyConfig
+      },
       namespaceId: this.namespaceId,
       projectId: this.projectData.id,
       engineId: this.state.topologyData.engineId,
@@ -433,7 +435,9 @@ export class TopologyEditorContainer extends Component {
     if (this.validateName(topologyName)) {
       let data = {
         name: topologyName,
-        config: JSON.stringify(mapTopologyConfig),
+        config: {
+          properties: mapTopologyConfig
+        },
         namespaceId: this.namespaceId,
         projectId: this.projectData.id,
         engineId: topologyData.engineId,
@@ -451,7 +455,7 @@ export class TopologyEditorContainer extends Component {
             <strong>Workflow name updated successfully</strong>
           );
           this.topologyName = topology.name;
-          this.topologyConfig = JSON.parse(topology.config);
+          this.topologyConfig = (topology.config && topology.config.properties) ? topology.config.properties : {};
           this.setState({mapTopologyConfig: this.topologyConfig});
         }
         if(this.refs.TopologyNameSpace.state.show){
@@ -483,7 +487,7 @@ export class TopologyEditorContainer extends Component {
             <strong>Configuration updated successfully</strong>
           );
           this.topologyName = config.name;
-          this.topologyConfig = JSON.parse(config.config);
+          this.topologyConfig = (config.config && config.config.properties) ? config.config.properties : {};
           this.lastUpdatedTime = new Date(config.timestamp);
           this.setState({topologyName: this.topologyName, mapTopologyConfig: this.topologyConfig},() => {
             if(this.state.deployFlag){
@@ -581,7 +585,7 @@ export class TopologyEditorContainer extends Component {
           );
           TopologyREST.getTopology(this.topologyId, this.versionId).then((result) => {
             let data = result;
-            this.topologyConfig = JSON.parse(data.topology.config);
+            this.topologyConfig = (data.topology.config && data.topology.config.properties) ? data.topology.config.properties : {};
             this.status = this.getStatusFromNamespaces(data.namespaces);
             let isAppRunning = this.getAppRunningStatus(this.status);
             document.getElementsByClassName('loader-overlay')[0].className = "loader-overlay displayNone";

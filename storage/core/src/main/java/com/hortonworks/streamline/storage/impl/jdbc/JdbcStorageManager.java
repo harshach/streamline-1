@@ -76,7 +76,7 @@ public class JdbcStorageManager implements TransactionManager, StorageManager {
             queryExecutor.delete(key);
         }
         return oldVal;
-    }
+        }
 
     @Override
     public void addOrUpdate(Storable storable) throws StorageException {

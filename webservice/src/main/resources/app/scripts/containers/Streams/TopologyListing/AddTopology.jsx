@@ -159,7 +159,9 @@ class AddTopology extends Component {
       namespaceId: namespaceId,
       engineId: engineId,
       templateId: templateId,
-      config: JSON.stringify(configData)
+      config: {
+        properties: configData
+      }
     };
     if(topologyData) {
       data.projectId = projectId;

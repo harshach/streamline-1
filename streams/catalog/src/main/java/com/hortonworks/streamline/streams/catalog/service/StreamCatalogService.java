@@ -554,9 +554,7 @@ public class StreamCatalogService {
     }
 
     public Topology removeTopology(Long topologyId, Long versionId, boolean recurse) {
-        Topology topology = new Topology();
-        topology.setId(topologyId);
-        topology.setVersionId(versionId);
+        Topology topology = getTopology(topologyId, versionId);
         if (recurse) {
             try {
                 removeTopologyDependencies(topology.getId(), topology.getVersionId());

@@ -188,7 +188,7 @@ public final class CatalogResourceUtil {
         Collection<TopologyRuntimeIdMap> runtimeInstances = actionsService.getRuntimeTopologyId(topology);
 
         // FIXME undeployed is a normal state, we should have way to handle and return something sensible
-        if (runtimeInstances == null) {
+        if (runtimeInstances == null || runtimeInstances.size() == 0) {
             throw new Exception("Topology has no deployed runtime instances");
         }
 

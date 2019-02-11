@@ -267,7 +267,7 @@ class TopologyItems extends Component {
         <h6 className="value">
           {typeValue ? Utils.capitaliseFirstLetter(typeValue) : ""}
         </h6>
-        <h6>Run every 1 day at 11:00:00</h6>
+        {/*<h6>Run every 1 day at 11:00:00</h6>*/}
       </div>
     </div>;
   }

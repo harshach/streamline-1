@@ -373,6 +373,7 @@ class TopologyViewContainer extends TopologyEditorContainer {
 
     let {viewModeData, startDate, endDate, topologyNamespaces} = this.state;
     const selectedDC = this.selectedDataCenter;
+    const pipeline = topologyNamespaces[selectedDC].runtimeTopologyId;
     const dc = selectedDC;
 
     const promiseArr = [];
@@ -687,7 +688,7 @@ class TopologyViewContainer extends TopologyEditorContainer {
   handleDataCenterChange = (value) => {
     let {startDate, endDate, topologyNamespaces} = this.state;
     this.selectedDataCenter = value;
-    this.selectedDataCenterId = topologyNamespaces[value].namespaceId;
+    this.selectedDataCenterId = topologyNamespaces[value].status.namespaceId;
     this.fetchCatalogInfoAndMetrics(startDate.toDate().getTime(), endDate.toDate().getTime());
   }
 
@@ -697,7 +698,7 @@ class TopologyViewContainer extends TopologyEditorContainer {
       let namespacesArr = [];
       _.keys(topologyNamespaces).map((name)=>{
         namespacesArr.push({
-          id: topologyNamespaces[name].namespaceId,
+          id: topologyNamespaces[name].status.namespaceId,
           name: name
         });
       });

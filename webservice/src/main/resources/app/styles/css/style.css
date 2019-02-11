@@ -2499,10 +2499,24 @@ ul.project-engines li.no-workflow .badge{
   font-weight: bold;
   display: block;
 }
+.workflow-info {
+  display: inline-block;
+  padding: 0 20px;
+}
+.workflow-info h6 {
+  font-size: 11px;
+  color: #999;
+  margin: 0 0 6px
+}
+.workflow-info h5 {
+  margin: 0;
+  font-size: 13px;
+  color: #333333;
+}
 .workflow-widget .workflow-badge {
-        font-size: 12px;
-        padding: 4px 15px;
-        border-radius: 12px;
+  font-size: 12px;
+  padding: 4px 15px;
+  border-radius: 12px;
 }
 .workflow-widget .workflow-badge.storm-badge {
   color: #47B275;
@@ -6021,9 +6035,4 @@ h6.version-control {
 }
 .timeseries-metrics-tabs .nav-tabs li + li {
   border-left: 1px solid #ddd;
-}
-.editable-icon{
-  height: 15px;
-  vertical-align: baseline;
-  margin-left: 6px;
 }

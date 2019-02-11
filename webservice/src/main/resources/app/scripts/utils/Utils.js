@@ -958,6 +958,10 @@ const getViewModeDAGTimeseriesMetricsTemplate = function(engine, componentType, 
     componentName);
 };
 
+const isFromSharedProjects = function(){
+  return location.hash.search('shared-projects') !== -1;
+};
+
 export default {
   sortArray,
   numberToMilliseconds,
@@ -1019,5 +1023,6 @@ export default {
   getViewModeMetricsTemplate,
   getViewModeTimeseriesMetricsTemplate,
   getViewModeDAGMetricsTemplate,
-  getViewModeDAGTimeseriesMetricsTemplate
+  getViewModeDAGTimeseriesMetricsTemplate,
+  isFromSharedProjects
 };

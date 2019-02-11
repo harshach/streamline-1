@@ -22,11 +22,11 @@ import {observer} from 'mobx-react';
 class  ZoomPanelComponent extends Component {
   onEditClick = () => {
     const {router, projectId, topologyId} = this.props;
-    router.push('projects/'+ projectId +'/applications/'+ topologyId +'/edit');
+    router.push((Utils.isFromSharedProjects() ? 'shared-projects/' : 'projects/')+ projectId +'/applications/'+ topologyId +'/edit');
   }
   onViewClick = () => {
     const {router, projectId, topologyId} = this.props;
-    router.push('projects/'+ projectId +'/applications/'+ topologyId +'/view');
+    router.push((Utils.isFromSharedProjects() ? 'shared-projects/' : 'projects/')+ projectId +'/applications/'+ topologyId +'/view');
   }
   renderActionButton = () => {
     const {isAppRunning, topologyStatus, killTopology, deployTopology} = this.props;

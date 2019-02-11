@@ -2496,25 +2496,20 @@ ul.project-engines li.no-workflow .badge{
   font-weight: bold;
   display: block;
 }
-.workflow-widget-footer .engine-name {
-  height: 20px;
-  border-radius: 10px;
-  padding: 0 12px;
-  margin-left: 10px;
-  line-height: 20px;
-  font-weight: 500;
-  display: inline-block;
-  cursor: pointer;
+.workflow-widget .workflow-badge {
+        font-size: 12px;
+        padding: 4px 15px;
+        border-radius: 12px;
 }
-.workflow-widget-footer .engine-name.storm {
+.workflow-widget .workflow-badge.storm-badge {
   color: #47B275;
   background: #DAF0E3;
 }
-.workflow-widget-footer .engine-name.piper {
-  color: #276EF1;
-  background: #EDF3FE;
+.workflow-widget .workflow-badge.piper-badge {
+  color: #1950ba;
+  background: #d4e2fd;
 }
-.workflow-widget-footer .engine-name.athenax {
+.workflow-widget .workflow-badge.athenax-badge {
   color: #f19248;
   background: #fef3ec;
 }
@@ -4291,7 +4286,7 @@ div#TestSourceForm > ul {
 }
 
 .m-t-sm{
-  margin-top: 10px;
+  margin-top: 10px !important;
 }
 .m-t-xs{
   margin-top: 5px;
@@ -5888,9 +5883,50 @@ h6.version-control {
   animation-duration: 3s;
 }
 .workflow-widget {
-	border: 1px #F0F0F0 solid;
-	border-radius: 5px;
-  margin-bottom: 15px;
+  border-radius: 6px;
+        box-shadow: 0px 1px 4px rgba(0, 0, 0, 0.12);
+}
+.workflow-widget .workflow-header {
+        background-color: #f4f4f4;
+        padding: 15px 25px;
+        border-bottom: 1px #dadada solid;
+        border-radius: 6px 6px 0 0;
+}
+.workflow-widget h4 {
+        margin-top: 0;
+        font-size: 16px;
+}
+.workflow-widget h6 {
+        margin-top: 0;
+        margin-bottom: 8px;
+        color: #979797;
+        font-weight: normal;
+}
+.workflow-widget h6 span {
+        color: #5c5c5c;
+}
+.workflow-widget h6.value {
+        color: #000;
+}
+.workflow-widget h6.partition-status {
+        font-weight: bold;
+        color: #276EF1;
+}
+.workflow-widget h6.duration {
+        color: #276EF1;
+}
+.workflow-widget .workflow-title {
+        color: #2069f5;
+}
+.workflow-widget .workflow-body {
+        padding: 0 25px;
+  background: #fff
+}
+.workflow-widget .workflow-body .inner {
+        padding: 15px 0 0;
+}
+.workflow-widget .workflow-body .inner + .inner {
+        border-top: 1px solid #E5E5E5;
 }
 .workflow-widget-body {
 	padding: 0 20px;
@@ -5909,9 +5945,7 @@ h6.version-control {
 	margin: 0;
 }
 .workflow-widget-body h6,
-.workflow-widget-footer h6,
-.workflow-widget-body p,
-.workflow-widget-footer p {
+.workflow-widget-body p {
 	font-weight: 400;
 	margin: 0 0 5px 0;
 	font-size: 13px;
@@ -5929,30 +5963,7 @@ h6.version-control {
 	margin-bottom: 10px;
 	font-weight: 600;
 }
-.workflow-widget-footer {
-	padding: 20px;
-	background-color: #F0F0F0;
-	border-radius: 0 0 5px 5px;
-}
-.workflow-widget-footer h5 {
-	font-size: 15px;
-	font-weight: 600;
-	margin: 0;
-	color: #276EF1;
-  cursor: pointer;
-}
-.workflow-widget-footer h6 {
-	margin: 10px 0 0;
-	color: #979797;
-}
-.workflow-widget-footer h6 span {
-	color: #666;
-}
-.workflow-widget-footer div.workflow-dropdown {
-  position: absolute;
-  top: -25px;
-  right: 0;
-}
+
 .fa.fa-square.succeeded,
 .fa.fa-square.success,
 .fa.fa-square.done {

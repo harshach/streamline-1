@@ -65,20 +65,10 @@ export default class Sidebar extends Component {
   handleClickOnRegistry(key, e) {
     app_state.sidebar_activeKey = key;
   }
-  handleClickOnDashboard(key, e) {
-    app_state.sidebar_activeKey = key;
-  }
   confirmLeave(flag) {
     if (flag) {
       this.refs.leaveEditable.hide();
       this.navigateToDashboard();
-    }
-  }
-  handleKeyPress(event) {
-    if (event.key === "Enter") {
-      this.refs.leaveEditable.state.show
-        ? this.handleClickOnDashboard(this, 4)
-        : '';
     }
   }
   render() {
@@ -100,14 +90,14 @@ export default class Sidebar extends Component {
               </li>
               : null
             }
-            {hasModuleAccess(menuName.DASHBOARD) ?
+            {hasModuleAccess(menuName.APPLICATION) ?
               <li className={app_state.sidebar_activeKey === 4
                 ? 'active'
-                : ''} onClick={this.handleClickOnDashboard.bind(this, 4)}>
-                <a href={config.dashboard.url} target="_blank">
-                  <img src="/styles/img/uWorc/chart.png"/>
-                  <span>Dashboard</span>
-                </a>
+                : ''} onClick={this.handleClick.bind(this, 4)}>
+                <Link to="/shared-projects">
+                  <img src="/styles/img/uWorc/share.png"/>
+                  <span>Shared Projects</span>
+                </Link>
               </li>
               : null
             }
@@ -122,17 +112,6 @@ export default class Sidebar extends Component {
               </li>
               : null
             }
-            {/*hasModuleAccess(menuName.MODEL_REGISTRY) ?
-              <li className={app_state.sidebar_activeKey === 5
-                ? 'active'
-                : ''} onClick={this.handleClick.bind(this, 5)}>
-                <Link to="/model-registry">
-                  <img src="/styles/img/uWorc/mr.png"/>
-                  <span>Model Registry</span>
-                </Link>
-              </li>
-              : null
-            */}
             {hasModuleAccess(menuName.UDF) || hasModuleAccess(menuName.NOTIFIER) || hasModuleAccess(menuName.CUSTOM_PROCESSOR) ||
               hasModuleAccess(menuName.SERVICE_POOL) || hasModuleAccess(menuName.ENVIRONMENT) || hasModuleAccess(menuName.AUTHORIZER) ?
               <li className={app_state.sidebar_activeKey === 3
@@ -196,7 +175,7 @@ export default class Sidebar extends Component {
             ? "fa fa-angle-double-right"
             : "fa fa-angle-double-left"}></i>
         </a>*/}
-        <Modal className="u-form" ref="leaveEditable" onKeyPress={this.handleKeyPress.bind(this)} data-title="Confirm Box" dialogClassName="confirm-box" data-resolve={this.confirmLeave.bind(this, true)}>
+        <Modal className="u-form" ref="leaveEditable" data-title="Confirm Box" dialogClassName="confirm-box" data-resolve={this.confirmLeave.bind(this, true)}>
           {< p > Are you sure want to navigate away from this page? </p>}
         </Modal>
       </aside>

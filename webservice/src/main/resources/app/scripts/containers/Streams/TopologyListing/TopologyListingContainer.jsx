@@ -122,7 +122,7 @@ class TopologyItems extends Component {
     const {allACL, projectId} = this.props;
     // check whether the element of streamBox is click..
     if ((event.target.nodeName !== 'BUTTON' && event.target.nodeName !== 'I' && event.target.nodeName !== 'A')) {
-      this.context.router.push('projects/'+projectId+'/applications/' + id + '/view');
+      this.context.router.push((Utils.isFromSharedProjects() ? 'shared-projects/' : 'projects/')+projectId+'/applications/' + id + '/view');
     } else if (event.target.title === "Edit") {
       if(app_state.streamline_config.secureMode){
         let permissions = true;
@@ -135,11 +135,15 @@ class TopologyItems extends Component {
           permissions = hasEditCapability("Applications");
         }
         if(permissions){
-          this.context.router.push('projects/'+projectId+'/applications/' + id + '/edit');
+          this.context.router.push(
+            (Utils.isFromSharedProjects() ? 'shared-projects/' : 'projects/')+projectId+'/applications/' + id + '/edit'
+          );
         }
 
       } else {
-        this.context.router.push('projects/'+projectId+'/applications/' + id + '/edit');
+        this.context.router.push(
+          (Utils.isFromSharedProjects() ? 'shared-projects/' : 'projects/')+projectId+'/applications/' + id + '/edit'
+        );
       }
     }
   }
@@ -177,30 +181,30 @@ class TopologyItems extends Component {
 
       const designs = {
         title: (metricName) => {
-          return <h5 className="metric-title">{namespaceName}</h5>;
+          return <h4>{namespaceName}</h4>;
         },
         status: (metricName) => {
-          return <h6 className="activity">{Utils.capitaliseFirstLetter(status)} &nbsp;</h6>;
+          return <h6 className="partition-status">{Utils.capitaliseFirstLetter(status)} &nbsp;</h6>;
         },
         labelValue: (metricName) => {
           const metric = getMetric(metricName);
           const val = Utils[metric.valueFormat](metricWrap[metric.metricKeyName]);
           return [
-            <h6 className="metric-label">{metric.uiName}</h6>,
-            <p className="metric-value">{val.value} &nbsp;</p>
+            <h6>{metric.uiName}</h6>,
+            <h6 className="value">{val.value} &nbsp;</h6>
           ];
         },
         duration: (metricName) => {
           const metric = getMetric(metricName);
           const oVal = metricWrap[metric.metricKeyName] || 0;
           const val = Utils[metric.valueFormat](oVal);
-          return <p className="activity">Duration {val.value + (val.prefix || '')}</p>;
+          return <h6 className="duration">Duration {val.value + (val.prefix || '')}</h6>;
         },
         legendValue: (metricName) => {
           const metric = getMetric(metricName);
           let value = metricWrap[metric.metricKeyName];;
           if(value){
-            return <p><i className={"fa fa-square "+value.toLowerCase()}></i> {Utils.capitaliseFirstLetter(value)}</p>;
+            return <h6 className="value"><i className={"fa fa-square "+value.toLowerCase()}></i> {Utils.capitaliseFirstLetter(value)}</h6>;
           } else {
             return null;
           }
@@ -222,14 +226,14 @@ class TopologyItems extends Component {
       });
 
       return (
-        <div className="row" key={i}>
-          <div className="col-sm-8">{leftMetrics}</div>
-          <div className="col-sm-4 text-right">{rightMetrics}</div>
+        <div className="inner clearfix" key={i}>
+          <div className="pull-left">{leftMetrics}</div>
+          <div className="pull-right text-right">{rightMetrics}</div>
         </div>
       );
     });
   }
-  getFooter(dropdown){
+  getHeader(dropdown){
     const {topologyList} = this.props;
     let clusterNamesList = _.keys(topologyList.namespaces);
     const engine = Utils.getEngineById(topologyList.topology.engineId);
@@ -237,22 +241,25 @@ class TopologyItems extends Component {
 
     const typeValue = metricWrap['pipelineType'];
 
-    return <div className="workflow-widget-footer">
-      <div className="row">
-        <div className="col-sm-7">
-          <h5>
-            {topologyList.topology.name}
-            <span className={"engine-name "+engine.name.toLowerCase()}>{engine.displayName}</span>
-          </h5>
-          <h6>
-            Last Updated on <span className="app-last-update-value">{Utils.datetime(topologyList.topology.timestamp).value}</span>
-          </h6>
-        </div>
-        <div className="col-sm-5 text-right">
+    return <div className="workflow-header clearfix">
+      <div className="pull-left">
+        <label className={"workflow-badge " + engine.name.toLowerCase()+"-badge"}>{engine.displayName}</label>
+        <h4 className="workflow-title">{topologyList.topology.name}</h4>
+        <h6>
+          Last Updated on <span>{Utils.datetime(topologyList.topology.timestamp).value}</span>
+        </h6>
+      </div>
+      <div className="pull-right text-right">
+        <div className="btn-group btn-group-xs">
+          <button type="button" className="btn btn-link">
+            <i className="fa fa-share-alt"></i>
+          </button>
           {dropdown}
-          <p>{typeValue ? Utils.capitaliseFirstLetter(typeValue) : ""}</p>
-          {/*<h6 className="app-run-duration">Run every 1 day at 11:00:00</h6>*/}
         </div>
+        <h6 className="value">
+          {typeValue ? Utils.capitaliseFirstLetter(typeValue) : ""}
+        </h6>
+        <h6>Run every 1 day at 11:00:00</h6>
       </div>
     </div>;
   }
@@ -268,7 +275,7 @@ class TopologyItems extends Component {
     if(namespaces[clusterNamesList[0]].status && namespaces[clusterNamesList[0]].status.status){
       status = namespaces[clusterNamesList[0]].status.status.toLowerCase();
     }
-    const ellipseIcon = <i className="fa fa-ellipsis-h"></i>;
+    const ellipseIcon = <i className="fa fa-ellipsis-v"></i>;
     const userInfo = app_state.user_profile !== undefined ? app_state.user_profile.admin :false;
     let permission=true,rights_share=true,aclObject={};
     if(app_state.streamline_config.secureMode){
@@ -302,13 +309,6 @@ class TopologyItems extends Component {
         <i className="fa fa-share-square-o"></i>
         &nbsp;Export
       </MenuItem>
-      {status !== 'enabled' ?
-        <MenuItem title="Update Engine" disabled={!permission} onClick={this.onActionClick.bind(this, "update/" + topology.id)}>
-          <i className="fa fa-wrench"></i>
-          &nbsp;Update Engine
-        </MenuItem>
-      : null
-      }
       <MenuItem title="Delete" disabled={!permission} onClick={this.onActionClick.bind(this, "delete/" + topology.id)}>
         <i className="fa fa-trash"></i>
         &nbsp;Delete
@@ -327,12 +327,10 @@ class TopologyItems extends Component {
                 </div>
               </div>
             : <div>
-            <div className="workflow-widget-body">
-              <div className="workflow-widget-panel">
+              {this.getHeader(dropdown)}
+              <div className="workflow-body">
                 {this.getMetrics()}
               </div>
-            </div>
-            {this.getFooter(dropdown)}
             </div>
           }
 
@@ -587,21 +585,9 @@ class TopologyListingContainer extends Component {
     case "share":
       this.shareSingleTopology(id,obj);
       break;
-    case "update":
-      this.updateEnvironment(id);
-      break;
     default:
       break;
     }
-  }
-
-  updateEnvironment = (id) => {
-    let obj = this.state.entities.find((e)=>{return e.topology.id == id;});
-    this.setState({
-      topologyData: obj
-    }, () => {
-      this.AddTopologyModelRef.show();
-    });
   }
 
   shareSingleTopology = (id,obj) => {
@@ -699,13 +685,17 @@ class TopologyListingContainer extends Component {
             FSReactToastr.success(
                 <strong>Workflow's environment updated successfully</strong>
               );
-            this.context.router.push('projects/'+projectId+'/applications/' + topology.id + '/edit');
+            this.context.router.push(
+              (Utils.isFromSharedProjects() ? 'shared-projects/' : 'projects/')+projectId+'/applications/' + topology.id + '/edit'
+            );
           } else {
             this.addTopologyRef.saveMetadata(topology.id).then(() => {
               FSReactToastr.success(
                 <strong>Workflow added successfully</strong>
               );
-              this.context.router.push('projects/'+projectId+'/applications/' + topology.id + '/edit');
+              this.context.router.push(
+                (Utils.isFromSharedProjects() ? 'shared-projects/' : 'projects/')+projectId+'/applications/' + topology.id + '/edit'
+              );
             });
           }
         }
@@ -727,7 +717,9 @@ class TopologyListingContainer extends Component {
           FSReactToastr.success(
             <strong>Workflow imported successfully</strong>
           );
-          this.context.router.push('projects/'+projectId+'/applications/' + topology.id + '/edit');
+          this.context.router.push(
+            (Utils.isFromSharedProjects() ? 'shared-projects/' : 'projects/')+projectId+'/applications/' + topology.id + '/edit'
+          );
         }
       });
     }
@@ -749,7 +741,9 @@ class TopologyListingContainer extends Component {
           FSReactToastr.success(
             <strong>Workflow cloned successfully</strong>
           );
-          this.context.router.push('projects/'+projectId+'/applications/' + topology.id + '/edit');
+          this.context.router.push(
+            (Utils.isFromSharedProjects() ? 'shared-projects/' : 'projects/')+projectId+'/applications/' + topology.id + '/edit'
+          );
         }
       });
     }
@@ -800,7 +794,11 @@ class TopologyListingContainer extends Component {
     if(projectData){
       return (
         <span>
-          <Link to="/">My Projects</Link>
+          {Utils.isFromSharedProjects() ?
+            <Link to="/shared-projects">Shared Projects</Link>
+            :
+            <Link to="/">My Projects</Link>
+          }
           <i className="fa fa-angle-right title-separator"></i>
           {projectData.name}
           <i className="fa fa-angle-right title-separator"></i>

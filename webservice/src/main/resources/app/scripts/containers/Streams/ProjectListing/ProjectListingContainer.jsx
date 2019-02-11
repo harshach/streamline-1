@@ -24,7 +24,7 @@ import FSReactToastr from '../../../components/FSReactToastr';
 import BaseContainer from '../../../containers/BaseContainer';
 import Utils from '../../../utils/Utils';
 import CommonNotification from '../../../utils/CommonNotification';
-import {toastOpt, iconsFrom} from '../../../utils/Constants';
+import {toastOpt, iconsFrom, menuName} from '../../../utils/Constants';
 import Modal from '../../../components/FSModal';
 import AddProject from './AddProject';
 import NoData, {BeginNew} from '../../../components/NoData';
@@ -103,7 +103,11 @@ class ProjectCard extends Component {
           <div className="clearfix padding-24">
             {engineCounts}
             <h6 className="no-margin project-name">
-              <Link to={`projects/${data.id}/applications`}>{data.name}</Link>
+              <Link
+                to={
+                  (Utils.isFromSharedProjects() ? `shared-projects/${data.id}/applications` : `projects/${data.id}/applications`)
+                }
+              >{data.name}</Link>
             </h6>
             <span className="display-block project-description">{data.description}</span>
             <span className="display-block project-timestamp">Last modified on {Utils.datetime(data.timestamp).value}</span>
@@ -126,7 +130,7 @@ class ProjectListingContainer extends Component {
     this.fetchData();
   }
   fetchData = () => {
-    ProjectREST.getAllProjects().then((projects) => {
+    ProjectREST.getMyProjects().then((projects) => {
       if (projects.responseMessage !== undefined) {
         this.setState({fetchLoader: false});
         FSReactToastr.error(

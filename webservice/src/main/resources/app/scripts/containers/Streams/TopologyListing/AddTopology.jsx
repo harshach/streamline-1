@@ -154,6 +154,8 @@ class AddTopology extends Component {
     const {topologyName, namespaceId, engineId, templateId} = this.state;
     const {topologyData} = this.props;
     let configData = this.refs.Form.state.FormData;
+    configData['topology.namespaceIds'] = JSON.stringify([namespaceId]);
+    configData['topology.deploymentMode'] = "CHOSEN_REGION";
     let data = {
       name: topologyName,
       namespaceId: namespaceId,
@@ -293,10 +295,14 @@ class AddTopology extends Component {
           <label className="col-sm-2 engine-type">Batch:</label>
           <div className="col-sm-6">
             {_.map(batchOptions, (e) => {
-              return <span className="radio-container" onClick={() => this.handleOnChangeEngine(e)} key={e.id}>
-                <input type="radio" name="engine" checked={engineId == e.id}/>
-                <label>{e.displayName}</label>
-              </span>;
+              if(e.enabled){
+                return <span className="radio-container" onClick={() => this.handleOnChangeEngine(e)} key={e.id}>
+                  <input type="radio" name="engine" checked={engineId == e.id}/>
+                  <label>{e.displayName}</label>
+                </span>;
+              } else {
+                return null;
+              }
             })}
           </div>
         </div>
@@ -304,10 +310,14 @@ class AddTopology extends Component {
           <label className="col-sm-2 engine-type">Streaming:</label>
           <div className="col-sm-6">
             {_.map(streamOptions, (e) => {
-              return <span className="radio-container" onClick={() => this.handleOnChangeEngine(e)} key={e.id}>
-                <input type="radio" name="engine" checked={engineId == e.id}/>
-                <label>{e.displayName}</label>
-              </span>;
+              if(e.enabled){
+                return <span className="radio-container" onClick={() => this.handleOnChangeEngine(e)} key={e.id}>
+                  <input type="radio" name="engine" checked={engineId == e.id}/>
+                  <label>{e.displayName}</label>
+                </span>;
+              } else {
+                return null;
+              }
             })}
           </div>
         </div>

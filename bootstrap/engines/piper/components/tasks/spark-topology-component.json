@@ -5,7 +5,7 @@
   "engine": "PIPER",
   "template": ["Blank"],
   "builtin": true,
-  "fieldHintProviderClass": "com.hortonworks.streamline.streams.cluster.bundle.impl.PiperTaskBundleHintProvider",
+  "fieldHintProviderClass": "com.hortonworks.streamline.streams.cluster.bundle.impl.PiperSparkTaskBundleHintProvider",
   "transformationClass": "com.hortonworks.streamline.streams.layout.piper.SparkTaskComponent",
   "input": true,
   "output": true,
@@ -99,7 +99,9 @@
         "fieldName": "task_params.spark_conn_id",
         "tooltip": "Spark Connection ID",
         "isOptional": true,
-        "type": "string"
+        "type": "enumstring",
+        "options": [],
+        "hint": "override"
       },
       {
         "uiName": "Spark JAR arguments",

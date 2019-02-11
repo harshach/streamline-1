@@ -3452,11 +3452,14 @@ input[type="checkbox"]:focus {
     width: 1.25em;
   }
 }
-
-.dropdown button.btn-link {
+.dropdown button.btn-link,
+button.btn-link {
   color: #1B6DE0;
 }
-
+.btn-group-workflow .btn{
+  padding: 0 5px;
+  color: #999999 !important;
+}
 .col-md-4:nth-child(3n+4) {
   clear: left;
 }

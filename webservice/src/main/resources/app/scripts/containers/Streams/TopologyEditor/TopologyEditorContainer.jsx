@@ -945,9 +945,7 @@ export class TopologyEditorContainer extends Component {
             <Link to="/">My Projects</Link>
           }
           <i className="fa fa-angle-right title-separator"></i>
-          {projectData.name}
-          <i className="fa fa-angle-right title-separator"></i>
-          <Link to={(Utils.isFromSharedProjects() ? 'shared-projects/' : 'projects/')+projectData.id+"/applications"}>Workflow</Link>
+          <Link to={(Utils.isFromSharedProjects() ? 'shared-projects/' : 'projects/')+projectData.id+"/applications"}>{projectData.name}</Link>
           <i className="fa fa-angle-right title-separator"></i>
           <Editable id="applicationName" ref="topologyNameEditable" inline={true} resolve={this.saveTopologyName.bind(this)} reject={this.handleRejectTopologyName.bind(this)}>
             <input ref={this.focusInput} defaultValue={this.state.topologyName} onKeyPress={this.handleKeyPress.bind(this)} onChange={this.handleNameChange.bind(this)}/>

@@ -250,10 +250,18 @@ class TopologyItems extends Component {
         </h6>
       </div>
       <div className="pull-right text-right">
-        <div className="btn-group btn-group-xs">
-          <button type="button" className="btn btn-link">
-            <i className="fa fa-share-alt"></i>
-          </button>
+        <div className="btn-group btn-group-workflow">
+          { this.showShareIcon ?
+            <button
+              type="button"
+              className="btn btn-link" onClick={this.onActionClick.bind(this, "share/" + topologyList.topology.id)}
+              disabled={!this.rights_share}
+            >
+              <i className="fa fa-share-alt"></i>
+            </button>
+            :
+            null
+          }
           {dropdown}
         </div>
         <h6 className="value">
@@ -277,13 +285,15 @@ class TopologyItems extends Component {
     }
     const ellipseIcon = <i className="fa fa-ellipsis-v"></i>;
     const userInfo = app_state.user_profile !== undefined ? app_state.user_profile.admin :false;
-    let permission=true,rights_share=true,aclObject={};
+    let permission=true,aclObject={};
+    this.rights_share=true;
     if(app_state.streamline_config.secureMode){
       aclObject = findSingleAclObj(topology.id,allACL || []);
       const {p_permission,r_share} = handleSecurePermission(aclObject,userInfo,"Applications");
       permission = p_permission;
-      rights_share = r_share;
+      this.rights_share = r_share;
     }
+    this.showShareIcon = !_.isEmpty(aclObject) || userInfo;
 
     const dropdown = <DropdownButton title={ellipseIcon} id="actionDropdown" noCaret bsStyle="link workflow-dropdown">
       <MenuItem title="Refresh" onClick={this.onActionClick.bind(this, "refresh/" + topology.id)}>
@@ -294,13 +304,6 @@ class TopologyItems extends Component {
         <i className="fa fa-pencil"></i>
         &nbsp;Edit
       </MenuItem>
-      { !_.isEmpty(aclObject) || userInfo
-        ? <MenuItem title="Share" disabled={!rights_share} onClick={this.onActionClick.bind(this, "share/" + topology.id)}>
-            <i className="fa fa-share"></i>
-            &nbsp;Share
-          </MenuItem>
-        : ''
-      }
       <MenuItem title="Clone" disabled={!permission}  onClick={this.onActionClick.bind(this, "clone/" + topology.id)}>
         <i className="fa fa-clone"></i>
         &nbsp;Clone

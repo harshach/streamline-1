@@ -250,24 +250,16 @@ class TopologyItems extends Component {
         </h6>
       </div>
       <div className="pull-right text-right">
-        <div className="btn-group btn-group-workflow">
-          { this.showShareIcon ?
-            <button
-              type="button"
-              className="btn btn-link" onClick={this.onActionClick.bind(this, "share/" + topologyList.topology.id)}
-              disabled={!this.rights_share}
-            >
-              <i className="fa fa-share-alt"></i>
-            </button>
-            :
-            null
-          }
+        <div className="btn-group btn-group-xs">
+          <button type="button" className="btn btn-link">
+            <i className="fa fa-share-alt"></i>
+          </button>
           {dropdown}
         </div>
         <h6 className="value">
           {typeValue ? Utils.capitaliseFirstLetter(typeValue) : ""}
         </h6>
-        {/*<h6>Run every 1 day at 11:00:00</h6>*/}
+        <h6>Run every 1 day at 11:00:00</h6>
       </div>
     </div>;
   }

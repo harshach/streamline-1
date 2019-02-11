@@ -600,7 +600,9 @@ class TopologyViewContainer extends TopologyEditorContainer {
             <Link to="/">My Projects</Link>
           }
           <i className="fa fa-angle-right title-separator"></i>
-          <Link to={(Utils.isFromSharedProjects() ? 'shared-projects/' : 'projects/')+projectData.id+"/applications"}>{projectData.name}</Link>
+          {projectData.name}
+          <i className="fa fa-angle-right title-separator"></i>
+          <Link to={(Utils.isFromSharedProjects() ? 'shared-projects/' : 'projects/')+projectData.id+"/applications"}>Workflow</Link>
           <i className="fa fa-angle-right title-separator"></i>
           View: {topologyName}
         </span>

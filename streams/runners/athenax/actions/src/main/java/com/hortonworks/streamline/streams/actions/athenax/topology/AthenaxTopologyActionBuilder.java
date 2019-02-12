@@ -9,7 +9,6 @@ import com.hortonworks.streamline.streams.catalog.Engine;
 import com.hortonworks.streamline.streams.cluster.catalog.Namespace;
 import com.hortonworks.streamline.streams.cluster.catalog.Service;
 import com.hortonworks.streamline.streams.cluster.catalog.ServiceConfiguration;
-import com.hortonworks.streamline.streams.cluster.discovery.ambari.ServiceConfigurations;
 import com.hortonworks.streamline.streams.cluster.service.EnvironmentService;
 import com.hortonworks.streamline.streams.common.athenax.AthenaxConstants;
 
@@ -29,29 +28,9 @@ public class AthenaxTopologyActionBuilder implements TopologyActionsBuilder<Map<
         this.conf = new HashMap<>();
         this.conf.put(Constants.CONFIG_RTA_METADATA_SERVICE_URL, conf.get(Constants.CONFIG_RTA_METADATA_SERVICE_URL));
         this.topologyActionsService = topologyActionsService;
-        buildKafkaTopologyActionsConfigMap(namespace);
         buildAthenaxTopologyActionsConfigMap(namespace);
         athenaxTopologyActions = new AthenaxTopologyActionsImpl();
         athenaxTopologyActions.init(this.conf, topologyActionsService, environmentService);
-    }
-
-    private void buildKafkaTopologyActionsConfigMap(Namespace namespace) {
-        EnvironmentService environmentService = topologyActionsService.getEnvironmentService();
-        Service engineService = ServiceUtils.getFirstOccurenceServiceForNamespace(namespace, "KAFKA",
-                topologyActionsService.getEnvironmentService());
-
-        if (engineService == null) {
-            throw new IllegalStateException("Kafka is not associated to the namespace " + namespace.getName() + "(" + namespace.getId() + ")");
-        }
-        ServiceConfiguration serviceConfiguration = ServiceUtils.getServiceConfiguration(engineService,
-                ServiceConfigurations.KAFKA.getConfNames()[0], environmentService).orElse(new ServiceConfiguration());
-        Map<String, String> configMap;
-        try {
-            configMap = serviceConfiguration.getConfigurationMap();
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-        conf.putAll(configMap);
     }
 
     private void buildAthenaxTopologyActionsConfigMap(Namespace namespace) {

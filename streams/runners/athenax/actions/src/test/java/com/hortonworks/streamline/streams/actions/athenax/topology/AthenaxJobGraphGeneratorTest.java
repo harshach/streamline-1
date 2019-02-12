@@ -1,6 +1,7 @@
 package com.hortonworks.streamline.streams.actions.athenax.topology;
 
 import com.hortonworks.streamline.common.Config;
+import com.hortonworks.streamline.streams.cluster.service.EnvironmentService;
 import com.hortonworks.streamline.streams.common.athenax.entity.JobDefinition;
 import com.hortonworks.streamline.streams.layout.component.Stream;
 import com.hortonworks.streamline.streams.layout.component.TopologyDag;
@@ -8,12 +9,19 @@ import com.hortonworks.streamline.streams.layout.component.TopologyLayout;
 import com.hortonworks.streamline.streams.layout.component.impl.KafkaSource;
 import com.hortonworks.streamline.streams.layout.component.impl.RTASink;
 import com.hortonworks.streamline.streams.layout.component.impl.SqlProcessor;
+import mockit.Mocked;
+import mockit.integration.junit4.JMockit;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 
+@RunWith(JMockit.class)
 public class AthenaxJobGraphGeneratorTest {
+  @Mocked
+  EnvironmentService environmentService;
+
   @Test
   public void testDagTraverse() throws Exception {
     // source
@@ -24,6 +32,7 @@ public class AthenaxJobGraphGeneratorTest {
     srcConfig.put("bootstrapServers", "localhost:9092");
     srcConfig.put("consumerGroupId", "group1");
     srcConfig.put("topic", "topicSource");
+    srcConfig.put("clusters", "test");
     kafkaSource.setConfig(srcConfig);
 
     // sql processor
@@ -38,6 +47,7 @@ public class AthenaxJobGraphGeneratorTest {
     Config sinkConfig = new Config();
     sinkConfig.put("bootstrapServers", "localhost:9092");
     sinkConfig.put("topic", "topicSink");
+    sinkConfig.put("clusters", "test");
     rtaSink.setConfig(sinkConfig);
 
     // construct topology DAG: kafkaSource -> sql -> rtaSink
@@ -50,10 +60,10 @@ public class AthenaxJobGraphGeneratorTest {
     String topologyName = "toplogy1";
     TopologyLayout topologyLayout = new TopologyLayout(1L, topologyName, cfg, topologyDag);
 
-    AthenaxJobGraphGenerator requestGenerator = new AthenaxJobGraphGenerator(topologyLayout, null);
+    AthenaxJobGraphGenerator requestGenerator = new AthenaxJobGraphGenerator(topologyLayout, environmentService, null);
     topologyDag.traverse(requestGenerator);
 
-    JobDefinition job = requestGenerator.extractJobDefinition("localhost:2181");
+    JobDefinition job = requestGenerator.extractJobDefinition();
 
     // verify
     assertEquals(topologyName, job.jobName());

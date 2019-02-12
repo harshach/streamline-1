@@ -13,13 +13,6 @@
   "topologyComponentUISpecification": {
     "fields": [
       {
-        "uiName": "Kafka Cluster",
-        "fieldName": "kafkaCluster",
-        "isOptional": false,
-        "tooltip": "Kafka cluster name for the output messages",
-        "type": "string"
-      },
-      {
         "uiName": "Bootstrap Servers",
         "fieldName": "bootstrapServers",
         "isOptional": false,

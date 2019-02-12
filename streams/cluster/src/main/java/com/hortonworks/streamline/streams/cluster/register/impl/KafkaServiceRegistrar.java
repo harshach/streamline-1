@@ -43,6 +43,7 @@ public class KafkaServiceRegistrar extends AbstractServiceRegistrar {
     // Manual Kafka registrar determines brokers via parsing listeners
     public static final String PARAM_LISTENERS = "listeners";
     public static final String PARAM_SECURITY_INTER_BROKER_PROTOCOL = "security.inter.broker.protocol";
+    public static final String PARAM_CLUSTER_NAME = "clusterName";
 
     private final ObjectMapper objectMapper = new ObjectMapper();
 
@@ -122,6 +123,10 @@ public class KafkaServiceRegistrar extends AbstractServiceRegistrar {
 
         if (config.contains(PARAM_LISTENERS)) {
             confMap.put(PARAM_LISTENERS, config.getString(PARAM_LISTENERS));
+        }
+
+        if (config.contains(PARAM_CLUSTER_NAME)) {
+            confMap.put(PARAM_CLUSTER_NAME, config.getString(PARAM_CLUSTER_NAME));
         }
 
         try {

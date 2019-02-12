@@ -1,10 +1,16 @@
 package com.hortonworks.streamline.streams.actions.athenax.topology;
 
 import com.hortonworks.streamline.common.Config;
+import com.hortonworks.streamline.streams.cluster.catalog.Namespace;
+import com.hortonworks.streamline.streams.cluster.catalog.Service;
+import com.hortonworks.streamline.streams.cluster.catalog.ServiceConfiguration;
+import com.hortonworks.streamline.streams.cluster.discovery.ambari.ServiceConfigurations;
+import com.hortonworks.streamline.streams.cluster.service.EnvironmentService;
 import com.hortonworks.streamline.streams.common.athenax.entity.Connector;
 import com.hortonworks.streamline.streams.common.athenax.entity.DeployRequest;
 import com.hortonworks.streamline.streams.common.athenax.entity.JobDefinition;
 import com.hortonworks.streamline.streams.layout.component.Edge;
+import com.hortonworks.streamline.streams.layout.component.StreamlineComponent;
 import com.hortonworks.streamline.streams.layout.component.StreamlineProcessor;
 import com.hortonworks.streamline.streams.layout.component.StreamlineSink;
 import com.hortonworks.streamline.streams.layout.component.StreamlineSource;
@@ -23,10 +29,14 @@ import com.hortonworks.streamline.streams.registry.table.RTATableMetadata;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+
+import static com.hortonworks.streamline.streams.cluster.register.impl.KafkaServiceRegistrar.PARAM_CLUSTER_NAME;
+import static com.hortonworks.streamline.streams.cluster.register.impl.KafkaServiceRegistrar.PARAM_ZOOKEEPER_CONNECT;
 
 public class AthenaxJobGraphGenerator extends TopologyDagVisitor {
 	private static final Logger LOG = LoggerFactory.getLogger(AthenaxJobGraphGenerator.class);
@@ -46,6 +56,7 @@ public class AthenaxJobGraphGenerator extends TopologyDagVisitor {
 	private static final String HEATPIPE_PROTOCOL_PREFIX = "kafka+heatpipe://";
 
 
+	private EnvironmentService environmentService;
 	private TopologyLayout topology;
 	private String runAsUser;
 	private StreamlineSource streamlineSource;
@@ -53,7 +64,8 @@ public class AthenaxJobGraphGenerator extends TopologyDagVisitor {
 	private String sql;
 	private boolean legalAthenaXJob;
 
-	protected AthenaxJobGraphGenerator(TopologyLayout topology, String asUser) {
+	protected AthenaxJobGraphGenerator(TopologyLayout topology, EnvironmentService environmentService, String asUser) {
+		this.environmentService = environmentService;
 		this.topology = topology;
 		this.runAsUser = asUser;
 		this.legalAthenaXJob = true;
@@ -192,16 +204,18 @@ public class AthenaxJobGraphGenerator extends TopologyDagVisitor {
 		}
 
 		RTADeployTableRequest request = new RTADeployTableRequest();
-		request.setKafkaCluster(streamlineSink.getConfig().get(RTAConstants.KAFKA_CLUSTER));
+		Namespace namespace = getNamespaceFromComponent(streamlineSink);
+		Map<String, String> kafkaConfigMap = getKafkaConfigMap(namespace);
+		request.setKafkaCluster(kafkaConfigMap.get(PARAM_CLUSTER_NAME));
 		return request;
 	}
 
-	public JobDefinition extractJobDefinition(String zkConnectionStr) throws Exception {
+	public JobDefinition extractJobDefinition() throws Exception {
 		errorIfIllegalAthenaxJob();
 
 		JobDefinition jobDef = new JobDefinition();
 		// input connectors (kafka only)
-		jobDef.setInput(getInputConnectors(zkConnectionStr));
+		jobDef.setInput(getInputConnectors());
 
 		// output connectors(kafka/RTA only)
 		jobDef.setOutput(getOutputConnectors());
@@ -223,10 +237,10 @@ public class AthenaxJobGraphGenerator extends TopologyDagVisitor {
 		return jobDef;
 	}
 
-	public DeployRequest extractDeployJobRequest(String dataCenter, String cluster, String zkConnectionStr) throws Exception {
+	public DeployRequest extractDeployJobRequest(String dataCenter, String cluster) throws Exception {
 		DeployRequest request = new DeployRequest();
 
-		request.setJobDefinition(extractJobDefinition(zkConnectionStr));
+		request.setJobDefinition(extractJobDefinition());
 		request.setBackfill(false);
 
 		// extract env settings from config
@@ -239,7 +253,11 @@ public class AthenaxJobGraphGenerator extends TopologyDagVisitor {
 		return request;
 	}
 
-	private List<Connector> getInputConnectors(String zkConnectionStr) {
+	private List<Connector> getInputConnectors() {
+		Namespace namespace = getNamespaceFromComponent(streamlineSource);
+		Map<String, String> kafkaConfigMap = getKafkaConfigMap(namespace);
+		String zkConnectionStr = kafkaConfigMap.get(PARAM_ZOOKEEPER_CONNECT);
+
 		// input connectors(kafka only for AthenaX)
 		List<Connector> inputConnectors = new ArrayList<>();
 
@@ -304,5 +322,29 @@ public class AthenaxJobGraphGenerator extends TopologyDagVisitor {
 			LOG.error("Failed to convert Topology into AthenaX job.");
 			throw new Exception("Failed to convert Topology into AthenaX job.");
 		}
+	}
+
+	private Namespace getNamespaceFromComponent(StreamlineComponent component) {
+		String clusterName = component.getConfig().get("clusters");
+		return environmentService.getNamespaceByName(clusterName);
+	}
+
+	private Map<String, String> getKafkaConfigMap(Namespace namespace) {
+		Map<String, String> configMap;
+
+		Service service = environmentService.getFirstOccurenceServiceForNamespace(namespace, ServiceConfigurations.KAFKA.name());
+
+		if (service == null) {
+			throw new IllegalStateException("Kafka is not associated to the namespace " + namespace.getName() + "(" + namespace.getId() + ")");
+		}
+
+		ServiceConfiguration serviceConfiguration = environmentService.
+				getServiceConfigurationByName(service.getId(), ServiceConfigurations.KAFKA.getConfNames()[0]);
+		try {
+			configMap = serviceConfiguration.getConfigurationMap();
+		} catch (IOException e) {
+			throw new RuntimeException(e);
+		}
+		return configMap;
 	}
 }

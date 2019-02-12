@@ -36,8 +36,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-import static com.hortonworks.streamline.streams.cluster.Constants.Kafka.PROPERTY_KEY_ZOOKEEPER_CONNECT;
-
 /**
  * AthenaX implementation of the TopologyActions interface
  */
@@ -48,21 +46,21 @@ public class AthenaxTopologyActionsImpl implements TopologyActions {
 	private static final String FINAL_APPLICATION_STATUS = "finalApplicationStatus";
 	private static final String FINISH_TIME = "finishTime";
 
+	private EnvironmentService environmentService;
 	private AthenaXRestAPIClient athenaXRestAPIClient;
 	private RTARestAPIClient rtaRestAPIClient;
 	private String yarnDataCenter;
 	private String yarnCluster;
-	private String zkConnectionStr;
 
 	@Override
 	public void init(Map<String, Object> conf, TopologyActionsService topologyActionsService, EnvironmentService environmentService) {
+		this.environmentService = environmentService;
 		String athenaxServiceRootUrl = (String) conf.get(AthenaxConstants.ATHENAX_SERVICE_ROOT_URL_KEY);
 		athenaXRestAPIClient = new AthenaXRestAPIClient(athenaxServiceRootUrl, null/*subject*/);
 		rtaRestAPIClient = new RTARestAPIClient((String)conf.get(Constants.CONFIG_RTA_METADATA_SERVICE_URL), null);
 
 		yarnDataCenter = (String) conf.get(AthenaxConstants.ATHENAX_YARN_DATA_CENTER_KEY);
 		yarnCluster = (String) conf.get(AthenaxConstants.ATHENAX_YARN_CLUSTER_KEY);
-		zkConnectionStr = (String) conf.get(PROPERTY_KEY_ZOOKEEPER_CONNECT);
 	}
 
   @Override
@@ -70,7 +68,7 @@ public class AthenaxTopologyActionsImpl implements TopologyActions {
 										  TopologyActionContext ctx, String asUser) throws Exception {
 		LOG.debug("Initial Topology config {}", topology.getConfig());
 		List<DeployedRuntimeId> deployedRuntimeIds = new ArrayList<>();
-		AthenaxJobGraphGenerator requestGenerator = new AthenaxJobGraphGenerator(topology, asUser);
+		AthenaxJobGraphGenerator requestGenerator = new AthenaxJobGraphGenerator(topology, environmentService, asUser);
 		TopologyDag topologyDag = topology.getTopologyDag();
 		topologyDag.traverse(requestGenerator);
 
@@ -86,7 +84,7 @@ public class AthenaxTopologyActionsImpl implements TopologyActions {
 			}
 		}
 		// extract AthenaX deploy job request
-		DeployRequest deployRequest = requestGenerator.extractDeployJobRequest(yarnDataCenter, yarnCluster, zkConnectionStr);
+		DeployRequest deployRequest = requestGenerator.extractDeployJobRequest(yarnDataCenter, yarnCluster);
 
 		// submit job via Athenax-vm API
 		String applicationId =  this.athenaXRestAPIClient.deployJob(deployRequest);
@@ -168,12 +166,12 @@ public class AthenaxTopologyActionsImpl implements TopologyActions {
   @Override
 	public void validate(TopologyLayout topology) throws Exception {
 		LOG.debug("Initial Topology config {}", topology.getConfig());
-		AthenaxJobGraphGenerator requestGenerator = new AthenaxJobGraphGenerator(topology, null);
+		AthenaxJobGraphGenerator requestGenerator = new AthenaxJobGraphGenerator(topology, environmentService, null);
 		TopologyDag topologyDag = topology.getTopologyDag();
 		topologyDag.traverse(requestGenerator);
 
 		// extract AthenaX job description
-		JobDefinition jobDefinition = requestGenerator.extractJobDefinition(zkConnectionStr);
+		JobDefinition jobDefinition = requestGenerator.extractJobDefinition();
 
 		// send request via Athenax-vm API
 		athenaXRestAPIClient.validateJob(jobDefinition);

@@ -297,7 +297,7 @@ public class TopologyCatalogResource {
         }
 
         Project createdProject = catalogService.addProject(project);
-        SecurityUtil.addAcl(authorizer, securityContext, NAMESPACE, project.getId(),
+        SecurityUtil.addAcl(authorizer, securityContext, Project.NAMESPACE, project.getId(),
                 EnumSet.allOf(Permission.class));
         return WSUtils.respondEntity(createdProject, CREATED);
     }

@@ -107,7 +107,7 @@ public class StreamsModule implements ModuleRegistration, StorageManagerAware, T
         final SecurityCatalogService securityCatalogService =
                 (SecurityCatalogService) config.get(Constants.CONFIG_SECURITY_CATALOG_SERVICE);
 
-        result.addAll(getAuthorizerResources(authorizer, securityCatalogService));
+        result.addAll(getAuthorizerResources(authorizer, securityCatalogService, streamcatalogService));
         result.add(new MetricsResource(authorizer, streamcatalogService, topologyMetricsService));
         result.addAll(getClusterRelatedResources(authorizer, environmentService));
         result.add(new FileCatalogResource(authorizer, catalogService));
@@ -138,8 +138,9 @@ public class StreamsModule implements ModuleRegistration, StorageManagerAware, T
         return streamlineSchemaRegistryClient;
     }
 
-    private List<Object> getAuthorizerResources(StreamlineAuthorizer authorizer, SecurityCatalogService securityCatalogService) {
-        return Collections.singletonList(new SecurityCatalogResource(authorizer, securityCatalogService));
+    private List<Object> getAuthorizerResources(StreamlineAuthorizer authorizer, SecurityCatalogService securityCatalogService,
+                                                StreamCatalogService streamCatalogService) {
+        return Collections.singletonList(new SecurityCatalogResource(authorizer, securityCatalogService, streamCatalogService));
     }
 
     private List<Object> getTopologyRelatedResources(StreamlineAuthorizer authorizer,

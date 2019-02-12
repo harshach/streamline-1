@@ -5,7 +5,7 @@
     "deploymentModes": "[\"DEPLOY\",\"BACKFILL\"]",
     "componentTypes": "[\"SOURCE\",\"PROCESSOR\",\"SINK\"]",
     "schemaAware": "true",
-    "enabled": "true",
+    "enabled": "false",
     "topologyActionClass": "com.hortonworks.streamline.streams.actions.storm.topology.StormTopologyActionsBuilder",
     "topologyStateMachineClass": "com.hortonworks.streamline.streams.actions.topology.state.DefaultTopologyStateMachine",
     "topologyStatusMetricsClass": "com.hortonworks.streamline.streams.metrics.storm.topology.StormTopologyMetricsImpl",

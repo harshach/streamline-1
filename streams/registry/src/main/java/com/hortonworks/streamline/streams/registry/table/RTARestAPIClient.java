@@ -20,8 +20,8 @@ public class RTARestAPIClient implements DataSchemaServiceClient {
     private static final String RPC_SERVICE = "RPC-Service";
     private static final String RPC_CALLER = "RPC-Caller";
     private static final String RTA_TABLE_PATH = "tables/";
-    private static final String RTA_TABLE_DEFINITION_PATH = "tables/definition/";
-    private static final String RTA_TABLE_DEPLOY_PATH = "tables/deploy/";
+    private static final String RTA_TABLE_DEFINITION_PATH = "tables/definitions/";
+    private static final String RTA_TABLE_DEPLOY_PATH = "tables/%s/deployments/";
 
     private final String apiRootUrl;
     private final Subject subject;
@@ -60,7 +60,7 @@ public class RTARestAPIClient implements DataSchemaServiceClient {
 
     @Override
     public void deployTable(Object request, String tableName) {
-        String response = doPostRequest(generateRequestUrl(RTA_TABLE_DEPLOY_PATH + tableName), request);
+        String response = doPostRequest(String.format(generateRequestUrl(RTA_TABLE_DEPLOY_PATH), tableName), request);
         LOG.debug("Deploy RTA table response: " + response);
     }
 

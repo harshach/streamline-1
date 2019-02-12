@@ -157,6 +157,10 @@ public final class CatalogResourceUtil {
                     @Override
                     public String getNamespaceName() { return namespaceName; }
                     @Override
+                    public String getRuntimeAppId() {
+                        return "Unknown";
+                    }
+                    @Override
                     public Map<String, String> getExtra() {
                         return null;
                     }
@@ -235,6 +239,8 @@ public final class CatalogResourceUtil {
                     public String getNamespaceName() {
                         return namespaceName;
                     }
+                    @Override
+                    public String getRuntimeAppId() { return "Unknown"; }
                     @Override
                     public Map<String, String> getExtra() {
                         return null;

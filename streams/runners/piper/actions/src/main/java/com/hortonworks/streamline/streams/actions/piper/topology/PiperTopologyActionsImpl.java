@@ -164,7 +164,7 @@ public class PiperTopologyActionsImpl implements TopologyActions {
     @Override
     public Status status(TopologyLayout topology, String applicationId, String asUser) throws Exception {
         Map piperResponse = this.client.getPipelineState(applicationId);
-        return getRuntimeStatus(piperResponse);
+        return getRuntimeStatus(piperResponse, applicationId);
     }
 
     @Override
@@ -224,7 +224,7 @@ public class PiperTopologyActionsImpl implements TopologyActions {
         return deployment;
     }
 
-    private Status getRuntimeStatus(Map stateResponse) {
+    private Status getRuntimeStatus(Map stateResponse, String runtimeAppId) {
         StatusImpl runtimeStatus = new StatusImpl();
 
         if (stateResponse != null) {
@@ -237,6 +237,7 @@ public class PiperTopologyActionsImpl implements TopologyActions {
 
             runtimeStatus.setNamespaceId(this.namespaceId);
             runtimeStatus.setNamespaceName(this.namespaceName);
+            runtimeStatus.setRuntimeAppId(runtimeAppId);
         }
 
         return runtimeStatus;

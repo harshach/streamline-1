@@ -117,6 +117,7 @@ public class AthenaxTopologyActionsImpl implements TopologyActions {
 			status.putExtra(FINISH_TIME, statusMap.get(FINISH_TIME));
 		}
 		status.setStatus(getRuntimeStatus(yarnApplicationState));
+		status.setRuntimeAppId(applicationId);
 
 		return status;
 	}

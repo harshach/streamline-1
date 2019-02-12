@@ -467,7 +467,7 @@ public class TopologyCatalogResource {
                 LOG.debug("Failed to kill running workflow " + e.getLocalizedMessage());
             }
         }
-
+        catalogService.removeTopologyRuntimeIdMap(topologyId);
 
         Response response;
         if (onlyCurrent) {
@@ -538,7 +538,7 @@ public class TopologyCatalogResource {
                 catalogService.setReconfigureOnAllComponentsInTopology(result);
             }
         }
-        return WSUtils.respondEntity(existingTopology, OK);
+        return WSUtils.respondEntity(result, OK);
     }
 
     /**

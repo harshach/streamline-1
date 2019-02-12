@@ -61,13 +61,14 @@ export default class BatchMetrics extends Component{
     return finalObj;
   }
   getHeader = () => {
-    return <button className="btn-panels" onClick={this.handleExpandCollapse}><img src="styles/img/uWorc/clock.png"/></button>;
+    return <button className="btn-panels" onClick={this.handleExpandCollapse}><img src="styles/img/uWorc/graph.png"/></button>;
   }
   getBody = () => {
     const {lastUpdatedTime, topologyName, executionInfo, selectedExecution,
       onSelectExecution, getPrevPageExecutions, getNextPageExecutions,
       startDate, endDate, activeRangeLabel, isAppRunning, datePickerCallback,
-      viewModeData, batchTimeseries} = this.props;
+      viewModeData, batchTimeseries, dataCenterList, selectedDataCenter,
+      handleDataCenterChange} = this.props;
 
     const locale = {
       format: 'YYYY-MM-DD',
@@ -88,21 +89,23 @@ export default class BatchMetrics extends Component{
       <div className="right-sidebar-header">
         <div>
           <h6 className="version-control">Metrics</h6>
-          <h6 className="version-control">{topologyName}</h6>
+          <h6 className="version-control text-black">{topologyName}</h6>
         </div>
-        <div className="text-right">
+        <div className="text-right btn-group-metrics">
           <DateTimePickerDropdown
-              dropdownId="datepicker-dropdown"
-              startDate={startDate}
-              endDate={endDate}
-              activeRangeLabel={activeRangeLabel}
-              locale={locale}
-              isDisabled={!isAppRunning}
-              datePickerCallback={datePickerCallback} />
-          <DropdownButton bsStyle="link" className="btn-sm" pullRight title={'DC'} id="version-dropdown" onSelect={(v) => {
+            dropdownId="datepicker-dropdown"
+            startDate={startDate}
+            endDate={endDate}
+            activeRangeLabel={activeRangeLabel}
+            locale={locale}
+            isDisabled={!isAppRunning}
+            datePickerCallback={datePickerCallback}
+          />
+          <DropdownButton className="btn-default" pullRight title={selectedDataCenter} id="version-dropdown" onSelect={(n) => {
+            handleDataCenterChange(n);
           }} >
-            {_.map(['DC'], (v, i) => {
-              return <MenuItem active={'DC' === v.name ? true : false} eventKey={v.id} key={i} data-version-id={v.id}>{v.name}</MenuItem>;
+            {_.map(dataCenterList, (n, i) => {
+              return <MenuItem active={selectedDataCenter === n.name ? true : false} eventKey={n.name} key={i} data-version-id={n.id}>{n.name}</MenuItem>;
             })
           }
           </DropdownButton>

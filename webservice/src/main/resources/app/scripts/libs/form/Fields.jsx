@@ -120,7 +120,11 @@ export class file extends BaseField {
   }
 
   validate() {
-    return super.validate(this.props.data[this.props.value]);;
+    let isValid = super.validate(this.props.data[this.props.value]);
+    if(!isValid){
+      this.refs.fileName.scrollIntoViewIfNeeded();
+    }
+    return isValid;
   }
 
   getField = () => {
@@ -314,6 +318,9 @@ export class string extends BaseField {
         }
       }
     }
+    if(!isValid){
+      this.refs.input.scrollIntoViewIfNeeded();
+    }
     return isValid;
   }
 
@@ -326,6 +333,7 @@ export class string extends BaseField {
     let value = this.props.data[this.props.value] || '';
     if(inputHint && inputHint.toLowerCase().indexOf("user") !== -1 && value.trim() == ''){
       value = app_state.user_profile.name || "";
+      this.props.data[this.props.value] = value;
     }
     return (inputHint !== null && inputHint.toLowerCase().indexOf("hidden") !== -1
       ? ''
@@ -367,7 +375,11 @@ export class date extends BaseField {
     });
   }
   validate() {
-    return super.validate(this.props.data[this.props.value]);
+    let isValid = super.validate(this.props.data[this.props.value]);
+    if(!isValid){
+      this.datePickerRef.scrollIntoViewIfNeeded();
+    }
+    return isValid;
   }
   getField = () => {
     const form_value = this.props.data[this.props.value];
@@ -441,7 +453,11 @@ export class sql extends BaseField {
     fieldJson.onChange(this.props.data[this.props.value]);
   }
   validate() {
-    return super.validate(this.props.data[this.props.value]);
+    let isValid = super.validate(this.props.data[this.props.value]);
+    if(!isValid){
+      this.refs.codemirror.codeWrapper.scrollIntoView();
+    }
+    return isValid;
   }
   getField = () => {
     const {fieldJson} = this.props;
@@ -465,6 +481,26 @@ export class sql extends BaseField {
         hintOptions:fieldJson.hintOptions || []
       }}
       hintOptions={fieldJson.hintOptions}
+    /></div>;
+  }
+}
+
+export class shell extends sql {
+  getField = () => {
+    const {fieldJson} = this.props;
+    const width = fieldJson.width || '100%';
+    const height = fieldJson.height || '250px';
+
+    return <div style={{position: 'relative'}}><CommonCodeMirror
+      ref="codemirror"
+      modeType="shell"
+      value={this.props.data[this.props.value]}
+      callBack={this.handleChange}
+      placeHolder=" "
+      editMode={true}
+      width="100%"
+      height={height}
+      editMode={false}
     /></div>;
   }
 }
@@ -671,6 +707,8 @@ export class number extends BaseField {
       if(!isValid){
         this.context.Form.state.Errors[this.props.valuePath] = validation.errorMessage;
       }
+    } else {
+      this.refs.input.scrollIntoViewIfNeeded();
     }
     return isValid;
   }
@@ -747,7 +785,11 @@ export class enumstring extends BaseField {
   }
 
   validate() {
-    return super.validate(this.props.data[this.props.value]);
+    let isValid = super.validate(this.props.data[this.props.value]);
+    if(!isValid){
+      this.refs.select2.wrapper.scrollIntoViewIfNeeded();
+    }
+    return isValid;
   }
   getField = () => {
     const enumStringHint = this.props.fieldJson.hint || null;
@@ -784,7 +826,11 @@ export class CustomEnumstring extends BaseField {
     this.context.Form.props.populateClusterFields(val.value);
   }
   validate() {
-    return super.validate(this.props.data[this.props.value]);
+    let isValid = super.validate(this.props.data[this.props.value]);
+    if(!isValid){
+      this.refs.select2.wrapper.scrollIntoViewIfNeeded();
+    }
+    return isValid;
   }
   renderFieldOption(node) {
     const name = this.splitFields(node);
@@ -822,7 +868,9 @@ export class CustomEnumstring extends BaseField {
     return (customEnumHint !== null && customEnumHint.toLowerCase().indexOf("hidden") !== -1
       ? ''
       : <div>
-        <Select placeholder="Select.." clearable={false} onChange={this.handleChange} {...this.props.fieldAttr} disabled={disabledField} value={selectedValue || ''} className={this.context.Form.state.Errors[this.props.valuePath]
+        <Select placeholder="Select.." ref="select2" clearable={false} onChange={this.handleChange}
+          {...this.props.fieldAttr} disabled={disabledField} value={selectedValue || ''}
+          className={this.context.Form.state.Errors[this.props.valuePath]
         ? "invalidSelect"
         : ""} optionRenderer={this.renderFieldOption.bind(this)}/>
         </div>);
@@ -840,7 +888,11 @@ export class arraystring extends BaseField {
     this.validate();
   }
   validate() {
-    return super.validate(this.props.data[this.props.value]);
+    let isValid = super.validate(this.props.data[this.props.value]);
+    if(!isValid){
+      this.refs.select2.wrapper.scrollIntoViewIfNeeded();
+    }
+    return isValid;
   }
   getField = () => {
     const arraystringHint = this.props.fieldJson.hint || null;
@@ -865,7 +917,7 @@ export class arraystring extends BaseField {
         ? "menu-outer-top"
         : ''}${this.context.Form.state.Errors[this.props.valuePath]
           ? "invalidSelect"
-          : ""}`} valueKey="value" labelKey="value" value={arr}/>);
+          : ""}`} valueKey="value" labelKey="value" value={arr} ref="select2"/>);
   }
 }
 
@@ -914,7 +966,11 @@ export class creatableField extends BaseField {
   }
 
   validate() {
-    return super.validate(this.props.data[this.props.value]);
+    let isValid = super.validate(this.props.data[this.props.value]);
+    if(!isValid){
+      this.refs.CustomCreatable.scrollIntoViewIfNeeded();
+    }
+    return isValid;
   }
   getField = () => {
     const creatableHint = this.props.fieldJson.hint || null;
@@ -961,10 +1017,15 @@ export class arrayenumstring extends BaseField {
       if(nestedField > -1) {
         this.context.Form.state.Errors[this.props.valuePath] = 'Invalid!';
         this.context.Form.setState(this.context.Form.state);
+        this.refs.select2.wrapper.scrollIntoViewIfNeeded();
         return false;
       }
     }
-    return super.validate(this.props.data[this.props.value]);
+    let isValid = super.validate(this.props.data[this.props.value]);
+    if(!isValid){
+      this.refs.select2.wrapper.scrollIntoViewIfNeeded();
+    }
+    return isValid;
   }
   getLabel(){
     const popoverContent = (
@@ -1014,7 +1075,7 @@ export class arrayenumstring extends BaseField {
         ? "menu-outer-top"
         : ''}${this.context.Form.state.Errors[this.props.valuePath]
           ? "invalidSelect"
-          : ""}`} {...tempAttrObj}/>
+          : ""}`} {...tempAttrObj} ref="select2"/>
         </div>);
   }
 }

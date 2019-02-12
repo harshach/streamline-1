@@ -74,6 +74,7 @@ const rolePriorities = [
 
 const menuName = {
   PROJECT: 'project',
+  SHARED_PROJECTS: 'shared-projects',
   APPLICATION: 'topology',
   DASHBOARD: 'dashboard',
   SCHEMA_REGISTRY: 'schemaRegistry',

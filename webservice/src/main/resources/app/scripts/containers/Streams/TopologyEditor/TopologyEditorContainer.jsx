@@ -162,87 +162,95 @@ export class TopologyEditorContainer extends Component {
 
   getStatusFromNamespaces(namespacesObj){
     let status = 'unknown';
-    let key = _.keys(namespacesObj);
-    key.map((k)=>{
-      if(namespacesObj[k].status && namespacesObj[k].status.status){
-        status = namespacesObj[k].status.status.toLowerCase();
-      }
-      this.runTimeTopologyId = namespacesObj[k].runtimeTopologyId;
-    });
+    let namespaceObj = namespacesObj[this.namespaceName];
+    if(namespaceObj.status){
+      status = namespaceObj.status.toLowerCase();
+    }
+    this.runTimeTopologyId = namespaceObj.runtimeTopologyId;
     return status;
+  }
+
+  syncNamespaceObj(namespaces){
+    let namespaceObj = {};
+    namespaces.map((obj)=>{
+      namespaceObj[obj.namespaceName] = obj;
+    });
+    return namespaceObj;
   }
 
   fetchData(versionId) {
 
-    TopologyREST.getTopology(this.topologyId, versionId).then((result) => {
-      if (result.responseMessage !== undefined) {
-        FSReactToastr.error(
-          <CommonNotification flag="error" content={result.responseMessage}/>, '', toastOpt);
-      } else {
-        var data = result;
-        this.engine = Utils.getEngineById(data.topology.engineId);
+    let promises = [
+      TopologyREST.getTopologyWithoutMetrics(this.topologyId, versionId),
+      TopologyREST.getTopologyActionStatus(this.topologyId, versionId)
+    ];
+    Promise.all(promises).then((responses)=>{
+      let data = {
+        topology: responses[0],
+        namespaces: this.syncNamespaceObj(responses[1].entities)
+      };
 
-        this.versionId = versionId
-          ? versionId
-          : data.topology.versionId;
+      this.engine = Utils.getEngineById(data.topology.engineId);
 
-        this.namespaceId = data.topology.namespaceId;
-        this.lastUpdatedTime = new Date(result.topology.timestamp);
+      this.versionId = versionId
+        ? versionId
+        : data.topology.versionId;
 
-        this.topologyName = data.topology.name;
-        this.topologyConfig = (data.topology.config && data.topology.config.properties) ? data.topology.config.properties : {};
-        this.topologyTimeSec = this.topologyConfig["topology.message.timeout.secs"];
+      this.namespaceName = _.keys(data.namespaces)[0];
+      this.namespaceId = data.namespaces[this.namespaceName].namespaceId;
+      this.lastUpdatedTime = new Date(data.topology.timestamp);
 
-        this.status = this.getStatusFromNamespaces(data.namespaces);
-        let isAppRunning = this.getAppRunningStatus(this.status);
+      this.topologyName = data.topology.name;
+      this.topologyConfig = (data.topology.config && data.topology.config.properties) ? data.topology.config.properties : {};
+      this.topologyTimeSec = this.topologyConfig["topology.message.timeout.secs"];
 
-        let promiseArr = [];
-        promiseArr.push(TopologyREST.getAllVersions(this.topologyId));
-        promiseArr.push(TopologyREST.getTopologyConfig(data.topology.engineId));
-        promiseArr.push(ProjectREST.getProject(this.projectId));
-        promiseArr.push(TopologyREST.getMetaInfo(this.topologyId, this.versionId));
+      this.status = this.getStatusFromNamespaces(data.namespaces);
+      let isAppRunning = this.getAppRunningStatus(this.status);
 
-        this.fetchNameSpace(isAppRunning, data);
+      let promiseArr = [];
+      promiseArr.push(TopologyREST.getAllVersions(this.topologyId));
+      promiseArr.push(TopologyREST.getTopologyConfig(data.topology.engineId));
+      promiseArr.push(ProjectREST.getProject(this.projectId));
+      promiseArr.push(TopologyREST.getMetaInfo(this.topologyId, this.versionId));
 
-        Promise.all(promiseArr).then((resultsArr) => {
+      this.fetchNameSpace(isAppRunning, this.namespaceId);
 
-          let versions = resultsArr[0].entities || [];
+      Promise.all(promiseArr).then((resultsArr) => {
 
-          this.topologyConfigData = resultsArr[1].entities[0] || [];
-          this.projectData = resultsArr[2];
+        let versions = resultsArr[0].entities || [];
 
-          let defaultTimeSecVal = this.getDefaultTimeSec(this.topologyConfigData);
+        this.topologyConfigData = resultsArr[1].entities[0] || [];
+        this.projectData = resultsArr[2];
 
-          Utils.sortArray(versions, 'timestamp', false);
+        let defaultTimeSecVal = this.getDefaultTimeSec(this.topologyConfigData);
 
-          this.versionName = versions.find((o) => {
-            return o.id == this.versionId;
-          }).name;
+        Utils.sortArray(versions, 'timestamp', false);
 
-          this.graphData.metaInfo = _.extend(this.graphData.metaInfo, JSON.parse(resultsArr[3].data));
+        this.versionName = versions.find((o) => {
+          return o.id == this.versionId;
+        }).name;
 
-          this.setState({
-            topologyData: data.topology,
-            topologyNamespaces: data.namespaces,
-            timestamp: data.topology.timestamp,
-            topologyName: this.topologyName,
-            isAppRunning: isAppRunning,
-            topologyStatus: this.status,
-            topologyVersion: this.versionId,
-            versionsArr: versions,
-            fetchLoader: false,
-            mapTopologyConfig: this.topologyConfig,
-            topologyTimeSec: this.topologyTimeSec,
-            defaultTimeSec : defaultTimeSecVal,
-            topologyNameValid: true,
-            projectData: this.projectData
-          }, () => {
-            this.onFetchedData();
-          });
+        this.graphData.metaInfo = _.extend(this.graphData.metaInfo, JSON.parse(resultsArr[3].data));
 
-          // this.validateTopologyName();
+        this.setState({
+          topologyData: data.topology,
+          topologyNamespaces: data.namespaces,
+          timestamp: data.topology.timestamp,
+          topologyName: this.topologyName,
+          isAppRunning: isAppRunning,
+          topologyStatus: this.status,
+          topologyVersion: this.versionId,
+          versionsArr: versions,
+          fetchLoader: false,
+          mapTopologyConfig: this.topologyConfig,
+          topologyTimeSec: this.topologyTimeSec,
+          defaultTimeSec : defaultTimeSecVal,
+          topologyNameValid: true,
+          projectData: this.projectData
+        }, () => {
+          this.onFetchedData();
         });
-      }
+      });
     });
 
     this.graphData = {
@@ -261,7 +269,7 @@ export class TopologyEditorContainer extends Component {
     };
   }
 
-  fetchNameSpace(isAppRunning, data){
+  fetchNameSpace(isAppRunning, namespaceId){
     /*Namespace required for view mode*/
   }
 
@@ -583,10 +591,8 @@ export class TopologyEditorContainer extends Component {
           FSReactToastr.success(
             <strong>Workflow Stopped Successfully</strong>
           );
-          TopologyREST.getTopology(this.topologyId, this.versionId).then((result) => {
-            let data = result;
-            this.topologyConfig = (data.topology.config && data.topology.config.properties) ? data.topology.config.properties : {};
-            this.status = this.getStatusFromNamespaces(data.namespaces);
+          TopologyREST.getTopologyActionStatus(this.topologyId, this.versionId).then((result)=>{
+            this.status = this.getStatusFromNamespaces(this.syncNamespaceObj(result.entities));
             let isAppRunning = this.getAppRunningStatus(this.status);
             document.getElementsByClassName('loader-overlay')[0].className = "loader-overlay displayNone";
             this.setState({isAppRunning: isAppRunning, topologyStatus: this.status});
@@ -939,11 +945,13 @@ export class TopologyEditorContainer extends Component {
     if(projectData){
       return (
         <span>
-          <Link to="/">My Projects</Link>
+          {Utils.isFromSharedProjects() ?
+            <Link to="/shared-projects">Shared Projects</Link>
+            :
+            <Link to="/">My Projects</Link>
+          }
           <i className="fa fa-angle-right title-separator"></i>
-          {projectData.name}
-          <i className="fa fa-angle-right title-separator"></i>
-          <Link to={"/projects/"+projectData.id+"/applications"}>My Workflow</Link>
+          <Link to={(Utils.isFromSharedProjects() ? 'shared-projects/' : 'projects/')+projectData.id+"/applications"}>{projectData.name}</Link>
           <i className="fa fa-angle-right title-separator"></i>
           <Editable id="applicationName" ref="topologyNameEditable" inline={true} resolve={this.saveTopologyName.bind(this)} reject={this.handleRejectTopologyName.bind(this)}>
             <input ref={this.focusInput} defaultValue={this.state.topologyName} onKeyPress={this.handleKeyPress.bind(this)} onChange={this.handleNameChange.bind(this)}/>
@@ -1351,64 +1359,9 @@ export class TopologyEditorContainer extends Component {
                   deployTopology={this.handleDeployTopology.bind(this)}
                   topologyStatus={this.state.topologyStatus}
                   engineType={this.engine.type}
+                  namespaceName={this.namespaceName}
                 />
                 {this.getEditorGraph()}
-                {/*<div className="topology-footer">
-                  {testRunActivated
-                  ? <OverlayTrigger key={4} placement="top" overlay={<Tooltip id = "tooltip"> {testRunningMode ?  'Kill Test' : 'Run Test'}  </Tooltip>}>
-                      <button className={`hb xl ${testRunningMode ?  'danger' : 'default'} pull-right`} disabled={testRunningMode ? _.isEmpty(testHistory) ? true : false : false} onClick={ testRunningMode ? this.handleKillTestRun.bind(this) : this.runTestCase.bind(this)}>
-                        <i className={`fa ${testRunningMode ?'fa-times' : 'fa-flask'}`}></i>
-                      </button>
-                    </OverlayTrigger>
-                  : this.state.isAppRunning
-                    ? <OverlayTrigger key={2} placement="top" overlay={<Tooltip id = "tooltip" > Kill </Tooltip>}>
-                        <button className="hb xl danger pull-right" onClick={this.killTopology.bind(this)}>
-                          <i className="fa fa-times"></i>
-                        </button>
-                      </OverlayTrigger>
-                    : <OverlayTrigger key={3} placement="top" overlay={<Tooltip id = "tooltip" > Run </Tooltip>}>
-                         <button className="hb xl success pull-right" onClick={ testRunActivated ? this.runTestCase.bind(this) : this.handleDeployTopology.bind(this)}>
-                           <i className="fa fa-paper-plane"></i>
-                         </button>
-                       </OverlayTrigger>
-                  }
-                  {
-                    testRunActivated &&  !_.isEmpty(testHistory)  && eventLogData.length && !testRunningMode
-                    ? <OverlayTrigger  placement="top" overlay={<Tooltip id = "tooltip"> Download File </Tooltip>}>
-                        <button className="hb lg primary pull-right" onClick={this.handleDownloadTestFile.bind(this)}  style={{marginRight : "10px", marginTop : "4px"}}>
-                          <i className="fa fa-download"></i>
-                        </button>
-                      </OverlayTrigger>
-                    : ''
-                  }
-                  {testRunActivated
-                   ?  <div className="topology-status text-right">
-                        <p className="text-muted">Status:</p>
-                        <div>{
-                            eventLogData.length > 0 && !testRunningMode
-                            ? <p>Results</p>
-                            : testRunningMode
-                              ? [<p key={1}>Test RUNNING</p>,<div key={2} id="ajaxbar1">
-                                  <div id="block1" className="barlittle"></div>
-                                  <div id="block2" className="barlittle"></div>
-                                  <div id="block3" className="barlittle"></div>
-                                  <div id="block4" className="barlittle"></div>
-                                  <div id="block5" className="barlittle"></div>
-                                </div>]
-                              : <p>Not Tested</p>
-                          }</div>
-                      </div>
-                    : <div className="topology-status text-right">
-                        <p className="text-muted">Status:</p>
-                        <p>{this.state.topologyStatus || 'NOT RUNNING'}</p>
-                      </div>
-                  }
-                </div>
-                {
-                  eventLogData.length && testRunActivated
-                  ? <EventGroupPagination entities={activePageList} pageSize={pageSize} pageActive={activePage} callBackFunction={this.paginationCallBack.bind(this)} maxButtons={5}/>
-                : null
-                }*/}
               </div>
             }
           </div>

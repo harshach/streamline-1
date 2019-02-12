@@ -24,21 +24,23 @@ const sampleModeBaseUrl = '/api/v1/catalog/topologies';
 import Utils from '../utils/Utils';
 
 const ViewModeREST = {
-  getTopologyMetrics(id, fromTime, toTime, options, isStream = true) {
+  getTopologyMetrics(id, queryParams={}, options, isStream = true) {
     options = options || {};
     options.method = options.method || 'GET';
     options.credentials = 'same-origin';
+    const q_params = jQuery.param(queryParams, true);
     const streamBatch = isStream ? 'stream/' : 'batch/';
-    const url = baseUrl + streamBatch + 'topologies/' + id + '/metrics?from='+fromTime+'&to='+toTime;
+    const url = baseUrl + streamBatch + 'topologies/' + id + '/metrics?'+q_params;
     return fetch(url, options)
       .then(Utils.checkStatus);
   },
-  getComponentMetrics(id, compType, fromTime, toTime, options, isStream = true) {
+  getComponentMetrics(id, compType, queryParams={}, options, isStream = true) {
     options = options || {};
     options.method = options.method || 'GET';
     options.credentials = 'same-origin';
+    const q_params = jQuery.param(queryParams, true);
     const streamBatch = isStream ? 'stream/' : 'batch/';
-    const url = baseUrl + streamBatch + 'topologies/' + id + '/'+compType+'/metrics?from='+fromTime+'&to='+toTime;
+    const url = baseUrl + streamBatch + 'topologies/' + id + '/'+compType+'/metrics?'+q_params;
     return fetch(url, options)
       .then(Utils.checkStatus);
   },
@@ -143,11 +145,11 @@ const ViewModeREST = {
     //     return {"totalResults":34,"executions":[{"createdAt":"2018-10-29T22:01:04","executionDate":"2018-10-26T00:00:00","status":"failed"},{"createdAt":"2018-10-29T22:01:34","executionDate":"2018-10-26T01:00:00","status":"done"},{"createdAt":"2018-10-29T22:02:04","executionDate":"2018-10-26T02:00:00","status":"done"},{"createdAt":"2018-10-29T22:02:34","executionDate":"2018-10-26T03:00:00","status":"done"},{"createdAt":"2018-10-29T22:03:05","executionDate":"2018-10-26T04:00:00","status":"done"}],"pageSize":5,"page":0};
     //   });
   },
-  getComponentExecutions(topologyId, dateTimeStr, options){
+  getComponentExecutions(topologyId, dateTimeStr, namespaceId, options){
     options = options || {};
     options.method = options.method || 'GET';
     options.credentials = 'same-origin';
-    const url = baseUrl+'batch/topologies/'+topologyId+'/executions/'+dateTimeStr;
+    const url = baseUrl+'batch/topologies/'+topologyId+'/executions/'+dateTimeStr+'?namespaceId='+namespaceId;
     return fetch(url, options)
       .then(Utils.checkStatus);
 

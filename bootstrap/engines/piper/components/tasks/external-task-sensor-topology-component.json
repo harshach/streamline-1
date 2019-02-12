@@ -44,44 +44,11 @@
         "options": ["Success", "Failed"]
       },
       {
-        "uiName": "Execution Delta Direction",
-        "fieldName": "execution_delta.direction",
-        "tooltip": "Whether to check before or after the execution date for sensor",
-        "isOptional": false,
-        "type": "enumstring",
-        "defaultValue": "Before current execution date",
-        "options": ["Before current execution date", "After current execution date"]
-      },
-      {
-        "uiName": "Delta Minutes",
+        "uiName": "Look back Minutes",
         "fieldName": "execution_delta.minutes",
-        "tooltip": "Execution delta Minutes",
+        "tooltip": "Minutes to look back for execution",
         "isOptional": false,
         "defaultValue": 0,
-        "type": "number"
-      },
-      {
-        "uiName": "Delta Hours",
-        "fieldName": "execution_delta.hours",
-        "tooltip": "Execution delta Hours",
-        "isOptional": false,
-        "defaultValue": 12,
-        "type": "number"
-      },
-      {
-        "uiName": "Delta Days",
-        "fieldName": "execution_delta.days",
-        "tooltip": "Execution delta Days",
-        "isOptional": false,
-        "defaultValue": 0,
-        "type": "number"
-      },
-      {
-        "uiName": "Poke Interval",
-        "fieldName": "task_params.poke_interval",
-        "tooltip": "Poke interval in seconds. How often to check for sensor. ",
-        "defaultValue": 180,
-        "isOptional": false,
         "type": "number"
       },
       {
@@ -108,14 +75,6 @@
         "fieldName": "retry_delay",
         "isUserInput": true,
         "tooltip": "Retry delay in seconds between retries",
-        "isOptional": true,
-        "type": "number"
-      },
-      {
-        "uiName": "Execution Timeout",
-        "fieldName": "execution_timeout",
-        "isUserInput": true,
-        "tooltip": "Execution timeout in seconds. After this time task will be failed. Must be <= 24 hours.",
         "isOptional": true,
         "type": "number"
       },

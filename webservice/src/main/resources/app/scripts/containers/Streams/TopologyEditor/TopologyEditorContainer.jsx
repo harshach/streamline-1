@@ -163,8 +163,8 @@ export class TopologyEditorContainer extends Component {
   getStatusFromNamespaces(namespacesObj){
     let status = 'unknown';
     let namespaceObj = namespacesObj[this.namespaceName];
-    if(namespaceObj.status){
-      status = namespaceObj.status.toLowerCase();
+    if(namespaceObj.status && namespaceObj.status.status){
+      status = namespaceObj.status.status.toLowerCase();
     }
     this.runTimeTopologyId = namespaceObj.runtimeTopologyId;
     return status;

@@ -373,7 +373,6 @@ class TopologyViewContainer extends TopologyEditorContainer {
 
     let {viewModeData, startDate, endDate, topologyNamespaces} = this.state;
     const selectedDC = this.selectedDataCenter;
-    const pipeline = topologyNamespaces[selectedDC].runtimeTopologyId;
     const dc = selectedDC;
 
     const promiseArr = [];

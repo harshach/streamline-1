@@ -110,10 +110,12 @@ class TopologyViewContainer extends TopologyEditorContainer {
   };
   getDeploymentState(){}
 
-  fetchNameSpace(isAppRunning, data){
+  fetchNameSpace(isAppRunning, namespaceId){
     if(isAppRunning){
-      EnvironmentREST.getNameSpace(data.topology.namespaceId).then((res) => {
+      EnvironmentREST.getNameSpace(namespaceId).then((res) => {
         const namespaceData = res;
+        this.selectedDataCenter = namespaceData.namespace.name;
+        this.selectedDataCenterId = namespaceData.namespace.id;
         if(namespaceData.responseMessage !== undefined){
           this.checkAuth = false;
         } else {
@@ -282,7 +284,7 @@ class TopologyViewContainer extends TopologyEditorContainer {
       ex.loading = true;
 
       this.setState({executionInfo: executionInfo}, () => {
-        ViewModeREST.getComponentExecutions(this.topologyId, ex.executionDate).then((res) => {
+        ViewModeREST.getComponentExecutions(this.topologyId, ex.executionDate, this.selectedDataCenterId).then((res) => {
           const selectedExecutionComponentsStatus = res.components || [];
           ex.loading = false;
 
@@ -343,7 +345,8 @@ class TopologyViewContainer extends TopologyEditorContainer {
       from: startDate.valueOf(),
       to: endDate.valueOf(),
       pageSize: executionInfoPageSize,
-      page: executionInfoPage
+      page: executionInfoPage,
+      namespaceId: this.selectedDataCenterId
     }).then((res) => {
       this.state.executionInfo = res;
 
@@ -369,8 +372,7 @@ class TopologyViewContainer extends TopologyEditorContainer {
     this.batchTimeseries = this.batchTimeseries || [];
 
     let {viewModeData, startDate, endDate, topologyNamespaces} = this.state;
-    const selectedDC = _.keys(topologyNamespaces)[0];
-    const pipeline = topologyNamespaces[selectedDC].runtimeTopologyId;
+    const selectedDC = this.selectedDataCenter;
     const dc = selectedDC;
 
     const promiseArr = [];
@@ -388,7 +390,8 @@ class TopologyViewContainer extends TopologyEditorContainer {
           from: startDate.valueOf(),
           to: endDate.valueOf(),
           metricQuery: metricQuery,
-          dc: dc
+          dc: dc,
+          namespaceId: this.selectedDataCenterId
         };
 
         const onSuccess = (res, name, interpolate) => {
@@ -438,13 +441,18 @@ class TopologyViewContainer extends TopologyEditorContainer {
       const timeseriesMetricReqs = this.fetchBatchTimeSeriesMetrics();
       promiseArr.push.apply(promiseArr, [...timeseriesMetricReqs]);
     }else{
-      promiseArr.push(ViewModeREST.getTopologyMetrics(this.topologyId, fromTime, toTime).then((res)=>{
+      let q_params = {
+        from: fromTime,
+        to: toTime,
+        namespaceId: this.selectedDataCenterId
+      };
+      promiseArr.push(ViewModeREST.getTopologyMetrics(this.topologyId, q_params).then((res)=>{
         viewModeData.topologyMetrics = res;
         return res;
       }, (err) => {}));
       _.each(this.engine.componentTypes, (type) => {
         const typeInLCase = type.toLowerCase();
-        promiseArr.push(ViewModeREST.getComponentMetrics(this.topologyId, typeInLCase+'s', fromTime, toTime).then((res) => {
+        promiseArr.push(ViewModeREST.getComponentMetrics(this.topologyId, typeInLCase+'s', q_params).then((res) => {
           viewModeData[typeInLCase+'Metrics'] = res.entities;
           return res;
         }));
@@ -586,11 +594,13 @@ class TopologyViewContainer extends TopologyEditorContainer {
     if(projectData){
       return (
         <span>
-          <Link to="/">My Projects</Link>
+          {Utils.isFromSharedProjects() ?
+            <Link to="/shared-projects">Shared Projects</Link>
+            :
+            <Link to="/">My Projects</Link>
+          }
           <i className="fa fa-angle-right title-separator"></i>
-          {projectData.name}
-          <i className="fa fa-angle-right title-separator"></i>
-          <Link to={"/projects/"+projectData.id+"/applications"}>My Workflow</Link>
+          <Link to={(Utils.isFromSharedProjects() ? 'shared-projects/' : 'projects/')+projectData.id+"/applications"}>{projectData.name}</Link>
           <i className="fa fa-angle-right title-separator"></i>
           View: {topologyName}
         </span>
@@ -674,9 +684,23 @@ class TopologyViewContainer extends TopologyEditorContainer {
     this.refs.EditorGraph.child.decoratedComponentInstance.refs.TopologyGraph.decoratedComponentInstance.updateGraph();
   }
 
+  handleDataCenterChange = (value) => {
+    let {startDate, endDate, topologyNamespaces} = this.state;
+    this.selectedDataCenter = value;
+    this.selectedDataCenterId = topologyNamespaces[value].namespaceId;
+    this.fetchCatalogInfoAndMetrics(startDate.toDate().getTime(), endDate.toDate().getTime());
+  }
+
   getRightSideBar = () => {
     if (this.engine.type == 'batch') {
-      const {topologyName, executionInfo, selectedExecution} = this.state;
+      const {topologyName, executionInfo, selectedExecution, topologyNamespaces} = this.state;
+      let namespacesArr = [];
+      _.keys(topologyNamespaces).map((name)=>{
+        namespacesArr.push({
+          id: topologyNamespaces[name].namespaceId,
+          name: name
+        });
+      });
       return <BatchMetrics
           {...this.state}
           executionInfo={executionInfo}
@@ -690,6 +714,9 @@ class TopologyViewContainer extends TopologyEditorContainer {
           selectedExecution={selectedExecution}
           datePickerCallback={this.datePickerCallback}
           batchTimeseries={this.batchTimeseries}
+          handleDataCenterChange={this.handleDataCenterChange}
+          selectedDataCenter={this.selectedDataCenter}
+          dataCenterList={namespacesArr}
       />;
     } else {
       return null;
@@ -745,6 +772,7 @@ class TopologyViewContainer extends TopologyEditorContainer {
                     isAppRunning={isAppRunning}
                     engineType={this.engine.type}
                     runTimeTopologyId={this.runTimeTopologyId}
+                    topologyStatus={this.state.topologyStatus}
                   />,
                   <TopologyViewMode
                     allACL={allACL} key={"1"} {...this.state}
@@ -757,7 +785,7 @@ class TopologyViewContainer extends TopologyEditorContainer {
                     datePickerCallback={this.datePickerCallback}
                     modeSelectCallback={this.modeSelectCallback}
                     stormClusterId={this.state.stormClusterId}
-                    namespaceId={this.namespaceId}
+                    namespaceId={this.selectedDataCenterId}
                     showLogSearchBtn={this.showLogSearch}
                     topologyLevelDetailsFunc={this.handleTopologyLevelDetails}
                     disabledTopologyLevelSampling={this.disabledTopologyLevelSampling}

@@ -16,6 +16,7 @@ import PropTypes from 'prop-types';
 import _ from 'lodash';
 import CodeMirror from 'codemirror';
 import 'codemirror/mode/javascript/javascript';
+import 'codemirror/mode/shell/shell';
 import jsonlint from 'jsonlint';
 import sql from 'codemirror/addon/hint/sql-hint';
 import javascriptHint from 'codemirror/addon/hint/javascript-hint';
@@ -68,6 +69,11 @@ export default class CommonCodeMirror extends Component{
         lineNumbers: true,
         matchBrackets : true,
         extraKeys : {"'@'": "autocomplete"}
+      },
+      shell : {
+        mode: "shell",
+        lineNumbers: true,
+        matchBrackets: true
       }
     };
     this.escapeHintChar = /[`~!@#$%^&0-9()_|\¿?;:'",\{\}\[\]\\]/gi;
@@ -104,12 +110,14 @@ export default class CommonCodeMirror extends Component{
       that.codeWrapper.on('inputRead', (cm, event) => {
         const type =  that.props.modeType === undefined ? 'javascript' : that.props.modeType;
         let orig = CodeMirror.hint[type];
-        const val = event.text[0].trim();
-        let inner = orig(cm) || {from: cm.getCursor(), to: cm.getCursor(), list: []};
-        if(!that.escapeHintChar.test(val) && val !== "" && _.isNaN(parseInt(val))){
-          CodeMirror.showHint(cm, (cm) => {
-            return that.populateHintOptions(cm,inner);
-          },{completeSingle: false});
+        if(orig){
+          const val = event.text[0].trim();
+          let inner = orig(cm) || {from: cm.getCursor(), to: cm.getCursor(), list: []};
+          if(!that.escapeHintChar.test(val) && val !== "" && _.isNaN(parseInt(val))){
+            CodeMirror.showHint(cm, (cm) => {
+              return that.populateHintOptions(cm,inner);
+            },{completeSingle: false});
+          }
         }
       });
     }

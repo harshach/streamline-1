@@ -103,14 +103,17 @@ export default class Editable extends Component {
       <div className="editable-container" style={{display: 'inline'}} id={this.props.id || ''}>
         {edit && inline
           ? null
-          : <a ref="target" onClick={this.handleClick} style={this.anchorStyle}>{this.getValueString()}</a>
-}
+          : <a ref="target" onClick={this.handleClick} style={this.anchorStyle}>{this.getValueString()} <img
+            src="styles/img/uWorc/edit.png" className="editable-icon"
+            />
+          </a>
+        }
         {edit && inline
           ? [children, buttons, error]
           : <Overlay show={edit} target={() => ReactDOM.findDOMNode(this.refs.target)} {...this.props}>
             {popover}
           </Overlay>
-}
+        }
       </div>
     );
   }

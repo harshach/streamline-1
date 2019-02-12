@@ -90,7 +90,8 @@ class AddProject extends Component {
           <div>
             <textarea data-stest="projectDescription" type="text" value={projectDescription} className={descriptionValid
               ? "form-control"
-              : "form-control invalidInput"} onChange={this.handleDescriptionChange} placeholder="Project Description"/>
+              : "form-control invalidInput"} onChange={this.handleDescriptionChange} placeholder="Project Description"
+              maxLength="1000" />
           </div>
         </div>
       </div>

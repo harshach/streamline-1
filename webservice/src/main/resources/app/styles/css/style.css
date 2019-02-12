@@ -675,7 +675,7 @@ label {
 /* Widgets */
 
 .no-margin {
-  margin: 0px;
+  margin: 0px !important;
 }
 
 .row-margin-bottom {
@@ -1472,6 +1472,7 @@ label {
 }
 .execution-metrics-container{
   margin-top: 20px;
+  font-weight: 500;
 }
 .execution-metric-label{
   color: #999999;
@@ -1484,6 +1485,7 @@ label {
 }
 .task-metrics{
   margin-top: 30px;
+  font-weight: 500;
 }
 .task-metrics-header{
   border-top: 1px #ccc solid;
@@ -2030,6 +2032,7 @@ label {
   padding: 13px 13px;
   margin-top: -9px;
   transition: all .5s ease;
+  position: relative;
 }
 .graph-region > div > div > .editor-header.active{
   margin-right: 390px !important;
@@ -2496,25 +2499,34 @@ ul.project-engines li.no-workflow .badge{
   font-weight: bold;
   display: block;
 }
-.workflow-widget-footer .engine-name {
-  height: 20px;
-  border-radius: 10px;
-  padding: 0 12px;
-  margin-left: 10px;
-  line-height: 20px;
-  font-weight: 500;
+.workflow-info {
   display: inline-block;
-  cursor: pointer;
+  padding: 0 20px;
 }
-.workflow-widget-footer .engine-name.storm {
+.workflow-info h6 {
+  font-size: 11px;
+  color: #999;
+  margin: 0 0 6px
+}
+.workflow-info h5 {
+  margin: 0;
+  font-size: 13px;
+  color: #333333;
+}
+.workflow-widget .workflow-badge {
+  font-size: 12px;
+  padding: 4px 15px;
+  border-radius: 12px;
+}
+.workflow-widget .workflow-badge.storm-badge {
   color: #47B275;
   background: #DAF0E3;
 }
-.workflow-widget-footer .engine-name.piper {
-  color: #276EF1;
-  background: #EDF3FE;
+.workflow-widget .workflow-badge.piper-badge {
+  color: #1950ba;
+  background: #d4e2fd;
 }
-.workflow-widget-footer .engine-name.athenax {
+.workflow-widget .workflow-badge.athenax-badge {
   color: #f19248;
   background: #fef3ec;
 }
@@ -3457,11 +3469,14 @@ input[type="checkbox"]:focus {
     width: 1.25em;
   }
 }
-
-.dropdown button.btn-link {
+.dropdown button.btn-link,
+button.btn-link {
   color: #1B6DE0;
 }
-
+.btn-group-workflow .btn{
+  padding: 0 5px;
+  color: #999999 !important;
+}
 .col-md-4:nth-child(3n+4) {
   clear: left;
 }
@@ -4291,7 +4306,7 @@ div#TestSourceForm > ul {
 }
 
 .m-t-sm{
-  margin-top: 10px;
+  margin-top: 10px !important;
 }
 .m-t-xs{
   margin-top: 5px;
@@ -5743,10 +5758,12 @@ aside.right-sidebar.active {
   border-right: 1px #ccc solid;
 }
 .btn-panels {
-  background-color: #F7F7F7;
+  background-color: #FFFFFF;
   border: 1px #E5E5E5 solid;
   border-radius: 2px;
   padding: 5px 8px;
+  color: #1B6DE0;
+  font-weight: 500;
 }
 .btn-panels img{
   /* filter: url(#grayscale); */
@@ -5754,7 +5771,7 @@ aside.right-sidebar.active {
 }
 .btn-panels.active,
 .right-sidebar.active .icon-panel .btn-panels {
-  background-color: #CCCCCC;
+  background-color: #E5E5E5;
   border-color: #CCCCCC;
 }
 .btn-panels.active img{
@@ -5764,7 +5781,7 @@ aside.right-sidebar.active {
   filter: url(#blue-wash);
 }
 h6.version-control {
-  margin: 0 0 0 10px;
+  margin: 4px 0 0 10px;
   color: #999;
 }
 .editor-header .btn-panels{
@@ -5784,13 +5801,17 @@ h6.version-control {
   border-left: 1px #ccc solid;
 }
 .control-widget {
-  width: 320px;
   padding: 10px 15px;
   background-color: #fff;
   border: 1px #E5E5E5 solid;
   position: absolute;
-  top: 74px;
+  left: 50%;
+  margin-left: -75px;
+  bottom: -25px;
   transition: all .5s ease;
+}
+.control-widget .btn-default {
+  color: #1B6DE0;
 }
 .control-widget.left {
   left: 24px;
@@ -5836,8 +5857,6 @@ h6.version-control {
 }
 .workflow-action-btn{
   font-weight: 500;
-  font-size: small;
-  padding: 5px 18px;
 }
 .image-control-slider {
   background-color: #f7f7f7;
@@ -5888,9 +5907,51 @@ h6.version-control {
   animation-duration: 3s;
 }
 .workflow-widget {
-	border: 1px #F0F0F0 solid;
-	border-radius: 5px;
-  margin-bottom: 15px;
+  border-radius: 6px;
+  box-shadow: 0px 1px 4px rgba(0, 0, 0, 0.12);
+  margin-bottom: 20px;
+}
+.workflow-widget .workflow-header {
+  background-color: #f4f4f4;
+  padding: 15px 25px;
+  border-bottom: 1px #dadada solid;
+  border-radius: 6px 6px 0 0;
+}
+.workflow-widget h4 {
+  margin-top: 0;
+  font-size: 16px;
+}
+.workflow-widget h6 {
+  margin-top: 0;
+  margin-bottom: 8px;
+  color: #979797;
+  font-weight: normal;
+}
+.workflow-widget h6 span {
+  color: #5c5c5c;
+}
+.workflow-widget h6.value {
+  color: #000;
+}
+.workflow-widget h6.partition-status {
+  font-weight: bold;
+  color: #276EF1;
+}
+.workflow-widget h6.duration {
+  color: #276EF1;
+}
+.workflow-widget .workflow-title {
+  color: #2069f5;
+}
+.workflow-widget .workflow-body {
+  padding: 0 25px;
+background: #fff
+}
+.workflow-widget .workflow-body .inner {
+  padding: 15px 0 0;
+}
+.workflow-widget .workflow-body .inner + .inner {
+  border-top: 1px solid #E5E5E5;
 }
 .workflow-widget-body {
 	padding: 0 20px;
@@ -5909,9 +5970,7 @@ h6.version-control {
 	margin: 0;
 }
 .workflow-widget-body h6,
-.workflow-widget-footer h6,
-.workflow-widget-body p,
-.workflow-widget-footer p {
+.workflow-widget-body p {
 	font-weight: 400;
 	margin: 0 0 5px 0;
 	font-size: 13px;
@@ -5929,30 +5988,7 @@ h6.version-control {
 	margin-bottom: 10px;
 	font-weight: 600;
 }
-.workflow-widget-footer {
-	padding: 20px;
-	background-color: #F0F0F0;
-	border-radius: 0 0 5px 5px;
-}
-.workflow-widget-footer h5 {
-	font-size: 15px;
-	font-weight: 600;
-	margin: 0;
-	color: #276EF1;
-  cursor: pointer;
-}
-.workflow-widget-footer h6 {
-	margin: 10px 0 0;
-	color: #979797;
-}
-.workflow-widget-footer h6 span {
-	color: #666;
-}
-.workflow-widget-footer div.workflow-dropdown {
-  position: absolute;
-  top: -25px;
-  right: 0;
-}
+
 .fa.fa-square.succeeded,
 .fa.fa-square.success,
 .fa.fa-square.done {
@@ -5967,7 +6003,42 @@ h6.version-control {
 .fa.fa-square.queued{
   color: #F19248;
 }
+.fa.fa-circle.enabled{
+  color: #1B6DE0;
+}
+.fa.fa-circle.paused{
+  color: #F19248;
+}
+.fa.fa-circle.inactive{
+  color: #E54937;
+}
+.fa.fa-circle.unknown{
+  color: #979797;
+}
 .piper-icon {
   filter: url(#white-wash);
   height: 16px;
+}
+.text-black {
+  color: #000 !important;
+}
+.btn-group-metrics .btn-group{
+  margin-left: 8px;
+}
+.timeseries-metrics-tabs .nav-tabs {
+  display: table;
+  width: 100%;
+}
+.timeseries-metrics-tabs .nav-tabs li {
+  display: table-cell;
+  float: none;
+  text-align: center;
+}
+.timeseries-metrics-tabs .nav-tabs li + li {
+  border-left: 1px solid #ddd;
+}
+.editable-icon{
+  height: 15px;
+  vertical-align: baseline;
+  margin-left: 6px;
 }

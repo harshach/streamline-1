@@ -21,11 +21,20 @@ const baseUrl = "/api/v1/catalog/";
 const projectsBaseURL = "projects";
 
 const ProjectREST = {
-  getAllProjects(options) {
+  getMyProjects(options) {
     options = options || {};
     options.method = options.method || 'GET';
     options.credentials = 'same-origin';
-    return fetch(baseUrl + projectsBaseURL, options)
+    return fetch(baseUrl + projectsBaseURL+'?shareByOthers=false', options)
+      .then((response) => {
+        return response.json();
+      });
+  },
+  getSharedProjects(options) {
+    options = options || {};
+    options.method = options.method || 'GET';
+    options.credentials = 'same-origin';
+    return fetch(baseUrl + projectsBaseURL+'?shareByOthers=true', options)
       .then((response) => {
         return response.json();
       });

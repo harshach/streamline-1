@@ -22,19 +22,23 @@ import {observer} from 'mobx-react';
 class  ZoomPanelComponent extends Component {
   onEditClick = () => {
     const {router, projectId, topologyId} = this.props;
-    router.push('projects/'+ projectId +'/applications/'+ topologyId +'/edit');
+    router.push((Utils.isFromSharedProjects() ? 'shared-projects/' : 'projects/')+ projectId +'/applications/'+ topologyId +'/edit');
   }
   onViewClick = () => {
     const {router, projectId, topologyId} = this.props;
-    router.push('projects/'+ projectId +'/applications/'+ topologyId +'/view');
+    router.push((Utils.isFromSharedProjects() ? 'shared-projects/' : 'projects/')+ projectId +'/applications/'+ topologyId +'/view');
   }
   renderActionButton = () => {
     const {isAppRunning, topologyStatus, killTopology, deployTopology} = this.props;
-    let btn = [];
+    let btn = [
+      <button key="configure" className="btn btn-default btn-sm workflow-action-btn m-r-xs" onClick={this.props.showConfig}>
+        <i className="fa fa-gear"></i>
+      </button>
+    ];
     if(isAppRunning){
       btn.push(
-        <button key="kill" className="btn btn-primary btn-sm workflow-action-btn m-r-xs" onClick={killTopology}>
-          <i className="fa fa-pause workflow-btn"></i> Pause
+        <button key="kill" className="btn btn-default btn-sm workflow-action-btn m-r-xs" onClick={killTopology}>
+          <i className="fa fa-pause"></i>
         </button>
       );
       if(topologyStatus == 'enabled'){
@@ -75,7 +79,8 @@ class  ZoomPanelComponent extends Component {
       deployTopology,
       topologyStatus,
       engineType,
-      runTimeTopologyId
+      runTimeTopologyId,
+      namespaceName
     } = this.props;
     let isActive = false;
     if(!app_state.versionPanelCollapsed && mode == 'edit'){
@@ -85,55 +90,43 @@ class  ZoomPanelComponent extends Component {
     }
     return (
       <div>
-        <div className={`control-widget right ${isActive ? 'active' : ''} ${isAppRunning ? 'app-running' : ''}`}>
-          <div className="control-top">
-            <h5>Last Edited <span>{Utils.datetime(lastUpdatedTime).value}</span></h5>
-            {isAppRunning ? <h5>Workflow Status<span><i className="fa fa-circle text-primary workflow-status"></i> Running</span></h5> : null}
-          </div>
-          <div className="control-bottom text-center">
-            {mode === 'view' ?
-            [
-              <button className="btn btn-primary btn-sm workflow-action-btn m-r-xs" onClick={this.onEditClick}><i className="fa fa-pencil"></i> &ensp; Edit Workflow</button>,
-              engineType === 'batch' && runTimeTopologyId ?
-                <a
-                  href={"https://piper-staging.uberinternal.com/?search="+runTimeTopologyId}
-                  target="_blank" className="btn btn-primary btn-sm workflow-action-btn"
-                > <img src="styles/img/icon-piper.png" className="piper-icon"></img> &ensp; Go to Piper</a>
-              : null]
-            :
-              this.renderActionButton()
-            }
-          </div>
-        </div>
-        <div className="control-widget left">
-          <div className="row">
-            <div className="col-sm-12">
-              <div className="image-control-slider">
-                <button className="btn btn-xs" onClick={zoomOutAction}>
-                  <i className="fa fa-minus"></i>
-                </button> <input type="range" readOnly value={app_state.zoomScale}
-                  min={1} max={8} step={(8 - 1) / 100}
-                /> <button className="btn btn-xs" onClick={zoomInAction}>
-                  <i className="fa fa-plus"></i>
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
         <div className="col-md-12 zoomWrap clearfix">
           <div className={`editor-header row ${isActive ? 'active' : ''} ${isAppRunning ? 'app-running' : ''}`}>
-            {mode === 'edit' ?
-              <div className="pull-left">
-                <span className="graph-action"><img src="styles/img/uWorc/undo.png" /> Undo</span>
-                <span className="graph-action"><img src="styles/img/uWorc/redo.png" /> Redo</span>
-                <span className="graph-action"><img src="styles/img/uWorc/command.png" /> Shortcuts</span>
-                <span className="graph-action" onClick={showConfig}><img src="styles/img/uWorc/setting.png" /> Configure Settings</span>
+            {mode === 'view' ?
+              null
+            :
+              <div className={`control-widget text-center ${isActive ? 'active' : ''} ${isAppRunning ? 'app-running' : ''}`}>
+                {this.renderActionButton()}
               </div>
-              : null
             }
+            <div className="pull-left">
+              <div className="workflow-info">
+                <h6>Last Edited</h6>
+                <h5>{Utils.datetime(lastUpdatedTime).value}</h5>
+              </div>
+              <div className="workflow-info">
+                <h6>Workflow Status</h6>
+                <h5>
+                  <span>
+                    <i className={`fa fa-circle ${topologyStatus} workflow-status`}></i> {Utils.capitaliseFirstLetter(topologyStatus)}</span>
+                </h5>
+              </div>
+              {mode === 'edit' ?
+              <div className="workflow-info">
+                <h6>Data Center</h6>
+                <h5>{namespaceName}</h5>
+              </div>
+              : null }
+            </div>
             <div className="pull-right">
-              <button className={`btn-panels ${mode == 'view' ? 'active' : ''}`} onClick={this.onViewClick}><img src="styles/img/uWorc/view.png" /></button>
-              <button className={`btn-panels ${mode == 'edit' ? 'active' : ''}`} onClick={this.onEditClick}><img src="styles/img/uWorc/edit.png" /></button>
+              <button className={`btn-panels no-margin ${mode == 'view' ? 'active' : ''}`} onClick={this.onViewClick}><img src="styles/img/uWorc/view.png" />&ensp; Monitor</button>
+              <button className={`btn-panels no-margin ${mode == 'edit' ? 'active' : ''}`} onClick={this.onEditClick}><img src="styles/img/uWorc/edit.png" />&ensp; Edit</button>
+              {engineType === 'batch' && runTimeTopologyId ?
+                <a
+                  href={"https://piper-staging.uberinternal.com/?search="+runTimeTopologyId}
+                  target="_blank" className="btn-panels visible-lg-inline-block visible-md-inline-block"
+                > <img src="styles/img/uWorc/piper.png"/></a>
+              : null}
             </div>
           </div>
         </div>

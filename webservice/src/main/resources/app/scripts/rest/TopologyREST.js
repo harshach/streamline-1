@@ -556,11 +556,14 @@ const TopologyREST = {
         return response.json();
       });
   },
-  getTopologyActionStatus(topologyId, options){
+  getTopologyActionStatus(topologyId, versionId, options){
     options = options || {};
     options.method = options.method || 'GET';
     options.credentials = 'same-origin';
-    const url = baseUrl + 'topologies/'+topologyId+'/actions/status';
+    let url = baseUrl + 'topologies/' + topologyId + '/actions/status';
+    if (versionId) {
+      url = baseUrl + 'topologies/' + topologyId + '/versions/' + versionId +'/actions/status';
+    }
     return fetch(url, options)
       .then(Utils.checkStatus);
   }

@@ -523,6 +523,7 @@ public class StormTopologyActionsImpl implements TopologyActions {
 
         StatusImpl status = new StatusImpl();
         status.setStatus((String) topologyStatus.get("status"));
+        status.setRuntimeAppId(applicationId);
         status.putExtra("Num_tasks", String.valueOf(topologyStatus.get("workersTotal")));
         status.putExtra("Num_workers", String.valueOf(topologyStatus.get("tasksTotal")));
         status.putExtra("Uptime_secs", String.valueOf(topologyStatus.get("uptimeSeconds")));

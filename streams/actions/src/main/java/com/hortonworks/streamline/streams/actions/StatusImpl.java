@@ -21,6 +21,7 @@ import java.util.Map;
 public class StatusImpl implements TopologyActions.Status {
     private String status = STATUS_UNKNOWN; // default
     private final Map<String, String> extra = new HashMap<>();
+    private String runtimeAppId;
     private Long namespaceId;
     private String namespaceName;
 
@@ -35,6 +36,8 @@ public class StatusImpl implements TopologyActions.Status {
     public void setNamespaceName(String namespaceName) {
         this.namespaceName = namespaceName;
     }
+
+    public void setRuntimeAppId(String runtimeAppId) { this.runtimeAppId = runtimeAppId; }
 
     public void putExtra(String key, String val) {
         extra.put(key, val);
@@ -54,6 +57,9 @@ public class StatusImpl implements TopologyActions.Status {
     public String getNamespaceName() {
         return namespaceName;
     }
+
+    @Override
+    public String getRuntimeAppId() { return runtimeAppId; }
 
     @Override
     public Map<String, String> getExtra() {

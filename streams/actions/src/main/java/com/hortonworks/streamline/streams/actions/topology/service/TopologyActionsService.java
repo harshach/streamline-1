@@ -157,14 +157,16 @@ public class TopologyActionsService implements ContainingNamespaceAwareContainer
         for (Long region : topologyDeployment.getRegions()) {
             TopologyRuntimeIdMap runtimeIdMap = getRuntimeTopologyId(topology, region);
             if (runtimeIdMap != null) {
-                statuses.add(topologyActions.status(CatalogToLayoutConverter.getTopologyLayout(topology),
-                        runtimeIdMap.getApplicationId(), asUser));
+                try {
+                    statuses.add(topologyActions.status(CatalogToLayoutConverter.getTopologyLayout(topology),
+                            runtimeIdMap.getApplicationId(), asUser));
+                } catch (Exception e) {
+                    LOG.error(String.format("failed to fetch status for  topology %s because of exception %s", topology.getId(),
+                            e.getMessage()));
+                    statuses.add(addUnknownStatus(region));
+                }
             } else {
-                StatusImpl runtimeStatus = new StatusImpl();
-                Namespace namespace =  environmentService.getNamespace(region);
-                runtimeStatus.setNamespaceId(namespace.getId());
-                runtimeStatus.setNamespaceName(namespace.getName());
-                statuses.add(runtimeStatus);
+               statuses.add(addUnknownStatus(region));
             }
         }
         return statuses;
@@ -251,5 +253,13 @@ public class TopologyActionsService implements ContainingNamespaceAwareContainer
                 .orElse(topologyStateMachine.initialState());
         TopologyActions topologyActions = getTopologyActionsInstance(topology);
         return new TopologyContext(topology, topologyActions, this, state, topologyDeployment, asUser);
+    }
+
+    private TopologyActions.Status addUnknownStatus(Long region) {
+        StatusImpl runtimeStatus = new StatusImpl();
+        Namespace namespace =  environmentService.getNamespace(region);
+        runtimeStatus.setNamespaceId(namespace.getId());
+        runtimeStatus.setNamespaceName(namespace.getName());
+        return runtimeStatus;
     }
 }

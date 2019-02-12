@@ -327,6 +327,13 @@ public class SecurityCatalogService {
         return this.dao.get(new StorableKey(AclEntry.NAMESPACE, aclEntry.getPrimaryKey()));
     }
 
+    public Collection<AclEntry> getAcl(Long aclObjectId, Long roleId, String targetEntityNamespace) {
+        List<QueryParam> params = QueryParam.params(AclEntry.OBJECT_ID, aclObjectId.toString(),
+                AclEntry.SID_ID, roleId.toString(),
+                AclEntry.NAMESPACE, targetEntityNamespace);
+        return dao.find(AclEntry.NAMESPACE, params);
+    }
+
     public AclEntry addAcl(AclEntry aclEntry) {
         if (aclEntry.getId() == null) {
             aclEntry.setId(this.dao.nextId(AclEntry.NAMESPACE));

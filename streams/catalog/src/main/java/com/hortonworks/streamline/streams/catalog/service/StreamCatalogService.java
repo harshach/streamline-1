@@ -300,8 +300,6 @@ public class StreamCatalogService {
     }
 
     public Project addProject(Project project) {
-        validateProject(project);
-
         if (project.getId() == null) {
             project.setId(this.dao.nextId(PROJECT_NAMESPACE));
             this.dao.add(project);
@@ -315,8 +313,6 @@ public class StreamCatalogService {
     }
 
     public Project editProject(Long projectId, Project project) {
-        validateProject(project);
-
         project.setId(projectId);
         long timestamp = System.currentTimeMillis();
         project.setTimestamp(timestamp);
@@ -1540,14 +1536,11 @@ public class StreamCatalogService {
      *
      * Other checks can be added later.
      */
-    private void validateProject(Project project) {
-        StorageUtils.ensureUnique(project, this::listProjects,
-                QueryParam.params(Project.NAME, project.getName()));
-    }
 
     private void validateTopology(Topology topology) {
         StorageUtils.ensureUnique(topology, this::listTopologies,
-                QueryParam.params(Topology.NAME, topology.getName()));
+                QueryParam.params(Topology.NAME, topology.getName(),
+                                  Topology.PROJECTID, topology.getProjectId().toString()));
     }
 
     private void validateTopologySource(TopologySource topologySource) {

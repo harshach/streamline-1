@@ -5908,49 +5908,50 @@ h6.version-control {
 }
 .workflow-widget {
   border-radius: 6px;
-        box-shadow: 0px 1px 4px rgba(0, 0, 0, 0.12);
+  box-shadow: 0px 1px 4px rgba(0, 0, 0, 0.12);
+  margin-bottom: 20px;
 }
 .workflow-widget .workflow-header {
-        background-color: #f4f4f4;
-        padding: 15px 25px;
-        border-bottom: 1px #dadada solid;
-        border-radius: 6px 6px 0 0;
+  background-color: #f4f4f4;
+  padding: 15px 25px;
+  border-bottom: 1px #dadada solid;
+  border-radius: 6px 6px 0 0;
 }
 .workflow-widget h4 {
-        margin-top: 0;
-        font-size: 16px;
+  margin-top: 0;
+  font-size: 16px;
 }
 .workflow-widget h6 {
-        margin-top: 0;
-        margin-bottom: 8px;
-        color: #979797;
-        font-weight: normal;
+  margin-top: 0;
+  margin-bottom: 8px;
+  color: #979797;
+  font-weight: normal;
 }
 .workflow-widget h6 span {
-        color: #5c5c5c;
+  color: #5c5c5c;
 }
 .workflow-widget h6.value {
-        color: #000;
+  color: #000;
 }
 .workflow-widget h6.partition-status {
-        font-weight: bold;
-        color: #276EF1;
+  font-weight: bold;
+  color: #276EF1;
 }
 .workflow-widget h6.duration {
-        color: #276EF1;
+  color: #276EF1;
 }
 .workflow-widget .workflow-title {
-        color: #2069f5;
+  color: #2069f5;
 }
 .workflow-widget .workflow-body {
-        padding: 0 25px;
-  background: #fff
+  padding: 0 25px;
+background: #fff
 }
 .workflow-widget .workflow-body .inner {
-        padding: 15px 0 0;
+  padding: 15px 0 0;
 }
 .workflow-widget .workflow-body .inner + .inner {
-        border-top: 1px solid #E5E5E5;
+  border-top: 1px solid #E5E5E5;
 }
 .workflow-widget-body {
 	padding: 0 20px;
@@ -6035,4 +6036,9 @@ h6.version-control {
 }
 .timeseries-metrics-tabs .nav-tabs li + li {
   border-left: 1px solid #ddd;
+}
+.editable-icon{
+  height: 15px;
+  vertical-align: baseline;
+  margin-left: 6px;
 }

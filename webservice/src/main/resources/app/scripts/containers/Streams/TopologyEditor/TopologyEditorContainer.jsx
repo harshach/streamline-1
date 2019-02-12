@@ -163,8 +163,8 @@ export class TopologyEditorContainer extends Component {
   getStatusFromNamespaces(namespacesObj){
     let status = 'unknown';
     let namespaceObj = namespacesObj[this.namespaceName];
-    if(namespaceObj.status && namespaceObj.status.status){
-      status = namespaceObj.status.status.toLowerCase();
+    if(namespaceObj.status){
+      status = namespaceObj.status.toLowerCase();
     }
     this.runTimeTopologyId = namespaceObj.runtimeTopologyId;
     return status;
@@ -192,9 +192,9 @@ export class TopologyEditorContainer extends Component {
 
       this.engine = Utils.getEngineById(data.topology.engineId);
 
-        this.namespaceName = _.keys(data.namespaces)[0];
-        this.namespaceId = data.namespaces[this.namespaceName].status.namespaceId;
-        this.lastUpdatedTime = new Date(result.topology.timestamp);
+      this.versionId = versionId
+        ? versionId
+        : data.topology.versionId;
 
       this.namespaceName = _.keys(data.namespaces)[0];
       this.namespaceId = data.namespaces[this.namespaceName].namespaceId;
@@ -207,7 +207,11 @@ export class TopologyEditorContainer extends Component {
       this.status = this.getStatusFromNamespaces(data.namespaces);
       let isAppRunning = this.getAppRunningStatus(this.status);
 
-        this.fetchNameSpace(isAppRunning, this.namespaceId);
+      let promiseArr = [];
+      promiseArr.push(TopologyREST.getAllVersions(this.topologyId));
+      promiseArr.push(TopologyREST.getTopologyConfig(data.topology.engineId));
+      promiseArr.push(ProjectREST.getProject(this.projectId));
+      promiseArr.push(TopologyREST.getMetaInfo(this.topologyId, this.versionId));
 
       this.fetchNameSpace(isAppRunning, this.namespaceId);
 

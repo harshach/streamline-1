@@ -102,6 +102,44 @@ public class SchemaResource {
     }
 
     @GET
+    @Path("/{schemaName}/schema")
+    @Timed
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response getCurrentSchema(@PathParam("schemaName") String schemaName,
+                                     @Context SecurityContext securityContext) {
+        return doGetCurrentSchemaForBranch(schemaName, null);
+    }
+
+    @GET
+    @Path("/{schemaName}/{branchName}/schema")
+    @Timed
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response getCurrentSchemaForBranch(@PathParam("schemaName") String schemaName,
+                                              @PathParam("branchName") String branchName,
+                                              @Context SecurityContext securityContext) {
+        return doGetCurrentSchemaForBranch(schemaName, branchName);
+    }
+
+    private Response doGetCurrentSchemaForBranch(String schemaName, String branchName) {
+        try {
+            LOG.info("Get schema for: {}", schemaName);
+            List<Integer> schemaVersions = streamlineSchemaRegistryClient.getSchemaVersions(schemaName, branchName);
+            LOG.debug("Received schema versions [{}] for schema: {}", schemaVersions, schemaName);
+            Integer highestVersion = schemaVersions.get(schemaVersions.size() - 1);
+            String schema = streamlineSchemaRegistryClient.getSchema(schemaName, highestVersion);
+            LOG.debug("Received schema version: [{}]", schema);
+            schema = AvroStreamlineSchemaConverter.convertAvroSchemaToStreamlineSchema(schema);
+            LOG.debug("Converted schema: [{}]", schema);
+            return WSUtils.respondEntity(schema, OK);
+        } catch (StreamlineSchemaNotFoundException e) {
+            LOG.error("Schema not found: [{}]", schemaName, e);
+            throw EntityNotFoundException.byName(schemaName);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @GET
     @Path("/{schemaName}/versions")
     @Timed
     @Produces(MediaType.APPLICATION_JSON)

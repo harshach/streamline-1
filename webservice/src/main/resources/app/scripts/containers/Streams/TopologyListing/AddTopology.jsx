@@ -52,13 +52,14 @@ class AddTopology extends Component {
       batchOptions: [],
       streamOptions: [],
       templateOptions: [],
-      filterStr:''
+      filterStr:'',
+      namespacesArr: props.namespacesArr
     };
     this.fetchData();
   }
 
   fetchData = () => {
-    let promiseArr = [TopologyREST.getTopologyConfig(), EnvironmentREST.getAllNameSpaces()];
+    let promiseArr = [TopologyREST.getTopologyConfig()];
     if(this.props.topologyData){
       promiseArr.push(EngineREST.getAllTemplates(this.props.topologyData.topology.engineId));
     }
@@ -81,23 +82,12 @@ class AddTopology extends Component {
         stateObj.formField = null;
       }
 
-      if (result[1].responseMessage !== undefined) {
-        FSReactToastr.error(
-          <CommonNotification flag="error" content={result[1].responseMessage}/>, '', toastOpt);
-      } else {
-        const resultSet = result[1].entities;
-        let namespaces = [];
-        resultSet.map((e) => {
-          namespaces.push(e.namespace);
-        });
-        this.setState({namespaceOptions: namespaces});
-      }
-      if(result[2]){
-        if(result[2].responseMessage !== undefined) {
+      if(result[1]){
+        if(result[1].responseMessage !== undefined) {
           FSReactToastr.error(
-            <CommonNotification flag="error" content={result[2].responseMessage}/>, '', toastOpt);
+            <CommonNotification flag="error" content={result[1].responseMessage}/>, '', toastOpt);
         } else {
-          stateObj.templateOptions = result[2].entities;
+          stateObj.templateOptions = result[1].entities;
         }
       }
       this.setState(stateObj);
@@ -190,18 +180,33 @@ class AddTopology extends Component {
       this.setState({namespaceId: '', validSelect: false});
     }
   }
+  syncNamespaces(serviceName){
+    let namespaceOptions = [];
+    this.props.namespacesArr.map((obj)=>{
+      let namespaceObj = obj.mappings.find((o)=>{
+        return o.serviceName.toLowerCase() === serviceName.toLowerCase();
+      });
+      if(namespaceObj){
+        namespaceOptions.push(obj.namespace);
+      }
+    });
+    return namespaceOptions;
+  }
   handleOnChangeEngine = (obj) => {
     if (obj) {
       EngineREST.getAllTemplates(obj.id).then(templates=>{
         const engineData = this.getEngineDataById(obj.id);
         const settings = this.findSettingsByEngineName(engineData.name);
+        const namespaceOptions = this.syncNamespaces(engineData.name);
         this.setState({
           engineId: obj.id,
           validEngine: true,
           templateOptions: templates.entities,
           templateId: templates.entities[0].id,
           validTemplate: true,
-          formField: settings.topologyComponentUISpecification
+          formField: settings.topologyComponentUISpecification,
+          namespaceOptions: namespaceOptions,
+          namespaceId: ''
         });
       });
     } else {
@@ -211,7 +216,10 @@ class AddTopology extends Component {
         templateOptions: [],
         templateId: '',
         validTemplate: false,
-        formField: null
+        formField: null,
+        namespaceOptions: [],
+        namespaceId: '',
+        validSelect: false
       });
     }
   }
@@ -353,13 +361,15 @@ class AddTopology extends Component {
           <label data-stest="selectEnvLabel">Choose the Regions
             <span className="text-danger">*</span>
           </label>
-          <div className="m-t-xs">{
+          <div className="m-t-xs">{namespaceOptions.length ?
             _.map(namespaceOptions, (n) => {
               return <span className="radio-container" onClick={() => this.handleOnChangeEnvironment(n)} key={n.name}>
                 <input type="radio" name="environment" checked={namespaceId == n.id}/>
                 <label>{n.name}</label>
               </span>;
             })
+            :
+            <div className="text-center">No regions found!</div>
           }
           {validSelect === false && <p className="text-danger m-t-xs">Please select region</p>}
           </div>

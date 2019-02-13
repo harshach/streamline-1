@@ -51,7 +51,7 @@ class ImportTopology extends Component {
 
   fetchData = () => {
     let promiseArr = [EnvironmentREST.getAllNameSpaces()];
-    promiseArr.push(ProjectREST.getAllProjects().then((res) => {
+    promiseArr.push(ProjectREST.getMyProjects().then((res) => {
       const projects = res.entities;
       this.setState({projects: projects});
       return projects;

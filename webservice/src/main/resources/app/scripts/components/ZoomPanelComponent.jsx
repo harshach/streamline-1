@@ -79,7 +79,7 @@ class  ZoomPanelComponent extends Component {
       deployTopology,
       topologyStatus,
       engineType,
-      runTimeTopologyId,
+      runtimeAppId,
       namespaceName
     } = this.props;
     let isActive = false;
@@ -121,9 +121,9 @@ class  ZoomPanelComponent extends Component {
             <div className="pull-right">
               <button className={`btn-panels no-margin ${mode == 'view' ? 'active' : ''}`} onClick={this.onViewClick}><img src="styles/img/uWorc/view.png" />&ensp; Monitor</button>
               <button className={`btn-panels no-margin ${mode == 'edit' ? 'active' : ''}`} onClick={this.onEditClick}><img src="styles/img/uWorc/edit.png" />&ensp; Edit</button>
-              {engineType === 'batch' && runTimeTopologyId ?
+              {engineType === 'batch' && runtimeAppId ?
                 <a
-                  href={"https://piper-staging.uberinternal.com/?search="+runTimeTopologyId}
+                  href={"https://piper-staging.uberinternal.com/?search="+runtimeAppId}
                   target="_blank" className="btn-panels visible-lg-inline-block visible-md-inline-block"
                 > <img src="styles/img/uWorc/piper.png"/></a>
               : null}

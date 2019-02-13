@@ -384,7 +384,7 @@ export class date extends BaseField {
   getField = () => {
     const form_value = this.props.data[this.props.value];
 
-    const value = form_value && moment(form_value);
+    const value = form_value && moment(form_value) || moment();
 
     const errorClass = this.context.Form.state.Errors[this.props.valuePath] ? 'invalidInput' : '';
 

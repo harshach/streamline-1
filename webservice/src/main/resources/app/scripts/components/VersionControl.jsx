@@ -52,8 +52,8 @@ class VersionThumbnail extends Component{
       <div className="version-thumb" ref="thumbContainer">
       </div>
       <div className="version-info">
-        {data.name == 'CURRENT' && <span className="version-current-label">Current</span>}
-        <span className="version-name">{data.name}</span>
+        {data.name == 'CURRENT' && <span className="version-current-label">Draft</span>}
+        <span className="version-name">{data.name == 'CURRENT' ? "DRAFT" : data.name}</span>
         <span className="version-updated-label">Last updated on</span>&nbsp;
         <span className="version-updated-value">{moment(data.timestamp).format('MM/DD/YYYY HH:mm')}</span>
       </div>
@@ -98,11 +98,15 @@ export default class VersionControl extends Component{
       <div className="right-sidebar-header">
         <div>
           <h6 className="version-control">Version Control</h6>
-          <DropdownButton bsStyle="link" className="btn-sm" title={selectedVersionName} id="version-dropdown" onSelect={(v) => {
-            handleVersionChange(v);
-          }} >
+          <DropdownButton bsStyle="link" className="btn-sm"
+            title={selectedVersionName == 'CURRENT' ? 'DRAFT' : selectedVersionName} id="version-dropdown"
+            onSelect={(v) => {
+              handleVersionChange(v);
+            }} >
             {_.map(versions, (v, i) => {
-              return <MenuItem active={selectedVersionName === v.name ? true : false} eventKey={v.id} key={i} data-version-id={v.id}>{v.name}</MenuItem>;
+              return <MenuItem active={selectedVersionName === v.name ? true : false}
+                eventKey={v.id} key={i} data-version-id={v.id}>{v.name == 'CURRENT' ? 'DRAFT' : v.name}
+              </MenuItem>;
             })
           }
           </DropdownButton>

@@ -4,6 +4,7 @@ public class PiperConstants {
 
     public static final String PIPER_SERVICE_NAME = "PIPER";
     public static final String PIPER_ROOT_URL_KEY = "piper.root_url";
+    public static final String PIPER_UI_ROOT_URL_KEY = "piper.ui_root_url";
 
     public static final String PIPER_SERVICE_CONFIG_NAME = "properties";
     public static final String PIPER_SERVICE_CONFIG_KEY_HOST = "piper.service.host";
@@ -34,7 +35,9 @@ public class PiperConstants {
     public static final String PIPER_METRIC_LATEST_EXECUTION_DATE = "latestExecutionDate";
     public static final String PIPER_METRIC_LATEST_EXECUTION_STATUS = "latestExecutionStatus";
 
+
     public static final String X_UBER_ORIGIN = "X-Uber-Origin";
     public static final String X_UBER_SOURCE = "X-Uber-Source";
     public static final String UWORC_UBER_SERVICE_NAME = "uWorc";
+
 }

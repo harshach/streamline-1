@@ -147,23 +147,17 @@ public final class CatalogResourceUtil {
                 TopologyRuntimeResponse runtimeResponse = new TopologyRuntimeResponse(namespaceName, "", null);
                 runtimeResponse.setStatus(new TopologyActions.Status() {
                     @Override
-                    public String getStatus() {
-                        return "Unknown";
-                    }
+                    public String getStatus() { return "Unknown"; }
                     @Override
-                    public Long getNamespaceId() {
-                        return topology.getNamespaceId();
-                    }
+                    public Long getNamespaceId() { return topology.getNamespaceId(); }
                     @Override
                     public String getNamespaceName() { return namespaceName; }
                     @Override
-                    public String getRuntimeAppId() {
-                        return "Unknown";
-                    }
+                    public String getRuntimeAppId() { return "Unknown"; }
                     @Override
-                    public Map<String, String> getExtra() {
-                        return null;
-                    }
+                    public String getRuntimeAppUrl() { return ""; }
+                    @Override
+                    public Map<String, String> getExtra() { return null; }
                 });
                 namespaces.put(namespaceName, runtimeResponse);
                 detailedResponse.setNamespaces(namespaces);
@@ -228,19 +222,15 @@ public final class CatalogResourceUtil {
                 TopologyRuntimeResponse runtimeResponse = new TopologyRuntimeResponse(namespaceName, "", null);
                 runtimeResponse.setStatus(new TopologyActions.Status() {
                     @Override
-                    public String getStatus() {
-                        return "Unknown";
-                    }
+                    public String getStatus() { return "Unknown"; }
                     @Override
-                    public Long getNamespaceId() {
-                        return namespaceId;
-                    }
+                    public Long getNamespaceId() { return namespaceId; }
                     @Override
-                    public String getNamespaceName() {
-                        return namespaceName;
-                    }
+                    public String getNamespaceName() { return namespaceName; }
                     @Override
                     public String getRuntimeAppId() { return "Unknown"; }
+                    @Override
+                    public String getRuntimeAppUrl() { return ""; }
                     @Override
                     public Map<String, String> getExtra() {
                         return null;

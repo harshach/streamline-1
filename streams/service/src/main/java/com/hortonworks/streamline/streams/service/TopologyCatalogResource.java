@@ -239,25 +239,23 @@ public class TopologyCatalogResource {
     public Response listProjects (@Context SecurityContext securityContext,
                                   @javax.ws.rs.QueryParam("sharedByOther") boolean sharedByOther) {
         boolean adminUser = SecurityUtil.hasRole(authorizer, securityContext, Roles.ROLE_ADMIN);
-        Collection<Project>  projects = null;
+        Collection<Project>  projects = new ArrayList<>();
         if (adminUser) {
             projects = catalogService.listProjects();
             LOG.debug("Returning all projects since user has role: {}", Roles.ROLE_ADMIN);
         } else {
             String userName = SecurityUtil.getUserName(securityContext.getUserPrincipal().getName());
             User user = securityCatalogService.getUser(userName);
-            List<String> listProjectIds = null;
+            List<String> listProjectIds;
             if (sharedByOther == true) {
                 listProjectIds = securityCatalogService.listObjectIdSharedByOthers(user.getId(), Project.NAMESPACE);
             } else {
                 listProjectIds = securityCatalogService.listOjectIdByOwner(user.getId(), Project.NAMESPACE);
             }
 
-            if (listProjectIds.size() > 0) {
-                MultivaluedMap<String, String> params = new MultivaluedHashMap<>();
-                params.addAll(Project.ID, listProjectIds);
-                List<com.hortonworks.streamline.common.QueryParam> queryParams = WSUtils.buildQueryParameters(params);
-                projects = catalogService.listProjects(queryParams);
+            for (String projectId: listProjectIds) {
+                Project project = catalogService.getProject(Long.parseLong(projectId));
+                if (project != null) projects.add(project);
             }
         }
         Response response;

@@ -147,7 +147,7 @@ public class TopologyCatalogResource {
             throw BadRequestException.missingParameter(Engine.NAME);
         }
         Engine createdEngine = catalogService.addEngine(engine);
-        SecurityUtil.addAcl(authorizer, securityContext, NAMESPACE, engine.getId(),
+        SecurityUtil.addAcl(authorizer, securityContext, Engine.NAMESPACE, engine.getId(),
                             EnumSet.allOf(Permission.class));
         return WSUtils.respondEntity(createdEngine, CREATED);
     }
@@ -188,7 +188,7 @@ public class TopologyCatalogResource {
         }
         template.setEngineId(engineId);
         Template createdTemplate = catalogService.addTemplate(template);
-        SecurityUtil.addAcl(authorizer, securityContext, NAMESPACE, createdTemplate.getId(),
+        SecurityUtil.addAcl(authorizer, securityContext, Template.NAMESPACE, createdTemplate.getId(),
                 EnumSet.allOf(Permission.class));
         return WSUtils.respondEntity(createdTemplate, CREATED);
 
@@ -227,7 +227,7 @@ public class TopologyCatalogResource {
             throw BadRequestException.missingParameter(EngineMetricsBundle.NAME);
         }
         EngineMetricsBundle createdEngineBundle = catalogService.addEngineMetricsBundle(engineMetricsBundle);
-        SecurityUtil.addAcl(authorizer, securityContext, NAMESPACE, createdEngineBundle.getId(),
+        SecurityUtil.addAcl(authorizer, securityContext, EngineMetricsBundle.NAME_SPACE, createdEngineBundle.getId(),
                 EnumSet.allOf(Permission.class));
         return WSUtils.respondEntity(createdEngineBundle, CREATED);
     }
@@ -386,7 +386,7 @@ public class TopologyCatalogResource {
         Topology topology = Optional.ofNullable(catalogService.getTopology(topologyId))
                 .orElseThrow(() -> EntityNotFoundException.byId(topologyId.toString()));
 
-        AclEntry aclEntry = SecurityUtil.addAcl(authorizer, securityContext, NAMESPACE, topology.getId(), sidId, EnumSet.of(Permission.valueOf(permission.toUpperCase())));
+        AclEntry aclEntry = SecurityUtil.addAcl(authorizer, securityContext, Topology.NAMESPACE, topology.getId(), sidId, EnumSet.of(Permission.valueOf(permission.toUpperCase())));
         // Also, giving read permission to the Project
         SecurityUtil.addAcl(authorizer, securityContext, Project.NAMESPACE, topology.getProjectId(), sidId, EnumSet.of(Permission.READ));
         return WSUtils.respondEntity(aclEntry, CREATED);
@@ -438,7 +438,7 @@ public class TopologyCatalogResource {
 
         topology.setProjectId(projectId);
         Topology createdTopology = catalogService.addTopology(topology);
-        SecurityUtil.addAcl(authorizer, securityContext, NAMESPACE, createdTopology.getId(),
+        SecurityUtil.addAcl(authorizer, securityContext, Topology.NAMESPACE, createdTopology.getId(),
                 EnumSet.allOf(Permission.class));
         return WSUtils.respondEntity(createdTopology, CREATED);
     }

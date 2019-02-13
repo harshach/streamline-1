@@ -404,14 +404,15 @@ class TopologyListingContainer extends Component {
             <CommonNotification flag="error" content={result.responseMessage}/>, '', toastOpt);
         }
       });
+      let stateObj = {};
       // environment result[0]
       environmentLen = results[0].entities.length;
+      stateObj.namespacesArr = results[0].entities;
 
       // source component result[1]
       sourceLen = results[1].entities.length;
 
       // All topology result[2]
-      let stateObj = {};
       let resultEntities = Utils.sortArray(results[2].entities.slice(), 'timestamp', false);
       if (sourceLen !== 0) {
         if (resultEntities.length === 0 && environmentLen > 1) {
@@ -825,7 +826,8 @@ class TopologyListingContainer extends Component {
       searchLoader,
       allACL,
       shareObj,
-      topologyData
+      topologyData,
+      namespacesArr
     } = this.state;
     const splitData = _.chunk(entities, pageSize) || [];
     const btnIcon = <span><i className="fa fa-plus"></i> &ensp; New Workflow</span>;
@@ -900,7 +902,7 @@ class TopologyListingContainer extends Component {
           : ''
 }
         <Modal className="u-form" ref={(ref) => this.AddTopologyModelRef = ref} data-title={topologyData ? "Update Engine" : "Add Workflow"} onKeyPress={this.handleKeyPress} data-resolve={this.handleSaveClicked} data-reject={()=>{this.setState({topologyData: null});this.AddTopologyModelRef.hide();}}>
-          <AddTopology ref={(ref) => this.addTopologyRef = ref} topologyData={topologyData} />
+          <AddTopology ref={(ref) => this.addTopologyRef = ref} topologyData={topologyData} namespacesArr={namespacesArr}/>
         </Modal>
         <Modal className="u-form" ref={(ref) => this.ImportTopologyModelRef = ref} data-title="Import Workflow" onKeyPress={this.handleKeyPress} data-resolve={this.handleImportSave}>
           <ImportTopology

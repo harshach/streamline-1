@@ -372,8 +372,6 @@ class TopologyViewContainer extends TopologyEditorContainer {
     this.batchTimeseries = this.batchTimeseries || [];
 
     let {viewModeData, startDate, endDate, topologyNamespaces} = this.state;
-    const selectedDC = this.selectedDataCenter;
-    const dc = selectedDC;
 
     const promiseArr = [];
     const template = _.find(app_state.enginesMetricsTemplates, (template) => {
@@ -390,7 +388,6 @@ class TopologyViewContainer extends TopologyEditorContainer {
           from: startDate.valueOf(),
           to: endDate.valueOf(),
           metricQuery: metricQuery,
-          dc: dc,
           namespaceId: this.selectedDataCenterId
         };
 
@@ -771,12 +768,12 @@ class TopologyViewContainer extends TopologyEditorContainer {
                     confirmMode={this.confirmMode.bind(this)}
                     isAppRunning={isAppRunning}
                     engineType={this.engine.type}
-                    runTimeTopologyId={this.runTimeTopologyId}
+                    runtimeAppId={this.runtimeAppId}
                     topologyStatus={this.state.topologyStatus}
                   />,
                   <TopologyViewMode
                     allACL={allACL} key={"1"} {...this.state}
-                    runTimeTopologyId={this.runTimeTopologyId}
+                    runtimeAppId={this.runtimeAppId}
                     projectId={this.projectData.id}
                     topologyId={this.topologyId}
                     killTopology={this.killTopology.bind(this)}

@@ -25,7 +25,7 @@ const ProjectREST = {
     options = options || {};
     options.method = options.method || 'GET';
     options.credentials = 'same-origin';
-    return fetch(baseUrl + projectsBaseURL+'?shareByOthers=false', options)
+    return fetch(baseUrl + projectsBaseURL+'?sharedByOther=false', options)
       .then((response) => {
         return response.json();
       });
@@ -34,7 +34,7 @@ const ProjectREST = {
     options = options || {};
     options.method = options.method || 'GET';
     options.credentials = 'same-origin';
-    return fetch(baseUrl + projectsBaseURL+'?shareByOthers=true', options)
+    return fetch(baseUrl + projectsBaseURL+'?sharedByOther=true', options)
       .then((response) => {
         return response.json();
       });

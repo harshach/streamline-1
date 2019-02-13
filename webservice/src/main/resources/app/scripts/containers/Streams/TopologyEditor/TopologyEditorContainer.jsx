@@ -166,7 +166,7 @@ export class TopologyEditorContainer extends Component {
     if(namespaceObj.status){
       status = namespaceObj.status.toLowerCase();
     }
-    this.runTimeTopologyId = namespaceObj.runtimeTopologyId;
+    this.runtimeAppId = namespaceObj.runtimeAppId;
     return status;
   }
 
@@ -180,79 +180,86 @@ export class TopologyEditorContainer extends Component {
 
   fetchData(versionId) {
 
-    let promises = [
-      TopologyREST.getTopologyWithoutMetrics(this.topologyId, versionId),
-      TopologyREST.getTopologyActionStatus(this.topologyId, versionId)
-    ];
-    Promise.all(promises).then((responses)=>{
-      let data = {
-        topology: responses[0],
-        namespaces: this.syncNamespaceObj(responses[1].entities)
-      };
+    TopologyREST.getAllVersions(this.topologyId).then((response)=>{
+      this.versionId = versionId;
+      let versions = response.entities;
 
-      this.engine = Utils.getEngineById(data.topology.engineId);
+      Utils.sortArray(versions, 'timestamp', false);
 
-      this.versionId = versionId
-        ? versionId
-        : data.topology.versionId;
+      if(this.viewMode && !this.versionId){
+        this.versionId = versions.length > 1 ? versions[1].id : versions[0].id;
+        this.versionName = versions.length > 1 ? versions[1].name : versions[0].name;
+      } else if(!this.viewMode && !this.versionId){
+        this.versionId = versions[0].id;
+        this.versionName = versions[0].name;
+      } else if(this.versionId){
+        versions.map((versionObj)=>{
+          if(versionObj.id == this.versionId){
+            this.versionName = versionObj.name;
+          }
+        });
+      }
 
-      this.namespaceName = _.keys(data.namespaces)[0];
-      this.namespaceId = data.namespaces[this.namespaceName].namespaceId;
-      this.lastUpdatedTime = new Date(data.topology.timestamp);
+      let promises = [
+        TopologyREST.getTopologyWithoutMetrics(this.topologyId, versionId),
+        TopologyREST.getTopologyActionStatus(this.topologyId, versionId)
+      ];
+      Promise.all(promises).then((responses)=>{
+        let data = {
+          topology: responses[0],
+          namespaces: this.syncNamespaceObj(responses[1].entities)
+        };
 
-      this.topologyName = data.topology.name;
-      this.topologyConfig = (data.topology.config && data.topology.config.properties) ? data.topology.config.properties : {};
-      this.topologyTimeSec = this.topologyConfig["topology.message.timeout.secs"];
+        this.engine = Utils.getEngineById(data.topology.engineId);
 
-      this.status = this.getStatusFromNamespaces(data.namespaces);
-      let isAppRunning = this.getAppRunningStatus(this.status);
+        this.namespaceName = _.keys(data.namespaces)[0];
+        this.namespaceId = data.namespaces[this.namespaceName].namespaceId;
+        this.lastUpdatedTime = new Date(data.topology.timestamp);
 
-      let promiseArr = [];
-      promiseArr.push(TopologyREST.getAllVersions(this.topologyId));
-      promiseArr.push(TopologyREST.getTopologyConfig(data.topology.engineId));
-      promiseArr.push(ProjectREST.getProject(this.projectId));
-      promiseArr.push(TopologyREST.getMetaInfo(this.topologyId, this.versionId));
+        this.topologyName = data.topology.name;
+        this.topologyConfig = (data.topology.config && data.topology.config.properties) ? data.topology.config.properties : {};
+        this.topologyTimeSec = this.topologyConfig["topology.message.timeout.secs"];
 
-      this.fetchNameSpace(isAppRunning, this.namespaceId);
+        this.status = this.getStatusFromNamespaces(data.namespaces);
+        let isAppRunning = this.getAppRunningStatus(this.status);
 
-      Promise.all(promiseArr).then((resultsArr) => {
+        let promiseArr = [];
+        promiseArr.push(TopologyREST.getTopologyConfig(data.topology.engineId));
+        promiseArr.push(ProjectREST.getProject(this.projectId));
+        promiseArr.push(TopologyREST.getMetaInfo(this.topologyId, this.versionId));
 
-        let versions = resultsArr[0].entities || [];
+        this.fetchNameSpace(isAppRunning, this.namespaceId);
 
-        this.topologyConfigData = resultsArr[1].entities[0] || [];
-        this.projectData = resultsArr[2];
+        Promise.all(promiseArr).then((resultsArr) => {
 
-        let defaultTimeSecVal = this.getDefaultTimeSec(this.topologyConfigData);
+          this.topologyConfigData = resultsArr[0].entities[0] || [];
+          this.projectData = resultsArr[1];
 
-        Utils.sortArray(versions, 'timestamp', false);
+          let defaultTimeSecVal = this.getDefaultTimeSec(this.topologyConfigData);
 
-        this.versionName = versions.find((o) => {
-          return o.id == this.versionId;
-        }).name;
+          this.graphData.metaInfo = _.extend(this.graphData.metaInfo, JSON.parse(resultsArr[2].data));
 
-        this.graphData.metaInfo = _.extend(this.graphData.metaInfo, JSON.parse(resultsArr[3].data));
-
-        this.setState({
-          topologyData: data.topology,
-          topologyNamespaces: data.namespaces,
-          timestamp: data.topology.timestamp,
-          topologyName: this.topologyName,
-          isAppRunning: isAppRunning,
-          topologyStatus: this.status,
-          topologyVersion: this.versionId,
-          versionsArr: versions,
-          fetchLoader: false,
-          mapTopologyConfig: this.topologyConfig,
-          topologyTimeSec: this.topologyTimeSec,
-          defaultTimeSec : defaultTimeSecVal,
-          topologyNameValid: true,
-          projectData: this.projectData
-        }, () => {
-          this.onFetchedData();
+          this.setState({
+            topologyData: data.topology,
+            topologyNamespaces: data.namespaces,
+            timestamp: data.topology.timestamp,
+            topologyName: this.topologyName,
+            isAppRunning: isAppRunning,
+            topologyStatus: this.status,
+            topologyVersion: this.versionId,
+            versionsArr: versions,
+            fetchLoader: false,
+            mapTopologyConfig: this.topologyConfig,
+            topologyTimeSec: this.topologyTimeSec,
+            defaultTimeSec : defaultTimeSecVal,
+            topologyNameValid: true,
+            projectData: this.projectData
+          }, () => {
+            this.onFetchedData();
+          });
         });
       });
     });
-
     this.graphData = {
       nodes: [],
       edges: [],

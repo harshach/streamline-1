@@ -191,7 +191,7 @@ class TopologyViewMode extends Component {
       isAppRunning,
       killTopology,
       setCurrentVersion,
-      runTimeTopologyId,
+      runtimeAppId,
       timestamp,
       topologyVersion,
       versionsArr = [],
@@ -203,12 +203,12 @@ class TopologyViewMode extends Component {
 
     let versionName = this.getTitleFromId(topologyVersion);
 
-    if (runTimeTopologyId && stormViewUrl.length) {
+    if (runtimeAppId && stormViewUrl.length) {
       if (stormViewUrl.indexOf('/main/views/') == -1) {
-        stormViewUrl = stormViewUrl + '/topology.html?id=' + runTimeTopologyId;
+        stormViewUrl = stormViewUrl + '/topology.html?id=' + runtimeAppId;
       } else {
         //Storm view requires the path to be encoded
-        stormViewUrl = stormViewUrl + '?viewpath=%23%2Ftopology%2F' + encodeURIComponent(runTimeTopologyId);
+        stormViewUrl = stormViewUrl + '?viewpath=%23%2Ftopology%2F' + encodeURIComponent(runtimeAppId);
       }
     }
     const userInfo = app_state.user_profile !== undefined ? app_state.user_profile.admin : false;

@@ -24,6 +24,7 @@ public class StatusImpl implements TopologyActions.Status {
     private String runtimeAppId;
     private Long namespaceId;
     private String namespaceName;
+    private String runtimeAppUrl;
 
     public void setStatus(String status) {
         this.status = status;
@@ -38,6 +39,8 @@ public class StatusImpl implements TopologyActions.Status {
     }
 
     public void setRuntimeAppId(String runtimeAppId) { this.runtimeAppId = runtimeAppId; }
+
+    public void setRuntimeAppUrl(String runtimeAppUrl) { this.runtimeAppUrl = runtimeAppUrl; }
 
     public void putExtra(String key, String val) {
         extra.put(key, val);
@@ -60,6 +63,9 @@ public class StatusImpl implements TopologyActions.Status {
 
     @Override
     public String getRuntimeAppId() { return runtimeAppId; }
+
+    @Override
+    public String getRuntimeAppUrl() { return runtimeAppUrl; }
 
     @Override
     public Map<String, String> getExtra() {

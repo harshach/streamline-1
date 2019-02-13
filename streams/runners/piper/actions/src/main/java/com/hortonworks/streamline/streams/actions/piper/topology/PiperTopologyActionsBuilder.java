@@ -8,6 +8,7 @@ import com.hortonworks.streamline.streams.catalog.Engine;
 import com.hortonworks.streamline.streams.cluster.catalog.Namespace;
 import com.hortonworks.streamline.streams.cluster.catalog.Service;
 import com.hortonworks.streamline.streams.cluster.catalog.ServiceConfiguration;
+import com.hortonworks.streamline.streams.cluster.register.impl.PiperServiceRegistrar;
 import com.hortonworks.streamline.streams.cluster.service.EnvironmentService;
 import com.hortonworks.streamline.streams.piper.common.PiperUtil;
 
@@ -59,9 +60,11 @@ public class PiperTopologyActionsBuilder implements TopologyActionsBuilder<Map<S
         String host = configMap.get(PIPER_SERVICE_CONFIG_KEY_HOST);
         String port = configMap.get(PIPER_SERVICE_CONFIG_KEY_PORT);
         String rootUrl = PiperUtil.buildPiperRestApiRootUrl(host, port);
+        String uiRootUrl = configMap.get(PiperServiceRegistrar.PARAM_PIPER_UI_BASE_URL);
         conf.put(PIPER_ROOT_URL_KEY, rootUrl);
         conf.put(UWORC_NAMESPACE_ID, namespace.getId());
         conf.put(UWORC_NAMESPACE_NAME, namespace.getName());
+        conf.put(PIPER_UI_ROOT_URL_KEY, uiRootUrl);
     }
 
     @Override

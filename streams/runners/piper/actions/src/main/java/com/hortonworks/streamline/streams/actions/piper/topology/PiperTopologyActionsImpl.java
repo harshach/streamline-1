@@ -9,7 +9,6 @@ import com.hortonworks.streamline.streams.cluster.catalog.Service;
 import com.hortonworks.streamline.streams.cluster.catalog.ServiceConfiguration;
 import com.hortonworks.streamline.streams.cluster.register.impl.PiperServiceRegistrar;
 import com.hortonworks.streamline.streams.cluster.service.EnvironmentService;
-import com.hortonworks.streamline.streams.piper.common.PiperConstants;
 import com.hortonworks.streamline.streams.piper.common.PiperUtil;
 import com.hortonworks.streamline.streams.piper.common.pipeline.Pipeline;
 import com.hortonworks.streamline.streams.actions.topology.service.TopologyActionsService;
@@ -24,8 +23,6 @@ import com.hortonworks.streamline.streams.layout.component.impl.testing.TestRunS
 import com.hortonworks.streamline.streams.layout.component.impl.testing.TestRunSource;
 
 import com.hortonworks.streamline.streams.piper.common.PiperRestAPIClient;
-import com.sun.tools.corba.se.idl.InvalidArgument;
-import io.dropwizard.lifecycle.Managed;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -49,6 +46,7 @@ import static com.hortonworks.streamline.streams.actions.piper.topology.PiperTop
 import static com.hortonworks.streamline.streams.piper.common.PiperConstants.PIPER_RESPONSE_DATA;
 import static com.hortonworks.streamline.streams.piper.common.PiperConstants.PIPER_RESPONSE_METADATA;
 import static com.hortonworks.streamline.streams.piper.common.PiperConstants.PIPER_ROOT_URL_KEY;
+import static com.hortonworks.streamline.streams.piper.common.PiperConstants.PIPER_UI_ROOT_URL_KEY;
 import static com.hortonworks.streamline.streams.piper.common.PiperConstants.PIPER_METRIC_LATEST_EXECUTION_DATE;
 import static com.hortonworks.streamline.streams.piper.common.PiperConstants.STATE_KEY_EXECUTION_DATE;
 import static com.hortonworks.streamline.streams.piper.common.PiperConstants.PIPER_METRIC_LATEST_EXECUTION_STATUS;
@@ -61,6 +59,7 @@ public class PiperTopologyActionsImpl implements TopologyActions {
     private EnvironmentService environmentService;
     private Long namespaceId;
     private String namespaceName;
+    private String piperUIRootUrl;
 
     private PiperRestAPIClient client;
 
@@ -72,6 +71,7 @@ public class PiperTopologyActionsImpl implements TopologyActions {
         String piperAPIRootUrl = (String)conf.get(PIPER_ROOT_URL_KEY);
         this.namespaceId = (Long) conf.get(UWORC_NAMESPACE_ID);
         this.namespaceName = (String) conf.get(UWORC_NAMESPACE_NAME);
+        this.piperUIRootUrl = (String) conf.get(PIPER_UI_ROOT_URL_KEY);
         this.environmentService = environmentService;
         this.client = new PiperRestAPIClient(piperAPIRootUrl, null);
     }
@@ -238,9 +238,20 @@ public class PiperTopologyActionsImpl implements TopologyActions {
             runtimeStatus.setNamespaceId(this.namespaceId);
             runtimeStatus.setNamespaceName(this.namespaceName);
             runtimeStatus.setRuntimeAppId(runtimeAppId);
+            runtimeStatus.setRuntimeAppUrl(getRuntimeAppUrl(runtimeAppId));
         }
 
         return runtimeStatus;
+    }
+
+    private String getRuntimeAppUrl(String runtimeAppId) {
+        String url = this.piperUIRootUrl;
+
+        if (runtimeAppId != null) {
+            url = String.format("%s/?pipeline_id=%s&search=%s&num_runs=14&expand=true",
+                    this.piperUIRootUrl, runtimeAppId, runtimeAppId);
+        }
+        return url;
     }
 
     private Map<String, Object> convertTopologyDeploymentToPiperDeployment(TopologyDeployment topologyDeployment) {
@@ -257,7 +268,7 @@ public class PiperTopologyActionsImpl implements TopologyActions {
                 if (map == null) {
                     throw new IllegalStateException("Could not find namespace " + namespaceId);
                 }
-                datacenters.add(map.get(PiperServiceRegistrar.PARAM_PIPER_UI_DATACENTER));
+                datacenters.add(map.get(PiperServiceRegistrar.PARAM_PIPER_API_DATACENTER));
             }
             piperDeployment.put(ManagedPipelineGenerator.PIPER_TOPOLOGY_CONFIG_SELECTED_DATACENTER, datacenters);
         }
@@ -286,7 +297,7 @@ public class PiperTopologyActionsImpl implements TopologyActions {
         for(Namespace namespace: namespaces) {
             Map<String, String> configMap = getPiperServiceConfigurationMap(namespace.getId());
             if (configMap != null) {
-                String datacenterForNamespace = configMap.get(PiperServiceRegistrar.PARAM_PIPER_UI_DATACENTER);
+                String datacenterForNamespace = configMap.get(PiperServiceRegistrar.PARAM_PIPER_API_DATACENTER);
 
                 if (datacentersDeployed.contains(datacenterForNamespace)) {
                     regionsDeployed.add(namespace.getId());

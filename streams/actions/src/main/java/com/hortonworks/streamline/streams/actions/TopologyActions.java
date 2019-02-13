@@ -125,6 +125,7 @@ public interface TopologyActions {
         Long getNamespaceId();
         String getNamespaceName();
         String getRuntimeAppId();
+        String getRuntimeAppUrl();
         Map<String, String> getExtra();
     }
 

@@ -378,9 +378,9 @@ public class PiperTopologyMetricsImpl implements TopologyMetrics {
             throw new IllegalStateException("Piper service config doesn't exist");
         }
 
-        String environment = configMap.get(PiperServiceRegistrar.PARAM_PIPER_UI_ENVIRONMENT);
+        String environment = configMap.get(PiperServiceRegistrar.PARAM_PIPER_API_ENVIRONMENT);
         if (environment == null) {
-            throw new IllegalStateException("Piper service config key doesn't exist" + PiperServiceRegistrar.PARAM_PIPER_UI_ENVIRONMENT);
+            throw new IllegalStateException("Piper service config key doesn't exist" + PiperServiceRegistrar.PARAM_PIPER_API_ENVIRONMENT);
         }
 
         return environment;

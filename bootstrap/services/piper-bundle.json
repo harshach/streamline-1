@@ -34,7 +34,24 @@
         "tooltip": "Environment - maps to config/{env}.yaml, used when fetching M3 metrics",
         "type": "enumstring",
         "options": ["production", "dca1", "phx2", "staging", "staging-dca1", "sandbox"]
+      },
+      {
+        "uiName": "Piper Url",
+        "fieldName": "piper.service.url",
+        "isOptional": false,
+        "tooltip": "Used to link to Piper from uWorc",
+        "type": "enumstring",
+        "options": [
+          "https://piper-sjc1.uberinternal.com",
+          "https://piper-dca1.uberinternal.com",
+          "https://piper-phx2.uberinternal.com",
+          "https://piper-staging.uberinternal.com",
+          "https://piper-staging-dca1.uberinternal.com",
+          "https://piper-sandbox.uberinternal.com",
+          "http://localhost:4310"
+        ]
       }
+
     ]
   }
 }

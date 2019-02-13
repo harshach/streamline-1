@@ -429,6 +429,13 @@ public class StreamCatalogService {
         return projects;
     }
 
+    public Project getProject(Long projectId) {
+        Project project = new Project();
+        project.setId(projectId);
+        Project result = this.dao.get(project.getStorableKey());
+        return result;
+    }
+
     /**
      * Lists the 'CURRENT' version of topologies
      */

@@ -17,7 +17,7 @@ language governing permissions and limitations under the License. -->
     <parent>
         <groupId>com.hortonworks.streamline</groupId>
         <artifactId>streamline</artifactId>
-        <version>0.1.0-alpha</version>
+        <version>0.1.2-alpha</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
 

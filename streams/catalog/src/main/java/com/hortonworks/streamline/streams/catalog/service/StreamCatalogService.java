@@ -254,6 +254,13 @@ public class StreamCatalogService {
         return dao.get(engine.getStorableKey());
     }
 
+    public Engine getEngine(String engineName) {
+        List<QueryParam> queryParams = new ArrayList<>();
+        queryParams.add(new QueryParam(Engine.NAME, engineName));
+        Collection<Engine> engines = this.dao.find(ENGINE_NAMESPACE, queryParams);
+        return (engines != null && engines.size() > 0 ? engines.iterator().next() : null);
+    }
+
     public EngineMetricsBundle addEngineMetricsBundle (EngineMetricsBundle engineMetricsBundle) {
         if (engineMetricsBundle.getId() == null) {
             engineMetricsBundle.setId(this.dao.nextId(EngineMetricsBundle.NAME_SPACE));

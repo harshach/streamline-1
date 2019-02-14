@@ -150,9 +150,9 @@ function add_all_bundles {
     post /system/engines ${athenax_dir}/athenax.json
 
     # === Templates ===
-    post /system/engines/1/templates ${storm_dir}/templates/blank.json
-    post /system/engines/3/templates ${piper_dir}/templates/blank.json
-    post /system/engines/5/templates ${athenax_dir}/templates/blank.json
+    post /system/engines/STORM/templates ${storm_dir}/templates/blank.json
+    post /system/engines/PIPER/templates ${piper_dir}/templates/blank.json
+    post /system/engines/ATHENAX/templates ${athenax_dir}/templates/blank.json
 
     # === Engine Metrics ===
     post /system/engines/metrics ${storm_dir}/metrics/storm-metrics.json

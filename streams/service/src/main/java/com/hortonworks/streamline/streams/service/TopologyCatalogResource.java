@@ -178,20 +178,24 @@ public class TopologyCatalogResource {
     }
 
     @POST
-    @Path("/system/engines/{engineId}/templates")
+    @Path("/system/engines/{engineName}/templates")
     @Timed
-    public Response addTemplate(@PathParam("engineId") Long engineId,
+    public Response addTemplate(@PathParam("engineName") String engineName,
                                 Template template, @Context SecurityContext securityContext) {
         SecurityUtil.checkRole(authorizer, securityContext, Roles.ROLE_TOPOLOGY_ADMIN);
         if (StringUtils.isEmpty(template.getName())) {
             throw BadRequestException.missingParameter(Template.NAME);
         }
-        template.setEngineId(engineId);
-        Template createdTemplate = catalogService.addTemplate(template);
-        SecurityUtil.addAcl(authorizer, securityContext, Template.NAMESPACE, createdTemplate.getId(),
-                EnumSet.allOf(Permission.class));
-        return WSUtils.respondEntity(createdTemplate, CREATED);
+        Engine engine = catalogService.getEngine(engineName);
+        if (engine != null) {
+            template.setEngineId(engine.getId());
+            Template createdTemplate = catalogService.addTemplate(template);
+            SecurityUtil.addAcl(authorizer, securityContext, Template.NAMESPACE, createdTemplate.getId(),
+                    EnumSet.allOf(Permission.class));
+            return WSUtils.respondEntity(createdTemplate, CREATED);
+        }
 
+        throw EntityNotFoundException.byMessage(String.format("Engine %s Not found", engineName));
     }
 
 

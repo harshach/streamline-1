@@ -14,7 +14,7 @@ java:
     - 'RUN mkdir -p /etc/artifactory_client && cp /etc/maven/artifactory-client.jks /etc/artifactory_client/artifactory-client.jks'
   build_cmds:
     - 'RUN mvn clean install -Dfindbugs.skip=true -DskipTests=true -U -P dist && cd /home/udocker/uworc && cp streamline-dist/target/hortonworks-streamline-*.zip .
-       && unzip hortonworks-streamline-0.6.0-SNAPSHOT.zip && chown -R udocker:udocker /home/udocker/uworc/ && ln -s /var/log/udocker/uworc /home/udocker/uworc/logs'
+       && unzip hortonworks-streamline-0.1.2-alpha.zip && chown -R udocker:udocker /home/udocker/uworc/ && ln -s /var/log/udocker/uworc /home/udocker/uworc/logs'
 
 export_paths:
   - /home/udocker/uworc

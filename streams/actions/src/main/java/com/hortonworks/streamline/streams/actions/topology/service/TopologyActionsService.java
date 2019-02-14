@@ -154,10 +154,10 @@ public class TopologyActionsService implements ContainingNamespaceAwareContainer
         TopologyDeployment topologyDeployment = CatalogToDeploymentConverter.getTopologyDeployment(topology);
         List<TopologyActions.Status> statuses = new ArrayList<>();
         for (Long region : topologyDeployment.getRegions()) {
-            TopologyActions topologyActions = getTopologyActionsInstance(topology, region);
             TopologyRuntimeIdMap runtimeIdMap = getRuntimeTopologyId(topology, region);
             if (runtimeIdMap != null) {
                 try {
+                    TopologyActions topologyActions = getTopologyActionsInstance(topology, region);
                     statuses.add(topologyActions.status(CatalogToLayoutConverter.getTopologyLayout(topology),
                             runtimeIdMap.getApplicationId(), asUser));
                 } catch (Exception e) {

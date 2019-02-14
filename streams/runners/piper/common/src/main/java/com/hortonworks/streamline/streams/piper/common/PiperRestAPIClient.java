@@ -76,6 +76,12 @@ public class PiperRestAPIClient {
         return PiperUtil.fixExecutionDate(response);
     }
 
+    public Map getDetailedPipelineState(String uuid) {
+        Map response =  doGetRequest(String.format("%s/api/v1/pipeline/state?pipeline_id=%s&extras=True",
+                this.apiRootUrl, uuid));
+        return PiperUtil.fixExecutionDate(response);
+    }
+
     public Map getTaskGraph(String uuid, String executionDate) {
         return doGetRequest(String.format("%s/api/v1/pipeline/task_graph?pipeline_id=%s&execution_date=%s",
                 this.apiRootUrl, uuid, executionDate));

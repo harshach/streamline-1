@@ -167,6 +167,7 @@ export class TopologyEditorContainer extends Component {
       status = namespaceObj.status.toLowerCase();
     }
     this.runtimeAppId = namespaceObj.runtimeAppId;
+    this.runtimeAppUrl = namespaceObj.runtimeAppUrl;
     return status;
   }
 
@@ -1151,9 +1152,27 @@ export class TopologyEditorContainer extends Component {
   }
 
   handleDeployTopology = () => {
-    this.setState({deployFlag : true}, () => {
-      this.refs.TopologyConfigModal.show();
-    });
+    if(this.graphData.nodes.length > 0){
+      let allowDeploy = true;
+      this.graphData.nodes.map((node)=>{
+        if(allowDeploy){
+          allowDeploy = node.isConfigured;
+        }
+      });
+      if(allowDeploy){
+        if(this.graphData.edges.length > 0){
+          this.setState({deployFlag : true}, () => {
+            this.refs.TopologyConfigModal.show();
+          });
+        } else {
+          FSReactToastr.warning(<strong>No components are connected. Please connect & configure components before deploying.</strong>);
+        }
+      } else {
+        FSReactToastr.warning(<strong>One or more components are not configured. Please configure before deploying.</strong>);
+      }
+    } else {
+      FSReactToastr.info(<strong>No components found. Please add & configure components before deploying.</strong>);
+    }
   }
 
   handleCancelConfig = () => {

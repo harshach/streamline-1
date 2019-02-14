@@ -34,6 +34,7 @@ import LogSearch from '../containers/LogSearch/LogSearch';
 import {menuName} from '../utils/Constants';
 import {hasModuleAccess} from '../utils/ACLUtils';
 import SamplingsComponent from '../containers/Samplings/SamplingsComponent';
+import AccessDeniedComponent  from '../components/AccessDeniedComponent';
 
 const onEnter = (nextState, replace, callback) => {
   var sidebarRoute = nextState.routes[1];
@@ -57,11 +58,10 @@ const onEnter = (nextState, replace, callback) => {
   }else{
     hasAccess = true;
   }
-  if(hasAccess){
-    callback();
-  } else {
-    throw new Error("Access Denied for "+route.accessMenuName);
+  if(!hasAccess){
+    replace('/no-access');
   }
+  callback();
 };
 
 export default (
@@ -95,6 +95,7 @@ export default (
     <Route path="authorizer" name="Authorizer" accessMenuName={menuName.AUTHORIZER} component={UserRolesContainer} onEnter={onEnter}/>
     <Route path="logsearch/:id" name="Log Search" component={LogSearch} onEnter={onEnter}/>
     <Route path="sampling/:id" name="Samplings" component={SamplingsComponent} onEnter={onEnter}/>
+    <Route path="no-access" name="Unauthorized Access" component={AccessDeniedComponent}/>
   </Route>
 
 );

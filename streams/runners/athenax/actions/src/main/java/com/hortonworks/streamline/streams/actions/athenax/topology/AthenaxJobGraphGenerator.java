@@ -10,6 +10,7 @@ import com.hortonworks.streamline.streams.layout.component.StreamlineSink;
 import com.hortonworks.streamline.streams.layout.component.StreamlineSource;
 import com.hortonworks.streamline.streams.layout.component.TopologyDagVisitor;
 import com.hortonworks.streamline.streams.layout.component.TopologyLayout;
+import com.hortonworks.streamline.streams.layout.component.impl.KafkaSink;
 import com.hortonworks.streamline.streams.layout.component.impl.KafkaSource;
 import com.hortonworks.streamline.streams.layout.component.impl.RTASink;
 import com.hortonworks.streamline.streams.layout.component.impl.RulesProcessor;
@@ -47,15 +48,14 @@ public class AthenaxJobGraphGenerator extends TopologyDagVisitor {
 
 	private TopologyLayout topology;
 	private String runAsUser;
-	private List<KafkaSource> kafkaSourceList;
-	private RTASink rtaSink;
+	private StreamlineSource streamlineSource;
+	private StreamlineSink streamlineSink;
 	private String sql;
 	private boolean legalAthenaXJob;
 
 	protected AthenaxJobGraphGenerator(TopologyLayout topology, String asUser) {
 		this.topology = topology;
 		this.runAsUser = asUser;
-		this.kafkaSourceList = new ArrayList<>();
 		this.legalAthenaXJob = true;
 	}
 
@@ -66,29 +66,35 @@ public class AthenaxJobGraphGenerator extends TopologyDagVisitor {
 
 	@Override
 	public void visit(StreamlineSource source) {
-		LOG.debug("visit source: " + source);
-		if (source instanceof KafkaSource) {
-			kafkaSourceList.add((KafkaSource) source);
-		} else {
+		LOG.debug("Visiting source: {}", source);
+		if (streamlineSource != null) {
 			legalAthenaXJob = false;
-			LOG.error("non kafka source not supported in AthenaX");
+			LOG.error("Only single source supported in AthenaX");
 		}
+		if (!(source instanceof KafkaSource)) {
+			legalAthenaXJob = false;
+			LOG.error("Only Kafka source supported in AthenaX");
+		}
+		streamlineSource = source;
 	}
 
 	@Override
 	public void visit(StreamlineSink sink) {
-		LOG.debug("visit sink: " + sink);
-		if (sink instanceof RTASink) {
-			rtaSink = (RTASink) sink;
-		} else {
+		LOG.debug("Visiting sink: {}", sink);
+		if (streamlineSink != null) {
 			legalAthenaXJob = false;
-			LOG.error("non RTA sink not supported at this time.");
+			LOG.error("Only single sink supported in AthenaX");
 		}
+		if (!(sink instanceof RTASink || sink instanceof KafkaSink)) {
+			legalAthenaXJob = false;
+			LOG.error("Only Kafka/RTA sinks supported in AthenaX");
+		}
+		streamlineSink = sink;
 	}
 
 	@Override
 	public void visit(StreamlineProcessor processor) {
-		LOG.debug("visit StreamlineProcessor:" + processor);
+		LOG.debug("Visiting StreamlineProcessor: {}", processor);
 
 		if (processor instanceof SqlProcessor) {
 			SqlProcessor sqlProcessor = (SqlProcessor) processor;
@@ -101,13 +107,22 @@ public class AthenaxJobGraphGenerator extends TopologyDagVisitor {
 
 	@Override
 	public void visit(Edge edge) {
-		LOG.debug("visit edge:" + edge);
+		LOG.debug("Visiting edge: {}", edge);
+	}
+
+	public boolean isRTAEnabled() {
+		return streamlineSink instanceof RTASink;
 	}
 
 	public RTACreateTableRequest extractRTACreateTableRequest() {
+		if (!isRTAEnabled()) {
+			LOG.error("Cannot extract RTA create table request when RTA is not enabled");
+			return null;
+		}
+
 		RTACreateTableRequest request = new RTACreateTableRequest();
 
-		Config rtaSinkConfig = rtaSink.getConfig();
+		Config rtaSinkConfig = streamlineSink.getConfig();
 
 		// TODO: Change to use email in runAsUser when available
 		request.setOwner(runAsUser + "@uber.com");
@@ -134,9 +149,14 @@ public class AthenaxJobGraphGenerator extends TopologyDagVisitor {
 	}
 
 	private RTATableMetadata extractRTATableMetadata() {
+		if (!isRTAEnabled()) {
+			LOG.error("Cannot extract RTA table metadata when RTA is not enabled");
+			return null;
+		}
+
 		RTATableMetadata metaData = new RTATableMetadata();
 
-		Config rtaSinkConfig = rtaSink.getConfig();
+		Config rtaSinkConfig = streamlineSink.getConfig();
 
 		List<String> primaryKeys = new ArrayList<>();
 		List<Map<String, Object>> tableFieldConfigs = rtaSinkConfig.getAny(RTAConstants.TABLE_FIELDS);
@@ -159,15 +179,20 @@ public class AthenaxJobGraphGenerator extends TopologyDagVisitor {
 		metaData.setQueryTypes(queryTypes);
 
 		// source topic for RTA ingestion, which is the topic defined in RTA sink
-		String rtaSourceTopicName = rtaSink.getConfig().get(KAFKA_TOPIC);
+		String rtaSourceTopicName = rtaSinkConfig.get(KAFKA_TOPIC);
 		metaData.setSourceName(rtaSourceTopicName);
 
 		return metaData;
 	}
 
 	public RTADeployTableRequest extractRTADeployTableRequest() {
+		if (!isRTAEnabled()) {
+			LOG.error("Cannot extract RTA deploy table request when RTA is not enabled");
+			return null;
+		}
+
 		RTADeployTableRequest request = new RTADeployTableRequest();
-		request.setKafkaCluster(rtaSink.getConfig().get(RTAConstants.KAFKA_CLUSTER));
+		request.setKafkaCluster(streamlineSink.getConfig().get(RTAConstants.KAFKA_CLUSTER));
 		return request;
 	}
 
@@ -178,7 +203,7 @@ public class AthenaxJobGraphGenerator extends TopologyDagVisitor {
 		// input connectors (kafka only)
 		jobDef.setInput(getInputConnectors(zkConnectionStr));
 
-		// output connectors(kafka only)
+		// output connectors(kafka/RTA only)
 		jobDef.setOutput(getOutputConnectors());
 
 		// only stream is supported at this time
@@ -217,27 +242,28 @@ public class AthenaxJobGraphGenerator extends TopologyDagVisitor {
 	private List<Connector> getInputConnectors(String zkConnectionStr) {
 		// input connectors(kafka only for AthenaX)
 		List<Connector> inputConnectors = new ArrayList<>();
-		for (KafkaSource kafkaSource : kafkaSourceList) {
-			// extract kafka properties
-			Properties kafkaProperties = new Properties();
-			kafkaProperties.put(BOOTSTRAP_SERVERS, kafkaSource.getConfig().get("bootstrapServers"));
-			kafkaProperties.put(GROUP_ID, kafkaSource.getConfig().get("consumerGroupId"));
 
-			kafkaProperties.put(ENABLE_AUTO_COMMIT, "false");
-			kafkaProperties.put(HEATPIPE_APP_ID, topology.getName());
-			kafkaProperties.put(HEATPIPE_KAFKA_HOST_PORT, "localhost:18083");
-			kafkaProperties.put(HEATPIPE_SCHEMA_SERVICE_HOST_PORT, "localhost:14040");
+		Config sourceConfig = streamlineSource.getConfig();
 
-			String topicName = kafkaSource.getConfig().get(KAFKA_TOPIC);
-			Connector kafkaInput = new Connector();
-			kafkaInput.setProperties(kafkaProperties);
-			kafkaInput.setType(TYPE_KAFKA);
-			kafkaInput.setName(topicName);
+		// extract kafka properties
+		Properties kafkaProperties = new Properties();
+		kafkaProperties.put(BOOTSTRAP_SERVERS, sourceConfig.get("bootstrapServers"));
+		kafkaProperties.put(GROUP_ID, sourceConfig.get("consumerGroupId"));
 
-			kafkaInput.setUri(HEATPIPE_PROTOCOL_PREFIX + zkConnectionStr + "/" + topicName);
+		kafkaProperties.put(ENABLE_AUTO_COMMIT, "false");
+		kafkaProperties.put(HEATPIPE_APP_ID, topology.getName());
+		kafkaProperties.put(HEATPIPE_KAFKA_HOST_PORT, "localhost:18083");
+		kafkaProperties.put(HEATPIPE_SCHEMA_SERVICE_HOST_PORT, "localhost:14040");
 
-			inputConnectors.add(kafkaInput);
-		}
+		String topicName = sourceConfig.get(KAFKA_TOPIC);
+		Connector kafkaInput = new Connector();
+		kafkaInput.setProperties(kafkaProperties);
+		kafkaInput.setType(TYPE_KAFKA);
+		kafkaInput.setName(topicName);
+
+		kafkaInput.setUri(HEATPIPE_PROTOCOL_PREFIX + zkConnectionStr + "/" + topicName);
+
+		inputConnectors.add(kafkaInput);
 
 		return inputConnectors;
 	}
@@ -245,16 +271,18 @@ public class AthenaxJobGraphGenerator extends TopologyDagVisitor {
 	private List<Connector> getOutputConnectors() {
 		List<Connector> outputConnectors = new ArrayList<>();
 
+		Config sinkConfig = streamlineSink.getConfig();
+
 		// extract kafka properties
 		Properties kafkaProperties = new Properties();
-		String bootStrapServers = rtaSink.getConfig().get("bootstrapServers");
+		String bootStrapServers = sinkConfig.get("bootstrapServers");
 		kafkaProperties.put(BOOTSTRAP_SERVERS, bootStrapServers);
 		kafkaProperties.put(HEATPIPE_APP_ID, topology.getName());
 		kafkaProperties.put(HEATPIPE_KAFKA_HOST_PORT, "localhost:18083");
 		kafkaProperties.put(HEATPIPE_SCHEMA_SERVICE_HOST_PORT, "localhost:14040");
 		kafkaProperties.put(CLIENT_ID, UWORC_SERVICE_NAME + "/" + topology.getName());
 
-		String topicName = rtaSink.getConfig().get(KAFKA_TOPIC);
+		String topicName = sinkConfig.get(KAFKA_TOPIC);
 		Connector kafkaOutput = new Connector();
 		kafkaOutput.setProperties(kafkaProperties);
 		kafkaOutput.setType(TYPE_KAFKA);

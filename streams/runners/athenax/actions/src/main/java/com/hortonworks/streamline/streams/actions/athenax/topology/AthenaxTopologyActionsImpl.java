@@ -74,11 +74,14 @@ public class AthenaxTopologyActionsImpl implements TopologyActions {
 		TopologyDag topologyDag = topology.getTopologyDag();
 		topologyDag.traverse(requestGenerator);
 
-		RTACreateTableRequest rtaCreateTableRequest = requestGenerator.extractRTACreateTableRequest();
-		rtaRestAPIClient.createTable(JsonClientUtil.convertRequestToJson(rtaCreateTableRequest));
+		// send request to rta-ums if RTA is enabled
+		if (requestGenerator.isRTAEnabled()) {
+			RTACreateTableRequest rtaCreateTableRequest = requestGenerator.extractRTACreateTableRequest();
+			rtaRestAPIClient.createTable(JsonClientUtil.convertRequestToJson(rtaCreateTableRequest));
 
-		RTADeployTableRequest rtaDeployTableRequest = requestGenerator.extractRTADeployTableRequest();
-		rtaRestAPIClient.deployTable(rtaDeployTableRequest, rtaCreateTableRequest.name());
+			RTADeployTableRequest rtaDeployTableRequest = requestGenerator.extractRTADeployTableRequest();
+			rtaRestAPIClient.deployTable(rtaDeployTableRequest, rtaCreateTableRequest.name());
+		}
 		// extract AthenaX deploy job request
 		DeployRequest deployRequest = requestGenerator.extractDeployJobRequest(yarnDataCenter, yarnCluster, zkConnectionStr);
 

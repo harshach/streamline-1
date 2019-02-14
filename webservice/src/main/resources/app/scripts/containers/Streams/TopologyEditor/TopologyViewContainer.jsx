@@ -769,6 +769,7 @@ class TopologyViewContainer extends TopologyEditorContainer {
                     isAppRunning={isAppRunning}
                     engineType={this.engine.type}
                     runtimeAppId={this.runtimeAppId}
+                    runtimeAppUrl={this.runtimeAppUrl}
                     topologyStatus={this.state.topologyStatus}
                   />,
                   <TopologyViewMode

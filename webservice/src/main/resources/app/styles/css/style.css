@@ -402,11 +402,10 @@ a.dropdown-toggle~ul.dropdown-menu {
 }
 
 .modal-tabs .nav-tabs>li.active>a, .modal-tabs .nav-tabs>li.active>a:hover, .modal-tabs .nav-tabs>li.active>a:focus {
-  border: none;
-  border-bottom: 1px transparent solid;
-  border-bottom-color: #1B6DE0;
+  border: 1px #dcdcdc solid;
+  border-bottom-color: #fff;
   background-color: transparent;
-  color: #1B6DE0;
+  color: #1b6de0;
 }
 
 .modal-tabs .tab-content {
@@ -5568,7 +5567,9 @@ h3.empty-project {
   box-shadow: 0 8px 16px rgba(0, 0, 0, .08);
 }
 .u-form .modal-header{
-  padding: 25px 25px 20px;
+  padding: 25px 5px 20px;
+  border-bottom: 1px solid #E5E5E5;
+  margin: 0 15px 20px;
 }
 .u-form .modal-header .close{
   color: #999999;
@@ -5582,7 +5583,9 @@ h3.empty-project {
   background: #F7F7F7;
 }
 .u-form .modal-footer{
-  padding: 0 15px 25px;
+  padding: 20px 5px 25px;
+  border-top: 1px solid #E5E5E5;
+  margin: 0 15px 20px;
 }
 
 .u-form .form-control{
@@ -6041,4 +6044,7 @@ background: #fff
   height: 15px;
   vertical-align: baseline;
   margin-left: 6px;
+}
+.no-access-note{
+  margin-top: 100px;
 }

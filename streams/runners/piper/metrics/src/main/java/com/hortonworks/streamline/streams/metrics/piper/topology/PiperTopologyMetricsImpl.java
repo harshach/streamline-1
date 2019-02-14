@@ -59,6 +59,7 @@ public class PiperTopologyMetricsImpl implements TopologyMetrics {
     private static final String STATE_KEY_NEXT_EXECUTION_DATE = "next_execution_date";
     private static final String STATE_KEY_TRIGGER_TYPE = "trigger_type";
     private static final String STATE_KEY_TRIGGERED_PIPELINE_RUN_NAME = "triggered_run_name";
+    private static final String STATE_KEY_EXTRAS = "extras";
 
     private static final String TASK_GRAPH_KEY_GRAPH= "graph";
     private static final String TASK_GRAPH_KEY_NODES = "nodes";
@@ -164,23 +165,32 @@ public class PiperTopologyMetricsImpl implements TopologyMetrics {
         Topology topology = getTopologyForLayout(topologyLayout);
 		String runtimeId = getRuntimeTopologyId(topology, namespaceId);
 		if (runtimeId != null) {
-            Map response = client.getPipelineState(runtimeId);
+            Map response = client.getDetailedPipelineState(runtimeId);
             String runtimeStatus = PiperUtil.getRuntimeStatus(response);
             metrics.put(PIPER_METRIC_RUNTIME_STATUS, runtimeStatus);
             metrics.put(PIPER_METRIC_LATEST_EXECUTION_DATE, response.get(STATE_KEY_EXECUTION_DATE));
             metrics.put(PIPER_METRIC_LATEST_EXECUTION_STATUS, response.get(STATE_KEY_EXECUTION_STATE));
+            String triggerType = (String) response.get(STATE_KEY_TRIGGER_TYPE);
+            metrics.put(PIPER_METRIC_PIPELINE_TYPE, pipelineType(triggerType));
 
             // FIXME is UI interpreting and humanizing?
             metrics.put(PIPER_METRIC_CADENCE, response.get(STATE_KEY_SCHEDULE_INTERVAL));
 
-            // FIXME these fields are not currently available https://code.uberinternal.com/T2207333
-            metrics.put(PIPER_METRIC_DURATION, response.get(STATE_KEY_DURATION));
-            metrics.put(PIPER_METRIC_AUTOBACKFILLING, response.get(STATE_KEY_AUTOBACKFILLING));
-            metrics.put(PIPER_METRIC_NEXT_EXECUTION_DATE, response.get(STATE_KEY_NEXT_EXECUTION_DATE));
-            String triggerType = (String) response.get(STATE_KEY_TRIGGER_TYPE);
-            metrics.put(PIPER_METRIC_PIPELINE_TYPE, pipelineType(triggerType));
+            Map<String, Object> extras = (Map<String, Object>) response.get(STATE_KEY_EXTRAS);
 
-            metrics.put(PIPER_METRIC_TRIGGERED_PIPELINE_RUN_NAME, response.get(STATE_KEY_TRIGGERED_PIPELINE_RUN_NAME));
+            if (extras != null) {
+                metrics.put(PIPER_METRIC_DURATION, extras.get(STATE_KEY_DURATION));
+                metrics.put(PIPER_METRIC_AUTOBACKFILLING, extras.get(STATE_KEY_AUTOBACKFILLING));
+                metrics.put(PIPER_METRIC_NEXT_EXECUTION_DATE, extras.get(STATE_KEY_NEXT_EXECUTION_DATE));
+                metrics.put(PIPER_METRIC_TRIGGERED_PIPELINE_RUN_NAME, extras.get(STATE_KEY_TRIGGERED_PIPELINE_RUN_NAME));
+            } else {
+                // FIXME we were previously returning null for these, so leaving until a contract is agreed on with UI
+                metrics.put(PIPER_METRIC_DURATION, null);
+                metrics.put(PIPER_METRIC_AUTOBACKFILLING, null);
+                metrics.put(PIPER_METRIC_NEXT_EXECUTION_DATE, null);
+                metrics.put(PIPER_METRIC_TRIGGERED_PIPELINE_RUN_NAME, null);
+            }
+
         }
 
 		return new TopologyMetric(PIPER_METRIC_FRAMEWORK, topology.getName(), metrics);

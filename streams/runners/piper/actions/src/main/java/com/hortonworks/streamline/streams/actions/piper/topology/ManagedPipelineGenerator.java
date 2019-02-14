@@ -251,7 +251,7 @@ public class ManagedPipelineGenerator extends TopologyDagVisitor {
                     intervalTime = 60 * 60 * 24 * 7 * multiplier;
                 }
                 if (intervalTime < MIN_SCHEDULE_INTERVAL) {
-                    throw new RuntimeException("Schedule interval must be at least " + MIN_SCHEDULE_INTERVAL);
+                    throw new RuntimeException("Schedule interval must be at least " + MIN_SCHEDULE_INTERVAL + " seconds.");
                 }
                 pipeline.setScheduleInterval(intervalTime);
             } else if (intervalProp.containsKey(PIPER_TOPOLOGY_CONFIG_SCHEDULE_INTERVAL_TYPE_CRON)) {

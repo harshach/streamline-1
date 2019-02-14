@@ -7,7 +7,7 @@
     <parent>
         <artifactId>streamline</artifactId>
         <groupId>com.hortonworks.streamline</groupId>
-        <version>0.1.0-alpha</version>
+        <version>0.1.2-alpha</version>
         <relativePath>../../pom.xml</relativePath>
     </parent>
 

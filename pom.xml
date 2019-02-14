@@ -6,7 +6,7 @@
 
     <groupId>com.hortonworks.streamline</groupId>
     <artifactId>streamline</artifactId>
-    <version>0.1.0-alpha</version>
+    <version>0.1.2-alpha</version>
     <packaging>pom</packaging>
     <name>Streaming Analyitcs Manager</name>
     <description>

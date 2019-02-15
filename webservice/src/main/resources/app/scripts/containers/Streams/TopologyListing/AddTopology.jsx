@@ -332,48 +332,53 @@ class AddTopology extends Component {
             })}
           </div>
         </div>
-        <div className="form-group">
-          <label data-stest="selectEnvLabel">Workflow Templates
-            <span className="text-danger">*</span>
-          </label>
-          <FormGroup className="search-box">
-            <InputGroup>
-              <InputGroup.Addon>
-                <i className="fa fa-search"></i>
-              </InputGroup.Addon>
-              <FormControl data-stest="searchBox" type="text" placeholder="Search..." onKeyUp={this.onFilterChange} className="" />
-            </InputGroup>
-          </FormGroup>
-          <div className="row templates-container">{filteredTemplates.length ?
-            _.map(filteredTemplates, (t) => {
-              return <div className={`col-md-6 template-box ${templateId == t.id ? 'selected-template' : ''}`} key={t.name}>
-                <span className="name">{t.name}</span>
-                <span className="description">{t.description}</span>
-              </div>;
-            })
-            :
-            <div className="text-center">No template found!</div>
-          }
+        {engineId ?
+          <div>
+            <div className="form-group">
+              <label data-stest="selectEnvLabel">Workflow Templates
+                <span className="text-danger">*</span>
+              </label>
+              <FormGroup className="search-box">
+                <InputGroup>
+                  <InputGroup.Addon>
+                    <i className="fa fa-search"></i>
+                  </InputGroup.Addon>
+                  <FormControl data-stest="searchBox" type="text" placeholder="Search..." onKeyUp={this.onFilterChange} className="" />
+                </InputGroup>
+              </FormGroup>
+              <div className="row templates-container">{filteredTemplates.length ?
+                _.map(filteredTemplates, (t) => {
+                  return <div className={`col-md-6 template-box ${templateId == t.id ? 'selected-template' : ''}`} key={t.name}>
+                    <span className="name">{t.name}</span>
+                    <span className="description">{t.description}</span>
+                  </div>;
+                })
+                :
+                <div className="text-center">No Template Found!</div>
+              }
+              </div>
+            </div>
+            <hr />
+            <div className="form-group">
+              <label data-stest="selectEnvLabel">Choose the Regions
+                <span className="text-danger">*</span>
+              </label>
+              <div className="m-t-xs">{namespaceOptions.length ?
+                _.map(namespaceOptions, (n) => {
+                  return <span className="radio-container" onClick={() => this.handleOnChangeEnvironment(n)} key={n.name}>
+                    <input type="radio" name="environment" checked={namespaceId == n.id}/>
+                    <label>{n.name}</label>
+                  </span>;
+                })
+                :
+                <div className="text-center">No Region Found!</div>
+              }
+              {validSelect === false && <p className="text-danger m-t-xs">Please select region</p>}
+              </div>
+            </div>
           </div>
-        </div>
-        <hr />
-        <div className="form-group">
-          <label data-stest="selectEnvLabel">Choose the Regions
-            <span className="text-danger">*</span>
-          </label>
-          <div className="m-t-xs">{namespaceOptions.length ?
-            _.map(namespaceOptions, (n) => {
-              return <span className="radio-container" onClick={() => this.handleOnChangeEnvironment(n)} key={n.name}>
-                <input type="radio" name="environment" checked={namespaceId == n.id}/>
-                <label>{n.name}</label>
-              </span>;
-            })
-            :
-            <div className="text-center">No regions found!</div>
-          }
-          {validSelect === false && <p className="text-danger m-t-xs">Please select region</p>}
-          </div>
-        </div>
+          : null
+        }
         {fields ?
           <Form ref="Form" FormData={formData} className="hidden">
             {fields}

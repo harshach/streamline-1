@@ -107,7 +107,7 @@ class ImportTopology extends Component {
     if (!e.target.files.length || (e.target.files.length && e.target.files[0].name.indexOf('.json') < 0)) {
       this.setState({validInput: false, jsonFile: null});
     } else {
-      this.setState({jsonFile: e.target.files[0]});
+      this.setState({validInput: true, jsonFile: e.target.files[0]});
     }
   }
   handleOnChangeEnvironment = (obj) => {
@@ -139,6 +139,7 @@ class ImportTopology extends Component {
               ? "form-control"
               : "form-control invalidInput"} accept=".json" name="files" title="Upload File" onChange={this.handleOnFileChange}/>
           </div>
+          {!validInput ? <p className="text-danger">Required!</p>: null}
         </div>
         <div className="form-group">
           <label data-stest="topologyNameLabel">Application Name
@@ -153,9 +154,10 @@ class ImportTopology extends Component {
           </label>
           <div>
             <Select value={namespaceId} options={namespaceOptions} onChange={this.handleOnChangeEnvironment} className={!validSelect
-              ? 'invalidSelect'
+              ? 'invalidInput'
               : ''} placeholder="Select Data Center" required={true} clearable={false} labelKey="name" valueKey="id"/>
           </div>
+          {!validSelect ? <p className="text-danger">Required!</p>: null}
         </div>
         <div className="form-group">
           <label>Project

@@ -1,5 +1,6 @@
 package com.hortonworks.streamline.streams.layout.piper;
 
+import com.hortonworks.streamline.streams.piper.common.pipeline.Pipeline;
 import com.hortonworks.streamline.streams.piper.common.pipeline.Task;
 
 import java.util.HashMap;
@@ -17,10 +18,12 @@ public abstract class AbstractPiperTaskComponent implements PiperTaskComponent {
     public static final String TASK_TRIGGER_RULE = "trigger_rule";
 
     protected Map<String, Object> config = new HashMap();
+    protected Pipeline pipeline = null;
 
     @Override
-    public void withConfig(Map<String, Object> config) {
+    public void withConfig(Map<String, Object> config, Pipeline pipeline) {
         this.config = config;
+        this.pipeline = pipeline;
     }
 
     /**

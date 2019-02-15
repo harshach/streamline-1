@@ -6,7 +6,7 @@
     "template": ["Blank"],
     "builtin": true,
     "fieldHintProviderClass": "com.hortonworks.streamline.streams.cluster.bundle.impl.PiperHiveTaskBundleHintProvider",
-    "transformationClass": "com.hortonworks.streamline.streams.layout.piper.GenericPiperTaskComponent",
+    "transformationClass": "com.hortonworks.streamline.streams.layout.piper.HiveTaskComponent",
     "input": true,
     "output": true,
     "topologyComponentUISpecification": {

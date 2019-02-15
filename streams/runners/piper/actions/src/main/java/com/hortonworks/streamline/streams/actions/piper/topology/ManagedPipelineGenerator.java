@@ -140,7 +140,7 @@ public class ManagedPipelineGenerator extends TopologyDagVisitor {
             PiperTaskComponent piperComponent = taskFactory.getPiperTaskComponent(component);
             Map<String, Object> props = new LinkedHashMap<>();
             props.putAll(component.getConfig().getProperties());
-            piperComponent.withConfig(props);
+            piperComponent.withConfig(props, pipeline);
             Task task = piperComponent.generateTask();
             task.setTaskId(taskIdForComponent(component));
 

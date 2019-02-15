@@ -172,16 +172,16 @@ public class TopologyActionsService implements ContainingNamespaceAwareContainer
         return statuses;
     }
 
-    public String getRuntimeTopologyId(Topology topology, String asUser) throws IOException {
+    public String getRuntimeTopologyId(Topology topology, String asUser)  {
         Collection<TopologyRuntimeIdMap> runtimeIdMaps = catalogService.getTopologyRuntimeIdMap(topology.getId());
         return (runtimeIdMaps != null && !runtimeIdMaps.isEmpty()) ? runtimeIdMaps.iterator().next().getApplicationId() : null;
     }
 
-    public Collection<TopologyRuntimeIdMap> getRuntimeTopologyId(Topology topology) throws IOException {
+    public Collection<TopologyRuntimeIdMap> getRuntimeTopologyId(Topology topology) {
         return catalogService.getTopologyRuntimeIdMap(topology.getId());
     }
 
-    public TopologyRuntimeIdMap getRuntimeTopologyId(Topology topology, Long namespaceId) throws IOException {
+    public TopologyRuntimeIdMap getRuntimeTopologyId(Topology topology, Long namespaceId)  {
         return catalogService.getTopologyRuntimeIdMap(topology.getId(), namespaceId);
     }
 

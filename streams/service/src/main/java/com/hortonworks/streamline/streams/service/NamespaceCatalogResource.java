@@ -404,7 +404,7 @@ public class NamespaceCatalogResource {
               try {
                 topologyActionsService.getRuntimeTopologyId(t, asUser);
                 return true;
-              } catch (TopologyNotAliveException | IOException e) {
+              } catch (TopologyNotAliveException  e) {
                 // if engine is not accessible, we just treat it as not running
                 return false;
               }

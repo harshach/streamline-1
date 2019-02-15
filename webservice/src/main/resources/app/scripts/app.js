@@ -37,28 +37,10 @@ class App extends Component {
   }
   fetchData(){
     let promiseArr = [
-      MiscREST.getAllConfigs()
+      MiscREST.getAllConfigs(),
+      EngineREST.getAllEngines(),
+      EngineREST.getAllEngineMetricsTemplate()
     ];
-    promiseArr.push(EngineREST.getAllEngines().then((res) => {
-      app_state.engines = res.entities;
-
-      _.each(app_state.engines, (e) => {
-
-        e.deploymentModes = JSON.parse(e.deploymentModes);
-        e.componentTypes = JSON.parse(e.componentTypes);
-        e.config = JSON.parse(e.config);
-
-        Utils.defineEngineProps(e);
-
-      });
-
-      return res;
-    }));
-
-    promiseArr.push(EngineREST.getAllEngineMetricsTemplate().then((res) => {
-      app_state.enginesMetricsTemplates = res.entities;
-      return res;
-    }));
 
     Promise.all(promiseArr)
       .then((results)=>{
@@ -79,6 +61,17 @@ class App extends Component {
             version: results[0].version || '',
             serviceDiscovery: serviceDiscovery
           };
+
+          app_state.engines = results[1].entities;
+          _.each(app_state.engines, (e) => {
+            e.deploymentModes = JSON.parse(e.deploymentModes);
+            e.componentTypes = JSON.parse(e.componentTypes);
+            e.config = JSON.parse(e.config);
+            Utils.defineEngineProps(e);
+          });
+
+          app_state.enginesMetricsTemplates = results[2].entities;
+
           if(app_state.streamline_config.secureMode){
             // let userProfile = {
             //   "id":1,

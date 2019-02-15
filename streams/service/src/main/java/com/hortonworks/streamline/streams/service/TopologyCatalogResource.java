@@ -460,17 +460,14 @@ public class TopologyCatalogResource {
             throw EntityNotFoundException.byId(topologyId.toString());
         }
 
-        if (!force && !result.getNamespaceId().equals(EnvironmentService.TEST_ENVIRONMENT_ID)) {
+        Collection<TopologyRuntimeIdMap> topologyRuntimeIdMapList = actionsService.getRuntimeTopologyId(result);
+        if (!force && !result.getNamespaceId().equals(EnvironmentService.TEST_ENVIRONMENT_ID)
+                    && !topologyRuntimeIdMapList.isEmpty()) {
             String asUser = WSUtils.getUserFromSecurityContext(securityContext);
-            try {
-                actionsService.killTopology(result, asUser);
-            } catch (Exception e) {
-                // OK to continue
-                LOG.debug("Failed to kill running workflow " + e.getLocalizedMessage());
-            }
+            actionsService.killTopology(result, asUser);
         }
-        catalogService.removeTopologyRuntimeIdMap(topologyId);
 
+        catalogService.removeTopologyRuntimeIdMap(topologyId);
         Response response;
         if (onlyCurrent) {
             response = removeCurrentTopologyVersion(topologyId);

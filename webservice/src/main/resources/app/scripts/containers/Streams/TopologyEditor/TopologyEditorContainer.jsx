@@ -1160,12 +1160,12 @@ export class TopologyEditorContainer extends Component {
         }
       });
       if(allowDeploy){
-        if(this.graphData.edges.length > 0){
+        if(this.engine.type.toLowerCase() == 'stream' && this.graphData.edges.length == 0){
+          FSReactToastr.warning(<strong>No components are connected. Please connect & configure components before deploying.</strong>);
+        } else {
           this.setState({deployFlag : true}, () => {
             this.refs.TopologyConfigModal.show();
           });
-        } else {
-          FSReactToastr.warning(<strong>No components are connected. Please connect & configure components before deploying.</strong>);
         }
       } else {
         FSReactToastr.warning(<strong>One or more components are not configured. Please configure before deploying.</strong>);

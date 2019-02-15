@@ -128,7 +128,11 @@ class App extends Component {
         : '';
       });
     }else{
-      console.error(err);
+      if(err.responseMessage && err.responseMessage.indexOf("No such user") !== -1){
+        location.hash = 'no-access';
+      } else {
+        console.error(err);
+      }
     }
   }
 

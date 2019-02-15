@@ -5701,6 +5701,7 @@ h3.empty-project {
   padding: 10px 20px 15px;
 }
 .template-box.selected-template{
+  background-color: #f0f7fe;
   box-shadow: 0 2px 4px rgba(0, 0, 0, .08);
 }
 .template-box .name{

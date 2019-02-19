@@ -75,8 +75,6 @@ export class TopologyEditorContainer extends Component {
     this.customProcessors = [];
     this.fetchData();
     this.getDeploymentState();
-    this.nextRoutes = '';
-    this.navigateFlag = false;
     this.tempIntervalArr = [];
   }
   componentDidUpdate() {
@@ -93,30 +91,6 @@ export class TopologyEditorContainer extends Component {
     document.getElementsByTagName('body')[0].classList.remove('graph-bg');
     document.getElementsByClassName('loader-overlay')[0].className = "loader-overlay displayNone";
     document.querySelector('.editorHandler').setAttribute("class", "editorHandler contentEditor-wrapper animated fadeIn ");
-  }
-
-  componentDidMount() {
-    this.setRouteLeaveHook();
-  }
-
-  setRouteLeaveHook(){
-    this.props.router.setRouteLeaveHook(this.props.route, this.routerWillLeave);
-  }
-
-  routerWillLeave = (nextLocation) => {
-    this.nextRoutes = nextLocation.pathname;
-    this.refs.leaveEditable.show();
-    return this.navigateFlag;
-  }
-
-  confirmLeave(flag) {
-    if (flag) {
-      this.navigateFlag = true;
-      this.refs.leaveEditable.hide();
-      this.props.router.push(this.nextRoutes);
-    } else {
-      this.refs.leaveEditable.hide();
-    }
   }
 
   @observable viewMode = false;
@@ -199,6 +173,10 @@ export class TopologyEditorContainer extends Component {
             this.versionName = versionObj.name;
           }
         });
+      }
+
+      if(versions.length > 1){
+        this.deployedVersion = versions[1].name;
       }
 
       let promises = [
@@ -992,9 +970,6 @@ export class TopologyEditorContainer extends Component {
       this.refs.NodeModal.state.show
         ? this.handleSaveNodeModal(this)
         : '';
-      this.refs.leaveEditable.state.show
-        ? this.confirmLeave(this, true)
-        : '';
       this.refs.EdgeConfigModal.state.show
         ? this.handleSaveEdgeConfig(this)
         : '';
@@ -1386,6 +1361,7 @@ export class TopologyEditorContainer extends Component {
                   topologyStatus={this.state.topologyStatus}
                   engineType={this.engine.type}
                   namespaceName={this.namespaceName}
+                  deployedVersion={this.deployedVersion}
                 />
                 {this.getEditorGraph()}
               </div>
@@ -1442,10 +1418,6 @@ export class TopologyEditorContainer extends Component {
           }
         </Modal>
 
-        <Modal className="u-form" ref="leaveEditable" onKeyPress={this.handleKeyPress.bind(this)} data-title="Confirm Box" dialogClassName="confirm-box" data-resolve={this.confirmLeave.bind(this, true)} data-reject={this.confirmLeave.bind(this, false)}>
-          {<p> Are you sure want to navigate away from this page
-            ? </p>}
-        </Modal>
         <Modal className="u-form" ref="EdgeConfigModal" onKeyPress={this.handleKeyPress.bind(this)} data-title={this.edgeConfigTitle} data-resolve={this.handleSaveEdgeConfig.bind(this)} data-reject={this.handleCancelEdgeConfig.bind(this)}>
           <EdgeConfig ref="EdgeConfig" data={this.edgeConfigData}/>
         </Modal>

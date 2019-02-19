@@ -47,12 +47,13 @@ class VersionThumbnail extends Component{
     }
   }
   render(){
-    const {data, onClick, selectedVersionName} = this.props;
+    const {data, onClick, selectedVersionName, isDeployedVersion} = this.props;
     return <div className={`version-container ${data.name == selectedVersionName ? 'selected' : ''}`} onClick={() => onClick(data.id)}>
       <div className="version-thumb" ref="thumbContainer">
       </div>
       <div className="version-info">
         {data.name == 'CURRENT' && <span className="version-current-label">Draft</span>}
+        {isDeployedVersion && <span className="version-current-label">Deployed</span>}
         <span className="version-name">{data.name == 'CURRENT' ? "DRAFT" : data.name}</span>
         <span className="version-updated-label">Last updated on</span>&nbsp;
         <span className="version-updated-value">{moment(data.timestamp).format('MM/DD/YYYY HH:mm')}</span>
@@ -90,6 +91,7 @@ export default class VersionControl extends Component{
           selectedVersionName={selectedVersionName}
           getCurrentVersionThumbnail={getCurrentVersionThumbnail}
           lastUpdatedTime={lastUpdatedTime}
+          isDeployedVersion={i==1}
         />
       </div>;
     });

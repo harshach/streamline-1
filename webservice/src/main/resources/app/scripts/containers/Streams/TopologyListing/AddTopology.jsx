@@ -334,7 +334,7 @@ class AddTopology extends Component {
         </div>
         {engineId ?
           <div>
-            <div className="form-group">
+            {/*<div className="form-group">
               <label data-stest="selectEnvLabel">Workflow Templates
                 <span className="text-danger">*</span>
               </label>
@@ -357,7 +357,7 @@ class AddTopology extends Component {
                 <div className="text-center">No Template Found!</div>
               }
               </div>
-            </div>
+            </div>*/}
             <hr />
             <div className="form-group">
               <label data-stest="selectEnvLabel">Choose the Regions

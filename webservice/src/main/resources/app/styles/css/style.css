@@ -2516,6 +2516,7 @@ ul.project-engines li.no-workflow .badge{
   font-size: 12px;
   padding: 4px 15px;
   border-radius: 12px;
+  cursor: pointer;
 }
 .workflow-widget .workflow-badge.storm-badge {
   color: #47B275;
@@ -5914,6 +5915,7 @@ h6.version-control {
   border-radius: 6px;
   box-shadow: 0px 1px 4px rgba(0, 0, 0, 0.12);
   margin-bottom: 20px;
+  cursor: pointer;
 }
 .workflow-widget .workflow-header {
   background-color: #f0f7fe;

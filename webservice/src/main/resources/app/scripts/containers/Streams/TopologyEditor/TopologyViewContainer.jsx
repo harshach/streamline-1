@@ -771,6 +771,7 @@ class TopologyViewContainer extends TopologyEditorContainer {
                     runtimeAppId={this.runtimeAppId}
                     runtimeAppUrl={this.runtimeAppUrl}
                     topologyStatus={this.state.topologyStatus}
+                    deployedVersion={this.deployedVersion}
                   />,
                   <TopologyViewMode
                     allACL={allACL} key={"1"} {...this.state}

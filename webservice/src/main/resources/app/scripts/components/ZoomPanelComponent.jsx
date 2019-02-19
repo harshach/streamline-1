@@ -81,7 +81,8 @@ class  ZoomPanelComponent extends Component {
       engineType,
       runtimeAppId,
       runtimeAppUrl,
-      namespaceName
+      namespaceName,
+      deployedVersion
     } = this.props;
     let isActive = false;
     if(!app_state.versionPanelCollapsed && mode == 'edit'){
@@ -118,6 +119,14 @@ class  ZoomPanelComponent extends Component {
                 <h5>{namespaceName}</h5>
               </div>
               : null }
+              {runtimeAppUrl ?
+                <div className="workflow-info">
+                  <h6>Deployed Version</h6>
+                  <h5>
+                    {deployedVersion}
+                  </h5>
+                </div>
+              : null}
             </div>
             <div className="pull-right">
               <button className={`btn-panels no-margin ${mode == 'view' ? 'active' : ''}`} onClick={this.onViewClick}><img src="styles/img/uWorc/view.png" />&ensp; Monitor</button>

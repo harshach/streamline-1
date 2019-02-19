@@ -94,6 +94,7 @@
         "fieldName": "task_params.spark_conn_id",
         "tooltip": "Spark Connection ID",
         "isOptional": true,
+        "defaultValue": "default_spark_conn_id",
         "type": "enumstring",
         "options": [],
         "hint": "override"

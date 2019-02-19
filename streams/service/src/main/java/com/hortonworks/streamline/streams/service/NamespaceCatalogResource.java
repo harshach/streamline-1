@@ -52,7 +52,6 @@ import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.SecurityContext;
 import javax.ws.rs.core.UriInfo;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -243,15 +242,17 @@ public class NamespaceCatalogResource {
     }
   }
 
-
   @GET
   @Path("/namespaces/service/{serviceName}")
   @Timed
-  public Response findServicesToClusterMappingInNamespace(@PathParam("serviceName") String serviceName,
-                                                          @Context SecurityContext securityContext) {
+  public Response findNamespacesWithService(@PathParam("serviceName") String serviceName,
+                                            @Context SecurityContext securityContext) {
     Collection<NamespaceServiceClusterMap> mappings = environmentService.listServiceClusterMapping(serviceName);
     if (mappings != null) {
-      return WSUtils.respondEntities(mappings, OK);
+      Collection<Namespace> namespaces = mappings.stream()
+              .map(m -> environmentService.getNamespace(m.getNamespaceId()))
+              .collect(toList());
+      return WSUtils.respondEntities(namespaces, OK);
     } else {
       return WSUtils.respondEntities(Collections.emptyList(), OK);
     }

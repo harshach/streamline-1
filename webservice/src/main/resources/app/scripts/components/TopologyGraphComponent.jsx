@@ -29,6 +29,7 @@ import EventLogComponent from '../containers/Streams/TestRunComponents/EventLogC
 import TopologyComponentMetrics from '../containers/Streams/Metrics/TopologyComponentMetrics';
 import ComponentLogActions from '../containers/Streams/Metrics/ComponentLogActions';
 import GraphUtils from '../utils/GraphUtils';
+import FSReactToastr from '../components/FSReactToastr';
 
 window.$ = $;
 window.jQuery = jQuery;
@@ -503,8 +504,11 @@ export default class TopologyGraphComponent extends Component {
       }
       internalFlags.shiftNodeDrag = true;
       if (!d.isConfigured) {
+        d.reconfigure = true;
         this.dragLine.classed('hidden', true);
         internalFlags.addEdgeFromNode = false;
+        this.updateGraph();
+        FSReactToastr.info(<strong>Please configure the component first before connecting it to another component.</strong>);
         return;
       }
       const {height,width} = GraphUtils.getSpecificNodeBboxData.call(this,d);
@@ -1449,6 +1453,8 @@ export default class TopologyGraphComponent extends Component {
                 fill = '#07A35A';
               }else if(comp && comp.taskStatus == 'failed'){
                 fill = '#E54937';
+              }else if(comp && comp.taskStatus == 'running'){
+                fill = '#1B6DE0';
               }
             }
             return fill;

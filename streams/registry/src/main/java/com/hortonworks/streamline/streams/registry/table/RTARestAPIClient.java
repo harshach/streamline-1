@@ -1,5 +1,7 @@
 package com.hortonworks.streamline.streams.registry.table;
 
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.hortonworks.streamline.common.JsonClientUtil;
 import org.glassfish.jersey.client.ClientConfig;
 import org.slf4j.Logger;
@@ -11,6 +13,7 @@ import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.core.MediaType;
 import java.io.IOException;
 import java.security.PrivilegedAction;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
@@ -48,24 +51,31 @@ public class RTARestAPIClient implements DataSchemaServiceClient {
     @Override
     public String getTableSchema(String tableName) {
         String response = doGetRequest(generateRequestUrl(RTA_TABLE_DEFINITION_PATH + tableName));
-        LOG.debug("Get RTA table schema response: " + response);
+        LOG.debug("Get RTA table schema response: {}", response);
         return response;
+    }
+
+    public Collection<Map<String, String>> getTableDeployStatus(String tableName) throws IOException {
+        String response = doGetRequest(String.format(generateRequestUrl(RTA_TABLE_DEPLOY_PATH), tableName));
+        LOG.debug("Get RTA table deploy status response: {}", response);
+        ObjectMapper mapper = new ObjectMapper();
+        return mapper.readValue(response, new TypeReference<Collection<Map<String, String>>>() {});
     }
 
     @Override
     public void createTable(Object request) {
         String response = doPostRequest(generateRequestUrl(RTA_TABLE_PATH), request);
-        LOG.debug("Create RTA table response: " + response);
+        LOG.debug("Create RTA table response: {}", response);
     }
 
     @Override
     public void deployTable(Object request, String tableName) {
         String response = doPostRequest(String.format(generateRequestUrl(RTA_TABLE_DEPLOY_PATH), tableName), request);
-        LOG.debug("Deploy RTA table response: " + response);
+        LOG.debug("Deploy RTA table response: {}", response);
     }
 
     private String doPostRequest(final String requestUrl, final Object bodyObject) {
-        LOG.debug("POST request to RTA: " + bodyObject);
+        LOG.debug("POST request to RTA: {}", bodyObject);
 
         try {
             return Subject.doAs(subject, new PrivilegedAction<String>() {
@@ -83,7 +93,7 @@ public class RTARestAPIClient implements DataSchemaServiceClient {
     }
 
     private String doGetRequest(final String requestUrl) {
-        LOG.debug("GET request to RTA URL: " + requestUrl);
+        LOG.debug("GET request to RTA URL: {}", requestUrl);
 
         try {
             return Subject.doAs(subject, new PrivilegedAction<String>() {

@@ -1088,5 +1088,6 @@ export default {
   getViewModeTimeseriesMetricsTemplate,
   getViewModeDAGMetricsTemplate,
   getViewModeDAGTimeseriesMetricsTemplate,
-  isFromSharedProjects
+  isFromSharedProjects,
+  mergeFormDataFieldsForSourceSink
 };

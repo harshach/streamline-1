@@ -63,6 +63,7 @@ export default class SourceNodeForm extends Component {
 
   fetchData() {
     let {topologyId, versionId, nodeType, nodeData, namespaceId} = this.props;
+    const sourceParams = nodeData.parentType + '/' + nodeData.topologyComponentBundleId;
     let stateExecuted = false;
     let promiseArr = [
       TopologyREST.getNode(topologyId, versionId, nodeType, nodeData.nodeId),
@@ -105,7 +106,6 @@ export default class SourceNodeForm extends Component {
         stateObj.clusterArr = _.isEmpty(clusters) ? [] : clusters;
       }
       if(this.nodeData.outputStreams.length > 0){
-        const sourceParams = nodeData.parentType + '/' + nodeData.topologyComponentBundleId;
         let clusterId = this.nodeData.config.properties.cluster;
         TopologyREST.getSourceComponentClusters(sourceParams, clusterId).then((response)=>{
           let clusterObj = stateObj.clusterArr.find((c)=>{return c.id == clusterId;});
@@ -134,7 +134,7 @@ export default class SourceNodeForm extends Component {
       stateObj.securityType = stateObj.formData.securityProtocol || '';
       this.setState(stateObj, () => {
         stateExecuted = true;
-        if (stateObj.formData.cluster !== undefined) {
+        if (stateObj.formData.clusters !== undefined) {
           this.updateClusterFields(stateObj.formData.clusters);
           this.setState({streamObj: this.state.streamObj});
         } else if (stateObj.clusterArr.length === 1) {

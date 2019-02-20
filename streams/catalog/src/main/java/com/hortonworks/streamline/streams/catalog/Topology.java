@@ -19,7 +19,6 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.gson.Gson;
 import com.hortonworks.registries.common.Schema;
 import com.hortonworks.streamline.common.Config;
 import com.hortonworks.streamline.storage.annotation.SearchableField;
@@ -27,14 +26,9 @@ import com.hortonworks.streamline.storage.annotation.StorableEntity;
 import com.hortonworks.streamline.storage.PrimaryKey;
 import com.hortonworks.streamline.storage.Storable;
 import com.hortonworks.streamline.storage.StorableKey;
-import com.hortonworks.streamline.storage.catalog.AbstractStorable;
-import com.hortonworks.streamline.streams.catalog.service.StreamCatalogService;
 import com.hortonworks.streamline.streams.layout.component.TopologyDag;
 import org.apache.commons.lang3.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -44,7 +38,6 @@ import java.util.Map;
  */
 @StorableEntity
 public class Topology implements Storable {
-    private static final Logger LOG = LoggerFactory.getLogger(StreamCatalogService.class);
 
     public static final String NAMESPACE = "topology";
     public static final String ID = "id";
@@ -146,7 +139,7 @@ public class Topology implements Storable {
         topologyDag = null;
     }
 
-    
+
     @JsonIgnore
     public TopologyDag getTopologyDag() {
         return topologyDag;
@@ -201,7 +194,11 @@ public class Topology implements Storable {
         map.put(ENGINEID, this.engineId);
         map.put(TEMPLATEID, this.templateId);
         map.put(CONFIG, this.config);
-        map.put(CONFIG_DATA, getConfigData());
+        try {
+            map.put(CONFIG_DATA, getConfigData());
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
         return map;
     }
 
@@ -214,7 +211,11 @@ public class Topology implements Storable {
         this.namespaceId = (Long) map.get(NAMESPACE_ID);
         this.engineId = (Long) map.get(ENGINEID);
         this.templateId = (Long) map.get(TEMPLATEID);
-        setConfigData((String) map.get(CONFIG_DATA));
+        try {
+            setConfigData((String) map.get(CONFIG_DATA));
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
         return this;
     }
 
@@ -280,18 +281,20 @@ public class Topology implements Storable {
     }
 
     @JsonIgnore
-    public String getConfigData() {
-        Gson gson = new Gson();
-        String configData = gson.toJson(config);
-        return configData;
+    public String getConfigData() throws Exception {
+        if (config != null) {
+            ObjectMapper mapper = new ObjectMapper();
+            return mapper.writeValueAsString(config);
+        }
+        return "";
     }
 
     @JsonIgnore
-    public void setConfigData(String configData)  {
+    public void setConfigData(String configData) throws Exception {
         if (!StringUtils.isEmpty(configData)) {
             this.configData = configData;
-            Gson gson = new Gson();
-            this.config = gson.fromJson(configData, Config.class);
+            ObjectMapper mapper = new ObjectMapper();
+            this.config = mapper.readValue(configData, Config.class);
         }
     }
 

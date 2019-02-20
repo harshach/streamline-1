@@ -248,7 +248,12 @@ const getSchemaBranchesFromName = function(topicName) {
 const dependsOnHintsFunction = function(val){
   const {Form} = this.context;
   if (this.validate() && (this.props.fieldJson !== undefined && this.props.fieldJson.hint !== undefined && Utils.matchStringInArr(this.props.fieldJson.hint, 'schema'))) {
-    getSchemaBranches.call(this,this.props.data[this.props.value]);
+    if(Utils.matchStringInArr(this.props.fieldJson.hint, 'override')){
+      getSchemaBranches.call(this,this.props.data[this.props.value]);
+    } else {
+      //Get schema directly from topic
+      getSchema.call(this, this.props.data[this.props.value], 'MASTER', true);
+    }
   } else if (this.props.fieldJson.fieldName === "securityProtocol"){
     if(Form.props.handleSecurityProtocol){
       Form.props.handleSecurityProtocol(val.value);
@@ -843,9 +848,7 @@ export class CustomEnumstring extends BaseField {
       fontWeight: "normal"
     };
     return (
-      <span style={styleObj}>{node.label}<br/>
-        <span style={styleObj2}>{node.value.split('@#$')[1]}</span>
-      </span>
+      <span style={styleObj}>{node.label}</span>
     );
   }
   splitFields(text) {

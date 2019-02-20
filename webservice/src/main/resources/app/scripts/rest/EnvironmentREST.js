@@ -31,11 +31,11 @@ const EnvironmentREST = {
         return response.json();
       });
   },
-  getAllNameSpaceFromEngine(engineName, options) {
+  getAllNamespaceFromService(serviceName, options) {
     options = options || {};
     options.method = options.method || 'GET';
     options.credentials = 'same-origin';
-    return fetch(baseUrl + nameSpaceBaseURL+'/service/'+engineName, options)
+    return fetch(baseUrl + nameSpaceBaseURL+'/service/'+serviceName, options)
       .then((response) => {
         return response.json();
       });

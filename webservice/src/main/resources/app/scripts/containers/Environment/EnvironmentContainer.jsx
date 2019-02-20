@@ -47,7 +47,7 @@ const MappingItem = (props) => {
   const {item} = props;
   const name = item.serviceName.replace('_', ' ');
   return (
-    <li><img src={`styles/img/${iconsFrom}icon-${item.serviceName.toLowerCase()}.png`}/>{name}</li>
+    <li><img src={`styles/img/icon-${item.serviceName.toLowerCase()}.png`}/>{name}</li>
   );
 };
 

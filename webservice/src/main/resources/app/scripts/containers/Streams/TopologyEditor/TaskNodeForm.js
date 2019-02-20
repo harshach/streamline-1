@@ -136,16 +136,16 @@ export default class TaskNodeForm extends Component {
   populateClusterFields(val) {
     const {clusterArr} = this.state;
     const tempObj = Object.assign({}, this.state.formData, {topic: ''});
-    // split the val to find the key by URL
+    // split the val to find the key by id
     let splitValues = val.split('@#$');
-    let keyName;
+    let obj;
     if(!_.isEmpty(splitValues[1])){
-      keyName = Utils.getClusterKey(splitValues[1], false,clusterArr);
+      obj = Utils.getClusterKey(splitValues[1], false,clusterArr);
     } else {
-      keyName = Utils.getClusterKey(splitValues[0], true,clusterArr);
+      obj = Utils.getClusterKey(splitValues[0], true,clusterArr);
     }
     this.setState({
-      clusterName: keyName,
+      clusterName: obj.key,
       streamObj: '',
       formData: tempObj
     }, () => {

@@ -120,6 +120,10 @@ public class KafkaServiceRegistrar extends AbstractServiceRegistrar {
             confMap.put(PARAM_SECURITY_INTER_BROKER_PROTOCOL, config.getString(PARAM_SECURITY_INTER_BROKER_PROTOCOL));
         }
 
+        if (config.contains(PARAM_LISTENERS)) {
+            confMap.put(PARAM_LISTENERS, config.getString(PARAM_LISTENERS));
+        }
+
         try {
             String json = objectMapper.writeValueAsString(confMap);
             serverProperties.setConfiguration(json);

@@ -17,6 +17,9 @@ package com.hortonworks.streamline.streams.service;
 
 import com.codahale.metrics.annotation.Timed;
 import com.hortonworks.streamline.streams.cluster.catalog.NamespaceServiceClusterMap;
+import com.hortonworks.streamline.streams.cluster.catalog.Service;
+import com.hortonworks.streamline.streams.cluster.catalog.ServiceConfiguration;
+import com.hortonworks.streamline.streams.cluster.model.NamespaceWithServiceConfigurationMap;
 import com.hortonworks.streamline.streams.security.Permission;
 import com.hortonworks.streamline.streams.security.Roles;
 import com.hortonworks.streamline.streams.security.SecurityUtil;
@@ -56,7 +59,9 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.EnumSet;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 
@@ -249,10 +254,11 @@ public class NamespaceCatalogResource {
                                             @Context SecurityContext securityContext) {
     Collection<NamespaceServiceClusterMap> mappings = environmentService.listServiceClusterMapping(serviceName);
     if (mappings != null) {
-      Collection<Namespace> namespaces = mappings.stream()
+      Collection<NamespaceWithServiceConfigurationMap> namespaceWithServiceConfigurationMaps = mappings.stream()
               .map(m -> environmentService.getNamespace(m.getNamespaceId()))
+              .map(n -> buildNamespaceWithServiceConfigurationMap(n, serviceName))
               .collect(toList());
-      return WSUtils.respondEntities(namespaces, OK);
+      return WSUtils.respondEntities(namespaceWithServiceConfigurationMaps, OK);
     } else {
       return WSUtils.respondEntities(Collections.emptyList(), OK);
     }
@@ -448,6 +454,21 @@ public class NamespaceCatalogResource {
     }
   }
 
+  private NamespaceWithServiceConfigurationMap buildNamespaceWithServiceConfigurationMap(Namespace namespace, String serviceName) {
+    NamespaceWithServiceConfigurationMap namespaceWithServiceConfigurationMap = new NamespaceWithServiceConfigurationMap(namespace);
+
+    Service service = environmentService.getServiceByName(namespace.getId(), serviceName);
+    namespaceWithServiceConfigurationMap.setService(service);
+
+    Map<String, ServiceConfiguration> configurationMap = new HashMap<>();
+    Collection<ServiceConfiguration> serviceConfigurations = environmentService.listServiceConfigurations(service.getId());
+    for (ServiceConfiguration serviceConfiguration : serviceConfigurations) {
+      configurationMap.put(serviceConfiguration.getName(), serviceConfiguration);
+    }
+    namespaceWithServiceConfigurationMap.setServiceConfigurationMap(configurationMap);
+
+    return namespaceWithServiceConfigurationMap;
+  }
 
   private String buildMessageForCompositeId(Long namespaceId, String serviceName, Long clusterId) {
     return "Namespace: " + namespaceId.toString() + " / serviceName: " + serviceName + " / clusterId: " + clusterId;

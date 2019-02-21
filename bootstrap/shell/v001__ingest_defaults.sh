@@ -157,6 +157,7 @@ function add_all_bundles {
     # === Engine Metrics ===
     post /system/engines/metrics ${storm_dir}/metrics/storm-metrics.json
     post /system/engines/metrics ${piper_dir}/metrics/piper-metrics.json
+    post /system/engines/metrics ${athenax_dir}/metrics/athenax-metrics.json
 
     # === Topology Settings ===
     add_topology_component_bundle /streams/componentbundles/SOURCE ${storm_dir}/components/sources/kafka-source-topology-component.json

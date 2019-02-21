@@ -261,11 +261,15 @@ public class AthenaxJobGraphGenerator extends TopologyDagVisitor {
 		kafkaInput.setType(TYPE_KAFKA);
 		kafkaInput.setName(topicName);
 
-		kafkaInput.setUri(HEATPIPE_PROTOCOL_PREFIX + zkConnectionStr + "/" + topicName);
+		kafkaInput.setUri(HEATPIPE_PROTOCOL_PREFIX + getHostPortListOnly(zkConnectionStr) + "/" + topicName);
 
 		inputConnectors.add(kafkaInput);
 
 		return inputConnectors;
+	}
+
+	private String getHostPortListOnly(String zkConnectionStr) {
+		return zkConnectionStr.split("/")[0];
 	}
 
 	private List<Connector> getOutputConnectors() {

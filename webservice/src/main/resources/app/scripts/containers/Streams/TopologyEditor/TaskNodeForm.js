@@ -170,17 +170,8 @@ export default class TaskNodeForm extends Component {
     const mergeData = Utils.deepmerge(formData,FormData);
     let tempFormData = _.cloneDeep(mergeData);
     let stateObj = {};
-    /*
-      Utils.mergeFormDataFields method accept params
-      name =  name of cluster
-      clusterArr = clusterArr array
-      tempFormData = formData is fields of form
-      configJSON = fields shown on ui depends on there options
 
-      This method is responsible for showing default value of form fields
-      and prefetch the value if its already configure
-    */
-    const {obj,tempData} = Utils.mergeFormDataFields(name,clusterArr, clusterName, tempFormData, configJSON);
+    const {obj,tempData} = Utils.mergeFormDataFields(name,clusterArr, clusterName, tempFormData, configJSON, true);
     stateObj.configJSON = obj;
     stateObj.formData = tempData;
     if(clusterArr.length === 0 && formData.cluster !== ''){

@@ -36,7 +36,7 @@ import Modal from '../../../components/FSModal';
 import CommonNotification from '../../../utils/CommonNotification';
 import {TopologyEditorContainer} from './TopologyEditorContainer';
 import TopologyViewMode from './TopologyViewMode';
-import BatchMetrics from '../../../components/BatchMetrics';
+import Metrics from '../../../components/Metrics';
 import ZoomPanelComponent from '../../../components/ZoomPanelComponent';
 import CommonLoaderSign from '../../../components/CommonLoaderSign';
 import ErrorStatus from '../../../components/ErrorStatus';
@@ -59,7 +59,7 @@ class TopologyViewContainer extends TopologyEditorContainer {
     // this.fetchData(); //Data being fetched from TopologyEditorContainer
     this.checkAuth = true;
     this.sampleInputNotify = false;
-    this.batchTimeseries = [];
+    this.timeseriesData = [];
   }
 
   componentDidUpdate(){}
@@ -291,7 +291,7 @@ class TopologyViewContainer extends TopologyEditorContainer {
           const taskMetrics = [];
 
           _.each(selectedExecutionComponentsStatus, (compEx) => {
-            const timeSeriesMetricsData = _.find(this.batchTimeseries || [], (d) => {
+            const timeSeriesMetricsData = _.find(this.timeseriesData || [], (d) => {
               return d.component.id == compEx.componentId;
             });
             const compMetrics = {};
@@ -368,8 +368,8 @@ class TopologyViewContainer extends TopologyEditorContainer {
     });
   }
 
-  fetchBatchTimeSeriesMetrics = () => {
-    this.batchTimeseries = this.batchTimeseries || [];
+  fetchTimeSeriesMetrics = () => {
+    this.timeseriesData = this.timeseriesData || [];
 
     let {viewModeData, startDate, endDate, topologyNamespaces} = this.state;
 
@@ -393,7 +393,7 @@ class TopologyViewContainer extends TopologyEditorContainer {
 
         const onSuccess = (res, name, interpolate) => {
           _.each(res, (timeseriesData, compId) => {
-            let compData = _.find(this.batchTimeseries, (d, id) => {
+            let compData = _.find(this.timeseriesData, (d, id) => {
               return compId == d.component.id;
             });
             if(!compData){
@@ -408,7 +408,7 @@ class TopologyViewContainer extends TopologyEditorContainer {
                 },
                 interpolate: interpolate
               };
-              this.batchTimeseries.push(compData);
+              this.timeseriesData.push(compData);
             }else{
               compData.timeSeriesMetrics.metrics[name] = timeseriesData;
             }
@@ -435,10 +435,10 @@ class TopologyViewContainer extends TopologyEditorContainer {
     if(this.engine.type == 'batch'){
       const req = this.fetchExecutions();
       promiseArr.push(req);
-      const timeseriesMetricReqs = this.fetchBatchTimeSeriesMetrics();
+      const timeseriesMetricReqs = this.fetchTimeSeriesMetrics();
       promiseArr.push.apply(promiseArr, [...timeseriesMetricReqs]);
     }else if(this.engine.type == 'stream'){
-      const timeseriesMetricReqs = this.fetchBatchTimeSeriesMetrics();
+      const timeseriesMetricReqs = this.fetchTimeSeriesMetrics();
       promiseArr.push.apply(promiseArr, [...timeseriesMetricReqs]);
     }else {
       let q_params = {
@@ -700,7 +700,7 @@ class TopologyViewContainer extends TopologyEditorContainer {
         name: name
       });
     });
-    return <BatchMetrics
+    return <Metrics
         {...this.state}
         executionInfo={executionInfo}
         lastUpdatedTime={this.lastUpdatedTime}
@@ -712,7 +712,7 @@ class TopologyViewContainer extends TopologyEditorContainer {
         components={this.graphData.nodes}
         selectedExecution={selectedExecution}
         datePickerCallback={this.datePickerCallback}
-        batchTimeseries={this.batchTimeseries}
+        timeseriesData={this.timeseriesData}
         handleDataCenterChange={this.handleDataCenterChange}
         selectedDataCenter={this.selectedDataCenter}
         dataCenterList={namespacesArr}

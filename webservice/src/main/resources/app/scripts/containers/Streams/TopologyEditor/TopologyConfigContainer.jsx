@@ -69,17 +69,17 @@ export default class TopologyConfigContainer extends Component {
       let dcListObj = formField.fields.find((o)=>{return o.hint === 'datacenter-showAll';});
       if(dcListObj){
         result[2].entities.map((o)=>{
-          let c = clustersConfig.find((c)=>{return c.cluster.id === o.id;});
-          dcListObj.options.push({value: o.id, label: c.cluster.name});
+          let c = clustersConfig.find((c)=>{return c.cluster.id === o.namespace.id;});
+          dcListObj.options.push({value: o.namespace.id, label: c.cluster.name});
         });
         dcListObj.defaultValue = result[0].namespaceId;
       } else {
         dcListObj = formField.fields.find((o)=>{return o.hint === 'datacenter-showCurrent';});
         if(dcListObj){
-          let currentNamepaceObj = result[2].entities.find((e)=>{return e.id === result[0].namespaceId;});
+          let currentNamepaceObj = result[2].entities.find((e)=>{return e.namespace.id === result[0].namespaceId;});
           if(currentNamepaceObj){
-            let c = clustersConfig.find((c)=>{return c.cluster.id === currentNamepaceObj.clusterId;});
-            dcListObj.options.push({value: currentNamepaceObj.namespaceId, label: c.cluster.name});
+            let c = clustersConfig.find((c)=>{return c.cluster.id === currentNamepaceObj.namespace.id;});
+            dcListObj.options.push({value: currentNamepaceObj.namespace.id, label: c.cluster.name});
           }
           dcListObj.defaultValue = result[0].namespaceId;
         }

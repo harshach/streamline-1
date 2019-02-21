@@ -20,20 +20,11 @@
         "type": "string"
       },
       {
-        "uiName": "Security Protocol",
-        "fieldName": "securityProtocol",
-        "isOptional": false,
-        "tooltip": "Protocol to be used to communicate with Kafka brokers",
-        "type": "enumstring",
-        "options": []
-      },
-      {
         "uiName": "Bootstrap Servers",
         "fieldName": "bootstrapServers",
         "isOptional": false,
         "tooltip": "Comma separated string of host:port kafka brokers",
-        "type": "string",
-        "hint": "dependsOn-securityProtocol"
+        "type": "string"
       },
       {
         "uiName": "Kafka Topic",
@@ -42,7 +33,7 @@
         "tooltip": "Kafka topic to write data to",
         "type": "enumstring",
         "options": [],
-        "hint": "schema,override"
+        "hint": "schema"
       },
       {
         "uiName": "Table Name",

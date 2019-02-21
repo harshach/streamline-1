@@ -94,16 +94,21 @@ export default class SourceNodeForm extends Component {
           <CommonNotification flag="error" content={results[1].responseMessage}/>, '', toastOpt);
       } else {
         const clusters = results[1].entities;
+        let clusterArr = [];
         clusters.map((clusterObj, index)=>{
+          let cObj = clusterObj.namespace;
+          cObj.config = clusterObj.serviceConfigurationMap.server.configurationMap;
+          clusterArr.push(cObj);
+
           const obj = {
-            fieldName: clusterObj.name + '@#$' + clusterObj.id,
-            uiName: clusterObj.name
+            fieldName: cObj.name + '@#$' + cObj.id,
+            uiName: cObj.name
           };
           tempArr.push(obj);
         });
         //need to check if security is enabled or not
         //hasSecurity = clusters[x][k].authentication.enabled;
-        stateObj.clusterArr = _.isEmpty(clusters) ? [] : clusters;
+        stateObj.clusterArr = _.isEmpty(clusterArr) ? [] : clusterArr;
       }
       if(this.nodeData.outputStreams.length > 0){
         let clusterId = this.nodeData.config.properties.cluster;

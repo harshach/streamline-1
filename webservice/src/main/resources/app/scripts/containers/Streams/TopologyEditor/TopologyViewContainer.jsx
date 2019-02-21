@@ -437,7 +437,10 @@ class TopologyViewContainer extends TopologyEditorContainer {
       promiseArr.push(req);
       const timeseriesMetricReqs = this.fetchBatchTimeSeriesMetrics();
       promiseArr.push.apply(promiseArr, [...timeseriesMetricReqs]);
-    }else{
+    }else if(this.engine.type == 'stream'){
+      const timeseriesMetricReqs = this.fetchBatchTimeSeriesMetrics();
+      promiseArr.push.apply(promiseArr, [...timeseriesMetricReqs]);
+    }else {
       let q_params = {
         from: fromTime,
         to: toTime,
@@ -689,35 +692,32 @@ class TopologyViewContainer extends TopologyEditorContainer {
   }
 
   getRightSideBar = () => {
-    if (this.engine.type == 'batch') {
-      const {topologyName, executionInfo, selectedExecution, topologyNamespaces} = this.state;
-      let namespacesArr = [];
-      _.keys(topologyNamespaces).map((name)=>{
-        namespacesArr.push({
-          id: topologyNamespaces[name].namespaceId,
-          name: name
-        });
+    const {topologyName, executionInfo, selectedExecution, topologyNamespaces} = this.state;
+    let namespacesArr = [];
+    _.keys(topologyNamespaces).map((name)=>{
+      namespacesArr.push({
+        id: topologyNamespaces[name].namespaceId,
+        name: name
       });
-      return <BatchMetrics
-          {...this.state}
-          executionInfo={executionInfo}
-          lastUpdatedTime={this.lastUpdatedTime}
-          topologyName={topologyName}
-          onSelectExecution={this.onSelectExecution}
-          getPrevPageExecutions={this.getPrevPageExecutions}
-          getNextPageExecutions={this.getNextPageExecutions}
-          compSelectCallback={this.compSelectCallback}
-          components={this.graphData.nodes}
-          selectedExecution={selectedExecution}
-          datePickerCallback={this.datePickerCallback}
-          batchTimeseries={this.batchTimeseries}
-          handleDataCenterChange={this.handleDataCenterChange}
-          selectedDataCenter={this.selectedDataCenter}
-          dataCenterList={namespacesArr}
-      />;
-    } else {
-      return null;
-    }
+    });
+    return <BatchMetrics
+        {...this.state}
+        executionInfo={executionInfo}
+        lastUpdatedTime={this.lastUpdatedTime}
+        topologyName={topologyName}
+        onSelectExecution={this.onSelectExecution}
+        getPrevPageExecutions={this.getPrevPageExecutions}
+        getNextPageExecutions={this.getNextPageExecutions}
+        compSelectCallback={this.compSelectCallback}
+        components={this.graphData.nodes}
+        selectedExecution={selectedExecution}
+        datePickerCallback={this.datePickerCallback}
+        batchTimeseries={this.batchTimeseries}
+        handleDataCenterChange={this.handleDataCenterChange}
+        selectedDataCenter={this.selectedDataCenter}
+        dataCenterList={namespacesArr}
+        isBatchEngine={this.engine.type.toLowerCase() == 'batch'}
+    />;
   }
 
   render() {
@@ -805,7 +805,7 @@ class TopologyViewContainer extends TopologyEditorContainer {
         >
           {this.modalContent()}
         </Modal>
-        {this.state.isAppRunning && this.graphData.nodes.length > 0 && this.versionName.toLowerCase() == 'current' && this.engine.type == 'stream' ?
+        {/*this.state.isAppRunning && this.graphData.nodes.length > 0 && this.versionName.toLowerCase() == 'current' && this.engine.type == 'stream' ?
         <TopologyViewModeMetrics
           ref="metricsPanelRef"
           {...this.state}
@@ -816,7 +816,7 @@ class TopologyViewContainer extends TopologyEditorContainer {
           datePickerCallback={this.datePickerCallback}
           engine={this.engine}
         />
-        : null}
+        : null*/}
       </BaseContainer>
     );
   }

@@ -26,7 +26,7 @@ import DateTimePickerDropdown from './DateTimePickerDropdown';
 import TimeSeriesChart from './TimeSeriesChart';
 import app_state from '../app_state';
 
-export default class BatchMetrics extends Component{
+export default class Metrics extends Component{
   constructor(props) {
     super(props);
     this.state = {
@@ -39,13 +39,13 @@ export default class BatchMetrics extends Component{
     app_state.versionPanelCollapsed = !app_state.versionPanelCollapsed;
   }
   getTimeSeriesData = (componentId, keyName) => {
-    const {batchTimeseries} = this.props;
+    const {timeseriesData} = this.props;
     let finalObj = {
       graphData: [], interpolate: ''
     };
     const graphData = [];
-    if(batchTimeseries){
-      const timeSeriesObj = batchTimeseries.find((o)=>{return o.component.id == componentId;});
+    if(timeseriesData){
+      const timeSeriesObj = timeseriesData.find((o)=>{return o.component.id == componentId;});
       if(timeSeriesObj){
         const firstLineData = timeSeriesObj.timeSeriesMetrics.metrics[keyName];
         for(const key in firstLineData) {
@@ -67,7 +67,7 @@ export default class BatchMetrics extends Component{
     const {lastUpdatedTime, topologyName, executionInfo, selectedExecution,
       onSelectExecution, getPrevPageExecutions, getNextPageExecutions,
       startDate, endDate, activeRangeLabel, isAppRunning, datePickerCallback,
-      viewModeData, batchTimeseries, dataCenterList, selectedDataCenter,
+      viewModeData, timeseriesData, dataCenterList, selectedDataCenter,
       handleDataCenterChange, isBatchEngine} = this.props;
 
     const locale = {

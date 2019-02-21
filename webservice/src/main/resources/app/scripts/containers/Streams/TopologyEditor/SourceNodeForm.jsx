@@ -19,6 +19,7 @@ import _ from 'lodash';
 import {Tabs, Tab} from 'react-bootstrap';
 import Utils from '../../../utils/Utils';
 import TopologyREST from '../../../rest/TopologyREST';
+import EnvironmentREST from '../../../rest/EnvironmentREST';
 import Form from '../../../libs/form';
 import StreamsSidebar from '../../../components/StreamSidebar';
 import NotesForm from '../../../components/NotesForm';
@@ -63,9 +64,10 @@ export default class SourceNodeForm extends Component {
   fetchData() {
     let {topologyId, versionId, nodeType, nodeData, namespaceId} = this.props;
     const sourceParams = nodeData.parentType + '/' + nodeData.topologyComponentBundleId;
+    let stateExecuted = false;
     let promiseArr = [
       TopologyREST.getNode(topologyId, versionId, nodeType, nodeData.nodeId),
-      TopologyREST.getSourceComponentClusters(sourceParams, namespaceId)
+      EnvironmentREST.getAllNamespaceFromService("kafka")
     ];
 
     Promise.all(promiseArr).then((results) => {
@@ -91,84 +93,66 @@ export default class SourceNodeForm extends Component {
         FSReactToastr.error(
           <CommonNotification flag="error" content={results[1].responseMessage}/>, '', toastOpt);
       } else {
-        const clusters = results[1];
-        _.keys(clusters).map((x) => {
-          _.keys(clusters[x]).map(k => {
-            if (k === "cluster") {
-              const obj = {
-                fieldName: clusters[x][k].name + '@#$' + clusters[x][k].ambariImportUrl,
-                uiName: clusters[x][k].name
-              };
-              tempArr.push(obj);
-            }
-            if(k === "security"){
-              hasSecurity = clusters[x][k].authentication.enabled;
-            }
-          });
+        const clusters = results[1].entities;
+        let clusterArr = [];
+        clusters.map((clusterObj, index)=>{
+          let cObj = clusterObj.namespace;
+          cObj.config = clusterObj.serviceConfigurationMap.server.configurationMap;
+          clusterArr.push(cObj);
+
+          const obj = {
+            fieldName: cObj.name + '@#$' + cObj.id,
+            uiName: cObj.name
+          };
+          tempArr.push(obj);
         });
-        stateObj.clusterArr = _.isEmpty(clusters) ? [] : clusters;
+        //need to check if security is enabled or not
+        //hasSecurity = clusters[x][k].authentication.enabled;
+        stateObj.clusterArr = _.isEmpty(clusterArr) ? [] : clusterArr;
       }
+      if(this.nodeData.outputStreams.length > 0){
+        let clusterId = this.nodeData.config.properties.cluster;
+        TopologyREST.getSourceComponentClusters(sourceParams, clusterId).then((response)=>{
+          let clusterObj = stateObj.clusterArr.find((c)=>{return c.id == clusterId;});
+          if(response && clusterObj){
+            clusterObj.config.topic = response[clusterId].hints.topic;
+            if(stateExecuted){
+              this.setState({clusterArr: stateObj.clusterArr},()=>{
+                this.updateClusterFields(stateObj.formData.clusters);
+              });
+            }
+          }
+        });
+      }
+
       stateObj.configJSON = this.fetchFields(stateObj.clusterArr);
-      if (!_.isEmpty(stateObj.clusterArr) && _.keys(stateObj.clusterArr).length > 0) {
+      if (stateObj.clusterArr && stateObj.clusterArr.length > 0) {
         stateObj.configJSON = this.pushClusterFields(tempArr, stateObj.configJSON);
       }
-      this.schemaVersionKeyName = Utils.getSchemaKeyName(stateObj.configJSON,'schemaVersion');
+
       this.schemaTopicKeyName = Utils.getSchemaKeyName(stateObj.configJSON,'schema');
-      this.schemaBranchKeyName = Utils.getSchemaKeyName(stateObj.configJSON,'schemaBranch');
+
       stateObj.formData = this.nodeData.config.properties;
-      if(!_.isEmpty(stateObj.formData) && !!stateObj.formData[this.schemaTopicKeyName]){
-        this.fetchSchemaBranches(stateObj.formData);
-        if(!stateObj.formData[this.schemaBranchKeyName] && !!stateObj.formData[this.schemaVersionKeyName]) {
-          stateObj.formData[this.schemaBranchKeyName] = stateObj.formData[this.schemaBranchKeyName] || 'MASTER';
-        }
-        this.fetchSchemaVersions(stateObj.formData);
-      }
       stateObj.description = this.nodeData.description;
       stateObj.fetchLoader = false;
       stateObj.hasSecurity = hasSecurity;
       stateObj.securityType = stateObj.formData.securityProtocol || '';
       this.setState(stateObj, () => {
-        if (stateObj.formData.cluster !== undefined) {
-          this.updateClusterFields(stateObj.formData.cluster);
+        stateExecuted = true;
+        if (stateObj.formData.clusters !== undefined) {
+          this.updateClusterFields(stateObj.formData.clusters);
           this.setState({streamObj: this.state.streamObj});
-        } else if (_.keys(stateObj.clusterArr).length === 1) {
-          stateObj.formData.cluster = _.keys(stateObj.clusterArr)[0];
-          this.updateClusterFields(stateObj.formData.cluster);
+        } else if (stateObj.clusterArr.length === 1) {
+          stateObj.formData.cluster = stateObj.clusterArr[0].id;
+          this.updateClusterFields(stateObj.formData.clusters);
         }
       });
     });
   }
 
-  fetchSchemaVersions = (data) => {
-    TopologyREST.getSchemaVersionsForKafka(data[this.schemaTopicKeyName], data[this.schemaBranchKeyName]).then((results) => {
-      const {configJSON} = this.state;
-      let tempConfigJson =  Utils.populateSchemaVersionOptions(results,configJSON);
-      this.setState({configJSON : tempConfigJson});
-    });
-  }
-
-  fetchSchemaBranches = (data) => {
-    TopologyREST.getSchemaBranchesForKafka(data[this.schemaTopicKeyName]).then((results) => {
-      const {configJSON} = this.state;
-      if(results.responseMessage !== undefined) {
-        _.map(configJSON, (config) => {
-          if(config.fieldName.indexOf(this.schemaTopicKeyName) !== -1 ){
-            this.refs.Form.state.FormData[this.schemaVersionKeyName] = '';
-            this.refs.Form.state.Errors[this.schemaTopicKeyName] = 'Schema Not Found';
-            this.refs.Form.state.FormData[this.schemaBranchKeyName] = '';
-            this.refs.Form.setState(this.refs.Form.state);
-          }
-        });
-      } else {
-        let tempConfigJson =  Utils.populateSchemaBranchOptions(results,configJSON,this.schemaTopicKeyName);
-        this.setState({configJSON : tempConfigJson});
-      }
-    });
-  }
-
   fetchFields = (clusterList) => {
     let obj = this.props.configData.topologyComponentUISpecification.fields;
-    if (_.keys(clusterList).length > 0) {
+    if(clusterList.length > 0){
       const clusterFlag = obj.findIndex(x => {
         return x.fieldName === 'clusters';
       });
@@ -191,21 +175,31 @@ export default class SourceNodeForm extends Component {
 
   populateClusterFields(val) {
     const {clusterArr} = this.state;
+    const {nodeData} = this.props;
+    const sourceParams = nodeData.parentType + '/' + nodeData.topologyComponentBundleId;
     const tempObj = Object.assign({}, this.state.formData, {topic: ''});
-    // split the val to find the key by URL
+    // split the val to find the key by id
     let splitValues = val.split('@#$');
-    let keyName;
+    let obj;
     if(!_.isEmpty(splitValues[1])){
-      keyName = Utils.getClusterKey(splitValues[1], false,clusterArr);
+      obj = Utils.getClusterKey(splitValues[1], false,clusterArr);
     } else {
-      keyName = Utils.getClusterKey(splitValues[0], true,clusterArr);
+      obj = Utils.getClusterKey(splitValues[0], true,clusterArr);
     }
-    this.setState({
-      clusterName: keyName,
-      streamObj: '',
-      formData: tempObj
-    }, () => {
-      this.updateClusterFields();
+
+    TopologyREST.getSourceComponentClusters(sourceParams, obj.id).then((response)=>{
+      let clusterObj = clusterArr.find((c)=>{return c.id == obj.id;});
+      if(response && clusterObj){
+        clusterObj.config.topic = response[obj.id].hints.topic;
+      }
+      this.setState({
+        clusterName: obj.key,
+        streamObj: '',
+        formData: tempObj,
+        clusterArr: clusterArr
+      }, () => {
+        this.updateClusterFields();
+      });
     });
   }
 
@@ -217,7 +211,7 @@ export default class SourceNodeForm extends Component {
     let tempFormData = _.cloneDeep(mergeData);
     let stateObj = {};
     /*
-      Utils.mergeFormDataFields method accept params
+      Utils.mergeFormDataFieldsForSourceSink method accept params
       name =  name of cluster
       clusterArr = clusterArr array
       tempFormData = formData is fields of form
@@ -226,7 +220,7 @@ export default class SourceNodeForm extends Component {
       This method is responsible for showing default value of form fields
       and prefetch the value if its already configure
     */
-    const {obj,tempData} = Utils.mergeFormDataFields(name,clusterArr, clusterName, tempFormData, configJSON);
+    const {obj,tempData} = Utils.mergeFormDataFieldsForSourceSink(name, clusterArr, clusterName, tempFormData, configJSON);
     stateObj.configJSON = obj;
     stateObj.formData = tempData;
     if(clusterArr.length === 0 && formData.cluster !== ''){
@@ -387,7 +381,14 @@ export default class SourceNodeForm extends Component {
         <Scrollbars autoHide renderThumbHorizontal={props => <div {...props} style={{
           display: "none"
         }}/>}>
-          <Form ref="Form" readOnly={disabledFields} showRequired={this.state.showRequired} showSecurity={this.state.showSecurity} className="customFormClass" FormData={formData} Errors={formErrors} populateClusterFields={this.populateClusterFields.bind(this)} callback={this.showOutputStream.bind(this)} schemaBranchesCallback={this.showSchemaBranches.bind(this)} handleSecurityProtocol={this.handleSecurityProtocol.bind(this)}>
+          <Form ref="Form" readOnly={disabledFields} showRequired={this.state.showRequired}
+            showSecurity={this.state.showSecurity} className="customFormClass"
+            FormData={formData} Errors={formErrors}
+            populateClusterFields={this.populateClusterFields.bind(this)}
+            callback={this.showOutputStream.bind(this)}
+            schemaBranchesCallback={this.showSchemaBranches.bind(this)}
+            handleSecurityProtocol={this.handleSecurityProtocol.bind(this)}
+          >
             {fields}
           </Form>
         </Scrollbars>

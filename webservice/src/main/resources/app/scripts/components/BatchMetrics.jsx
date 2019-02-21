@@ -68,7 +68,7 @@ export default class BatchMetrics extends Component{
       onSelectExecution, getPrevPageExecutions, getNextPageExecutions,
       startDate, endDate, activeRangeLabel, isAppRunning, datePickerCallback,
       viewModeData, batchTimeseries, dataCenterList, selectedDataCenter,
-      handleDataCenterChange} = this.props;
+      handleDataCenterChange, isBatchEngine} = this.props;
 
     const locale = {
       format: 'YYYY-MM-DD',
@@ -82,8 +82,8 @@ export default class BatchMetrics extends Component{
       firstDay: moment.localeData().firstDayOfWeek()
     };
 
-    const selExeCreatedAt = moment(selectedExecution.createdAt);
-    const selExeDate = moment(selectedExecution.executionDate);
+    const selExeCreatedAt = isBatchEngine ? moment(selectedExecution.createdAt) : '';
+    const selExeDate = isBatchEngine ? moment(selectedExecution.executionDate) : '';
 
     const content = (<div>
       <div className="right-sidebar-header">
@@ -115,34 +115,38 @@ export default class BatchMetrics extends Component{
         </div>
       </div>
       <div className="right-sidebar-body">
-        <div className="text-center" style={{margin: '5px 0 15px 0'}}>
-          <span className="execution-page-btn" onClick={getPrevPageExecutions}><i className="fa fa-angle-left"></i></span>
-          <span className="execution-range">{startDate.format('LL') +' - '+endDate.format('LL')}</span>
-          <span className="execution-page-btn" onClick={getNextPageExecutions}><i className="fa fa-angle-right"></i></span>
-        </div>
-        <div className="executions-box-container">
-          {_.map(executionInfo.executions, (e, i) => {
-            return <div key={"executions-"+i} className={`execution-box ${e.status} ${e.createdAt === selectedExecution.createdAt ? "execute-selected" : ""}`} onClick={onSelectExecution.bind(this, e)}></div>;
-          })}
-        </div>
-        <div className="execution-metrics-container">
-          <table>
-            <tbody>
-              <tr>
-                <td><span className="execution-metric-label">Current Status</span></td>
-                <td><span className="execution-metric-value">{selectedExecution.status && selectedExecution.status.toUpperCase()}</span></td>
-              </tr>
-              <tr>
-                <td><span className="execution-metric-label">Created At</span></td>
-                <td><span className="execution-metric-value">{selExeCreatedAt.format('MM/DD/YYYY HH:mm:ss')}</span></td>
-              </tr>
-              <tr>
-                <td><span className="execution-metric-label">Execution Date</span></td>
-                <td><span className="execution-metric-value">{selExeDate.format('MM/DD/YYYY HH:mm:ss')}</span></td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
+        {isBatchEngine ?
+          <div>
+            <div className="text-center" style={{margin: '5px 0 15px 0'}}>
+              <span className="execution-page-btn" onClick={getPrevPageExecutions}><i className="fa fa-angle-left"></i></span>
+              <span className="execution-range">{startDate.format('LL') +' - '+endDate.format('LL')}</span>
+              <span className="execution-page-btn" onClick={getNextPageExecutions}><i className="fa fa-angle-right"></i></span>
+            </div>
+            <div className="executions-box-container">
+              {_.map(executionInfo.executions, (e, i) => {
+                return <div key={"executions-"+i} className={`execution-box ${e.status} ${e.createdAt === selectedExecution.createdAt ? "execute-selected" : ""}`} onClick={onSelectExecution.bind(this, e)}></div>;
+              })}
+            </div>
+            <div className="execution-metrics-container">
+              <table>
+                <tbody>
+                  <tr>
+                    <td><span className="execution-metric-label">Current Status</span></td>
+                    <td><span className="execution-metric-value">{selectedExecution.status && selectedExecution.status.toUpperCase()}</span></td>
+                  </tr>
+                  <tr>
+                    <td><span className="execution-metric-label">Created At</span></td>
+                    <td><span className="execution-metric-value">{selExeCreatedAt.format('MM/DD/YYYY HH:mm:ss')}</span></td>
+                  </tr>
+                  <tr>
+                    <td><span className="execution-metric-label">Execution Date</span></td>
+                    <td><span className="execution-metric-value">{selExeDate.format('MM/DD/YYYY HH:mm:ss')}</span></td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        : null}
         {viewModeData.selectedComponent ?
           <div className="task-metrics">
             <div className="task-metrics-header">

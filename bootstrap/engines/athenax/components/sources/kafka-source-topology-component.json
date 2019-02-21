@@ -9,24 +9,15 @@
   "transformationClass": "dummy",
   "mavenDeps": "",
   "input": false,
-  "output": true,  
+  "output": true,
   "topologyComponentUISpecification": {
     "fields": [
-      {
-        "uiName": "Security Protocol",
-        "fieldName": "securityProtocol",
-        "isOptional": false,
-        "tooltip": "Protocol to be used to communicate with Kafka brokers",
-        "type": "enumstring",
-        "options": []
-      },
       {
         "uiName": "Bootstrap servers",
         "fieldName": "bootstrapServers",
         "isOptional": false,
         "tooltip": "A comma separated string of host:port for Kafka brokers",
-        "type": "string",
-        "hint": "dependsOn-securityProtocol"
+        "type": "string"
       },
       {
         "uiName": "Kafka Topic",
@@ -35,25 +26,7 @@
         "tooltip": "Kafka topic to read data from",
         "type": "enumstring",
         "options": [],
-        "hint": "schema,override"
-      },
-      {
-        "uiName": "Reader Schema Branch",
-        "fieldName": "schemaBranch",
-        "isOptional": false,
-        "tooltip": "Schema branch to be used fetching for reader schema versions. Default branch is MASTER",
-        "type": "enumstring",
-        "options": [],
-        "hint": "dependsOn-topic,schemaBranch"
-      },
-      {
-        "uiName": "Reader Schema Version",
-        "fieldName": "readerSchemaVersion",
-        "isOptional": false,
-        "tooltip": "Version of schema for topic to use for deserializing the message. Default is version used by kafka producer to write the message",
-        "type": "enumstring",
-        "options": [],
-        "hint": "dependsOn-schemaBranch,schemaVersion"
+        "hint": "schema"
       },
       {
         "uiName": "Consumer Group Id",

@@ -509,6 +509,82 @@ const deepmergeAll = function deepmergeAll(array, optionsArgument) {
   });
 };
 
+const mergeFormDataFieldsForSourceSink = function(name, clusterArr, clusterName, formData, uiSpecification){
+  let data = {},
+    obj = [],securityKey='';
+  let config = uiSpecification;
+  clusterArr.map((clusterObj)=>{
+    let x = clusterObj.name;
+    if(name === x || clusterName === x){
+      const nestedFields = function(configList){
+        obj = configList.map((list) => {
+          if(list.fields){
+            nestedFields(list.fields);
+          }
+          _.keys(clusterObj.config).map(k => {
+            const nestedKeys = function(pk){
+              if (pk.indexOf('.') !== -1 && pk.indexOf('task_params.') === -1) {
+                let mk = pk.split('.');
+                mk.length > 1 ? mk.splice(0, 1) : '' ;
+                nestedKeys(mk.join('.'));
+              } else if (list.fieldName === pk) {
+                if((clusterObj.config[k] === "true" || clusterObj.config[k] === "false") && (name || clusterName) === x){
+                  let fieldValue = clusterObj.config[k];
+                  _.set(data,k, (fieldValue === "true" ? true : false));
+                } else if (_.isArray(clusterObj.config[k]) && (name || clusterName) === x) {
+                  list.options = clusterObj.config[k].map(v => {
+                    return {fieldName: v, uiName: v};
+                  });
+                  if (list.hint && list.hint.toLowerCase().indexOf("override") !== -1) {
+                    if (formData[k]) {
+                      if (list.options.findIndex((o) => {
+                        return o.fieldName == formData[k];
+                      }) == -1) {
+                        list.options.push({fieldName: formData[k], uiName: formData[k]});
+                      }
+                    }
+                  }
+                } else {
+                  if (!_.isArray(clusterObj.config[k])) {
+                    // if (!formData[k]) this means it has come first time
+                    // OR
+                    // if (!name) this means user had change the cluster name
+                    if (!formData[k] || !name) {
+                      let _fieldValue = _.get(formData,k) || clusterObj.config[k];
+                      if(Object.prototype.toString.call(clusterObj.config[k]) === "[object Object]" &&
+                        list.hint && list.hint.indexOf('dependsOn-') !== -1){
+                        const key = list.hint.split('-')[1];
+                        _fieldValue = k === key ? formData[key] || '' : clusterObj.config[k][formData[key]];
+                      } else if(k.indexOf('.') !== -1){
+                        if(formData[k] === undefined && clusterName !== undefined && !_.isEmpty(clusterName)){
+                          _fieldValue = _.get(clusterObj.config,k);
+                        }
+                      }
+                      let val = _fieldValue;
+                      if(val === ''){
+                        val = _.get(formData, k);
+                      }
+                      // only set the value if name || clusterName is same as 'x'
+                      (name || clusterName) === x ? _.set(data,k,val) : null;
+                    }
+                  }
+                }
+              }
+            };
+            nestedKeys(k);
+          });
+          data.cluster = clusterObj.id;
+          data.clusters = clusterObj.name;
+          return list;
+        });
+      };
+      nestedFields(config);
+    }
+  });
+  const tempData = this.deepmerge(formData,data);
+  return {obj,tempData};
+};
+
 const mergeFormDataFields = function(name, clusterArr,clusterName,formData,uiSpecification){
   let data = {},
     obj = [],securityKey='';
@@ -543,17 +619,6 @@ const mergeFormDataFields = function(name, clusterArr,clusterName,formData,uiSpe
                       }
                     }
                   }
-                  // auto select fields if options length is one only
-                  // if(list.options && list.options.length === 1){
-                  //   formData[k] = list.options[0].uiName;
-                  // } else if(list.options && list.options.length > 1){
-                  //   if(formData[k] !== undefined && formData[k] !== ''){
-                  //     const obj = _.find(list.options, (l) => {return l.uiName === formData[k];});
-                  //     obj === undefined &&  _.isEmpty(obj)
-                  //     ? formData[k] = ''
-                  //     : '';
-                  //   }
-                  // }
                 } else {
                   if (!_.isArray(clusterArr[x].hints[k])) {
                     // if (!formData[k]) this means it has come first time
@@ -561,7 +626,8 @@ const mergeFormDataFields = function(name, clusterArr,clusterName,formData,uiSpe
                     // if (!name) this means user had change the cluster name
                     if (!formData[k] || !name) {
                       let _fieldValue = _.get(formData,k) || clusterArr[x].hints[k];
-                      if(Object.prototype.toString.call(clusterArr[x].hints[k]) === "[object Object]" && list.hint.indexOf('dependsOn-') !== -1){
+                      if(Object.prototype.toString.call(clusterArr[x].hints[k]) === "[object Object]" &&
+                        list.hint && list.hint.indexOf('dependsOn-') !== -1){
                         const key = list.hint.split('-')[1];
                         _fieldValue = k === key ? formData[key] || '' : clusterArr[x].hints[k][formData[key]];
                       } else if(k.indexOf('.') !== -1){
@@ -704,18 +770,16 @@ const checkStatusForResponseText = function (response) {
   }
 };
 
-const getClusterKey = function(urlOrName, isManualCluster,clusterArr) {
+const getClusterKey = function(string, isManualCluster,clusterArr) {
   let key = '';
-  _.keys(clusterArr).map(x => {
-    _.keys(clusterArr[x]).map(k => {
-      if(!isManualCluster && clusterArr[x][k].ambariImportUrl === urlOrName){
-        key = x;
-      } else if(isManualCluster && clusterArr[x][k].name === urlOrName){
-        key = x;
-      }
-    });
+  let id = '';
+  clusterArr.map(clusterObj => {
+    if(clusterObj.id == string){
+      key = clusterObj.name;
+      id = clusterObj.id;
+    }
   });
-  return key;
+  return {key, id};
 };
 
 const clusterField = function(){
@@ -1024,5 +1088,6 @@ export default {
   getViewModeTimeseriesMetricsTemplate,
   getViewModeDAGMetricsTemplate,
   getViewModeDAGTimeseriesMetricsTemplate,
-  isFromSharedProjects
+  isFromSharedProjects,
+  mergeFormDataFieldsForSourceSink
 };

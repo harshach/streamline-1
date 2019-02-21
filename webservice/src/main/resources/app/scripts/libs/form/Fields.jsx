@@ -248,7 +248,12 @@ const getSchemaBranchesFromName = function(topicName) {
 const dependsOnHintsFunction = function(val){
   const {Form} = this.context;
   if (this.validate() && (this.props.fieldJson !== undefined && this.props.fieldJson.hint !== undefined && Utils.matchStringInArr(this.props.fieldJson.hint, 'schema'))) {
-    getSchemaBranches.call(this,this.props.data[this.props.value]);
+    if(Utils.matchStringInArr(this.props.fieldJson.hint, 'override')){
+      getSchemaBranches.call(this,this.props.data[this.props.value]);
+    } else {
+      //Get schema directly from topic
+      getSchema.call(this, this.props.data[this.props.value], 'MASTER', true);
+    }
   } else if (this.props.fieldJson.fieldName === "securityProtocol"){
     if(Form.props.handleSecurityProtocol){
       Form.props.handleSecurityProtocol(val.value);
@@ -843,9 +848,7 @@ export class CustomEnumstring extends BaseField {
       fontWeight: "normal"
     };
     return (
-      <span style={styleObj}>{node.label}<br/>
-        <span style={styleObj2}>{node.value.split('@#$')[1]}</span>
-      </span>
+      <span style={styleObj}>{node.label}</span>
     );
   }
   splitFields(text) {
@@ -930,45 +933,29 @@ export class creatableField extends BaseField {
       : '';
     Form.setState(Form.state, () => {
       if (this.validate() && (this.props.fieldJson.hint !== undefined && this.props.fieldJson.hint.toLowerCase().indexOf("schema") !== -1)) {
-        this.getSchemaBranches(this.props.data[this.props.value]);
+        this.getSchema(this.props.data[this.props.value]);
       }
     });
   }
 
-  getSchemaBranches(val) {
+  getSchema(val){
     if (val != '') {
       clearTimeout(this.branchTimer);
       this.branchTimer = setTimeout(() => {
-        this.getSchemaBranchesFromName(val);
+        this.getSchemaForKafka(val);
       }, 700);
     }
   }
-  getSchemaBranchesFromName(topicName) {
-    let resultArr = [];
-    TopologyREST.getSchemaBranchesForKafka(topicName).then(result => {
-      if (result.responseMessage !== undefined) {
-        this.refs.CustomCreatable.className = "form-control invalidInput";
-        this.context.Form.state.Errors[this.props.valuePath] = 'Schema Not Found';
-        this.context.Form.setState(this.context.Form.state);
-      } else {
-        this.refs.CustomCreatable.className = "form-control";
-        resultArr = result;
-        if (typeof resultArr === 'string') {
-          resultArr = JSON.parse(resultArr);
-        }
-        this.context.Form.state.Errors[this.props.valuePath] =  resultArr.length === 0 ? 'Schema Not Found' : '';
-        this.context.Form.setState(this.context.Form.state);
-      }
-      if (this.context.Form.props.schemaBranchesCallback) {
-        this.context.Form.props.schemaBranchesCallback(resultArr);
-      }
-    });
+
+  getSchemaForKafka(){
+    //Get schema directly from topic
+    getSchema.call(this, this.props.data[this.props.value], 'MASTER', true);
   }
 
   validate() {
     let isValid = super.validate(this.props.data[this.props.value]);
     if(!isValid){
-      this.refs.CustomCreatable.scrollIntoViewIfNeeded();
+      this.refs.select2.scrollIntoViewIfNeeded();
     }
     return isValid;
   }
@@ -987,7 +974,7 @@ export class creatableField extends BaseField {
     }
     return (creatableHint !== null && creatableHint.toLowerCase().indexOf("hidden") !== -1
       ? ''
-      : <Creatable placeholder="Select.." ref="CustomCreatable" clearable={false} onChange={this.handleChange} multi={false} disabled={disabledField} {...this.props.fieldAttr} className={`${lastChild.props.label === this.props.fieldJson.uiName && fieldsShown.length > 4
+      : <Creatable placeholder="Select.." ref="select2" clearable={false} onChange={this.handleChange} multi={false} disabled={disabledField} {...this.props.fieldAttr} className={`${lastChild.props.label === this.props.fieldJson.uiName && fieldsShown.length > 4
         ? "menu-outer-top"
         : ''}${this.context.Form.state.Errors[this.props.valuePath]
           ? "invalidSelect"

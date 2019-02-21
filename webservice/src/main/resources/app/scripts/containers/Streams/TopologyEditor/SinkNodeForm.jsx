@@ -20,6 +20,7 @@ import {Tabs, Tab} from 'react-bootstrap';
 import Utils from '../../../utils/Utils';
 import TopologyUtils from '../../../utils/TopologyUtils';
 import TopologyREST from '../../../rest/TopologyREST';
+import EnvironmentREST from '../../../rest/EnvironmentREST';
 import Form from '../../../libs/form';
 import StreamsSidebar from '../../../components/StreamSidebar';
 import NotesForm from '../../../components/NotesForm';
@@ -88,11 +89,12 @@ export default class SinkNodeForm extends Component {
       namespaceId
     } = this.props;
     const sourceParams = nodeData.parentType + '/' + nodeData.topologyComponentBundleId;
+    let stateExecuted = false;
     let sourceNodeType = null,sourceNodePromiseArr= [];
     let promiseArr = [
       TopologyREST.getNode(topologyId, versionId, nodeType, nodeData.nodeId),
       TopologyREST.getAllNodes(topologyId, versionId, 'edges'),
-      TopologyREST.getSourceComponentClusters(sourceParams, namespaceId)
+      EnvironmentREST.getAllNamespaceFromService("kafka")
     ];
     if (sourceNodes.length > 0) {
       _.map(sourceNodes, (sourceNode) => {
@@ -110,9 +112,6 @@ export default class SinkNodeForm extends Component {
             //TODO - Once we support multiple input streams, need to fix this.
             TopologyREST.getNode(topologyId, versionId, 'streams', edge.streamGroupings[0].streamId).then(streamResult => {
               tempStreamArr.push(streamResult);
-              /*_.map(tempStreamArr, (stream) => {
-                this.tempStreamFieldArr.push(_.flattenDeep(stream.fields));
-              });*/
               this.setState({inputStreamArr: tempStreamArr, streamObj :tempStreamArr[0],streamObjArr : tempStreamArr.length > 1 ? tempStreamArr : []});
             });
           }
@@ -123,24 +122,39 @@ export default class SinkNodeForm extends Component {
         FSReactToastr.error(
           <CommonNotification flag="error" content={results[2].responseMessage}/>, '', toastOpt);
       } else {
-        const clusters = results[2];
-        _.keys(clusters).map((x) => {
-          _.keys(clusters[x]).map(k => {
-            if (k === "cluster") {
-              const obj = {
-                fieldName: clusters[x][k].name + '@#$' + clusters[x][k].ambariImportUrl,
-                uiName: clusters[x][k].name
-              };
-              tempArr.push(obj);
-            }
-            if(k === "security"){
-              hasSecurity = clusters[x][k].authentication.enabled;
-            }
-          });
+        const clusters = results[2].entities;
+        let clusterArr = [];
+        clusters.map((clusterObj, index)=>{
+          let cObj = clusterObj.namespace;
+          cObj.config = clusterObj.serviceConfigurationMap.server.configurationMap;
+          clusterArr.push(cObj);
+
+          const obj = {
+            fieldName: cObj.name + '@#$' + cObj.id,
+            uiName: cObj.name
+          };
+          tempArr.push(obj);
         });
-        stateObj.clusterArr = _.isEmpty(clusters) ? [] : clusters;
+        //need to check if security is enabled or not
+        //hasSecurity = clusters[x][k].authentication.enabled;
+        stateObj.clusterArr = _.isEmpty(clusterArr) ? [] : clusterArr;
       }
-      if (!_.isEmpty(stateObj.clusterArr) && _.keys(stateObj.clusterArr).length > 0) {
+      if(this.nodeData.config.properties.cluster){
+        const sourceParams = nodeData.parentType + '/' + nodeData.topologyComponentBundleId;
+        let clusterId = this.nodeData.config.properties.cluster;
+        TopologyREST.getSourceComponentClusters(sourceParams, clusterId).then((response)=>{
+          let clusterObj = stateObj.clusterArr.find((c)=>{return c.id == clusterId;});
+          if(response && clusterObj){
+            clusterObj.config.topic = response[clusterId].hints.topic;
+            if(stateExecuted){
+              this.setState({clusterArr: stateObj.clusterArr},()=>{
+                this.updateClusterFields(stateObj.formData.clusters);
+              });
+            }
+          }
+        });
+      }
+      if (stateObj.clusterArr && stateObj.clusterArr.length > 0) {
         stateObj.uiSpecification = this.pushClusterFields(tempArr);
       }
       stateObj.formData = this.nodeData.config.properties;
@@ -151,21 +165,13 @@ export default class SinkNodeForm extends Component {
       stateObj.hasSecurity = hasSecurity;
       stateObj.validSchema = true;
       this.schemaTopicKeyName = Utils.getSchemaKeyName(stateObj.uiSpecification,'schema');
-      this.schemaBranchKeyName = Utils.getSchemaKeyName(stateObj.uiSpecification,'schemaBranch');
-      this.schemaVersionKeyName = Utils.getSchemaKeyName(stateObj.uiSpecification,'schemaVersion');
-      if(!_.isEmpty(stateObj.formData) && !!stateObj.formData[this.schemaTopicKeyName]){
-        this.fetchSchemaBranches(stateObj.formData);
-        if(!stateObj.formData[this.schemaBranchKeyName] && !!stateObj.formData[this.schemaVersionKeyName]) {
-          stateObj.formData[this.schemaBranchKeyName] = stateObj.formData[this.schemaBranchKeyName] || 'MASTER';
-        }
-        this.fetchSchemaVersions(stateObj.formData);
-      }
       this.setState(stateObj, () => {
-        if (stateObj.formData.cluster !== undefined) {
-          this.updateClusterFields(stateObj.formData.cluster);
-        } else if (_.keys(stateObj.clusterArr).length === 1) {
-          stateObj.formData.cluster = _.keys(stateObj.clusterArr)[0];
-          this.updateClusterFields(stateObj.formData.cluster);
+        stateExecuted = true;
+        if (stateObj.formData.clusters !== undefined) {
+          this.updateClusterFields(stateObj.formData.clusters);
+        } else if (stateObj.clusterArr.length === 1) {
+          stateObj.formData.cluster = stateObj.clusterArr[0].id;
+          this.updateClusterFields(stateObj.formData.clusters);
         }
       });
 
@@ -198,53 +204,6 @@ export default class SinkNodeForm extends Component {
           this.allSourceChildNodeData = sourceResults;
         });
       });
-      // if (sourceNodes.length > 0) {
-      //   //Finding the source node and updating actions for rules/windows
-      //   this.sourceNodeData = results[3];
-      //   let sourcePromiseArr = [];
-      //   // sourceChildNodeType are processor nodes inner child, window or rule
-      //   let type = sourceNodes[0].currentType.toLowerCase();
-      //   this.sourceChildNodeType = type === 'window'
-      //     ? 'windows'
-      //     : (type === 'rule' || type === 'projection'
-      //       ? 'rules'
-      //       : 'branchrules');
-      //   if (this.sourceNodeData.config.properties && this.sourceNodeData.config.properties.rules && this.sourceNodeData.config.properties.rules.length > 0) {
-      //     this.sourceNodeData.config.properties.rules.map((id) => {
-      //       sourcePromiseArr.push(TopologyREST.getNode(topologyId, versionId, this.sourceChildNodeType, id));
-      //     });
-      //   }
-      //   Promise.all(sourcePromiseArr).then(sourceResults => {
-      //     this.allSourceChildNodeData = sourceResults;
-      //   });
-      // }
-    });
-  }
-
-  fetchSchemaVersions = (data) => {
-    TopologyREST.getSchemaVersionsForKafka(data[this.schemaTopicKeyName], data[this.schemaBranchKeyName]).then((results) => {
-      const {uiSpecification} = this.state;
-      let tempConfigJson =  Utils.populateSchemaVersionOptions(results,uiSpecification);
-      this.setState({uiSpecification : tempConfigJson});
-    });
-  }
-
-  fetchSchemaBranches = (data) => {
-    TopologyREST.getSchemaBranchesForKafka(data[this.schemaTopicKeyName]).then((results) => {
-      const {uiSpecification} = this.state;
-      if(results.responseMessage !== undefined) {
-        _.map(uiSpecification, (config) => {
-          if(config.fieldName.indexOf(this.schemaTopicKeyName) !== -1){
-            this.refs.Form.state.Errors[this.schemaTopicKeyName] = 'Schema Not Found';
-            this.refs.Form.state.FormData[this.schemaBranchKeyName] = '';
-            this.refs.Form.state.FormData[this.schemaVersionKeyName] = '';
-            this.refs.Form.setState(this.refs.Form.state);
-          }
-        });
-      } else {
-        let tempConfigJson =  Utils.populateSchemaBranchOptions(results,uiSpecification,this.schemaTopicKeyName);
-        this.setState({uiSpecification : tempConfigJson});
-      }
     });
   }
 
@@ -414,19 +373,28 @@ export default class SinkNodeForm extends Component {
 
   populateClusterFields(val) {
     const {clusterArr} = this.state;
+    const {nodeData} = this.props;
+    const sourceParams = nodeData.parentType + '/' + nodeData.topologyComponentBundleId;
     const tempObj = Object.assign({}, this.state.formData, {topic: ''});
     let splitValues = val.split('@#$');
-    let keyName;
+    let obj;
     if(!_.isEmpty(splitValues[1])){
-      keyName = Utils.getClusterKey(splitValues[1], false,clusterArr);
+      obj = Utils.getClusterKey(splitValues[1], false,clusterArr);
     } else {
-      keyName = Utils.getClusterKey(splitValues[0], true,clusterArr);
+      obj = Utils.getClusterKey(splitValues[0], true,clusterArr);
     }
-    this.setState({
-      clusterName: keyName,
-      formData: tempObj
-    }, () => {
-      this.updateClusterFields();
+    TopologyREST.getSourceComponentClusters(sourceParams, obj.id).then((response)=>{
+      let clusterObj = clusterArr.find((c)=>{return c.id == obj.id;});
+      if(response && clusterObj){
+        clusterObj.config.topic = response[obj.id].hints.topic;
+      }
+      this.setState({
+        clusterName: obj.key,
+        formData: tempObj,
+        clusterArr: clusterArr
+      }, () => {
+        this.updateClusterFields();
+      });
     });
   }
 
@@ -438,7 +406,7 @@ export default class SinkNodeForm extends Component {
     let tempFormData = _.cloneDeep(mergeData);
     let stateObj = {};
     /*
-      Utils.mergeFormDataFields method accept params
+      Utils.mergeFormDataFieldsForSourceSink method accept params
       name =  name of cluster
       clusterArr = clusterArr array
       tempFormData = formData is fields of form
@@ -447,7 +415,7 @@ export default class SinkNodeForm extends Component {
       This method is responsible for showing default value of form fields
       and prefetch the value if its already configure
     */
-    const {obj,tempData} = Utils.mergeFormDataFields(name,clusterArr, clusterName, tempFormData,uiSpecification);
+    const {obj,tempData} = Utils.mergeFormDataFieldsForSourceSink(name,clusterArr, clusterName, tempFormData,uiSpecification);
     stateObj.uiSpecification = obj;
     stateObj.formData = tempData;
     if(clusterArr.length === 0 && formData.cluster !== ''){

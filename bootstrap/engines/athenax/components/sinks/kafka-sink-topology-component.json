@@ -26,7 +26,7 @@
         "isOptional": true,
         "tooltip": "A flag to indicate whether to use async kafka producer or not",
         "type": "boolean",
-        "defaultValue": true 
+        "defaultValue": true
       },
       {
         "uiName": "Kafka Topic",
@@ -35,41 +35,14 @@
         "tooltip": "Kafka topic to write data to",
         "type": "enumstring",
         "options": [],
-        "hint": "schema,override"
-      },
-      {
-        "uiName": "Writer Schema Branch",
-        "fieldName": "schemaBranch",
-        "isOptional": false,
-        "tooltip": "Schema branch to be used fetching for writer schema versions. Default branch is MASTER",
-        "type": "enumstring",
-        "options": [],
-        "hint": "dependsOn-topic,schemaBranch"
-      },
-      {
-        "uiName": "Writer Schema Version",
-        "fieldName": "writerSchemaVersion",
-        "isOptional": false,
-        "tooltip": "Version of schema for topic to use for serializing the message. Default is the latest version for the schema",
-        "type": "enumstring",
-        "options": [],
-        "hint": "dependsOn-schemaBranch,schemaVersion"
-      },
-      {
-        "uiName": "Security Protocol",
-        "fieldName": "securityProtocol",
-        "isOptional": false,
-        "tooltip": "Protocol to be used to communicate with Kafka brokers",
-        "type": "enumstring",
-        "options": []
+        "hint": "schema"
       },
       {
         "uiName": "Bootstrap Servers",
         "fieldName": "bootstrapServers",
         "isOptional": false,
         "tooltip": "Comma separated string of host:port kafka brokers",
-        "type": "string",
-        "hint": "dependsOn-securityProtocol"
+        "type": "string"
       },
       {
         "uiName": "Key Serializer",
@@ -122,7 +95,7 @@
         "isOptional": true,
         "tooltip": "Number of retry attempts for a record send failure",
         "type": "string",
-        "defaultValue": "0" 
+        "defaultValue": "0"
       },
       {
         "uiName": "Batch Size",
@@ -146,7 +119,7 @@
         "isOptional": true,
         "tooltip": "Time in milliseconds for which connections can be idle before getting closed",
         "type": "string",
-        "defaultValue": "540000" 
+        "defaultValue": "540000"
       },
       {
         "uiName": "Linger Time",
@@ -154,7 +127,7 @@
         "isOptional": true,
         "tooltip": "Time in milliseconds to wait before sending a record out when batch is not full",
         "type": "string",
-        "defaultValue": "0" 
+        "defaultValue": "0"
       },
       {
         "uiName": "Max Block",
@@ -162,7 +135,7 @@
         "isOptional": true,
         "tooltip": "Time in milliseconds that send and partitionsFor methods will block for",
         "type": "string",
-        "defaultValue": "60000" 
+        "defaultValue": "60000"
       },
       {
         "uiName": "Max Request Size",
@@ -170,7 +143,7 @@
         "isOptional": true,
         "tooltip": "Maximum size of a request in bytes",
         "type": "string",
-        "defaultValue": "1048576" 
+        "defaultValue": "1048576"
       },
       {
         "uiName": "Receive Buffer Size",
@@ -221,7 +194,7 @@
         "isOptional": true,
         "tooltip": "Size in bytes of TCP send buffer (SO_SNDBUF) to use when sending data",
         "type": "string",
-        "defaultValue": "131072" 
+        "defaultValue": "131072"
       },
       {
         "uiName": "Timeout",
@@ -237,7 +210,7 @@
         "isOptional": true,
         "tooltip": "Boolean to indicate whether to block on a full buffer or throw an exception",
         "type": "boolean",
-        "defaultValue": true 
+        "defaultValue": true
       },
       {
         "uiName": "Max In-flight Requests",
@@ -245,7 +218,7 @@
         "isOptional": true,
         "tooltip": "Maximum number of unacknowledged requests producer will send per connection before blocking",
         "type": "string",
-        "defaultValue": "5" 
+        "defaultValue": "5"
       },
       {
         "uiName": "Metadata Fetch Timeout",
@@ -269,7 +242,7 @@
         "isOptional": true,
         "tooltip": "Amount of time in milliseconds to wait before attempting to reconnect to a host",
         "type": "string",
-        "defaultValue": "50" 
+        "defaultValue": "50"
       },
       {
         "uiName": "Retry Backoff",
@@ -277,7 +250,7 @@
         "isOptional": true,
         "tooltip": "Amount of time in milliseconds to wait before attempting to retry a failed fetch request",
         "type": "string",
-        "defaultValue": "100" 
+        "defaultValue": "100"
       },
       {
         "uiName": "Serialization Protocol Version",

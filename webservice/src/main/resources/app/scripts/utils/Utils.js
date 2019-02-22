@@ -512,7 +512,7 @@ const deepmergeAll = function deepmergeAll(array, optionsArgument) {
 /*
   mergeFormDataFields method accept params
   name =  name of cluster (present all when component is already configured)
-  clusterArr = clusterArr array
+  clusterArr = either an array of clusters or an object (map) of clusters by name
   formData = formData is fields of form
   uiSpecification = fields shown on ui depends on these options
 

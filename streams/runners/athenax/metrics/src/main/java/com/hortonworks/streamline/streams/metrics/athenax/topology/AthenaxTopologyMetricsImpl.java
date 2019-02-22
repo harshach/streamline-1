@@ -124,14 +124,13 @@ public class AthenaxTopologyMetricsImpl implements TopologyMetrics {
             metricParams.put(entry.getKey(), (entry.getValue()));
         }
 
-        Map<String, Object> metricsByTag =
-                timeSeriesQuerier.getMetricsByTag(metricQueryFormat, metricParams, from, to, asUser);
+        Map<Long, Double> metrics =
+                timeSeriesQuerier.getMetrics(metricQueryFormat, metricParams, from, to, asUser);
 
         Collection<? extends TopologyComponent> components = getTopologyComponents(topology);
 
         if (components != null) {
             for (TopologyComponent component : components) {
-                Object metrics = metricsByTag.get(component.getName().toLowerCase());  // M3 downcases all tags
                 results.put(component.getId(), metrics);
             }
         }
@@ -143,7 +142,7 @@ public class AthenaxTopologyMetricsImpl implements TopologyMetrics {
 
         List<QueryParam> queryParams = WSUtils.buildTopologyIdAndVersionIdAwareQueryParams(topology.getId(), currentVersionId, null);
 
-        return topologyCatalogHelperService.listTopologyTasks(queryParams);
+        return topologyCatalogHelperService.listStreamTopologyComponents(queryParams);
     }
 
     private Map<String, String> getConfigMap(Namespace namespace, Engine engine) throws ConfigException {

@@ -87,6 +87,25 @@ public class M3MetricsQuerier extends AbstractTimeSeriesQuerier {
         return results;
     }
 
+    public Map<Long, Double> getMetrics(String metricQueryTemplate, Map<String, String> metricParams, long from, long to, String asUser) {
+        // M3 discourages UUIDs, masks to prevent M3 from dropping
+        maskUUIDs(metricParams);
+
+        // Substitute params into query
+        String metricQuery = substitute(metricQueryTemplate, metricParams);
+
+        // Fetch M3 metrics
+        List<Map> m3QueryResults = client.getMetrics(metricQuery, toSeconds(from), toSeconds(to), asUser);
+
+        Map<Long, Double> formatedDataPoints = null;
+        for (Map target: m3QueryResults ) {
+            List<List<Number>> dataPoints = (List<List<Number>>) target.get(DATAPOINTS_KEY);
+            formatedDataPoints = formatDataPointsFromM3ToMap(dataPoints);
+        }
+
+        return formatedDataPoints;
+    }
+
     @Override
     public Map<Long, Double> getTopologyLevelMetrics(String topologyName, String metricName,
                                                      AggregateFunction aggrFunction, long from, long to) {

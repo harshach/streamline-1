@@ -3,6 +3,7 @@ package com.hortonworks.streamline.streams.metrics.topology.service;
 import com.hortonworks.streamline.common.QueryParam;
 import com.hortonworks.streamline.streams.catalog.Engine;
 import com.hortonworks.streamline.streams.catalog.Topology;
+import com.hortonworks.streamline.streams.catalog.TopologyComponent;
 import com.hortonworks.streamline.streams.catalog.TopologyRuntimeIdMap;
 import com.hortonworks.streamline.streams.catalog.TopologyTask;
 import com.hortonworks.streamline.streams.catalog.service.StreamCatalogService;
@@ -12,6 +13,8 @@ import com.hortonworks.streamline.streams.cluster.service.EnvironmentService;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 
 public class TopologyCatalogHelperService {
@@ -65,4 +68,12 @@ public class TopologyCatalogHelperService {
         return streamCatalogService.listTopologyTasks(params);
     }
 
+    public Collection<? extends TopologyComponent> listStreamTopologyComponents(List<QueryParam> params) {
+        Stream<? extends TopologyComponent> combinedStream = Stream.of(
+                streamCatalogService.listTopologySources(params),
+                streamCatalogService.listTopologyProcessors(params),
+                streamCatalogService.listTopologySinks(params)
+        ).flatMap(Collection::stream);
+        return combinedStream.collect(Collectors.toList());
+    }
 }

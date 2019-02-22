@@ -509,153 +509,114 @@ const deepmergeAll = function deepmergeAll(array, optionsArgument) {
   });
 };
 
-const mergeFormDataFieldsForSourceSink = function(name, clusterArr, clusterName, formData, uiSpecification){
-  let data = {},
-    obj = [],securityKey='';
-  let config = uiSpecification;
-  clusterArr.map((clusterObj)=>{
-    let x = clusterObj.name;
-    if(name === x || clusterName === x){
-      const nestedFields = function(configList){
-        obj = configList.map((list) => {
-          if(list.fields){
-            nestedFields(list.fields);
-          }
-          _.keys(clusterObj.config).map(k => {
-            const nestedKeys = function(pk){
-              if (pk.indexOf('.') !== -1 && pk.indexOf('task_params.') === -1) {
-                let mk = pk.split('.');
-                mk.length > 1 ? mk.splice(0, 1) : '' ;
-                nestedKeys(mk.join('.'));
-              } else if (list.fieldName === pk) {
-                if((clusterObj.config[k] === "true" || clusterObj.config[k] === "false") && (name || clusterName) === x){
-                  let fieldValue = clusterObj.config[k];
-                  _.set(data,k, (fieldValue === "true" ? true : false));
-                } else if (_.isArray(clusterObj.config[k]) && (name || clusterName) === x) {
-                  list.options = clusterObj.config[k].map(v => {
-                    return {fieldName: v, uiName: v};
-                  });
-                  if (list.hint && list.hint.toLowerCase().indexOf("override") !== -1) {
-                    if (formData[k]) {
-                      if (list.options.findIndex((o) => {
-                        return o.fieldName == formData[k];
-                      }) == -1) {
-                        list.options.push({fieldName: formData[k], uiName: formData[k]});
-                      }
-                    }
-                  }
-                } else {
-                  if (!_.isArray(clusterObj.config[k])) {
-                    // if (!formData[k]) this means it has come first time
-                    // OR
-                    // if (!name) this means user had change the cluster name
-                    if (!formData[k] || !name) {
-                      let _fieldValue = _.get(formData,k) || clusterObj.config[k];
-                      if(Object.prototype.toString.call(clusterObj.config[k]) === "[object Object]" &&
-                        list.hint && list.hint.indexOf('dependsOn-') !== -1){
-                        const key = list.hint.split('-')[1];
-                        _fieldValue = k === key ? formData[key] || '' : clusterObj.config[k][formData[key]];
-                      } else if(k.indexOf('.') !== -1){
-                        if(formData[k] === undefined && clusterName !== undefined && !_.isEmpty(clusterName)){
-                          _fieldValue = _.get(clusterObj.config,k);
-                        }
-                      }
-                      let val = _fieldValue;
-                      if(val === ''){
-                        val = _.get(formData, k);
-                      }
-                      // only set the value if name || clusterName is same as 'x'
-                      (name || clusterName) === x ? _.set(data,k,val) : null;
-                    }
-                  }
-                }
-              }
-            };
-            nestedKeys(k);
-          });
-          data.cluster = clusterObj.id;
-          data.clusters = clusterObj.name;
-          return list;
-        });
-      };
-      nestedFields(config);
-    }
-  });
-  const tempData = this.deepmerge(formData,data);
-  return {obj,tempData};
-};
+/*
+  mergeFormDataFields method accept params
+  name =  name of cluster (present all when component is already configured)
+  clusterArr = either an array of clusters or an object (map) of clusters by name
+  formData = formData is fields of form
+  uiSpecification = fields shown on ui depends on these options
 
-const mergeFormDataFields = function(name, clusterArr,clusterName,formData,uiSpecification){
-  let data = {},
-    obj = [],securityKey='';
-  let config = uiSpecification;
-  _.keys(clusterArr).map((x) => {
-    if (name || clusterName === x) {
-      const nestedFields = function(configList){
-        obj = configList.map((list) => {
-          if(list.fields){
-            nestedFields(list.fields);
-          }
-          _.keys(clusterArr[x].hints).map(k => {
-            const nestedKeys = function(pk){
-              if (pk.indexOf('.') !== -1 && pk.indexOf('task_params.') === -1) {
-                let mk = pk.split('.');
-                mk.length > 1 ? mk.splice(0, 1) : '' ;
-                nestedKeys(mk.join('.'));
-              } else if (list.fieldName === pk) {
-                if((clusterArr[x].hints[k] === "true" || clusterArr[x].hints[k] === "false") && (name || clusterName) === x){
-                  let fieldValue = clusterArr[x].hints[k];
-                  _.set(data,k, (fieldValue === "true" ? true : false));
-                } else if (_.isArray(clusterArr[x].hints[k]) && (name || clusterName) === x) {
-                  list.options = clusterArr[x].hints[k].map(v => {
-                    return {fieldName: v, uiName: v};
-                  });
-                  if (list.hint && list.hint.toLowerCase().indexOf("override") !== -1) {
-                    if (formData[k]) {
-                      if (list.options.findIndex((o) => {
-                        return o.fieldName == formData[k];
-                      }) == -1) {
-                        list.options.push({fieldName: formData[k], uiName: formData[k]});
-                      }
-                    }
-                  }
-                } else {
-                  if (!_.isArray(clusterArr[x].hints[k])) {
-                    // if (!formData[k]) this means it has come first time
-                    // OR
-                    // if (!name) this means user had change the cluster name
-                    if (!formData[k] || !name) {
-                      let _fieldValue = _.get(formData,k) || clusterArr[x].hints[k];
-                      if(Object.prototype.toString.call(clusterArr[x].hints[k]) === "[object Object]" &&
-                        list.hint && list.hint.indexOf('dependsOn-') !== -1){
-                        const key = list.hint.split('-')[1];
-                        _fieldValue = k === key ? formData[key] || '' : clusterArr[x].hints[k][formData[key]];
-                      } else if(k.indexOf('.') !== -1){
-                        if(formData[k] === undefined && clusterName !== undefined && !_.isEmpty(clusterName)){
-                          _fieldValue = _.get(clusterArr[x].hints,k);
-                        }
-                      }
-                      let val = _fieldValue;
-                      if(val === ''){
-                        val = _.get(formData, k);
-                      }
-                      // only set the value if name || clusterName is same as 'x'
-                      (name || clusterName) === x ? _.set(data,k,val) : null;
+  This method is responsible for showing default value of form fields
+  and prefetch the value if its already configure
+*/
+const mergeFormDataFields = function(name, clusterArr, clusterName, formData, uiSpecification, isClusterWithHints){
+  let data = {}, obj = [], clusterObj = null;
+  /*
+    find the cluster based on name -- when component is already configured)
+    or based on clusterName -- when user changes the cluster in select box
+  */
+  if(isClusterWithHints){
+    _.keys(clusterArr).map((cName) => {
+      if(name === cName || clusterName === cName){
+        clusterObj = clusterArr[cName];
+        clusterObj.config = clusterObj.hints;
+      }
+    });
+  } else {
+    clusterObj = clusterArr.find((cObj)=>{
+      return name === cObj.name || clusterName === cObj.name;
+    });
+  }
+  if(clusterObj){
+    /*
+      function that maps the uiSpecification JSON with the hints and/or
+      defaultValue provided in clusterObj
+    */
+    const nestedFields = function(configList){
+      obj = configList.map((list) => {
+        if(list.fields){
+          nestedFields(list.fields); //recursive call if JSON field has children fields within it
+        }
+
+        // map over the cluster configuration keys and set those values to the respective JSON fields
+        _.keys(clusterObj.config).map(configKey => {
+          const nestedKeys = function(pk){
+            //check if the key is dot separated and if so, find the last part of the key
+            if (pk.indexOf('.') !== -1 && pk.indexOf('task_params.') === -1) {
+              let mk = pk.split('.');
+              mk.length > 1 ? mk.splice(0, 1) : '' ;
+              nestedKeys(mk.join('.')); //recursive call until the last part of the key is found
+            } else if (list.fieldName === pk) {
+              //condition is met when config key matches the json field key
+              if((clusterObj.config[configKey] === "true" || clusterObj.config[configKey] === "false") && (name || clusterName) === clusterObj.name){
+                //condition is met if config values are boolean (but in string format) and cluster name matches
+                let fieldValue = clusterObj.config[configKey];
+                _.set(data, configKey, (fieldValue === "true" ? true : false));
+              } else if (_.isArray(clusterObj.config[configKey]) && (name || clusterName) === clusterObj.name) {
+                //condition is met if config values are in array and cluster name matches
+                list.options = clusterObj.config[configKey].map(v => {
+                  return {fieldName: v, uiName: v};
+                });
+                if (list.hint && list.hint.toLowerCase().indexOf("override") !== -1) {
+                  //condition is met when JSON field has a hint saying "override"
+                  //which means override the options array with config values array
+                  if (formData[configKey]) {
+                    if (list.options.findIndex((o) => { return o.fieldName == formData[configKey]; }) == -1) {
+                      //check if new options are already overriden and if not, then push it
+                      list.options.push({fieldName: formData[configKey], uiName: formData[configKey]});
                     }
                   }
                 }
+              } else {
+                if (!_.isArray(clusterObj.config[configKey])) {
+                  // if (!formData[configKey]) this means it has come first time
+                  // OR
+                  // if (!name) this means user had change the cluster name
+                  if (!formData[configKey] || !name) {
+                    let _fieldValue = _.get(formData, configKey) || clusterObj.config[configKey];
+                    if(Object.prototype.toString.call(clusterObj.config[configKey]) === "[object Object]" &&
+                      list.hint &&
+                      list.hint.indexOf('dependsOn-') !== -1
+                    ){
+                      //condition is met when config value is Object and has dependsOn-* hint
+                      const key = list.hint.split('-')[1];
+                      _fieldValue = configKey === key ? formData[key] || '' : clusterObj.config[configKey][formData[key]];
+                    } else if(configKey.indexOf('.') !== -1){
+                      if(formData[configKey] === undefined && clusterName !== undefined && !_.isEmpty(clusterName)){
+                        _fieldValue = _.get(clusterObj.config, configKey);
+                      }
+                    }
+                    let val = _fieldValue;
+                    if(val === ''){
+                      val = _.get(formData, configKey);
+                    }
+                    // only set the value if name || clusterName is same as cluster.name
+                    (name || clusterName) === clusterObj.name ? _.set(data, configKey, val) : null;
+                  }
+                }
               }
-            };
-            nestedKeys(k);
-          });
-          data.cluster = clusterArr[name || clusterName] === undefined ? '' : name || clusterName;
-          data.clusters = clusterArr[name || clusterName] === undefined ? '' : clusterArr[name || clusterName].cluster.name;
-          return list;
+            }
+          };
+          nestedKeys(configKey);
         });
-      };
-      nestedFields(config);
-    }
-  });
+        data.cluster = clusterObj.id;
+        data.clusters = clusterObj.name;
+        return list;
+      });
+    };
+    nestedFields(uiSpecification);
+  }
+
   const tempData = this.deepmerge(formData,data);
   return {obj,tempData};
 };
@@ -1088,6 +1049,5 @@ export default {
   getViewModeTimeseriesMetricsTemplate,
   getViewModeDAGMetricsTemplate,
   getViewModeDAGTimeseriesMetricsTemplate,
-  isFromSharedProjects,
-  mergeFormDataFieldsForSourceSink
+  isFromSharedProjects
 };

@@ -280,7 +280,7 @@ export default class SourceNodeForm extends Component {
     let tempConfigJson = _.cloneDeep(this.state.configJSON);
     let tempFormData = Utils.deepmerge(this.state.formData,this.refs.Form.state.FormData);
     if(flag){
-      this.streamObj = this.updateStreamObj(resultArr);
+      this.streamObj = this.updateStreamObj(resultArr, tempFormData.topic);
     } else {
       this.streamObj.fields = [];
 
@@ -306,9 +306,9 @@ export default class SourceNodeForm extends Component {
     this.setState({configJSON : tempConfigJson,formData:tempFormData});
   }
 
-  updateStreamObj = (resultArr) => {
+  updateStreamObj = (resultArr, topicName) => {
     return {
-      streamId: this.state.formData.topic + '_' + this.nodeData.id,
+      streamId: topicName + '_' + this.nodeData.id,
       fields: resultArr
     };
   }

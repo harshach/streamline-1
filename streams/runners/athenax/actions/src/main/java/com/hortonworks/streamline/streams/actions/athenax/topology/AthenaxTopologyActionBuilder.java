@@ -21,6 +21,8 @@ public class AthenaxTopologyActionBuilder implements TopologyActionsBuilder<Map<
     private TopologyActions athenaxTopologyActions;
     private TopologyActionsService topologyActionsService;
     private Map<String, Object> conf;
+    protected static final String UWORC_NAMESPACE_ID = "UWORC_NAMESPACE_ID";
+    protected static final String UWORC_NAMESPACE_NAME = "UWORC_NAMESPACE_NAME";
 
     @Override
     public void init(Map<String, String> conf, Engine engine, TopologyActionsService topologyActionsService,
@@ -51,6 +53,9 @@ public class AthenaxTopologyActionBuilder implements TopologyActionsBuilder<Map<
             throw new RuntimeException(e);
         }
         conf.putAll(configMap);
+
+        conf.put(UWORC_NAMESPACE_ID, namespace.getId());
+        conf.put(UWORC_NAMESPACE_NAME, namespace.getName());
 
         String host = configMap.get(AthenaxConstants.ATHENAX_SERVICE_HOST_KEY);
         String port = configMap.get(AthenaxConstants.ATHENAX_SERVICE_PORT_KEY);

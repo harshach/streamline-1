@@ -36,6 +36,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
+import static com.hortonworks.streamline.streams.actions.athenax.topology.AthenaxTopologyActionBuilder.UWORC_NAMESPACE_ID;
+import static com.hortonworks.streamline.streams.actions.athenax.topology.AthenaxTopologyActionBuilder.UWORC_NAMESPACE_NAME;
+
 /**
  * AthenaX implementation of the TopologyActions interface
  */
@@ -49,6 +52,8 @@ public class AthenaxTopologyActionsImpl implements TopologyActions {
 	private EnvironmentService environmentService;
 	private AthenaXRestAPIClient athenaXRestAPIClient;
 	private RTARestAPIClient rtaRestAPIClient;
+	private Long namespaceId;
+	private String namespaceName;
 	private String yarnDataCenter;
 	private String yarnCluster;
 
@@ -58,6 +63,9 @@ public class AthenaxTopologyActionsImpl implements TopologyActions {
 		String athenaxServiceRootUrl = (String) conf.get(AthenaxConstants.ATHENAX_SERVICE_ROOT_URL_KEY);
 		athenaXRestAPIClient = new AthenaXRestAPIClient(athenaxServiceRootUrl, null/*subject*/);
 		rtaRestAPIClient = new RTARestAPIClient((String)conf.get(Constants.CONFIG_RTA_METADATA_SERVICE_URL), null);
+
+		namespaceId = (Long) conf.get(UWORC_NAMESPACE_ID);
+		namespaceName = (String) conf.get(UWORC_NAMESPACE_NAME);
 
 		yarnDataCenter = (String) conf.get(AthenaxConstants.ATHENAX_YARN_DATA_CENTER_KEY);
 		yarnCluster = (String) conf.get(AthenaxConstants.ATHENAX_YARN_CLUSTER_KEY);
@@ -122,6 +130,8 @@ public class AthenaxTopologyActionsImpl implements TopologyActions {
 		}
 		status.setStatus(getRuntimeStatus(yarnApplicationState));
 		status.setRuntimeAppId(applicationId);
+		status.setNamespaceId(namespaceId);
+		status.setNamespaceName(namespaceName);
 
 		return status;
 	}

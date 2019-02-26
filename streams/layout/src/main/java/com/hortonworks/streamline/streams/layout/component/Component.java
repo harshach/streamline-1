@@ -41,4 +41,10 @@ public interface Component extends TopologyDagComponent, Serializable {
      * construct the runtime components.
      */
     Config getConfig();
+
+    /**
+     * Validate user input for each field of the component.
+     * return :  ValidationStatus
+     */
+    ValidationStatus validateUserInput();
 }

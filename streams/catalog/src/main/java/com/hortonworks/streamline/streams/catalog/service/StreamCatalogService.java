@@ -54,7 +54,11 @@ import com.hortonworks.streamline.storage.exception.StorageException;
 import com.hortonworks.streamline.storage.search.SearchQuery;
 import com.hortonworks.streamline.storage.util.StorageUtils;
 import com.hortonworks.streamline.streams.StreamlineEvent;
-import com.hortonworks.streamline.streams.catalog.*;
+import com.hortonworks.streamline.streams.layout.component.Stream;
+import com.hortonworks.streamline.streams.layout.component.TopologyDag;
+import com.hortonworks.streamline.streams.layout.component.ValidationStatus;
+import com.hortonworks.streamline.streams.layout.component.Component;
+import com.hortonworks.streamline.streams.layout.component.StreamlineComponent;
 import com.hortonworks.streamline.streams.catalog.Template;
 import com.hortonworks.streamline.streams.catalog.Project;
 import com.hortonworks.streamline.streams.catalog.Topology;
@@ -83,6 +87,9 @@ import com.hortonworks.streamline.streams.catalog.TopologyTestRunCaseSource;
 import com.hortonworks.streamline.streams.catalog.TopologyEditorMetadata;
 import com.hortonworks.streamline.streams.catalog.TopologyEditorToolbar;
 import com.hortonworks.streamline.streams.catalog.TopologyOutputComponent;
+import com.hortonworks.streamline.streams.catalog.TopologyRuntimeIdMap;
+import com.hortonworks.streamline.streams.catalog.Engine;
+import com.hortonworks.streamline.streams.catalog.EngineMetricsBundle;
 
 
 import com.hortonworks.streamline.streams.catalog.Notifier;
@@ -98,8 +105,6 @@ import com.hortonworks.streamline.streams.catalog.topology.component.TopologyExp
 import com.hortonworks.streamline.streams.catalog.topology.state.TopologyState;
 import com.hortonworks.streamline.common.exception.service.exception.request.EntityNotFoundException;
 import com.hortonworks.streamline.streams.layout.TopologyLayoutConstants;
-import com.hortonworks.streamline.streams.layout.component.Stream;
-import com.hortonworks.streamline.streams.layout.component.TopologyDag;
 import com.hortonworks.streamline.streams.layout.component.impl.RulesProcessor;
 import com.hortonworks.streamline.streams.layout.component.rule.Rule;
 import com.hortonworks.streamline.streams.layout.component.rule.expression.AsExpression;
@@ -134,11 +139,12 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.UUID;
+
 import java.util.function.BiFunction;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
-import javax.annotation.Nullable;
+
 import org.apache.commons.codec.binary.Hex;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
@@ -808,6 +814,22 @@ public class StreamCatalogService {
         TopologyData topologyData = doExportTopology(topology);
         ObjectMapper mapper = new ObjectMapper();
         return mapper.writeValueAsString(topologyData);
+    }
+
+    public List<ValidationStatus> validateUserInput(Topology topology) {
+        List<ValidationStatus> statusList = new ArrayList<>();
+        for (Component baseComponent: topologyDagBuilder.getDag(topology).getInputComponents()) {
+            try {
+                Class<? extends Component> clazz = (Class<? extends Component>) Class.forName(((StreamlineComponent) baseComponent).getTransformationClass());
+                Component component = clazz.newInstance();
+                ValidationStatus validationStatus = component.validateUserInput();
+                validationStatus.setComponentName(clazz.getName());
+                statusList.add(validationStatus);
+            } catch (ClassNotFoundException | InstantiationException | IllegalAccessException e) {
+                throw new RuntimeException(e);
+            }
+        }
+        return statusList;
     }
 
     private TopologyData doExportTopology(Topology topology) throws Exception {

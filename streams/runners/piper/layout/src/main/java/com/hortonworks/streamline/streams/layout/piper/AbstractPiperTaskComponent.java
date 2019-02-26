@@ -1,7 +1,8 @@
 package com.hortonworks.streamline.streams.layout.piper;
 
-import com.hortonworks.streamline.streams.piper.common.pipeline.Pipeline;
+import com.hortonworks.streamline.streams.layout.component.StreamlineTask;
 import com.hortonworks.streamline.streams.piper.common.pipeline.Task;
+import com.hortonworks.streamline.streams.piper.common.pipeline.Pipeline;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -9,7 +10,7 @@ import java.util.Map;
 /**
  * Abstract component for constructing Piper DAG
  */
-public abstract class AbstractPiperTaskComponent implements PiperTaskComponent {
+public abstract class AbstractPiperTaskComponent extends StreamlineTask implements PiperTaskComponent {
 
     public static final String TASK_POOL = "pool";
     public static final String TASK_RETRIES = "retries";

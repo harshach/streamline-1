@@ -25,6 +25,7 @@ import com.hortonworks.streamline.streams.actions.TopologyActions;
 import com.hortonworks.streamline.streams.actions.topology.service.TopologyActionsService;
 import com.hortonworks.streamline.streams.catalog.Topology;
 import com.hortonworks.streamline.streams.catalog.service.StreamCatalogService;
+import com.hortonworks.streamline.streams.layout.component.ValidationStatus;
 import com.hortonworks.streamline.streams.security.Roles;
 import com.hortonworks.streamline.streams.security.SecurityUtil;
 import com.hortonworks.streamline.streams.security.StreamlineAuthorizer;
@@ -133,8 +134,15 @@ public class TopologyActionResource {
                 NAMESPACE, topologyId, READ, EXECUTE);
         Topology result = catalogService.getTopology(topologyId, versionId);
         if (result != null) {
-            //catalogService.validateTopology(SCHEMA, topologyId);
-            return WSUtils.respondEntity(result, OK);
+            List<ValidationStatus> statuses = catalogService.validateUserInput(result);
+            Response response;
+            if (statuses != null) {
+                response =  WSUtils.respondEntities(statuses, OK);
+            } else {
+                response = WSUtils.respondEntities(Collections.emptyList(), OK);
+            }
+
+            return response;
         }
 
         throw EntityNotFoundException.byVersion(topologyId.toString(), versionId.toString());

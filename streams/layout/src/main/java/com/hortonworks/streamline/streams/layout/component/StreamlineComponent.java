@@ -120,6 +120,11 @@ public abstract class StreamlineComponent implements Component {
     }
 
     @Override
+    public ValidationStatus validateUserInput() {
+        return new ValidationStatus();
+    }
+
+    @Override
     public int hashCode() {
         return id != null ? id.hashCode() : 0;
     }

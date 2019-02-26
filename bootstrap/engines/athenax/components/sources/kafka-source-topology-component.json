@@ -29,13 +29,6 @@
         "hint": "schema"
       },
       {
-        "uiName": "Consumer Group Id",
-        "fieldName": "consumerGroupId",
-        "isOptional": false,
-        "tooltip": "A unique string that identifies the consumer group this source belongs to. It is used to keep track of consumer offset",
-        "type": "string"
-      },
-      {
         "uiName": "Kerberos client principal",
         "fieldName": "principal",
         "isOptional": true,

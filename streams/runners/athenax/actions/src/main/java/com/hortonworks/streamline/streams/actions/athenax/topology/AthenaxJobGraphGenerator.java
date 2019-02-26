@@ -210,12 +210,12 @@ public class AthenaxJobGraphGenerator extends TopologyDagVisitor {
 		return request;
 	}
 
-	public JobDefinition extractJobDefinition() throws Exception {
+	public JobDefinition extractJobDefinition(String dataCenter, String cluster) throws Exception {
 		errorIfIllegalAthenaxJob();
 
 		JobDefinition jobDef = new JobDefinition();
 		// input connectors (kafka only)
-		jobDef.setInput(getInputConnectors());
+		jobDef.setInput(getInputConnectors(dataCenter, cluster));
 
 		// output connectors(kafka/RTA only)
 		jobDef.setOutput(getOutputConnectors());
@@ -240,7 +240,7 @@ public class AthenaxJobGraphGenerator extends TopologyDagVisitor {
 	public DeployRequest extractDeployJobRequest(String dataCenter, String cluster) throws Exception {
 		DeployRequest request = new DeployRequest();
 
-		request.setJobDefinition(extractJobDefinition());
+		request.setJobDefinition(extractJobDefinition(dataCenter, cluster));
 		request.setBackfill(false);
 
 		// extract env settings from config
@@ -253,7 +253,7 @@ public class AthenaxJobGraphGenerator extends TopologyDagVisitor {
 		return request;
 	}
 
-	private List<Connector> getInputConnectors() {
+	private List<Connector> getInputConnectors(String dataCenter, String cluster) {
 		Namespace namespace = getNamespaceFromComponent(streamlineSource);
 		Map<String, String> kafkaConfigMap = getKafkaConfigMap(namespace);
 		String zkConnectionStr = kafkaConfigMap.get(PARAM_ZOOKEEPER_CONNECT);
@@ -266,7 +266,7 @@ public class AthenaxJobGraphGenerator extends TopologyDagVisitor {
 		// extract kafka properties
 		Properties kafkaProperties = new Properties();
 		kafkaProperties.put(BOOTSTRAP_SERVERS, sourceConfig.get("bootstrapServers"));
-		kafkaProperties.put(GROUP_ID, sourceConfig.get("consumerGroupId"));
+		kafkaProperties.put(GROUP_ID, getConsumerGroupId(dataCenter, cluster));
 
 		kafkaProperties.put(ENABLE_AUTO_COMMIT, "false");
 		kafkaProperties.put(HEATPIPE_APP_ID, topology.getName());
@@ -284,6 +284,10 @@ public class AthenaxJobGraphGenerator extends TopologyDagVisitor {
 		inputConnectors.add(kafkaInput);
 
 		return inputConnectors;
+	}
+
+	private String getConsumerGroupId(String dataCenter, String cluster) {
+		return String.format("%s_%s_%s_%s", UWORC_SERVICE_NAME, topology.getName(), dataCenter, cluster);
 	}
 
 	private String getHostPortListOnly(String zkConnectionStr) {

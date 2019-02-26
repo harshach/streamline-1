@@ -184,7 +184,7 @@ public class AthenaxTopologyActionsImpl implements TopologyActions {
 		topologyDag.traverse(requestGenerator);
 
 		// extract AthenaX job description
-		JobDefinition jobDefinition = requestGenerator.extractJobDefinition();
+		JobDefinition jobDefinition = requestGenerator.extractJobDefinition(yarnDataCenter, yarnCluster);
 
 		// send request via Athenax-vm API
 		athenaXRestAPIClient.validateJob(jobDefinition);

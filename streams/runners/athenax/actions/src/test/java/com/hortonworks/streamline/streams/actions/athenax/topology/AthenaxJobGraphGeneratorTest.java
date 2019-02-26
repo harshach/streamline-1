@@ -38,7 +38,6 @@ public class AthenaxJobGraphGeneratorTest {
     kafkaSource.addOutputStream(new Stream("f1", "f2"));
     Config srcConfig = new Config();
     srcConfig.put("bootstrapServers", "localhost:9092");
-    srcConfig.put("consumerGroupId", "group1");
     srcConfig.put("topic", "topicSource");
     srcConfig.put("clusters", "test");
     kafkaSource.setConfig(srcConfig);
@@ -71,7 +70,7 @@ public class AthenaxJobGraphGeneratorTest {
     AthenaxJobGraphGenerator requestGenerator = new AthenaxJobGraphGenerator(topologyLayout, environmentService, null);
     topologyDag.traverse(requestGenerator);
 
-    JobDefinition job = requestGenerator.extractJobDefinition();
+    JobDefinition job = requestGenerator.extractJobDefinition("sjc1", "staging");
 
     // verify
     assertEquals(topologyName, job.jobName());

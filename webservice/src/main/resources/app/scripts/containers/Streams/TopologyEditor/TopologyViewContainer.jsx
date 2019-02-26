@@ -462,7 +462,10 @@ class TopologyViewContainer extends TopologyEditorContainer {
     Promise.all(promiseArr).then((responseArr)=>{
       this.setState({viewModeData: viewModeData, fetchMetrics: false}, ()=>{
         const {graphData} = this;
-        this.syncComponentData();
+        // const kafkaSource = _.filter(graphData.nodes, (node) => {
+        //   return node.parentType === "SOURCE" && node.currentType === "Kafka";
+        // });
+        // kafkaSource.length > 0 ? this.fetchKafkaOffset(kafkaSource): this.syncComponentData();
       });
       if(this.refs.metricsPanelRef){
         this.refs.metricsPanelRef.setState({loadingRecord: false});

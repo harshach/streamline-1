@@ -13,7 +13,7 @@ import java.util.Properties;
 public class AthenaXRestAPIClientTest {
   public static void main(String[] args) {
     String athenaXAPIRootUrl = "http://127.0.0.1:5436";
-    AthenaXRestAPIClient client = new AthenaXRestAPIClient(athenaXAPIRootUrl, null);
+    AthenaXRestAPIClient client = new AthenaXRestAPIClient(athenaXAPIRootUrl, "athenax-backend-flink-staging", null);
 
     if (args.length == 0) {
       System.out.println("Error: Need operation name.");

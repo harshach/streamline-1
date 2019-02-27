@@ -19,7 +19,6 @@ import com.hortonworks.streamline.streams.actions.topology.service.TopologyActio
 import com.hortonworks.streamline.streams.catalog.Topology;
 import com.hortonworks.streamline.streams.catalog.TopologyDeployment;
 import com.hortonworks.streamline.streams.catalog.TopologyTestRunHistory;
-import com.hortonworks.streamline.streams.cluster.catalog.Namespace;
 import com.hortonworks.streamline.streams.cluster.service.EnvironmentService;
 import com.hortonworks.streamline.streams.layout.component.TopologyDag;
 import com.hortonworks.streamline.streams.layout.component.TopologyLayout;
@@ -28,6 +27,7 @@ import com.hortonworks.streamline.streams.layout.component.impl.testing.TestRunR
 import com.hortonworks.streamline.streams.layout.component.impl.testing.TestRunSink;
 import com.hortonworks.streamline.streams.layout.component.impl.testing.TestRunSource;
 
+import javax.security.auth.Subject;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.List;
@@ -40,7 +40,7 @@ import java.util.Optional;
  */
 public interface TopologyActions {
     // Any one time initialization is done here
-    void init (Map<String, Object> conf, TopologyActionsService topologyActionsService, EnvironmentService environmentService);
+    void init(Map<String, Object> conf, TopologyActionsService topologyActionsService, EnvironmentService environmentService, Subject subject);
 
 
     // Setup extra jars needed for deploying the topology

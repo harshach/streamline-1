@@ -29,6 +29,7 @@ import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.security.auth.Subject;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -69,13 +70,13 @@ public class PiperTopologyActionsImpl implements TopologyActions {
     }
 
     @Override
-    public void init(Map<String, Object> conf, TopologyActionsService topologyActionsService, EnvironmentService environmentService) {
+    public void init(Map<String, Object> conf, TopologyActionsService topologyActionsService, EnvironmentService environmentService, Subject subject) {
         String piperAPIRootUrl = (String)conf.get(PIPER_ROOT_URL_KEY);
         this.namespaceId = (Long) conf.get(UWORC_NAMESPACE_ID);
         this.namespaceName = (String) conf.get(UWORC_NAMESPACE_NAME);
         this.piperUIRootUrl = (String) conf.get(PIPER_UI_ROOT_URL_KEY);
         this.environmentService = environmentService;
-        this.client = new PiperRestAPIClient(piperAPIRootUrl, null);
+        this.client = new PiperRestAPIClient(piperAPIRootUrl, subject);
         this.actionsService = topologyActionsService;
     }
 

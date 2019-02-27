@@ -35,12 +35,12 @@ public class PiperTopologyActionsBuilder implements TopologyActionsBuilder<Map<S
                      EnvironmentService environmentService,  Namespace namespace, Subject subject) throws Exception {
         this.conf = new HashMap<>();
         this.topologyActionsService = topologyActionsService;
-        buildPiperTopologyActionsConfigMap(namespace, subject);
+        buildPiperTopologyActionsConfigMap(namespace);
         piperTopologyActions = new PiperTopologyActionsImpl();
-        piperTopologyActions.init(this.conf, topologyActionsService, environmentService);
+        piperTopologyActions.init(this.conf, topologyActionsService, environmentService, subject);
     }
 
-    private void buildPiperTopologyActionsConfigMap(Namespace namespace, Subject subject) {
+    private void buildPiperTopologyActionsConfigMap(Namespace namespace) {
         EnvironmentService environmentService = topologyActionsService.getEnvironmentService();
         Service engineService = ServiceUtils.getFirstOccurenceServiceForNamespace(namespace, PIPER_SERVICE_NAME,
                 topologyActionsService.getEnvironmentService());

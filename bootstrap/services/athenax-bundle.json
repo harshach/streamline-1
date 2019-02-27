@@ -7,15 +7,24 @@
                 "uiName": "AthenaX REST API Host",
                 "fieldName": "athenax.service.host",
                 "isOptional": false,
-                "tooltip": "A AthenaX Host for REST API",
+                "tooltip": "Host for AthenaX REST API",
+                "defaultValue": "localhost",
                 "type": "string"
             },
             {
                 "uiName": "AthenaX REST API Port",
                 "fieldName": "athenax.service.port",
                 "isOptional": false,
-                "tooltip": "A Port for REST API",
+                "tooltip": "Port for AthenaX REST API",
+                "defaultValue": 5436,
                 "type": "number"
+            },
+            {
+                "uiName": "AthenaX Muttley Service Name",
+                "fieldName": "athenax.service.muttleyName",
+                "isOptional": false,
+                "tooltip": "Muttley service name for AthenaX REST API",
+                "type": "string"
             },
             {
                 "uiName": "Yarn Data Center",

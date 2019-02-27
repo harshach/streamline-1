@@ -76,7 +76,8 @@ public class AthenaxTopologyMetricsImpl implements TopologyMetrics {
         String host = configMap.get(AthenaxConstants.ATHENAX_SERVICE_HOST_KEY);
         String port = configMap.get(AthenaxConstants.ATHENAX_SERVICE_PORT_KEY);
         String athenaxVmApiRootUrl = "http://" + host + ":" + port;
-        this.athenaXRestAPIClient = new AthenaXRestAPIClient(athenaxVmApiRootUrl, subject);
+        String athenaxVmMuttleyName = configMap.get(AthenaxConstants.ATHENAX_SERVICE_MUTTLEY_NAME);
+        this.athenaXRestAPIClient = new AthenaXRestAPIClient(athenaxVmApiRootUrl, athenaxVmMuttleyName, subject);
     }
 
     @Override

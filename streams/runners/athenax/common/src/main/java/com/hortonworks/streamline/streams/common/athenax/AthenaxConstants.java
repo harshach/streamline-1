@@ -22,5 +22,6 @@ public class AthenaxConstants {
     public static final String ATHENAX_SERVICE_ROOT_URL_KEY = "athenax.service.rootUrl";
     public static final String ATHENAX_YARN_DATA_CENTER_KEY = "athenax.yarn.dataCenter";
     public static final String ATHENAX_YARN_CLUSTER_KEY = "athenax.yarn.cluster";
+    public static final String ATHENAX_SERVICE_MUTTLEY_NAME = "athenax.service.muttleyName";
     public static final String ATHENAX_SERVICE_CONFIG_NAME = "properties";
 }

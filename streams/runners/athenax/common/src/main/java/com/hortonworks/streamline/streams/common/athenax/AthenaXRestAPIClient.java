@@ -36,23 +36,18 @@ public class AthenaXRestAPIClient {
     private final Client client;
 
     // headers for athenax-vm
-    private static final Map<String, String> athenaXHeaders;
+    private final Map<String, String> athenaXHeaders;
 
-    static {
-        Map<String, String> headers = new HashMap<>();
-        // TODO: stop pretending this is athenax-restbackend
-        headers.put(RPC_CALLER, "athenax-restbackend");
-
-        // TODO: extract this from given settings
-        headers.put(RPC_SERVICE, "athenax-backend-flink-staging");
-
-        athenaXHeaders = Collections.unmodifiableMap(headers);
-    }
-
-    public AthenaXRestAPIClient(String athenaxVmApiRootUrl, Subject subject) {
+    public AthenaXRestAPIClient(String athenaxVmApiRootUrl, String muttleyName, Subject subject) {
         this.client = ClientBuilder.newClient(new ClientConfig());
         this.athenaxVmApiRootUrl = athenaxVmApiRootUrl;
         this.subject = subject;
+
+        Map<String, String> headers = new HashMap<>();
+        headers.put(RPC_CALLER, "uworc");
+        headers.put(RPC_SERVICE, muttleyName);
+
+        athenaXHeaders = Collections.unmodifiableMap(headers);
     }
 
     public boolean validateJob(JobDefinition jobDefinition) throws IOException {

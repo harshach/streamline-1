@@ -33,7 +33,7 @@ public class AthenaxTopologyActionBuilder implements TopologyActionsBuilder<Map<
         this.topologyActionsService = topologyActionsService;
         buildAthenaxTopologyActionsConfigMap(namespace);
         athenaxTopologyActions = new AthenaxTopologyActionsImpl();
-        athenaxTopologyActions.init(this.conf, topologyActionsService, environmentService);
+        athenaxTopologyActions.init(this.conf, topologyActionsService, environmentService, subject);
     }
 
     private void buildAthenaxTopologyActionsConfigMap(Namespace namespace) {

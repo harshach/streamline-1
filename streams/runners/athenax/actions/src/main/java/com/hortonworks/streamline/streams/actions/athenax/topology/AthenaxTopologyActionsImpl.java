@@ -30,6 +30,7 @@ import com.hortonworks.streamline.streams.registry.table.RTARestAPIClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.security.auth.Subject;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -59,14 +60,15 @@ public class AthenaxTopologyActionsImpl implements TopologyActions {
 	private String yarnCluster;
 
 	@Override
-	public void init(Map<String, Object> conf, TopologyActionsService topologyActionsService, EnvironmentService environmentService) {
+	public void init(Map<String, Object> conf, TopologyActionsService topologyActionsService, EnvironmentService environmentService, Subject subject) {
 		this.environmentService = environmentService;
 		String athenaxServiceRootUrl = (String) conf.get(AthenaxConstants.ATHENAX_SERVICE_ROOT_URL_KEY);
-		athenaXRestAPIClient = new AthenaXRestAPIClient(athenaxServiceRootUrl, null/*subject*/);
+		String athenaxServiceMuttleyName = (String) conf.get(AthenaxConstants.ATHENAX_SERVICE_MUTTLEY_NAME);
+		athenaXRestAPIClient = new AthenaXRestAPIClient(athenaxServiceRootUrl, athenaxServiceMuttleyName, subject);
 		rtaRestAPIClient = new RTARestAPIClient(
 				(String)conf.get(Constants.CONFIG_RTA_METADATA_SERVICE_URL),
 				(String)conf.get(Constants.CONFIG_RTA_METADATA_SERVICE_MUTTLEY_NAME),
-				null);
+				subject);
 
 		namespaceId = (Long) conf.get(UWORC_NAMESPACE_ID);
 		namespaceName = (String) conf.get(UWORC_NAMESPACE_NAME);

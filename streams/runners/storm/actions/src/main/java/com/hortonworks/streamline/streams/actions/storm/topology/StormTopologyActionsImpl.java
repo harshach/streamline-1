@@ -167,7 +167,7 @@ public class StormTopologyActionsImpl implements TopologyActions {
     }
 
     @Override
-    public void init(Map<String, Object> conf, TopologyActionsService topologyActionsService, EnvironmentService environmentService) {
+    public void init(Map<String, Object> conf, TopologyActionsService topologyActionsService, EnvironmentService environmentService, Subject subject) {
         this.topologyActionsService = topologyActionsService;
         this.conf = conf;
         if (conf != null) {
@@ -197,7 +197,6 @@ public class StormTopologyActionsImpl implements TopologyActions {
             }
 
             String stormApiRootUrl = (String) conf.get(TopologyLayoutConstants.STORM_API_ROOT_URL_KEY);
-            Subject subject = (Subject) conf.get(TopologyLayoutConstants.SUBJECT_OBJECT);
             Client restClient = ClientBuilder.newClient(new ClientConfig());
 
             this.client = new StormRestAPIClient(restClient, stormApiRootUrl, subject);

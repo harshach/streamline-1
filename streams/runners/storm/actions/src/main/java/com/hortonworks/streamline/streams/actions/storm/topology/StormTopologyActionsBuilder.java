@@ -53,9 +53,9 @@ public class StormTopologyActionsBuilder implements TopologyActionsBuilder<Map<S
         this.topologyActionsService = topologyActionsService;
         this.streamlineConf = streamlineConf;
         this.engineConf = new ObjectMapper().readValue(engine.getConfig(), HashMap.class);
-        buildStormTopologyActionsConfigMap(namespace, subject);
+        buildStormTopologyActionsConfigMap(namespace);
         stormTopologyActions = new StormTopologyActionsImpl();
-        stormTopologyActions.init(conf, topologyActionsService, environmentService);
+        stormTopologyActions.init(conf, topologyActionsService, environmentService, subject);
     }
 
     public TopologyActions getTopologyActions() {
@@ -70,7 +70,7 @@ public class StormTopologyActionsBuilder implements TopologyActionsBuilder<Map<S
 
     }
 
-    private void buildStormTopologyActionsConfigMap(Namespace namespace,  Subject subject) {
+    private void buildStormTopologyActionsConfigMap(Namespace namespace) {
         EnvironmentService environmentService = topologyActionsService.getEnvironmentService();
         // Assuming that a namespace has one mapping of streaming engine except test environment
         Service engineService = ServiceUtils.getFirstOccurenceServiceForNamespace(namespace, ENGINE_SERVICE_NAME,
@@ -81,7 +81,7 @@ public class StormTopologyActionsBuilder implements TopologyActionsBuilder<Map<S
                         namespace.getName() + "(" + namespace.getId() + ")");
             } else {
                 // the namespace is purposed for test run
-                conf = buildStormTopologyActionsConfigMapForTestRun(namespace, subject);
+                buildStormTopologyActionsConfigMapForTestRun(namespace);
                 return;
             }
         }
@@ -133,9 +133,8 @@ public class StormTopologyActionsBuilder implements TopologyActionsBuilder<Map<S
         conf.put(NIMBUS_SEEDS, String.join(",", nimbusHosts));
         conf.put(NIMBUS_PORT, String.valueOf(nimbusPort));
         conf.put(TopologyLayoutConstants.STORM_API_ROOT_URL_KEY, buildStormRestApiRootUrl(uiHost, uiPort));
-        conf.put(TopologyLayoutConstants.SUBJECT_OBJECT, subject);
 
-        putStormConfigurations(engineService, conf);
+        putStormConfigurations(engineService);
 
         // Topology during run-time will require few critical configs such as schemaRegistryUrl and catalogRootUrl
         // Hence its important to pass StreamlineConfig to TopologyConfig
@@ -148,9 +147,7 @@ public class StormTopologyActionsBuilder implements TopologyActionsBuilder<Map<S
 
     }
 
-    private Map<String, Object> buildStormTopologyActionsConfigMapForTestRun(Namespace namespace, Subject subject) {
-        Map<String, Object> conf = new HashMap<>();
-
+    private void buildStormTopologyActionsConfigMapForTestRun(Namespace namespace) {
         // We need to have some local configurations anyway because topology submission can't be done with REST API.
         String stormJarLocation = streamlineConf.get(STREAMLINE_STORM_JAR);
         if (stormJarLocation == null) {
@@ -168,7 +165,6 @@ public class StormTopologyActionsBuilder implements TopologyActionsBuilder<Map<S
         conf.put(NIMBUS_SEEDS, "localhost");
         conf.put(NIMBUS_PORT, "6627");
         conf.put(TopologyLayoutConstants.STORM_API_ROOT_URL_KEY, "http://localhost:8080");
-        conf.put(TopologyLayoutConstants.SUBJECT_OBJECT, subject);
 
         // Topology during run-time will require few critical configs such as schemaRegistryUrl and catalogRootUrl
         // Hence its important to pass StreamlineConfig to TopologyConfig
@@ -178,11 +174,9 @@ public class StormTopologyActionsBuilder implements TopologyActionsBuilder<Map<S
         // for specific cluster associated to the namespace
         conf.put(TopologyLayoutConstants.ENVIRONMENT_SERVICE_OBJECT, topologyActionsService.getEnvironmentService());
         conf.put(TopologyLayoutConstants.NAMESPACE_ID, namespace.getId());
-
-        return conf;
     }
 
-    private void putStormConfigurations(Service streamingEngineService, Map<String, Object> conf) {
+    private void putStormConfigurations(Service streamingEngineService) {
         ServiceConfiguration storm = ServiceUtils.getServiceConfiguration(streamingEngineService, SERVICE_CONFIGURATION_STORM,
                 topologyActionsService.getEnvironmentService())
                 .orElse(new ServiceConfiguration());

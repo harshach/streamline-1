@@ -28,12 +28,12 @@ public class M3RestAPIClient {
 
     private static final Logger LOG = LoggerFactory.getLogger(M3RestAPIClient.class);
 
-    private static final String TARGET = "target";
+    public static final String TARGET = "target";
     private static final String FORMAT = "format";
     private static final String FORMAT_JSON = "json";
     private static final String FROM = "from";
     private static final String UNTIL = "until";
-    private static final String M3QL_RENDER_ENDPOINT = "/m3ql/render";
+    public static final String M3QL_RENDER_ENDPOINT = "/m3ql/render";
 
 
     private final URI apiRootUrl;
@@ -51,7 +51,7 @@ public class M3RestAPIClient {
         this.subject = subject;
     }
 
-    public List<Map> getMetrics(String query, long from, long until, String asUser) {
+    public List<Map> getMetrics(String query, long from, long until) {
         JerseyUriBuilder uriBuilder = new JerseyUriBuilder();
         URI requestUrl = uriBuilder.uri(this.apiRootUrl)
                 .path(M3QL_RENDER_ENDPOINT)
@@ -60,10 +60,10 @@ public class M3RestAPIClient {
                 .queryParam(FROM, from)
                 .queryParam(UNTIL, until)
                 .build();
-        return doGetRequest(requestUrl , asUser);
+        return doGetRequest(requestUrl);
     }
 
-    private List<Map> doGetRequest(final URI requestUrl, String asUser) {
+    private List<Map> doGetRequest(final URI requestUrl) {
         try {
             Map<String, String> headers = new HashMap<>();
             headers.put(X_UBER_ORIGIN, UWORC_UBER_SERVICE_NAME);

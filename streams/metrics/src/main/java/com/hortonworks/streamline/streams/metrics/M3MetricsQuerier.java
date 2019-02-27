@@ -28,11 +28,11 @@ public class M3MetricsQuerier extends AbstractTimeSeriesQuerier {
 
     private static final String M3_SERVICE_NAME = "M3";
     private static final String M3_SERVICE_CONFIG_NAME = "properties";
-    private static final String M3_SERVICE_CONFIG_KEY_HOST = "m3.service.host";
-    private static final String M3_SERVICE_CONFIG_KEY_PORT = "m3.service.port";
-    private static final String TARGET_KEY = "target";
-    private static final String DATAPOINTS_KEY = "datapoints";
-    private static final String M3_ROOT_URL_KEY = "API_ROOT_URL";
+    protected static final String M3_SERVICE_CONFIG_KEY_HOST = "m3.service.host";
+    protected static final String M3_SERVICE_CONFIG_KEY_PORT = "m3.service.port";
+    protected static final String TARGET_KEY = "target";
+    protected static final String DATAPOINTS_KEY = "datapoints";
+    protected static final String M3_ROOT_URL_KEY = "API_ROOT_URL";
 
     private static final String DASH = "-";
     private static final String UNDERSCORE = "_";
@@ -63,9 +63,9 @@ public class M3MetricsQuerier extends AbstractTimeSeriesQuerier {
         }
     }
 
-    // FIXME new interface
-    public Map<String, Object> getMetricsByTag(String metricQueryTemplate, Map<String, String> metricParams,
-                                               long from, long to, String asUser) {
+    @Override
+    public Map<String, Map<Long, Double>> getMetricsByTag(String metricQueryTemplate, Map<String, String> metricParams,
+                                                          long from, long to) {
 
         // M3 discourages UUIDs, masks to prevent M3 from dropping
         maskUUIDs(metricParams);
@@ -74,9 +74,9 @@ public class M3MetricsQuerier extends AbstractTimeSeriesQuerier {
         String metricQuery = substitute(metricQueryTemplate, metricParams);
 
         // Fetch M3 metrics
-        List<Map> m3QueryResults = client.getMetrics(metricQuery, toSeconds(from), toSeconds(to), asUser);
+        List<Map> m3QueryResults = client.getMetrics(metricQuery, toSeconds(from), toSeconds(to));
 
-        Map<String, Object> results = new HashMap<>();
+        Map<String, Map<Long, Double>> results = new HashMap<>();
         for (Map target: m3QueryResults ) {
             String targetTag = (String) target.get(TARGET_KEY);
             List<List<Number>> dataPoints = (List<List<Number>>) target.get(DATAPOINTS_KEY);
@@ -95,7 +95,7 @@ public class M3MetricsQuerier extends AbstractTimeSeriesQuerier {
         String metricQuery = substitute(metricQueryTemplate, metricParams);
 
         // Fetch M3 metrics
-        List<Map> m3QueryResults = client.getMetrics(metricQuery, toSeconds(from), toSeconds(to), asUser);
+        List<Map> m3QueryResults = client.getMetrics(metricQuery, toSeconds(from), toSeconds(to));
 
         Map<Long, Double> formatedDataPoints = null;
         for (Map target: m3QueryResults ) {
@@ -109,7 +109,8 @@ public class M3MetricsQuerier extends AbstractTimeSeriesQuerier {
     @Override
     public Map<Long, Double> getTopologyLevelMetrics(String topologyName, String metricName,
                                                      AggregateFunction aggrFunction, long from, long to) {
-        return null;
+
+        throw new UnsupportedOperationException("getTopologyLevelMetrics not implemented");
     }
 
     /**
@@ -118,7 +119,8 @@ public class M3MetricsQuerier extends AbstractTimeSeriesQuerier {
     @Override
     public Map<Long, Double> getMetrics(String topologyName, String componentId, String metricName, AggregateFunction aggrFunction,
                                         long from, long to) {
-        return null;
+
+        throw new UnsupportedOperationException("getMetrics not implemented");
     }
 
     /**
@@ -126,7 +128,7 @@ public class M3MetricsQuerier extends AbstractTimeSeriesQuerier {
      */
     @Override
     public Map<String, Map<Long, Double>> getRawMetrics(String metricName, String parameters, long from, long to) {
-        return null;
+        throw new UnsupportedOperationException("getRawMetrics not implemented");
     }
 
     private Map<Long, Double> formatDataPointsFromM3ToMap(List<List<Number>> dataPoints) {
@@ -147,6 +149,9 @@ public class M3MetricsQuerier extends AbstractTimeSeriesQuerier {
     }
 
     private String substitute(String queryFormat, Map<String,String> params)  {
+        // cheap fix for handling $param at end of line
+        queryFormat = queryFormat + " ";
+
         StrSubstitutor substitutor = new StrSubstitutor(params, "$", " ");
 
         for (Map.Entry<String,String> entry : params.entrySet()) {

@@ -45,4 +45,10 @@ public abstract class AbstractTimeSeriesQuerier implements TimeSeriesQuerier {
         }
         return parsed;
     }
+
+    public Map<String, Map<Long, Double>> getMetricsByTag(String metricQueryTemplate, Map<String, String> metricParams,
+                                                          long from, long to) {
+
+        throw new UnsupportedOperationException("getMetricsByTag not implemented");
+    }
 }

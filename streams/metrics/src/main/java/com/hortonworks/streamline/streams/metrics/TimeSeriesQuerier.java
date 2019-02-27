@@ -77,6 +77,19 @@ public interface TimeSeriesQuerier {
     Map<String, Map<Long, Double>> getRawMetrics(String metricName, String parameters, long from, long to);
 
     /**
+     * Query metrics from services that supports tagged metric series (M3).
+     *
+     * @param metricQueryTemplate  query sent to metric service
+     * @param metricParams         parameters to be substituted in template (eg. $dc, $pipelineId)
+     * @param from                 beginning of the time period: timestamp (in milliseconds)
+     * @param to                   end of the time period: timestamp (in milliseconds)
+     * @return Map of metric tag and Map of data points which are paired to (timestamp, value)
+     */
+    Map<String, Map<Long, Double>> getMetricsByTag(String metricQueryTemplate, Map<String, String> metricParams,
+                                                          long from, long to);
+
+
+    /**
      * Function to apply while aggregating multiple series
      */
     enum AggregateFunction {

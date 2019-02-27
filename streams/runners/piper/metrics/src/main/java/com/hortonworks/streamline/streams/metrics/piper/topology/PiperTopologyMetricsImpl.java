@@ -301,8 +301,6 @@ public class PiperTopologyMetricsImpl implements TopologyMetrics {
 
         Map<Long, Object> results = new HashMap<>();
 
-        M3MetricsQuerier timeSeriesQuerier = (M3MetricsQuerier) this.timeSeriesQuerier;
-
         Map<String, String> metricParams = getServerSubstitutionParams(topology);
 
         // merge (overwrite) params from client
@@ -310,8 +308,8 @@ public class PiperTopologyMetricsImpl implements TopologyMetrics {
             metricParams.put(entry.getKey(), (entry.getValue()));
         }
 
-        Map<String, Object> metricsByTag =
-                timeSeriesQuerier.getMetricsByTag(metricQueryFormat, metricParams, from, to, asUser);
+        Map<String, Map<Long, Double>> metricsByTag =
+                this.timeSeriesQuerier.getMetricsByTag(metricQueryFormat, metricParams, from, to);
 
         Collection<? extends TopologyComponent> components = getTopologyComponents(topology);
 

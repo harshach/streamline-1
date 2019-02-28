@@ -31,6 +31,7 @@ public class Constants {
     public static final String CONFIG_STREAMLINE_SCHEMA_REGISTRY_CLIENT_CLASS = "streamlineSchemaRegistryClientClass";
     public static final String CONFIG_SCHEMA_REGISTRY_URL = "schemaRegistryUrl";
     public static final String CONFIG_RTA_METADATA_SERVICE_URL = "rtaMetadataServiceUrl";
+    public static final String CONFIG_RTA_METADATA_SERVICE_MUTTLEY_NAME = "rtaMetadataServiceMuttleyName";
     public static final String CONFIG_STREAMS_MODULE = "streams";
     public static final String CONFIG_SUBJECT = "subject";
     public static final String CONFIG_HTTP_PROXY_URL = "httpProxyUrl";

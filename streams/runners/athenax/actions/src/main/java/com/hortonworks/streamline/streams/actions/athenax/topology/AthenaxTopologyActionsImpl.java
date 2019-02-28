@@ -62,7 +62,10 @@ public class AthenaxTopologyActionsImpl implements TopologyActions {
 		this.environmentService = environmentService;
 		String athenaxServiceRootUrl = (String) conf.get(AthenaxConstants.ATHENAX_SERVICE_ROOT_URL_KEY);
 		athenaXRestAPIClient = new AthenaXRestAPIClient(athenaxServiceRootUrl, null/*subject*/);
-		rtaRestAPIClient = new RTARestAPIClient((String)conf.get(Constants.CONFIG_RTA_METADATA_SERVICE_URL), null);
+		rtaRestAPIClient = new RTARestAPIClient(
+				(String)conf.get(Constants.CONFIG_RTA_METADATA_SERVICE_URL),
+				(String)conf.get(Constants.CONFIG_RTA_METADATA_SERVICE_MUTTLEY_NAME),
+				null);
 
 		namespaceId = (Long) conf.get(UWORC_NAMESPACE_ID);
 		namespaceName = (String) conf.get(UWORC_NAMESPACE_NAME);

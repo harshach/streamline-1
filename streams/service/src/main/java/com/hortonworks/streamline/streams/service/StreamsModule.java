@@ -120,7 +120,10 @@ public class StreamsModule implements ModuleRegistration, StorageManagerAware, T
         result.add(new NamespaceCatalogResource(authorizer, streamcatalogService, topologyActionsService, environmentService));
         result.add(new SearchCatalogResource(authorizer, streamcatalogService, environmentService,
                 topologyActionsService, topologyMetricsService));
-        result.add(new DataSchemaResource(new RTARestAPIClient((String)config.get(Constants.CONFIG_RTA_METADATA_SERVICE_URL), subject)));
+        result.add(new DataSchemaResource(new RTARestAPIClient(
+                (String)config.get(Constants.CONFIG_RTA_METADATA_SERVICE_URL),
+                (String)config.get(Constants.CONFIG_RTA_METADATA_SERVICE_MUTTLEY_NAME),
+                subject)));
         watchFiles(streamcatalogService);
         setupPlaceholderEntities(streamcatalogService, environmentService);
         return result;

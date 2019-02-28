@@ -9,6 +9,7 @@ modules:
       # streamlineSchemaRegistryClientClass: "com.hortonworks.streamline.streams.registry.SchemaRegistryClientAdapter"
       # schemaRegistryUrl: "http://localhost:9090/api/v1"
       rtaMetadataServiceUrl: "http://localhost:5436"
+      rtaMetadataServiceMuttleyName: "rtaums"
       #Custom processor upload configuration
       #customProcessorWatchPath: "/tmp"
       #customProcessorUploadFailPath: "/tmp/failed"

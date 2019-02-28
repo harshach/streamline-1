@@ -29,6 +29,7 @@ public class AthenaxTopologyActionBuilder implements TopologyActionsBuilder<Map<
                      EnvironmentService environmentService, Namespace namespace, Subject subject) throws Exception {
         this.conf = new HashMap<>();
         this.conf.put(Constants.CONFIG_RTA_METADATA_SERVICE_URL, conf.get(Constants.CONFIG_RTA_METADATA_SERVICE_URL));
+        this.conf.put(Constants.CONFIG_RTA_METADATA_SERVICE_MUTTLEY_NAME, conf.get(Constants.CONFIG_RTA_METADATA_SERVICE_MUTTLEY_NAME));
         this.topologyActionsService = topologyActionsService;
         buildAthenaxTopologyActionsConfigMap(namespace);
         athenaxTopologyActions = new AthenaxTopologyActionsImpl();

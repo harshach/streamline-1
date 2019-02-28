@@ -30,22 +30,17 @@ public class RTARestAPIClient implements DataSchemaServiceClient {
     private final Subject subject;
     private final Client client;
 
-    private static final Map<String, String> rtaHeaders;
-    static {
+    private final Map<String, String> rtaHeaders;
+
+    public RTARestAPIClient(String apiRootUrl, String muttleyName, Subject subject) {
+        this.apiRootUrl = apiRootUrl;
+        this.client = ClientBuilder.newClient(new ClientConfig());
+        this.subject = subject;
+
         Map<String, String> headersMap = new HashMap<>();
         headersMap.put(RPC_CALLER, "uworc");
-        headersMap.put(RPC_SERVICE, "rtaums-staging");
+        headersMap.put(RPC_SERVICE, muttleyName);
         rtaHeaders = Collections.unmodifiableMap(headersMap);
-    }
-
-    public RTARestAPIClient(String apiRootUrl, Subject subject) {
-        this(apiRootUrl, ClientBuilder.newClient(new ClientConfig()), subject);
-    }
-
-    public RTARestAPIClient(String apiRootUrl, Client client, Subject subject) {
-        this.apiRootUrl = apiRootUrl;
-        this.client = client;
-        this.subject = subject;
     }
 
     @Override

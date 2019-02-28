@@ -194,9 +194,9 @@
             }
           },
           "timeseries": {
-            "topology": [],
+            "topology": ["taskDuration", "avgCPUUsage", "memoryUsage"],
             "task": {
-              "baseMetrics": ["taskDuration", "avgCPUUsage", "memoryUsage"],
+              "baseMetrics": [],
               "component_metrics": {}
             }
           }

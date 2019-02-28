@@ -141,7 +141,7 @@
             }
           },
           "timeseries": {
-            "topology": [],
+            "topology": ["jobHealth", "containerCPUUsageAggregated", "containerMemoryUsageAggregated", "containerCount", "messageInputRate", "totalMessageInput", "messageOutputRate", "totalMessageOutput", "kafkaLag"],
             "source": {
               "baseMetrics" : [],
               "component_metrics": {}

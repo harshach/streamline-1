@@ -418,7 +418,6 @@ class TopologyViewContainer extends TopologyEditorContainer {
         const req = ViewModeREST.getTimeseries(this.topologyId, this.engine.type.toLowerCase(), name, queryParams).then((res) => {
           onSuccess(res, name, interpolate);
         }, (err) => {
-          // onSuccess({"1":{"1539024600000":0,"1539028260000":0,"1539032700000":0,"1539037260000":0,"1539125040000":0,"1539208860000":0,"1539295500000":0,"1539381720000":0,"1539470580000":0,"1539554460000":0,"1539640920000":0,"1539727260000":0,"1539813660000":0,"1539900060000":0,"1539989820000":0,"1540072860000":0,"1540159620000":0,"1540245660000":0,"1540332720000":0,"1540799100000":0,"1541200500000":1,"1541282940000":0,"1541368860000":0,"1541455260000":0,"1541541660000":0,"1541628060000":0},"2":{"1539026820000":2180,"1539031980000":3708,"1539036720000":3984,"1539126540000":1478,"1539212100000":3217,"1539298320000":2779,"1539383520000":1733,"1539472320000":1650,"1539555540000":1062,"1539643800000":2616,"1539729600000":2324,"1539827340000":3666,"1539924000000":7244,"1540002420000":2322,"1540075920000":3013,"1540163700000":4066,"1540248600000":2353,"1540334040000":1302,"1540799700000":557,"1541201220000":157,"1541283180000":193,"1541369700000":381,"1541455500000":203,"1541543340000":1575,"1541628720000":533}}, name, interpolate);
           console.error(err);
         });
         promiseArr.push(req);
@@ -463,10 +462,7 @@ class TopologyViewContainer extends TopologyEditorContainer {
     Promise.all(promiseArr).then((responseArr)=>{
       this.setState({viewModeData: viewModeData, fetchMetrics: false}, ()=>{
         const {graphData} = this;
-        const kafkaSource = _.filter(graphData.nodes, (node) => {
-          return node.parentType === "SOURCE" && node.currentType === "Kafka";
-        });
-        kafkaSource.length > 0 ? this.fetchKafkaOffset(kafkaSource): this.syncComponentData();
+        this.syncComponentData();
       });
       if(this.refs.metricsPanelRef){
         this.refs.metricsPanelRef.setState({loadingRecord: false});
@@ -514,16 +510,19 @@ class TopologyViewContainer extends TopologyEditorContainer {
 
       let compObj = viewModeData[typeInLCase+'Metrics'].find((entity)=>{
         return entity.component.id === selectedComponentId;
-      });;
+      });
 
-      overviewMetrics = compObj.overviewMetrics;
-      timeSeriesMetrics = compObj.timeSeriesMetrics;
+      if(compObj){
+        overviewMetrics = compObj.overviewMetrics;
+        timeSeriesMetrics = compObj.timeSeriesMetrics;
+      }
+
     } else {
       overviewMetrics = viewModeData.topologyMetrics.overviewMetrics;
       timeSeriesMetrics = viewModeData.topologyMetrics.timeSeriesMetrics;
     }
-    viewModeData.overviewMetrics = overviewMetrics;
-    viewModeData.timeSeriesMetrics = timeSeriesMetrics;
+    viewModeData.overviewMetrics = overviewMetrics || {};
+    viewModeData.timeSeriesMetrics = timeSeriesMetrics || {};
     this.setState({viewModeData: viewModeData});
   }
   compSelectCallback = (id, obj) => {
@@ -717,6 +716,7 @@ class TopologyViewContainer extends TopologyEditorContainer {
         selectedDataCenter={this.selectedDataCenter}
         dataCenterList={namespacesArr}
         isBatchEngine={this.engine.type.toLowerCase() == 'batch'}
+        engine={this.engine}
     />;
   }
 

@@ -25,11 +25,13 @@ import RightSideBar from './RightSideBar';
 import DateTimePickerDropdown from './DateTimePickerDropdown';
 import TimeSeriesChart from './TimeSeriesChart';
 import app_state from '../app_state';
+import Utils from '../utils/Utils';
 
 export default class Metrics extends Component{
   constructor(props) {
     super(props);
     this.state = {
+      timeseriesTemplate: Utils.getViewModeTimeseriesMetricsTemplate(props.engine, 'topology')
     };
   }
   componentDidMount(){
@@ -39,26 +41,84 @@ export default class Metrics extends Component{
     app_state.versionPanelCollapsed = !app_state.versionPanelCollapsed;
   }
   getTimeSeriesData = (componentId, keyName) => {
-    const {timeseriesData} = this.props;
+    const {timeseriesData, components} = this.props;
     let finalObj = {
       graphData: [], interpolate: ''
     };
     const graphData = [];
+    const componentNames = [];
     if(timeseriesData){
-      const timeSeriesObj = timeseriesData.find((o)=>{return o.component.id == componentId;});
-      if(timeSeriesObj){
-        const firstLineData = timeSeriesObj.timeSeriesMetrics.metrics[keyName];
-        for(const key in firstLineData) {
-          const obj = {
-            date: new Date(parseInt(key))
-          };
-          obj[keyName] = firstLineData[key];
-          finalObj.graphData.push(obj);
+      if(componentId){
+        // show component level timeseries chart
+        const timeSeriesObj = timeseriesData.find((o)=>{return o.component.id == componentId;});
+        let componentObj = components.find((c)=>{return c.nodeId == componentId;});
+        if(timeSeriesObj && componentObj){
+          let componentName = componentObj.uiname;
+          componentNames.push(componentName);
+          const firstLineData = timeSeriesObj.timeSeriesMetrics.metrics[keyName];
+          for(const key in firstLineData) {
+            const obj = {
+              date: new Date(parseInt(key))
+            };
+            obj[componentName] = firstLineData[key];
+            graphData.push(obj);
+          }
+          finalObj.interpolate = timeSeriesObj.interpolate;
         }
-        finalObj.interpolate = timeSeriesObj.interpolate;
+      } else {
+        // show workflow level timeseries chart
+        timeseriesData.map((data)=>{
+          let componentObj = components.find((c)=>{return c.nodeId == data.component.id;});
+          if(componentObj){
+            let componentName = componentObj.uiname;
+            componentNames.push(componentName);
+            let firstLineData = data.timeSeriesMetrics.metrics[keyName];
+            for(const key in firstLineData) {
+              let date = new Date(parseInt(key));
+              // check if array already has data for that particular timestamp
+              // and if so, update that particular object
+              let existingObj = graphData.find((d)=>{
+                return d.date.getTime() == date.getTime();
+              });
+              if(existingObj){
+                existingObj[componentName] = firstLineData[key];
+              } else {
+                const obj = {
+                  date: date
+                };
+                obj[componentName] = firstLineData[key];
+                graphData.push(obj);
+              }
+            }
+          }
+          finalObj.interpolate = data.interpolate;
+        });
       }
     }
+    this.syncGraphData(graphData, componentNames, finalObj);
     return finalObj;
+  }
+  syncGraphData = (graphData, componentNames, finalObj) => {
+    // sort data by data
+    graphData.sort((a,b)=>{
+      return a.date - b.date;
+    });
+    // check if any component is missing data for that particular date
+    // if so, then add data with previous date's value
+    for(let i = 0; i < graphData.length; i++){
+      let dataObj = graphData[i];
+      let obj = {
+        date: dataObj.date
+      };
+      componentNames.map((name)=>{
+        if(!dataObj.hasOwnProperty(name)){
+          obj[name] = (i == 0 ? 0 : finalObj.graphData[i-1][name]);
+        } else {
+          obj[name] = dataObj[name];
+        }
+      });
+      finalObj.graphData.push(obj);
+    }
   }
   getHeader = () => {
     return <button className="btn-panels" onClick={this.handleExpandCollapse}><img src="styles/img/uWorc/graph.png"/></button>;
@@ -69,6 +129,8 @@ export default class Metrics extends Component{
       startDate, endDate, activeRangeLabel, isAppRunning, datePickerCallback,
       viewModeData, timeseriesData, dataCenterList, selectedDataCenter,
       handleDataCenterChange, isBatchEngine} = this.props;
+
+    const {timeseriesTemplate} = this.state;
 
     const locale = {
       format: 'YYYY-MM-DD',
@@ -147,36 +209,25 @@ export default class Metrics extends Component{
             </div>
           </div>
         : null}
-        {viewModeData.selectedComponent ?
+        {timeseriesTemplate.length > 0 ?
           <div className="task-metrics">
             <div className="task-metrics-header">
               <div className="text-left">
-                <span className="execution-metric-label display-block">Task Metrics</span>
-                <span className="execution-metric-value display-block">{viewModeData.selectedComponent.uiname}</span>
+                <span className="execution-metric-label display-block">Workflow Metrics</span>
               </div>
-              {/*<div className="text-right">
-                <button type="button" className="close" style={{marginLeft:'5px'}} onClick={this.handleExpandCollapse}><span >×</span></button>
-              </div>*/}
             </div>
             <Tabs id="timeseries-metrics-tabs" className="timeseries-metrics-tabs">
-              <Tab eventKey={1} title="Task Duration">
-                <div className="metrics-timeseries-graph" style={{height: '160px'}}>
-                  {this.renderGraph(viewModeData.selectedComponentId, 'taskDuration')}
-                </div>
-              </Tab>
-              <Tab eventKey={2} title="Avg. CPU Usage">
-                <div className="metrics-timeseries-graph" style={{height: '160px'}}>
-                  {this.renderGraph(viewModeData.selectedComponentId, 'avgCPUUsage')}
-                </div>
-              </Tab>
-              <Tab eventKey={3} title="Memory Usage">
-                <div className="metrics-timeseries-graph" style={{height: '160px'}}>
-                  {this.renderGraph(viewModeData.selectedComponentId, 'memoryUsage')}
-                </div>
-              </Tab>
+              {timeseriesTemplate.map((template, index)=>{
+                return(<Tab eventKey={index+1} title={template.uiName}>
+                  <div className="metrics-timeseries-graph" style={{height: '160px'}}>
+                    {this.renderGraph(viewModeData.selectedComponentId, template.name)}
+                  </div>
+                </Tab>);
+              })}
             </Tabs>
           </div>
-        : null}
+          : <p>No timeseries template found</p>
+        }
       </div>
     </div>);
 
@@ -188,12 +239,14 @@ export default class Metrics extends Component{
       <TimeSeriesChart
         data={data.graphData}
         interpolation={data.interpolate}
-        color={d3.scale.ordinal().range(["#276EF1"])}
+        color={d3.scale.ordinal().range([d3.rgb("#007AFF"), d3.rgb('#FFF500')])}
         getXAxis={function(){
           return d3.svg.axis().scale(this.x).orient("bottom");
         }}
         getYAxis={function(){
-          return d3.svg.axis().scale(this.y).orient("left").tickSize(-this.width, 0, 0).tickFormat(d3.format(".0s"));
+          return d3.svg.axis().scale(this.y).orient("left").tickSize(-this.width, 0, 0).tickFormat((y)=>{
+            return Utils.numValueFormatter(y);
+          });
         }}
         drawBrush={function(){}}
       />

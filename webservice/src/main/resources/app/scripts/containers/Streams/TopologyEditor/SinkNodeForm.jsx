@@ -169,9 +169,6 @@ export default class SinkNodeForm extends Component {
         stateExecuted = true;
         if (stateObj.formData.clusters !== undefined) {
           this.updateClusterFields(stateObj.formData.clusters);
-        } else if (stateObj.clusterArr.length === 1) {
-          stateObj.formData.cluster = stateObj.clusterArr[0].id;
-          this.updateClusterFields(stateObj.formData.clusters);
         }
       });
 

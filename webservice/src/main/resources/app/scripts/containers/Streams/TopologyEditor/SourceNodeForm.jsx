@@ -142,9 +142,6 @@ export default class SourceNodeForm extends Component {
         if (stateObj.formData.clusters !== undefined) {
           this.updateClusterFields(stateObj.formData.clusters);
           this.setState({streamObj: this.state.streamObj});
-        } else if (stateObj.clusterArr.length === 1) {
-          stateObj.formData.cluster = stateObj.clusterArr[0].id;
-          this.updateClusterFields(stateObj.formData.clusters);
         }
       });
     });

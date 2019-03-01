@@ -1477,23 +1477,31 @@ label {
   color: #999999;
   font-size: 12px;
 }
+.workflow-metric-label {
+  color: #999999;
+  font-size: 16px;
+  margin: 6px 0;
+}
 .execution-metric-value{
   color: #333333;
   font-size: 12px;
   margin-left: 15px;
 }
+.execution-metrics {
+  padding: 20px;
+  border-bottom: 1px #ccc solid;
+  margin-left: -20px;
+  margin-right: -20px;
+}
 .task-metrics{
-  margin-top: 30px;
   font-weight: 500;
+  margin-left: -20px;
+  margin-right: -20px;
 }
 .task-metrics-header{
-  border-top: 1px #ccc solid;
   border-bottom: 1px #ccc solid;
-  margin-top: 15px;
   padding: 10px 20px;
   position: relative;
-  left: -20px;
-  width: calc(100% + 40px);
 }
 .task-metrics-header > div.text-left{
   display: inline-block;
@@ -1503,11 +1511,6 @@ label {
 }
 .task-metrics-header .execution-metric-value{
   margin-left: 0px;
-}
-.timeseries-metrics-tabs{
-  position: relative;
-  left: -20px;
-  width: calc(100% + 40px);
 }
 .timeseries-metrics-tabs .nav-tabs{
   font-size: 12px;
@@ -2820,6 +2823,12 @@ h5.environment-title span, .service-box .service-head h4 span {
   fill: #6B6B76;
 }
 
+.metrics-timeseries-graph {
+  position: relative;
+}
+.metrics-timeseries-graph .page-loader {
+  position: absolute;
+}
 .metrics-timeseries-graph .x.axis .tick > text,
 .metrics-timeseries-graph .x.axis .tick > line {
   visibility: hidden;
@@ -4945,7 +4954,7 @@ ul.custom-pagination li.active{
   cursor: pointer;
   border-radius: 5px;
   overflow: hidden;
-  margin-bottom: 20px;
+  margin-top: 20px;
 }
 .version-thumb{
   display: block;
@@ -5736,11 +5745,9 @@ aside.right-sidebar.active {
   right: 0;
 }
 .right-sidebar-body {
-  padding: 20px 20px 60px 20px;
+  padding: 0 20px;
   overflow-y: auto;
-  position: absolute;
-  height: 100%;
-  width: calc(100% - 40px);
+  min-height: 500px;
 }
 .right-sidebar-header {
   padding: 10px;

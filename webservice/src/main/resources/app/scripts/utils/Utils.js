@@ -987,6 +987,23 @@ const isFromSharedProjects = function(){
   return location.hash.search('shared-projects') !== -1;
 };
 
+const numValueFormatter = function(num){
+  var abs_y = Math.abs(num);
+  if (abs_y >= 1000000000000) {
+    return num / 1000000000000 + "T";
+  } else if (abs_y >= 1000000000) {
+    return num / 1000000000 + "B";
+  } else if (abs_y >= 1000000) {
+    return num / 1000000 + "M";
+  } else if (abs_y >= 1000) {
+    return num / 1000 + "K";
+  } else if (num % 1 != 0) {
+    return num.toFixed(1);
+  } else {
+    return num;
+  }
+};
+
 export default {
   sortArray,
   numberToMilliseconds,
@@ -1049,5 +1066,6 @@ export default {
   getViewModeTimeseriesMetricsTemplate,
   getViewModeDAGMetricsTemplate,
   getViewModeDAGTimeseriesMetricsTemplate,
-  isFromSharedProjects
+  isFromSharedProjects,
+  numValueFormatter
 };

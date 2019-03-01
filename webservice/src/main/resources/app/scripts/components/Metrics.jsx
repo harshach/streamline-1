@@ -27,6 +27,7 @@ import TimeSeriesChart from './TimeSeriesChart';
 import app_state from '../app_state';
 import Utils from '../utils/Utils';
 import CommonLoaderSign from './CommonLoaderSign';
+import _ from 'lodash';
 
 export default class Metrics extends Component{
   constructor(props) {
@@ -201,23 +202,21 @@ export default class Metrics extends Component{
         {timeseriesTemplate.length > 0 ?
           <div className="task-metrics">
             <div className="task-metrics-header">
-              <div className="workflow-metric-label">Workflow Metrics</div>
-              <DropdownButton className="btn-default" title={selectedMetrics} id="metrics-dropdown" onSelect={(template) => {
-                this.handleMetricsChange(template);
-              }} >
-                {_.map(timeseriesTemplate, (template, index) => {
-                  return <MenuItem active={selectedMetrics === template.uiName ? true : false}
-                            eventKey={template} key={index}
-                          >{template.uiName}</MenuItem>;
-                })
-              }
-              </DropdownButton>
-            </div>
-            <div className="timeseries-metrics-tabs">
-              <div className="metrics-timeseries-graph" style={{height: '160px'}}>
-                {this.renderGraph(viewModeData.selectedComponentId, selectedMetricsName)}
+              <div className="text-left">
+                <span className="execution-metric-label display-block">Workflow Metrics</span>
               </div>
             </div>
+            {_.chunk(timeseriesTemplate, 3).map((templatesArr, index)=>{
+              return(<Tabs id={"timeseries-metrics-tabs-"+index} className="timeseries-metrics-tabs" mountOnEnter={true}>
+                {templatesArr.map((template, index)=>{
+                  return(<Tab eventKey={index+1} title={template.uiName}>
+                    <div className="metrics-timeseries-graph" style={{height: '160px'}}>
+                      {this.renderGraph(viewModeData.selectedComponentId, template.name)}
+                    </div>
+                  </Tab>);
+                })}
+              </Tabs>);
+            })}
           </div>
           : <p>No timeseries template found</p>
         }

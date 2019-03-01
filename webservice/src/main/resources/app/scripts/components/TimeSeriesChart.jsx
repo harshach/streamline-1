@@ -55,7 +55,7 @@ export default class TimeSeriesChart extends Component {
     const widthViewBoxBuffer = this.width/10;
     const heightViewBoxBuffer = this.height/5.33;
 
-    this.svg.attr("viewBox", `-${widthViewBoxBuffer/3} -${heightViewBoxBuffer/2} ${this.width + widthViewBoxBuffer} ${this.height + heightViewBoxBuffer}`).attr("preserveAspectRatio", "xMidYMid");
+    this.svg.attr("viewBox", `-${widthViewBoxBuffer/1.5} -${heightViewBoxBuffer/2} ${this.width + widthViewBoxBuffer} ${this.height + heightViewBoxBuffer}`).attr("preserveAspectRatio", "xMidYMid");
 
     this.pathGrp.attr('width', this.width).attr('height', this.height);
 
@@ -143,7 +143,8 @@ TimeSeriesChart.defaultProps = {
           // Array.prototype.slice.call(arguments);
           // mainArguments.push(name);
           return this.props.valuesFormat.apply(this, mainArguments);
-        })
+        }),
+        opacity: this.props.showLines.indexOf(name) == -1 ? 0 : 1
       };
     });
   },
@@ -182,22 +183,21 @@ TimeSeriesChart.defaultProps = {
   drawLines() {
     const self = this;
 
-    const pathGrp = this.pathGrp.selectAll(".pathGroup").data(this.mapedData/*() => {
-                return _.filter(this.mapedData, (d) => {
-                    return true;
-                    // return !_.contains(this.props.bars, d.name);
-                })
-            }*/);
+    const pathGrp = this.pathGrp.selectAll(".pathGroup").data(this.mapedData).style("opacity", (d)=>{
+      return d.opacity;
+    });
 
     pathGrp.exit().remove();
 
-    pathGrp.enter().append("g").attr("class", "pathGroup line").classed("visible", true).attr('transform', 'translate(0,1)').attr('data-name', (d) => {
-      return d.name;
-    }).each(function() {
-      d3.select(this).append("path").classed("line", true);
-
-      d3.select(this).append("path").classed("area", true);
-    });
+    pathGrp.enter().append("g").attr("class", "pathGroup line").classed("visible", true)
+      .attr('transform', 'translate(0,1)').attr('data-name', (d) => {
+        return d.name;
+      }).style("opacity", (d)=>{
+        return d.opacity;
+      }).each(function() {
+        d3.select(this).append("path").classed("line", true);
+        d3.select(this).append("path").classed("area", true);
+      });
 
     pathGrp.select('path.line').attr("d", function(d) {
       return self.lines(d.values);

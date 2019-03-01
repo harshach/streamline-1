@@ -26,12 +26,16 @@ import DateTimePickerDropdown from './DateTimePickerDropdown';
 import TimeSeriesChart from './TimeSeriesChart';
 import app_state from '../app_state';
 import Utils from '../utils/Utils';
+import CommonLoaderSign from './CommonLoaderSign';
 
 export default class Metrics extends Component{
   constructor(props) {
     super(props);
+    let templates = Utils.getViewModeTimeseriesMetricsTemplate(props.engine, 'topology');
     this.state = {
-      timeseriesTemplate: Utils.getViewModeTimeseriesMetricsTemplate(props.engine, 'topology')
+      timeseriesTemplate: templates,
+      selectedMetrics: templates[0] ? templates[0].uiName : '',
+      selectedMetricsName: templates[0] ? templates[0].name : ''
     };
   }
   componentDidMount(){
@@ -47,54 +51,39 @@ export default class Metrics extends Component{
     };
     const graphData = [];
     const componentNames = [];
+    let selectedComponentObj = null;
+    if(componentId){
+      selectedComponentObj = components.find((c)=>{return c.nodeId == componentId;});
+    }
     if(timeseriesData){
-      if(componentId){
-        // show component level timeseries chart
-        const timeSeriesObj = timeseriesData.find((o)=>{return o.component.id == componentId;});
-        let componentObj = components.find((c)=>{return c.nodeId == componentId;});
-        if(timeSeriesObj && componentObj){
+      timeseriesData.map((data)=>{
+        let componentObj = components.find((c)=>{return c.nodeId == data.component.id;});
+        if(componentObj){
           let componentName = componentObj.uiname;
           componentNames.push(componentName);
-          const firstLineData = timeSeriesObj.timeSeriesMetrics.metrics[keyName];
+          let firstLineData = data.timeSeriesMetrics.metrics[keyName];
           for(const key in firstLineData) {
-            const obj = {
-              date: new Date(parseInt(key))
-            };
-            obj[componentName] = firstLineData[key];
-            graphData.push(obj);
-          }
-          finalObj.interpolate = timeSeriesObj.interpolate;
-        }
-      } else {
-        // show workflow level timeseries chart
-        timeseriesData.map((data)=>{
-          let componentObj = components.find((c)=>{return c.nodeId == data.component.id;});
-          if(componentObj){
-            let componentName = componentObj.uiname;
-            componentNames.push(componentName);
-            let firstLineData = data.timeSeriesMetrics.metrics[keyName];
-            for(const key in firstLineData) {
-              let date = new Date(parseInt(key));
-              // check if array already has data for that particular timestamp
-              // and if so, update that particular object
-              let existingObj = graphData.find((d)=>{
-                return d.date.getTime() == date.getTime();
-              });
-              if(existingObj){
-                existingObj[componentName] = firstLineData[key];
-              } else {
-                const obj = {
-                  date: date
-                };
-                obj[componentName] = firstLineData[key];
-                graphData.push(obj);
-              }
+            let date = new Date(parseInt(key));
+            // check if array already has data for that particular timestamp
+            // and if so, update that particular object
+            let existingObj = graphData.find((d)=>{
+              return d.date.getTime() == date.getTime();
+            });
+            if(existingObj){
+              existingObj[componentName] = firstLineData[key];
+            } else {
+              const obj = {
+                date: date
+              };
+              obj[componentName] = firstLineData[key];
+              graphData.push(obj);
             }
           }
-          finalObj.interpolate = data.interpolate;
-        });
-      }
+        }
+        finalObj.interpolate = data.interpolate;
+      });
     }
+    finalObj.componentNames = (selectedComponentObj ? [selectedComponentObj.uiname] : componentNames);
     this.syncGraphData(graphData, componentNames, finalObj);
     return finalObj;
   }
@@ -130,7 +119,7 @@ export default class Metrics extends Component{
       viewModeData, timeseriesData, dataCenterList, selectedDataCenter,
       handleDataCenterChange, isBatchEngine} = this.props;
 
-    const {timeseriesTemplate} = this.state;
+    const {timeseriesTemplate, selectedMetrics, selectedMetricsName} = this.state;
 
     const locale = {
       format: 'YYYY-MM-DD',
@@ -178,8 +167,8 @@ export default class Metrics extends Component{
       </div>
       <div className="right-sidebar-body">
         {isBatchEngine ?
-          <div>
-            <div className="text-center" style={{margin: '5px 0 15px 0'}}>
+          <div className="execution-metrics">
+            <div className="text-center">
               <span className="execution-page-btn" onClick={getPrevPageExecutions}><i className="fa fa-angle-left"></i></span>
               <span className="execution-range">{startDate.format('LL') +' - '+endDate.format('LL')}</span>
               <span className="execution-page-btn" onClick={getNextPageExecutions}><i className="fa fa-angle-right"></i></span>
@@ -212,19 +201,23 @@ export default class Metrics extends Component{
         {timeseriesTemplate.length > 0 ?
           <div className="task-metrics">
             <div className="task-metrics-header">
-              <div className="text-left">
-                <span className="execution-metric-label display-block">Workflow Metrics</span>
+              <div className="workflow-metric-label">Workflow Metrics</div>
+              <DropdownButton className="btn-default" title={selectedMetrics} id="metrics-dropdown" onSelect={(template) => {
+                this.handleMetricsChange(template);
+              }} >
+                {_.map(timeseriesTemplate, (template, index) => {
+                  return <MenuItem active={selectedMetrics === template.uiName ? true : false}
+                            eventKey={template} key={index}
+                          >{template.uiName}</MenuItem>;
+                })
+              }
+              </DropdownButton>
+            </div>
+            <div className="timeseries-metrics-tabs">
+              <div className="metrics-timeseries-graph" style={{height: '160px'}}>
+                {this.renderGraph(viewModeData.selectedComponentId, selectedMetricsName)}
               </div>
             </div>
-            <Tabs id="timeseries-metrics-tabs" className="timeseries-metrics-tabs">
-              {timeseriesTemplate.map((template, index)=>{
-                return(<Tab eventKey={index+1} title={template.uiName}>
-                  <div className="metrics-timeseries-graph" style={{height: '160px'}}>
-                    {this.renderGraph(viewModeData.selectedComponentId, template.name)}
-                  </div>
-                </Tab>);
-              })}
-            </Tabs>
           </div>
           : <p>No timeseries template found</p>
         }
@@ -233,13 +226,23 @@ export default class Metrics extends Component{
 
     return content;
   }
+  handleMetricsChange = (template) => {
+    this.setState({
+      selectedMetrics: template.uiName,
+      selectedMetricsName: template.name
+    });
+  }
   renderGraph = (componentId, keyName) => {
     const data = this.getTimeSeriesData(componentId, keyName);
+    if(data.graphData.length === 0){
+      return (<CommonLoaderSign/>);
+    }
     return (
       <TimeSeriesChart
         data={data.graphData}
         interpolation={data.interpolate}
-        color={d3.scale.ordinal().range([d3.rgb("#007AFF"), d3.rgb('#FFF500')])}
+        color={d3.scale.category10()}
+        showLines={data.componentNames}
         getXAxis={function(){
           return d3.svg.axis().scale(this.x).orient("bottom");
         }}

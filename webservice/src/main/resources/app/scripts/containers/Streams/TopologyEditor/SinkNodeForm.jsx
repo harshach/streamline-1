@@ -63,7 +63,6 @@ export default class SinkNodeForm extends Component {
       clusterName: '',
       fetchLoader: true,
       securityType : '',
-      hasSecurity: false,
       validSchema: false,
       formErrors:{}
     };
@@ -375,7 +374,7 @@ export default class SinkNodeForm extends Component {
     const {clusterArr} = this.state;
     const {nodeData} = this.props;
     const sourceParams = nodeData.parentType + '/' + nodeData.topologyComponentBundleId;
-    const tempObj = Object.assign({}, this.state.formData, {topic: ''});
+    const tempObj = Object.assign({}, this.state.formData, {topic: '', bootstrapServers: ''});
     let splitValues = val.split('@#$');
     let obj;
     if(!_.isEmpty(splitValues[1])){
@@ -387,6 +386,8 @@ export default class SinkNodeForm extends Component {
       let clusterObj = clusterArr.find((c)=>{return c.id == obj.id;});
       if(response && clusterObj){
         clusterObj.config.topic = response[obj.id].hints.topic;
+        tempObj.topic = response[obj.id].hints.topic;
+        tempObj.bootstrapServers = response[obj.id].hints.bootstrapServers["PLAINTEXT"];
       }
       this.setState({
         clusterName: obj.key,

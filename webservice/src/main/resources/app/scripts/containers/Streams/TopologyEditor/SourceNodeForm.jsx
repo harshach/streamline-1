@@ -177,7 +177,7 @@ export default class SourceNodeForm extends Component {
     const {clusterArr} = this.state;
     const {nodeData} = this.props;
     const sourceParams = nodeData.parentType + '/' + nodeData.topologyComponentBundleId;
-    const tempObj = Object.assign({}, this.state.formData, {topic: ''});
+    const tempObj = Object.assign({}, this.state.formData, {topic: '', bootstrapServers: ''});
     // split the val to find the key by id
     let splitValues = val.split('@#$');
     let obj;
@@ -191,6 +191,8 @@ export default class SourceNodeForm extends Component {
       let clusterObj = clusterArr.find((c)=>{return c.id == obj.id;});
       if(response && clusterObj){
         clusterObj.config.topic = response[obj.id].hints.topic;
+        tempObj.topic = response[obj.id].hints.topic;
+        tempObj.bootstrapServers = response[obj.id].hints.bootstrapServers["PLAINTEXT"];
       }
       this.setState({
         clusterName: obj.key,

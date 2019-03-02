@@ -19,6 +19,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.hortonworks.registries.common.Schema;
 
 import java.util.Map;
+import java.util.Optional;
 
 /**
  * Represents any entity that can be stored by our storage layer.
@@ -100,6 +101,16 @@ public interface Storable {
     @JsonIgnore
     default boolean isCacheable() {
         return true;
+    }
+
+    /**
+     * An Id to identify parent of an object.
+     *
+     * @return the id.
+     */
+    @JsonIgnore
+    default Optional<Parent> getParent() {
+        return Optional.empty();
     }
 
 }

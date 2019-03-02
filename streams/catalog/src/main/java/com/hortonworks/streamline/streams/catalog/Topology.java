@@ -21,6 +21,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.hortonworks.registries.common.Schema;
 import com.hortonworks.streamline.common.Config;
+import com.hortonworks.streamline.storage.Parent;
 import com.hortonworks.streamline.storage.annotation.SearchableField;
 import com.hortonworks.streamline.storage.annotation.StorableEntity;
 import com.hortonworks.streamline.storage.PrimaryKey;
@@ -31,6 +32,7 @@ import org.apache.commons.lang3.StringUtils;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 
 /**
  * An Streamline topology that will be persisted in
@@ -313,6 +315,12 @@ public class Topology implements Storable {
     @JsonIgnore
     public Long getTimestamp() {
         return getVersionTimestamp();
+    }
+
+    @Override
+    public Optional<Parent> getParent() {
+        Parent parent = new Parent(this.projectId, Project.NAMESPACE);
+        return Optional.of(parent);
     }
 
     @Override

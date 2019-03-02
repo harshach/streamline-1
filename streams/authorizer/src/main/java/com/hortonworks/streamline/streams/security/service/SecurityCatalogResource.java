@@ -21,7 +21,7 @@ import com.hortonworks.streamline.common.QueryParam;
 import com.hortonworks.streamline.common.exception.service.exception.request.EntityNotFoundException;
 import com.hortonworks.streamline.common.exception.service.exception.request.WebserviceAuthorizationException;
 import com.hortonworks.streamline.common.util.WSUtils;
-import com.hortonworks.streamline.streams.catalog.Project;
+import com.hortonworks.streamline.storage.Storable;
 import com.hortonworks.streamline.streams.catalog.service.StreamCatalogService;
 import com.hortonworks.streamline.streams.security.AuthenticationContext;
 import com.hortonworks.streamline.streams.security.Permission;
@@ -33,7 +33,6 @@ import com.hortonworks.streamline.streams.security.catalog.Role;
 import com.hortonworks.streamline.streams.security.catalog.RoleHierarchy;
 import com.hortonworks.streamline.streams.security.catalog.User;
 import com.hortonworks.streamline.streams.security.catalog.UserRole;
-import com.hortonworks.streamline.streams.catalog.Topology;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.hadoop.security.authentication.client.AuthenticatedURL;
 import org.slf4j.Logger;
@@ -503,7 +502,7 @@ public class SecurityCatalogResource {
     public Response addAcl(AclEntry aclEntry, @Context SecurityContext securityContext) {
         mayBeFillSidId(aclEntry);
         checkAclOp(aclEntry, securityContext, this::shouldAllowAclAddOrUpdate);
-        shouldAllowProjectReadPermissions(aclEntry);
+        securityCatalogService.shouldAllowParentReadPermissions(aclEntry);
         AclEntry createdAcl = securityCatalogService.addAcl(aclEntry);
         return WSUtils.respondEntity(createdAcl, CREATED);
     }
@@ -629,24 +628,4 @@ public class SecurityCatalogResource {
         }
         return false;
     }
-
-    private void shouldAllowProjectReadPermissions(AclEntry aclEntry) {
-        if (aclEntry.getObjectNamespace().equalsIgnoreCase(Topology.NAMESPACE)) {
-            Topology topology = streamCatalogService.getTopology(aclEntry.getObjectId());
-            Project project = streamCatalogService.getProjectInfo(topology.getProjectId());
-            AclEntry existingAclEntry = securityCatalogService.getAcl(project.getId());
-            if (existingAclEntry == null) {
-                AclEntry projectAclEntry = new AclEntry();
-                projectAclEntry.setObjectNamespace(Project.NAMESPACE);
-                projectAclEntry.setObjectId(project.getId());
-                projectAclEntry.setOwner(false);
-                projectAclEntry.setGrant(true);
-                projectAclEntry.setSidId(aclEntry.getSidId());
-                projectAclEntry.setSidType(aclEntry.getSidType());
-                projectAclEntry.setPermissions(EnumSet.of(Permission.READ));
-                securityCatalogService.addAcl(aclEntry);
-            }
-        }
-    }
-
 }

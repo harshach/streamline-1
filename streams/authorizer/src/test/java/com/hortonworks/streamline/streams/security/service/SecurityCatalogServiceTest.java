@@ -17,6 +17,8 @@ package com.hortonworks.streamline.streams.security.service;
 
 import com.google.common.collect.Sets;
 import com.hortonworks.streamline.common.QueryParam;
+import com.hortonworks.streamline.streams.catalog.Project;
+import com.hortonworks.streamline.streams.catalog.Topology;
 import com.hortonworks.streamline.streams.security.Permission;
 import com.hortonworks.streamline.streams.security.catalog.AclEntry;
 import com.hortonworks.streamline.streams.security.catalog.Role;
@@ -24,7 +26,9 @@ import com.hortonworks.streamline.streams.security.catalog.User;
 import mockit.Expectations;
 import org.junit.Test;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Optional;
@@ -86,5 +90,84 @@ public class SecurityCatalogServiceTest {
         assertTrue(catalogService.checkUserPermissions("topology", 1L, 1L, EnumSet.of(Permission.WRITE)));
         assertTrue(catalogService.checkUserPermissions("topology", 1L, 1L, EnumSet.of(Permission.WRITE, Permission.READ)));
         assertFalse(catalogService.checkUserPermissions("topology", 1L, 1L, EnumSet.of(Permission.WRITE, Permission.DELETE)));
+    }
+
+    @Test
+    public void checkUserPermissionsForParenrtObject() throws Exception {
+        SecurityCatalogService catalogService = new SecurityCatalogService(null);
+        AclEntry userAclEntry = new AclEntry();
+        userAclEntry.setSidType(AclEntry.SidType.USER);
+        userAclEntry.setSidId(1L);
+        userAclEntry.setObjectId(1L);
+        userAclEntry.setObjectNamespace("topology");
+        userAclEntry.setPermissions(EnumSet.of(Permission.WRITE, Permission.READ));
+
+        AclEntry roleAclEntry = new AclEntry();
+        roleAclEntry.setSidType(AclEntry.SidType.ROLE);
+        roleAclEntry.setSidId(1L);
+        roleAclEntry.setObjectId(1L);
+        roleAclEntry.setObjectNamespace("topology");
+        roleAclEntry.setPermissions(EnumSet.of(Permission.READ));
+
+        Role role = new Role();
+        role.setId(1L);
+        role.setName("ROLE_FOO");
+        List<QueryParam> qps1 = QueryParam.params(
+                AclEntry.OBJECT_NAMESPACE, "topology",
+                AclEntry.OBJECT_ID, "1",
+                AclEntry.SID_TYPE, USER.toString(),
+                AclEntry.SID_ID, "1");
+
+        List<QueryParam> qps2 = QueryParam.params(
+                AclEntry.OBJECT_NAMESPACE, "topology",
+                AclEntry.OBJECT_ID, "1",
+                AclEntry.SID_TYPE, AclEntry.SidType.ROLE.toString());
+
+        List<QueryParam> qps3 = QueryParam.params(
+                AclEntry.OBJECT_NAMESPACE, Project.NAMESPACE,
+                AclEntry.OBJECT_ID, "1",
+                AclEntry.SID_TYPE, USER.toString(),
+                AclEntry.SID_ID, "1");
+
+        User user = new User();
+        user.setRoles(Sets.newHashSet("ROLE_FOO"));
+
+        Topology topology = new Topology();
+        topology.setId(1L);
+        topology.setProjectId(1L);
+        List<Topology> listTopology = new ArrayList<>();
+        listTopology.add(topology);
+
+        AclEntry parentAclEntry = new AclEntry();
+        parentAclEntry.setObjectNamespace(Project.NAMESPACE);
+        parentAclEntry.setObjectId(1L);
+        parentAclEntry.setOwner(false);
+        parentAclEntry.setGrant(true);
+        parentAclEntry.setSidId(1L);
+        parentAclEntry.setSidType(USER);
+        parentAclEntry.setPermissions(EnumSet.of(Permission.READ));
+
+
+        new Expectations(catalogService) {{
+            catalogService.getUser(anyLong);
+            result = user;
+            catalogService.listAcls(qps1);
+            result = Arrays.asList(userAclEntry);
+            catalogService.listAcls(qps3);
+            result = Arrays.asList(parentAclEntry);
+            catalogService.getEntity(Topology.NAMESPACE, 1L);
+            result = listTopology;
+            catalogService.getAcl(1L, 1L, Project.NAMESPACE, Permission.READ);
+            result = new ArrayList<AclEntry>();
+            catalogService.addAcl(parentAclEntry);
+            result = parentAclEntry;
+        }};
+
+        catalogService.shouldAllowParentReadPermissions(userAclEntry);
+
+        assertTrue(catalogService.checkUserPermissions(Topology.NAMESPACE, 1L, 1L, EnumSet.of(Permission.READ)));
+        assertTrue(catalogService.checkUserPermissions(Topology.NAMESPACE, 1L, 1L, EnumSet.of(Permission.WRITE)));
+
+        assertTrue(catalogService.checkUserPermissions(Project.NAMESPACE, 1L, 1L, EnumSet.of(Permission.READ)));
     }
 }

@@ -18,6 +18,7 @@ package com.hortonworks.streamline.streams.security.service;
 import com.google.common.collect.Sets;
 import com.hortonworks.streamline.common.QueryParam;
 import com.hortonworks.streamline.common.util.Utils;
+import com.hortonworks.streamline.storage.Parent;
 import com.hortonworks.streamline.storage.StorableKey;
 import com.hortonworks.streamline.storage.StorageManager;
 import com.hortonworks.streamline.storage.util.StorageUtils;
@@ -46,6 +47,7 @@ import java.util.stream.Stream;
 
 import static com.hortonworks.streamline.streams.security.catalog.AclEntry.SidType.ROLE;
 import static com.hortonworks.streamline.streams.security.catalog.AclEntry.SidType.USER;
+import com.hortonworks.streamline.storage.Storable;
 
 public class SecurityCatalogService {
     private static final Logger LOG = LoggerFactory.getLogger(SecurityCatalogService.class);
@@ -53,6 +55,7 @@ public class SecurityCatalogService {
     private final String IsOwner                = "1";
     private final String IsNotOwner             = "0";
     private final String HasAccessPermission    = "1";
+    private final String ID                     = "id";
     private final StorageManager dao;
 
     public SecurityCatalogService(StorageManager storageManager) {
@@ -327,11 +330,34 @@ public class SecurityCatalogService {
         return this.dao.get(new StorableKey(AclEntry.NAMESPACE, aclEntry.getPrimaryKey()));
     }
 
-    public Collection<AclEntry> getAcl(Long aclObjectId, Long roleId, String targetEntityNamespace) {
+    public Collection<AclEntry> getAcl(Long userId, Long aclObjectId, String targetEntityNamespace, Permission permission) {
         List<QueryParam> params = QueryParam.params(AclEntry.OBJECT_ID, aclObjectId.toString(),
-                AclEntry.SID_ID, roleId.toString(),
-                AclEntry.NAMESPACE, targetEntityNamespace);
+                AclEntry.SID_ID, userId.toString(),
+                AclEntry.NAMESPACE, targetEntityNamespace,
+                AclEntry.PERMISSIONS, permission.toString(),
+                AclEntry.GRANT, HasAccessPermission);
         return dao.find(AclEntry.NAMESPACE, params);
+    }
+
+    public void shouldAllowParentReadPermissions(AclEntry aclEntry) {
+        Collection<? extends Storable> entities = getEntity(aclEntry.getObjectNamespace(), aclEntry.getObjectId());
+        entities.forEach( entity -> {
+            if (entity.getParent().isPresent()) {
+                Parent parent = entity.getParent().get();
+                Collection<AclEntry> existingAclEntry = getAcl(aclEntry.getSidId(), parent.getId(), parent.getType(), Permission.READ);
+                if (existingAclEntry == null || existingAclEntry.size() == 0) {
+                    AclEntry parentAclEntry = new AclEntry();
+                    parentAclEntry.setObjectNamespace(parent.getType());
+                    parentAclEntry.setObjectId(parent.getId());
+                    parentAclEntry.setOwner(false);
+                    parentAclEntry.setGrant(true);
+                    parentAclEntry.setSidId(aclEntry.getSidId());
+                    parentAclEntry.setSidType(aclEntry.getSidType());
+                    parentAclEntry.setPermissions(EnumSet.of(Permission.READ));
+                    addAcl(parentAclEntry);
+                }
+            }
+        });
     }
 
     public AclEntry addAcl(AclEntry aclEntry) {
@@ -344,6 +370,11 @@ public class SecurityCatalogService {
         validateAcl(aclEntry);
         this.dao.add(aclEntry);
         return aclEntry;
+    }
+
+    public Collection<? extends Storable> getEntity(String nameSpace, Long id) {
+        List<QueryParam> qps = QueryParam.params(ID, String.valueOf(id));
+        return dao.find(nameSpace, qps);
     }
 
     public AclEntry addOrUpdateAcl(Long id, AclEntry aclEntry) {

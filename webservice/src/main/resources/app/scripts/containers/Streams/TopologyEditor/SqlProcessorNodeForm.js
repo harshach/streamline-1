@@ -131,6 +131,7 @@ export default class SqlProcessorNodeForm extends Component {
       return;
     }
     const parent = this.context.ParentForm;
+    let oldStreamObj = JSON.parse(JSON.stringify(parent.state.outputStreamObj));
     const {fetchLoader, processorNode, inputStreamOptions} = parent.state;
     const outputStreamsFields = [];
     this.streamData.fields = outputStreamsFields;
@@ -141,6 +142,9 @@ export default class SqlProcessorNodeForm extends Component {
     let error = '';
     SqliteParser(sqlStr, (err, parsed) => {
       if(err){
+        if(err.message.search('WHERE Clause') !== -1){
+          this.streamData = oldStreamObj;
+        }
         error = err.message;
       }else{
         _.each(parsed.statement, (statement) => {
@@ -164,6 +168,7 @@ export default class SqlProcessorNodeForm extends Component {
           }else{
             _.each(statement.result, (res) => {
               let namePath;
+              res.name = res.name || '';
               if(_.isObject(res.name)){
                 namePath = res.name.name.split('.');
               }else{
@@ -194,18 +199,28 @@ export default class SqlProcessorNodeForm extends Component {
                 }
               }else{
                 let type = 'STRING';
-                let field;
-                field = _.find(inputstream.fields, (inp) => {
-                  return inp.name.toLowerCase() == name;
-                });
-                if(field){
-                  type = field.type;
+                if(name === ''){
+                  if(res.variant == 'decimal'){
+                    type = 'DOUBLE';
+                  }
                   outputStreamsFields.push({
-                    name: res.alias || field.name,
+                    name: res.alias,
                     type: type
                   });
-                }else{
-                  error = `Field "${name}" Not found`;
+                } else {
+                  let field;
+                  field = _.find(inputstream.fields, (inp) => {
+                    return inp.name.toLowerCase() == name;
+                  });
+                  if(field){
+                    type = field.type;
+                    outputStreamsFields.push({
+                      name: res.alias || field.name,
+                      type: type
+                    });
+                  }else{
+                    error = `Field "${name}" Not found`;
+                  }
                 }
               }
             });

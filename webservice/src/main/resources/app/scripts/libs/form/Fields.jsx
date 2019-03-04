@@ -75,15 +75,25 @@ export class BaseField extends Component {
             </OverlayTrigger>;
   }
 
+  toggleModal = () => {
+    $('.customFormClass').toggleClass('expanded');
+    $('.fa').toggleClass('fa-compress fa-expand');
+  }
+
   render() {
     const {className} = this.props;
     const labelHint = this.props.fieldJson.hint || null;
+    const showMaxBtn = this.props.fieldJson.type === 'sql';
     return (
       <FormGroup className={className}>
         {labelHint !== null && labelHint.toLowerCase().indexOf("hidden") !== -1
           ? ''
           : this.getLabel()
-}
+        }
+        {showMaxBtn ? <button type="button" className="pull-right btn btn-link btn-xs" onClick={this.toggleModal}>
+          <i className="fa fa-expand"></i>
+          </button>
+        : null}
         {this.getField()}
         <p className="text-danger">{this.context.Form.state.Errors[this.props.valuePath]}</p>
       </FormGroup>
@@ -477,13 +487,13 @@ export class sql extends BaseField {
       placeHolder=" "
       editMode={true}
       width="100%"
-      height={height}
       editMode={false}
       modeOptions={{
         readOnly: this.context.Form.props.readOnly,
         mode:"text/x-sql",
         hint: CodeMirror.hint.sql,
-        hintOptions:fieldJson.hintOptions || []
+        hintOptions:fieldJson.hintOptions || [],
+        viewportMargin: Infinity
       }}
       hintOptions={fieldJson.hintOptions}
     /></div>;

@@ -264,6 +264,7 @@ export default class SourceNodeForm extends Component {
     this.nodeData.name = name;
     if (this.nodeData.outputStreams.length > 0) {
       this.nodeData.outputStreams[0].fields = this.streamObj.fields;
+      this.nodeData.outputStreams[0].streamId = this.streamObj.streamId;
     } else {
       this.nodeData.outputStreams.push({fields: this.streamObj.fields, streamId: this.streamObj.streamId, topologyId: topologyId});
     }

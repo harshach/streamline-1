@@ -153,7 +153,7 @@ export default class Metrics extends Component{
             isDisabled={!isAppRunning}
             datePickerCallback={datePickerCallback}
           />
-          <DropdownButton className="btn-default" pullRight title={selectedDataCenter} id="version-dropdown" onSelect={(n) => {
+          <DropdownButton className="btn-default" pullRight title={selectedDataCenter || ''} id="version-dropdown" onSelect={(n) => {
             handleDataCenterChange(n);
           }} >
             {_.map(dataCenterList, (n, i) => {
@@ -207,9 +207,9 @@ export default class Metrics extends Component{
               </div>
             </div>
             {_.chunk(timeseriesTemplate, 3).map((templatesArr, index)=>{
-              return(<Tabs id={"timeseries-metrics-tabs-"+index} className="timeseries-metrics-tabs" mountOnEnter={true}>
-                {templatesArr.map((template, index)=>{
-                  return(<Tab eventKey={index+1} title={template.uiName}>
+              return(<Tabs id={"timeseries-metrics-tabs-"+index} className="timeseries-metrics-tabs" mountOnEnter={true} key={index}>
+                {templatesArr.map((template, i)=>{
+                  return(<Tab eventKey={i+1} title={template.uiName} key={"tab-"+i}>
                     <div className="metrics-timeseries-graph" style={{height: '160px'}}>
                       {this.renderGraph(viewModeData.selectedComponentId, template.name)}
                     </div>

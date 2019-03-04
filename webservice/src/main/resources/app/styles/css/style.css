@@ -3315,7 +3315,19 @@ span.alpha-badge {
 }
 
 .customFormClass {
-  padding: 0 20px 0 0;
+  padding: 0 10px 0 0;
+}
+
+.customFormClass.expanded {
+  position: fixed;
+  width: 1170px;
+  height: 730px;
+  top: 0px;
+  left: 50%;
+  margin-left: -585px;
+  padding: 10px;
+  z-index: 1080;
+  background-color: #f7f7f7;
 }
 
 .btnDrag-wrapper {
@@ -5322,6 +5334,12 @@ div.actions-list > div > ul > li > span.logsearchLink{
   min-height: 60px;
   max-height: 400px;
 }
+.customFormClass .CodeMirror{
+  min-height: 400px;
+}
+.customFormClass.expanded .CodeMirror{
+  max-height: 650px;
+}
 
 .cm-s-panel{
   border-radius: 0px 0px 4px 4px;
@@ -5330,6 +5348,9 @@ div.actions-list > div > ul > li > span.logsearchLink{
 div.CodeMirror-scroll{
   min-height: 60px;
   max-height: 400px;
+}
+.customFormClass.expanded div.CodeMirror-scroll{
+  max-height: 650px;
 }
 
 .projection-codemirror > .CodeMirror{

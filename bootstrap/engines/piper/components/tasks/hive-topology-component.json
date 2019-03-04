@@ -24,6 +24,7 @@
                 "uiName": "Hive Query",
                 "fieldName": "task_params.hql",
                 "tooltip": "Query to Run",
+                "defaultValue": "INSERT OVERWRITE TABLE table1 PARTITION(datestr) SELECT column1, column2 FROM table2 WHERE datestr='{{ds}}';",
                 "isOptional": false,
                 "type": "sql",
                 "height": "200"

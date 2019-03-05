@@ -273,7 +273,23 @@ public class StreamCatalogService {
     }
 
     public Collection<EngineMetricsBundle> listEngineMetricsBundles() {
-       return dao.find(ENGINE_METRICS_BUNDLE_NAMESPACE, null);
+        return listEngineMetricsBundles(new ArrayList<QueryParam>());
+    }
+
+    public Collection<EngineMetricsBundle> listEngineMetricsBundles(List<QueryParam>queryParams) {
+        Collection<EngineMetricsBundle> results = dao.find(ENGINE_METRICS_BUNDLE_NAMESPACE, queryParams);
+        return results;
+    }
+
+    public EngineMetricsBundle getEngineMetricsBundle(Long engineId) {
+        Engine engine = getEngine(engineId);
+        List<QueryParam> queryParams = new ArrayList<>();
+        queryParams.add(new QueryParam(EngineMetricsBundle.ENGINE, engine.getName()));
+        Collection<EngineMetricsBundle> bundles = listEngineMetricsBundles(queryParams);
+        if (bundles.size() >= 1) {
+            return bundles.iterator().next();
+        }
+        return null;
     }
 
     public Collection<Template> listTemplates(List<QueryParam> queryParams) { return dao.find(TEMPLATE_NAMESPACE, queryParams);}

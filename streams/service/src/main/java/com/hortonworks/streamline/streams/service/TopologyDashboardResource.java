@@ -42,7 +42,7 @@ import static javax.ws.rs.core.Response.Status.OK;
 
 @Path("/v1/catalog")
 @Produces(MediaType.APPLICATION_JSON)
-public class TopologyDashboardResource {
+public class    TopologyDashboardResource {
     private static final Logger LOG = LoggerFactory.getLogger(TopologyDashboardResource.class);
 
     private static final String DEFAULT_SORT_TYPE = LAST_UPDATED.name();

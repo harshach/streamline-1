@@ -51,7 +51,6 @@ import java.util.Map;
 import java.util.concurrent.ForkJoinPool;
 
 import static com.hortonworks.streamline.streams.security.Permission.READ;
-import static com.hortonworks.streamline.streams.security.Permission.WRITE;
 import static java.util.stream.Collectors.toMap;
 import static javax.ws.rs.core.Response.Status.OK;
 
@@ -85,7 +84,7 @@ public class MetricsResource {
         Topology topology = catalogService.getTopology(id);
         if (topology != null) {
             String asUser = WSUtils.getUserFromSecurityContext(securityContext);
-            Map<String, TopologyMetrics.ComponentMetric> topologyMetrics = metricsService.getTopologyMetrics(topology,
+            Map<String, TopologyMetrics.ComponentMetric> topologyMetrics = metricsService.getComponentMetrics(topology,
                     topology.getNamespaceId(), asUser);
             return WSUtils.respondEntity(topologyMetrics, OK);
         }

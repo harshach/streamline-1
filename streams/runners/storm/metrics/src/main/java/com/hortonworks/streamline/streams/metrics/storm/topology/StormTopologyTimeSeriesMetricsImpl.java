@@ -16,6 +16,8 @@
 package com.hortonworks.streamline.streams.metrics.storm.topology;
 
 import com.hortonworks.streamline.common.util.ParallelStreamUtil;
+import com.hortonworks.streamline.streams.catalog.Topology;
+import com.hortonworks.streamline.streams.catalog.TopologyComponent;
 import com.hortonworks.streamline.streams.layout.TopologyLayoutConstants;
 import com.hortonworks.streamline.streams.layout.component.Component;
 import com.hortonworks.streamline.streams.layout.component.Source;
@@ -29,13 +31,11 @@ import com.hortonworks.streamline.streams.storm.common.StormTopologyUtil;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 import java.util.concurrent.ForkJoinPool;
 
 import static java.util.stream.Collectors.toMap;
-import static com.hortonworks.streamline.streams.storm.common.StormRestAPIConstant.*;
 
 
 /**
@@ -137,6 +137,30 @@ public class StormTopologyTimeSeriesMetricsImpl implements TopologyTimeSeriesMet
                 FORK_JOIN_POOL);
 
         return buildTimeSeriesComponentMetric(component.getName(), componentStats);
+    }
+
+    @Override
+    public Map<Long, Double> getTopologyTimeSeriesMetrics(Topology topology, String metricKeyName,
+                                                          Map<String, String> metricQueryParams,
+                                                          long from, long to, String asUser) {
+
+        throw new UnsupportedOperationException("getTopologyTimeSeriesMetrics not implemented");
+    }
+
+    @Override
+    public Map<Long, Map<Long, Double>> getComponentTimeSeriesMetrics(Topology topology, String metricKeyName,
+                                                                      Map<String, String> metricQueryParams,
+                                                                      long from, long to, String asUser) {
+
+        throw new UnsupportedOperationException("getComponentTimeSeriesMetrics not implemented");
+    }
+
+    @Override
+    public Map<Long, Double> getComponentTimeSeriesMetrics(Topology topology, TopologyComponent topologyComponent, String metricKeyName,
+                                                           Map<String, String> metricQueryParams,
+                                                           long from, long to, String asUser) {
+
+        throw new UnsupportedOperationException("getComponentTimeSeriesMetrics not implemented");
     }
 
     private TimeSeriesComponentMetric buildTimeSeriesComponentMetric(String name, Map<String, Map<Long, Double>> stats) {

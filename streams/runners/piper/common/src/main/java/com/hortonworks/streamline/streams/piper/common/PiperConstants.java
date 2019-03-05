@@ -35,6 +35,8 @@ public class PiperConstants {
     public static final String PIPER_METRIC_LATEST_EXECUTION_DATE = "latestExecutionDate";
     public static final String PIPER_METRIC_LATEST_EXECUTION_STATUS = "latestExecutionStatus";
 
+    public static final String PIPER_OFFLINE = "Piper Offline";
+
 
     public static final String X_UBER_ORIGIN = "X-Uber-Origin";
     public static final String X_UBER_SOURCE = "X-Uber-Source";

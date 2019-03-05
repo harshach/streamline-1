@@ -16,11 +16,12 @@
 package com.hortonworks.streamline.streams.metrics.storm.topology;
 
 import com.hortonworks.streamline.streams.catalog.Engine;
+import com.hortonworks.streamline.streams.catalog.Topology;
+import com.hortonworks.streamline.streams.catalog.TopologyComponent;
 import com.hortonworks.streamline.streams.cluster.catalog.ComponentProcess;
 import com.hortonworks.streamline.streams.cluster.catalog.Namespace;
 import com.hortonworks.streamline.streams.cluster.catalog.Service;
 import com.hortonworks.streamline.streams.cluster.discovery.ambari.ComponentPropertyPattern;
-import com.hortonworks.streamline.streams.cluster.service.EnvironmentService;
 
 import com.hortonworks.streamline.streams.metrics.topology.service.TopologyCatalogHelperService;
 import org.apache.commons.lang3.StringUtils;
@@ -88,7 +89,7 @@ public class StormTopologyMetricsImpl implements TopologyMetrics {
      */
     @Override
     public void init(Engine engine, Namespace namespace, TopologyCatalogHelperService topologyCatalogHelperService,
-                     Subject subject) throws ConfigException {
+                     Map<String, Object> configuration, Subject subject) throws ConfigException {
 
         this.subject = subject;
         this.namespace = namespace;
@@ -131,7 +132,7 @@ public class StormTopologyMetricsImpl implements TopologyMetrics {
      * {@inheritDoc}
      */
     @Override
-    public TopologyMetric getTopologyMetric(TopologyLayout topology, String asUser) {
+    public TopologyMetric getTopologyMetric(Topology topology, String asUser) {
         String topologyId = StormTopologyUtil.findStormTopologyId(client, topology.getId(), asUser);
         if (StringUtils.isEmpty(topologyId)) {
             throw new TopologyNotAliveException("Topology not found in Storm Cluster - topology id: " + topology.getId());
@@ -192,7 +193,7 @@ public class StormTopologyMetricsImpl implements TopologyMetrics {
      * {@inheritDoc}
      */
     @Override
-    public Map<String, ComponentMetric> getMetricsForTopology(TopologyLayout topology, String asUser) {
+    public Map<String, ComponentMetric> getComponentMetrics(Topology topology, String asUser) {
         String topologyId = StormTopologyUtil.findStormTopologyId(client, topology.getId(), asUser);
         if (StringUtils.isEmpty(topologyId)) {
             throw new TopologyNotAliveException("Topology not found in Storm Cluster - topology id: " + topology.getId());
@@ -257,6 +258,43 @@ public class StormTopologyMetricsImpl implements TopologyMetrics {
     public TimeSeriesComponentMetric getComponentStats(TopologyLayout topology, Component component, long from, long to, String asUser) {
         return timeSeriesMetrics.getComponentStats(topology, component, from, to, asUser);
     }
+
+    @Override
+    public Map<Long, Double> getTopologyTimeSeriesMetrics(Topology topology, String metricKeyName,
+                                                          Map<String, String> metricQueryParams,
+                                                          long from, long to, String asUser) {
+        return timeSeriesMetrics.getTopologyTimeSeriesMetrics(
+                topology, metricKeyName, metricQueryParams, from, to, asUser);
+    }
+
+    @Override
+    public Map<Long, Map<Long, Double>> getComponentTimeSeriesMetrics(Topology topology, String metricKeyName,
+                                                                      Map<String, String> metricQueryParams,
+                                                                      long from, long to, String asUser) {
+        return timeSeriesMetrics.getComponentTimeSeriesMetrics(
+                topology, metricKeyName, metricQueryParams, from, to, asUser);
+    }
+
+    @Override
+    public Map<Long, Double> getComponentTimeSeriesMetrics(Topology topology, TopologyComponent topoloyComponent,
+                                                           String metricKeyName, Map<String, String> metricQueryParams,
+                                                           long from, long to, String asUser) {
+        return timeSeriesMetrics.getComponentTimeSeriesMetrics(
+                topology, topoloyComponent, metricKeyName, metricQueryParams, from, to, asUser);
+    }
+
+    /** Batch Metric Interface - unimplemented **/
+    @Override
+    public Map<String, Object> getExecution(Topology topology, String executionDate, String asUser) {
+        throw new UnsupportedOperationException("getExecution not implemented");
+    }
+
+    @Override
+    public Map<String, Object> getExecutions(Topology topology, Long from, Long to,
+                                      Integer page, Integer pageSize, String asUser) {
+        throw new UnsupportedOperationException("getExecutions not implemented");
+    }
+
 
     private long getErrorCountFromAllComponents(String topologyId, List<Map<String, ?>> spouts, List<Map<String, ?>> bolts, String asUser) {
         LOG.debug("[START] getErrorCountFromAllComponents - topology id: {}, asUser: {}", topologyId, asUser);

@@ -1,5 +1,6 @@
 package com.hortonworks.streamline.streams.metrics.piper.topology;
 
+import com.hortonworks.streamline.common.MetricsUISpec;
 import com.hortonworks.streamline.common.exception.ConfigException;
 import com.hortonworks.streamline.common.util.WSUtils;
 import com.hortonworks.streamline.streams.catalog.Engine;
@@ -13,7 +14,6 @@ import com.hortonworks.streamline.streams.cluster.register.impl.PiperServiceRegi
 import com.hortonworks.streamline.streams.layout.component.Component;
 import com.hortonworks.streamline.streams.layout.component.TopologyLayout;
 import com.hortonworks.streamline.streams.metrics.TimeSeriesQuerier;
-import com.hortonworks.streamline.streams.metrics.M3MetricsQuerier;
 import com.hortonworks.streamline.streams.metrics.topology.TopologyMetrics;
 import com.hortonworks.streamline.streams.metrics.topology.service.TopologyCatalogHelperService;
 import com.hortonworks.streamline.streams.piper.common.PiperRestAPIClient;
@@ -26,6 +26,7 @@ import javax.security.auth.Subject;
 import java.io.IOException;
 import java.util.*;
 
+import static com.hortonworks.streamline.streams.metrics.TopologyMetricsFactory.METRICS_UI_SPEC;
 import static com.hortonworks.streamline.streams.piper.common.PiperConstants.PIPER_ROOT_URL_KEY;
 import static com.hortonworks.streamline.streams.piper.common.PiperConstants.PIPER_SERVICE_CONFIG_NAME;
 import static com.hortonworks.streamline.streams.piper.common.PiperConstants.PIPER_SERVICE_CONFIG_KEY_HOST;
@@ -51,6 +52,7 @@ public class PiperTopologyMetricsImpl implements TopologyMetrics {
 	private TopologyCatalogHelperService topologyCatalogHelperService;
 	private TimeSeriesQuerier timeSeriesQuerier;
 	private Namespace namespace;
+	private Map<String, Object> configuration;
 
 	// Piper JSON API keys
 	private static final String STATE_KEY_SCHEDULE_INTERVAL = "schedule_interval";
@@ -110,60 +112,40 @@ public class PiperTopologyMetricsImpl implements TopologyMetrics {
     private static final String TRIGGERED_TYPE = "triggered";
 
 
-    @Override
-	public void setTimeSeriesQuerier(TimeSeriesQuerier timeSeriesQuerier) {
-        this.timeSeriesQuerier = timeSeriesQuerier;
-	}
 
-	@Override
-	public TimeSeriesComponentMetric getTopologyStats(TopologyLayout topology, long from, long to, String asUser) {
-		return null;
-	}
-
-	@Override
-	public Map<Long, Double> getCompleteLatency(TopologyLayout topology, Component component, long from, long to, String asUser) {
-		return null;
-	}
-
-	@Override
-	public Map<String, Map<Long, Double>> getkafkaTopicOffsets(TopologyLayout topology, Component component, long from, long to, String asUser) {
-		return null;
-	}
-
-	@Override
-	public TimeSeriesComponentMetric getComponentStats(TopologyLayout topology, Component component, long from, long to, String asUser) {
-		return null;
-	}
-
-	@Override
-	public TimeSeriesQuerier getTimeSeriesQuerier() {
-		return this.timeSeriesQuerier;
-	}
+    /**
+     * TopologyMetrics Interface Implementation
+     *
+     *     init
+     *     getTopologyMetric
+     *     getComponentMetrics
+     *     getExecution
+     *     getExecutions
+     */
 
     @Override
-	public void init(Engine engine, Namespace namespace, TopologyCatalogHelperService topologyCatalogHelperService,
-					 Subject subject) throws ConfigException {
+    public void init(Engine engine, Namespace namespace, TopologyCatalogHelperService topologyCatalogHelperService,
+                     Map<String, Object> configuration, Subject subject) throws ConfigException {
 
-		this.topologyCatalogHelperService = topologyCatalogHelperService;
-		Map<String, Object> piperConf = buildPiperTopologyMetricsConfigMap(namespace, engine);
-		String piperAPIRootUrl = (String) piperConf.get(PIPER_ROOT_URL_KEY);
-		this.client = new PiperRestAPIClient(piperAPIRootUrl, subject);
-		this.namespace = namespace;
-	}
-
-	@Override
-	// FIXME we could use this for getExecutions if it accepted params
-	// FIXME Workaround pending T2184545
-	public TopologyMetric getTopologyMetric(TopologyLayout topologyLayout, String asUser) {
-        Topology topology = getTopologyForLayout(topologyLayout);
-        return getTopologyMetric(topologyLayout, topology.getNamespaceId(), asUser);
+        this.topologyCatalogHelperService = topologyCatalogHelperService;
+        Map<String, Object> piperConf = buildPiperTopologyMetricsConfigMap(namespace, engine);
+        String piperAPIRootUrl = (String) piperConf.get(PIPER_ROOT_URL_KEY);
+        this.client = new PiperRestAPIClient(piperAPIRootUrl, subject);
+        this.namespace = namespace;
+        this.configuration = configuration;
     }
 
-    public TopologyMetric getTopologyMetric(TopologyLayout topologyLayout, Long namespaceId, String asUser) {
+    /**
+     * Returns Pipeline State (paused, active, next run) and status of latest run.
+     *
+     * Piper Integration: /api/v1/pipeline/state
+     */
+
+    @Override
+    public TopologyMetric getTopologyMetric(Topology topology, String asUser) {
         Map<String, Object> metrics = new HashMap<>();
 
-        Topology topology = getTopologyForLayout(topologyLayout);
-		String runtimeId = getRuntimeTopologyId(topology, namespaceId);
+		String runtimeId = getRuntimeTopologyId(topology);
 		if (runtimeId != null) {
             Map response = client.getDetailedPipelineState(runtimeId);
             String runtimeStatus = PiperUtil.getRuntimeStatus(response);
@@ -190,17 +172,23 @@ public class PiperTopologyMetricsImpl implements TopologyMetrics {
                 metrics.put(PIPER_METRIC_NEXT_EXECUTION_DATE, null);
                 metrics.put(PIPER_METRIC_TRIGGERED_PIPELINE_RUN_NAME, null);
             }
-
         }
 
 		return new TopologyMetric(PIPER_METRIC_FRAMEWORK, topology.getName(), metrics);
 	}
 
+    /**
+     * Returns latest Pipeline run, with detailed status for each task.
+     *
+     * Piper Integration:
+     *
+     *      /api/v1/pipeline/state
+     *      /api/v1/pipeline/task_graph
+     */
 	@Override
-	public Map<String, ComponentMetric> getMetricsForTopology(TopologyLayout topologyLayout, String asUser) {
+	public Map<String, ComponentMetric> getComponentMetrics(Topology topology, String asUser) {
         Map<String, ComponentMetric> metricMap = new HashMap<>();
 
-        Topology topology = getTopologyForLayout(topologyLayout);
         String runtimeId = getRuntimeTopologyId(topology);
         if (runtimeId != null) {
 
@@ -208,7 +196,7 @@ public class PiperTopologyMetricsImpl implements TopologyMetrics {
             String latestExecutionDate = (String) response.get(STATE_KEY_EXECUTION_DATE);
 
             if (latestExecutionDate != null) {
-                Map<String, Object> execution = getExecution(topologyLayout,latestExecutionDate);
+                Map<String, Object> execution = getExecution(topology,latestExecutionDate, asUser);
                 List<Map<String, Object>> componentList = (List) execution.get(PIPER_METRIC_COMPONENTS);
                 for(Map component: componentList) {
                     Long componentId = (Long) component.get(PIPER_METRIC_COMPONENT_ID);
@@ -220,12 +208,17 @@ public class PiperTopologyMetricsImpl implements TopologyMetrics {
         return metricMap;
 	}
 
-	public Map<String, Object> getExecution(TopologyLayout topologyLayout, String executionDate) {
+    /**
+     * Returns Pipeline run by date (effectively id), with detailed status for each task.
+     *
+     * Piper Integration:  /api/v1/pipeline/task_graph
+     */
+    @Override
+	public Map<String, Object> getExecution(Topology topology, String executionDate, String asUser) {
 
 		List<Object> componentMetrics = new ArrayList<>();
         Map<String, Object> result = new HashMap<>();
 
-        Topology topology = getTopologyForLayout(topologyLayout);
         String runtimeId = getRuntimeTopologyId(topology);
         if (runtimeId != null) {
 
@@ -264,11 +257,18 @@ public class PiperTopologyMetricsImpl implements TopologyMetrics {
 
 	}
 
-	public Map<String, Object> getExecutions(TopologyLayout topologyLayout, Long from, Long to, Integer page, Integer pageSize) {
+    /**
+     * Returns Pipeline runs (concise) for date range ordered by most recent.
+     *
+     * Piper Integration:  /api/v1/pipeline/runs/search
+     */
+
+    @Override
+	public Map<String, Object> getExecutions(Topology topology, Long from, Long to, Integer page,
+                                             Integer pageSize, String asUser) {
 		Map<String, Object> result = new HashMap<>();
 		ArrayList<Object> topologyMetrics = new ArrayList<Object>();
 
-        Topology topology = getTopologyForLayout(topologyLayout);
         String runtimeId = getRuntimeTopologyId(topology);
 
         if (runtimeId != null) {
@@ -296,17 +296,64 @@ public class PiperTopologyMetricsImpl implements TopologyMetrics {
 		return result;
 	}
 
-    public Map<Long, Object> getTimeSeriesMetrics(Topology topology, String metricKeyName,
-        String metricQueryFormat, Map<String, String> clientMetricParams, long from, long to, String asUser) {
+    /**
+     * TimeSeriesMetric Interface Implementation
+     *
+     *      setTimeSeriesQuerier
+     *      getTimeSeriesQuerier
+     *      getTopologyTimeSeriesMetrics
+     *      getComponentTimeSeriesMetrics - all
+     *      getComponentTimeSeriesMetrics - single
+     */
 
-        Map<Long, Object> results = new HashMap<>();
+    @Override
+    public void setTimeSeriesQuerier(TimeSeriesQuerier timeSeriesQuerier) {
+        this.timeSeriesQuerier = timeSeriesQuerier;
+    }
 
-        Map<String, String> metricParams = getServerSubstitutionParams(topology);
+    @Override
+    public TimeSeriesQuerier getTimeSeriesQuerier() {
+        return this.timeSeriesQuerier;
+    }
 
-        // merge (overwrite) params from client
-        for (Map.Entry<String,String> entry : clientMetricParams.entrySet()) {
-            metricParams.put(entry.getKey(), (entry.getValue()));
-        }
+    /**
+     * Returns M3 timeseries data for pipeline level metrics
+     *
+     * Piper Integration:  /api/v1/pipeline/runs/search
+     */
+
+    @Override
+    public Map<Long, Double> getTopologyTimeSeriesMetrics(Topology topology, String metricKeyName,
+                                                          Map<String, String> metricQueryParams,
+                                                          long from, long to, String asUser) {
+
+        String metricQueryFormat = getMetricQueryFormat(metricKeyName);
+
+        // merge (overwrite) server params with params from client
+        Map<String, String> metricParams = merge(getServerSubstitutionParams(topology), metricQueryParams);
+
+        Map<String, Map<Long, Double>> metricsByTag =
+                this.timeSeriesQuerier.getMetricsByTag(metricQueryFormat, metricParams, from, to);
+
+        return metricsByTag.get(topology.getName().toLowerCase());  // M3 downcases all tags
+    }
+
+    /**
+     * Returns M3 timeseries data for task level metrics
+     *
+     * Piper Integration:  /api/v1/pipeline/runs/search
+     */
+
+    @Override
+    public Map<Long, Map<Long, Double>> getComponentTimeSeriesMetrics(Topology topology, String metricKeyName,
+                                                                      Map<String, String> metricQueryParams,
+                                                                      long from, long to, String asUser) {
+        Map<Long, Map<Long, Double>> results = new HashMap<>();
+
+        String metricQueryFormat = getMetricQueryFormat(metricKeyName);
+
+        // merge (overwrite) server params with params from client
+        Map<String, String> metricParams = merge(getServerSubstitutionParams(topology), metricQueryParams);
 
         Map<String, Map<Long, Double>> metricsByTag =
                 this.timeSeriesQuerier.getMetricsByTag(metricQueryFormat, metricParams, from, to);
@@ -315,37 +362,82 @@ public class PiperTopologyMetricsImpl implements TopologyMetrics {
 
         if (components != null) {
             for (TopologyComponent component : components) {
-                Object metrics = metricsByTag.get(component.getName().toLowerCase());  // M3 downcases all tags
+                Map<Long, Double> metrics = metricsByTag.get(component.getName().toLowerCase());  // M3 downcases all tags
                 results.put(component.getId(), metrics);
             }
         }
         return results;
     }
 
-	private Topology getTopologyForLayout(TopologyLayout topologyLayout) {
-        Topology topology = topologyCatalogHelperService.getTopology(topologyLayout.getId());
-        if (topology == null) {
-            throw new IllegalStateException("Topology not found topology id:" + topologyLayout.getId());
-        }
-        return topology;
+    /**
+     * Returns M3 timeseries data for an individual task
+     *
+     * Piper Integration:  /api/v1/pipeline/runs/search
+     */
+
+    @Override
+    public Map<Long, Double> getComponentTimeSeriesMetrics(Topology topology, TopologyComponent topologyComponent,
+                                                           String metricKeyName, Map<String, String> metricQueryParams,
+                                                           long from, long to, String asUser) {
+        String metricQueryFormat = getMetricQueryFormat(metricKeyName);
+
+        // merge (overwrite) server params with params from client
+        Map<String, String> metricParams = merge(getServerSubstitutionParams(topology), metricQueryParams);
+
+        Map<String, Map<Long, Double>> metricsByTag =
+                this.timeSeriesQuerier.getMetricsByTag(metricQueryFormat, metricParams, from, to);
+
+        return metricsByTag.get(topologyComponent.getName().toLowerCase());  // M3 downcases all tags
     }
 
-    private String getRuntimeTopologyId(Topology topology, Long namespaceId) {
-        String runtimeId = null;
-        TopologyRuntimeIdMap topologyRuntimeIdMap =
-                topologyCatalogHelperService.getTopologyRuntimeIdMap(
-                        topology.getId(), namespaceId);
-        if (topologyRuntimeIdMap != null) {
-            runtimeId = topologyRuntimeIdMap.getApplicationId();
-        }
-        return runtimeId;
+    /**
+     * Deprecated TimeSeriesMetric methods
+     *
+     *      getTopologyStats
+     *      getComponentStats
+     *      getCompleteLatency
+     *      getkafkaTopicOffsets
+     */
+
+    @Override
+    public TimeSeriesComponentMetric getTopologyStats(TopologyLayout topology, long from, long to, String asUser) {
+        throw new UnsupportedOperationException("getTopologyStats not implemented");
+    }
+
+    @Override
+    public TimeSeriesComponentMetric getComponentStats(TopologyLayout topology, Component component, long from, long to, String asUser) {
+        throw new UnsupportedOperationException("getComponentStats not implemented");
+    }
+
+    @Override
+    public Map<Long, Double> getCompleteLatency(TopologyLayout topology, Component component, long from, long to, String asUser) {
+        throw new UnsupportedOperationException("getCompleteLatency not implemented");
+    }
+
+    @Override
+    public Map<String, Map<Long, Double>> getkafkaTopicOffsets(TopologyLayout topology, Component component, long from, long to, String asUser) {
+        throw new UnsupportedOperationException("getkafkaTopicOffsets not implemented");
+    }
+
+    /**
+     * Private Methods
+     */
+
+    private String getMetricQueryFormat(String metricKeyName) {
+        MetricsUISpec metricsUISpec = (MetricsUISpec) configuration.get(METRICS_UI_SPEC);
+        MetricsUISpec.TimeseriesMetricField metricField =
+                metricsUISpec.getTimeseries().stream()
+                .filter( field -> field.getName().equals(metricKeyName))
+                .findFirst()
+                .orElse(null);
+
+        return metricField != null ? metricField.getMetricQuery() : null;
     }
 
 	private String getRuntimeTopologyId(Topology topology) {
 	    String runtimeId = null;
         TopologyRuntimeIdMap topologyRuntimeIdMap =
-                topologyCatalogHelperService.getTopologyRuntimeIdMap(
-                        topology.getId(), topology.getNamespaceId());
+                topologyCatalogHelperService.getTopologyRuntimeIdMap(topology.getId(), namespace.getId());
         if (topologyRuntimeIdMap != null) {
             runtimeId = topologyRuntimeIdMap.getApplicationId();
         }
@@ -375,6 +467,14 @@ public class PiperTopologyMetricsImpl implements TopologyMetrics {
         params.put("env", environment);
         params.put("deployment", environment);
         return params;
+    }
+
+    private Map<String, String> merge(Map<String, String> serverParams, Map<String, String> clientParams)  {
+        // merge (overwrite) server params with params from client
+        for (Map.Entry<String,String> entry : clientParams.entrySet()) {
+            serverParams.put(entry.getKey(), (entry.getValue()));
+        }
+        return serverParams;
     }
 
     // Piper m3 metrics use an environment tag that seems to map 1:1

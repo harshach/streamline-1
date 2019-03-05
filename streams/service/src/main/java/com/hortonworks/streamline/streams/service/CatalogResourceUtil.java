@@ -24,15 +24,11 @@ import com.hortonworks.streamline.streams.cluster.catalog.Namespace;
 import com.hortonworks.streamline.streams.cluster.catalog.NamespaceServiceClusterMap;
 import com.hortonworks.streamline.streams.catalog.service.StreamCatalogService;
 import com.hortonworks.streamline.streams.cluster.service.EnvironmentService;
-import com.hortonworks.streamline.streams.layout.component.Stream;
-import com.hortonworks.streamline.streams.layout.component.TopologyLayout;
-import com.hortonworks.streamline.streams.metrics.piper.topology.PiperTopologyMetricsImpl;
 import com.hortonworks.streamline.streams.metrics.topology.TopologyMetrics;
 import com.hortonworks.streamline.streams.metrics.topology.service.TopologyMetricsService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 
@@ -129,6 +125,7 @@ public final class CatalogResourceUtil {
                 TopologyMetrics.TopologyMetric topologyMetric = metricsService.getTopologyMetric(topology,
                         topology.getNamespaceId(), asUser);
                 detailedResponse = new TopologyDashboardResponse(topology);
+
                 Map<String, TopologyRuntimeResponse> namespaces = new HashMap<>();
                 TopologyRuntimeResponse runtimeResponse = new TopologyRuntimeResponse(namespaceName,runtimeTopologyId, topologyMetric);
                 // TODO: to fix this by adding a method or refactor
@@ -145,20 +142,7 @@ public final class CatalogResourceUtil {
                 detailedResponse = new TopologyDashboardResponse(topology);
                 Map<String, TopologyRuntimeResponse> namespaces = new HashMap<>();
                 TopologyRuntimeResponse runtimeResponse = new TopologyRuntimeResponse(namespaceName, "", null);
-                runtimeResponse.setStatus(new TopologyActions.Status() {
-                    @Override
-                    public String getStatus() { return "Unknown"; }
-                    @Override
-                    public Long getNamespaceId() { return topology.getNamespaceId(); }
-                    @Override
-                    public String getNamespaceName() { return namespaceName; }
-                    @Override
-                    public String getRuntimeAppId() { return "Unknown"; }
-                    @Override
-                    public String getRuntimeAppUrl() { return ""; }
-                    @Override
-                    public Map<String, String> getExtra() { return null; }
-                });
+                runtimeResponse.setStatus(actionsService.getErrorStatus(topology, namespace.getId(), e));
                 namespaces.put(namespaceName, runtimeResponse);
                 detailedResponse.setNamespaces(namespaces);
             }
@@ -181,61 +165,35 @@ public final class CatalogResourceUtil {
         TopologyDashboardResponse detailedResponse = new TopologyDashboardResponse(topology);
         Map<String, TopologyRuntimeResponse> namespaces = new HashMap<>();
 
-        //TopologyDeployment deployment = CatalogToDeploymentConverter.getTopologyDeployment(topology);
-        TopologyLayout topologyLayout = CatalogToLayoutConverter.getTopologyLayout(topology);
-        Collection<TopologyRuntimeIdMap> runtimeInstances = actionsService.getRuntimeTopologyId(topology);
-
-        // FIXME undeployed is a normal state, we should have way to handle and return something sensible
-        if (runtimeInstances == null || runtimeInstances.size() == 0) {
-            throw new Exception("Topology has no deployed runtime instances");
-        }
 
         List<TopologyActions.Status> statuses = actionsService.topologyStatus(topology, asUser);
         if (statuses == null || statuses.size() == 0) {
             throw new Exception("Topology has no status");
         }
 
-        for (TopologyRuntimeIdMap runtimeInstance: runtimeInstances) {
+        for (TopologyActions.Status status : statuses) {
 
-            Long namespaceId = runtimeInstance.getNamespaceId();
-            String runtimeTopologyId = runtimeInstance.getApplicationId();
-
+            Long namespaceId = status.getNamespaceId();
+            String runtimeAppId = status.getRuntimeAppId();
             String namespaceName = CatalogResourceUtil.getNamespaceName(namespaceId, environmentService);
 
             try {
 
-                // FIXME T2184621 remove hack, need interface updates
-                PiperTopologyMetricsImpl topologyMetrics = (PiperTopologyMetricsImpl)
-                        metricsService.getTopologyMetricsInstanceHack(topology, namespaceId);
+                TopologyMetrics.TopologyMetric topologyMetric = null;
 
-                TopologyMetrics.TopologyMetric topologyMetric = topologyMetrics.getTopologyMetric(
-                        topologyLayout, namespaceId, asUser);
-
-                TopologyRuntimeResponse runtimeResponse = new TopologyRuntimeResponse(
-                        namespaceName, runtimeTopologyId, topologyMetric);
-
-                TopologyActions.Status status = pluckTopologyStatus(statuses, namespaceId);
+                if (runtimeAppId != null && status.getException() != null) {
+                    try {
+                        topologyMetric = metricsService.getTopologyMetric(topology, namespaceId, asUser);
+                    } catch (Exception e) {
+                        LOG.error("Non fatal error, could not load metric for dashboard", e);
+                    }
+                }
+                TopologyRuntimeResponse runtimeResponse = new TopologyRuntimeResponse(namespaceName, runtimeAppId, topologyMetric);
                 runtimeResponse.setStatus(status);
-
                 namespaces.put(namespaceName, runtimeResponse);
             } catch (Exception e) {
                 TopologyRuntimeResponse runtimeResponse = new TopologyRuntimeResponse(namespaceName, "", null);
-                runtimeResponse.setStatus(new TopologyActions.Status() {
-                    @Override
-                    public String getStatus() { return "Unknown"; }
-                    @Override
-                    public Long getNamespaceId() { return namespaceId; }
-                    @Override
-                    public String getNamespaceName() { return namespaceName; }
-                    @Override
-                    public String getRuntimeAppId() { return "Unknown"; }
-                    @Override
-                    public String getRuntimeAppUrl() { return ""; }
-                    @Override
-                    public Map<String, String> getExtra() {
-                        return null;
-                    }
-                });
+                runtimeResponse.setStatus(actionsService.getErrorStatus(topology, namespaceId, e));
                 namespaces.put(namespaceName, runtimeResponse);
             }
         }
@@ -243,15 +201,6 @@ public final class CatalogResourceUtil {
         detailedResponse.setNamespaces(namespaces);
 
         return detailedResponse;
-    }
-
-    static TopologyActions.Status pluckTopologyStatus(List<TopologyActions.Status> statuses, Long namespaceId) throws Exception{
-        for (TopologyActions.Status status : statuses) {
-            if (namespaceId.equals(status.getNamespaceId())) {
-                return status;
-            }
-        }
-        throw new Exception("Topology has no status for namespaceId" + namespaceId);
     }
 
     static boolean isBatchTopology(Topology topology, StreamCatalogService catalogService) {

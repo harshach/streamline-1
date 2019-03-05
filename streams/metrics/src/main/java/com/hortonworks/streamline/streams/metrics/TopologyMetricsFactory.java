@@ -2,6 +2,7 @@ package com.hortonworks.streamline.streams.metrics;
 
 import com.hortonworks.streamline.common.exception.ConfigException;
 import com.hortonworks.streamline.streams.catalog.Engine;
+import com.hortonworks.streamline.streams.catalog.EngineMetricsBundle;
 import com.hortonworks.streamline.streams.cluster.catalog.Namespace;
 import com.hortonworks.streamline.streams.metrics.topology.TopologyMetrics;
 import com.hortonworks.streamline.streams.metrics.topology.service.TopologyCatalogHelperService;
@@ -14,6 +15,7 @@ import java.util.Map;
 public class TopologyMetricsFactory {
     Map<String, Object> config;
     private final Map<Engine, Map<Namespace, TopologyMetrics>> topologyMetricsMap;
+    public static final String METRICS_UI_SPEC = "metricsUISpec";
 
 
     public TopologyMetricsFactory(Map<String, Object> config) {
@@ -31,8 +33,9 @@ public class TopologyMetricsFactory {
             try {
                 topologyMetricsClazz = engine.getTopologyStatusMetricsClass();
                 if (topologyMetricsClazz != null && !topologyMetricsClazz.isEmpty()) {
+                    Map<String, Object> configuration = buildConfiguration(engine, namespace, topologyCatalogHelperService);
                     topologyMetrics = instantiateTopologyMetrics(topologyMetricsClazz);
-                    topologyMetrics.init(engine, namespace, topologyCatalogHelperService, subject);
+                    topologyMetrics.init(engine, namespace, topologyCatalogHelperService, configuration, subject);
                     String topologyTimeseriesClazz = engine.getTopologyTimeseriesMetricsClass();
                     TimeSeriesQuerier timeSeriesQuerier = instantiateTimeSeriesQuerier(topologyTimeseriesClazz);
                     timeSeriesQuerier.init(engine, namespace, topologyCatalogHelperService, subject, config);
@@ -58,6 +61,17 @@ public class TopologyMetricsFactory {
             ClassNotFoundException, IllegalAccessException, InstantiationException {
         Class<TimeSeriesQuerier> clazz = (Class<TimeSeriesQuerier>) Class.forName(className);
         return clazz.newInstance();
+    }
+
+    private Map<String, Object> buildConfiguration(Engine engine, Namespace namespace,
+                                                   TopologyCatalogHelperService topologyCatalogHelperService) {
+        Map<String, Object> config = new HashMap<>();
+
+        EngineMetricsBundle engineMetricsBundle = topologyCatalogHelperService.getEngineMetricsBundle(engine.getId());
+
+        config.put(METRICS_UI_SPEC, engineMetricsBundle.getMetricsUISpec());
+
+        return config;
     }
 
 

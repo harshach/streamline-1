@@ -43,6 +43,7 @@ import static com.hortonworks.streamline.streams.actions.piper.topology.ManagedP
 import static com.hortonworks.streamline.streams.actions.piper.topology.ManagedPipelineGenerator.PIPER_CONFIG_SELECTED_DATACENTERS;
 import static com.hortonworks.streamline.streams.actions.piper.topology.PiperTopologyActionsBuilder.UWORC_NAMESPACE_ID;
 import static com.hortonworks.streamline.streams.actions.piper.topology.PiperTopologyActionsBuilder.UWORC_NAMESPACE_NAME;
+import static com.hortonworks.streamline.streams.piper.common.PiperConstants.PIPER_OFFLINE;
 import static com.hortonworks.streamline.streams.piper.common.PiperConstants.PIPER_RESPONSE_DATA;
 import static com.hortonworks.streamline.streams.piper.common.PiperConstants.PIPER_RESPONSE_METADATA;
 import static com.hortonworks.streamline.streams.piper.common.PiperConstants.PIPER_ROOT_URL_KEY;
@@ -57,6 +58,7 @@ public class PiperTopologyActionsImpl implements TopologyActions {
     private static final Logger LOG = LoggerFactory.getLogger(PiperTopologyActionsImpl.class);
     private static final String PIPER_RESPONSE_APPLICATION_ID = "pipeline_id";
     private EnvironmentService environmentService;
+    private TopologyActionsService actionsService;
     private Long namespaceId;
     private String namespaceName;
     private String piperUIRootUrl;
@@ -74,6 +76,7 @@ public class PiperTopologyActionsImpl implements TopologyActions {
         this.piperUIRootUrl = (String) conf.get(PIPER_UI_ROOT_URL_KEY);
         this.environmentService = environmentService;
         this.client = new PiperRestAPIClient(piperAPIRootUrl, null);
+        this.actionsService = topologyActionsService;
     }
 
     @Override
@@ -163,8 +166,27 @@ public class PiperTopologyActionsImpl implements TopologyActions {
 
     @Override
     public Status status(TopologyLayout topology, String applicationId, String asUser) throws Exception {
-        Map piperResponse = this.client.getPipelineState(applicationId);
-        return getRuntimeStatus(piperResponse, applicationId);
+        StatusImpl runtimeStatus = new StatusImpl();
+
+        try {
+            Map stateResponse = this.client.getPipelineState(applicationId);
+            String runtimeStatusString = PiperUtil.getRuntimeStatus(stateResponse);
+            runtimeStatus.setStatus(runtimeStatusString);
+            runtimeStatus.putExtra(PIPER_METRIC_LATEST_EXECUTION_DATE,
+                    (String)stateResponse.get(STATE_KEY_EXECUTION_DATE));
+            runtimeStatus.putExtra(PIPER_METRIC_LATEST_EXECUTION_STATUS,
+                    (String)stateResponse.get(STATE_KEY_EXECUTION_STATE));
+        } catch (RuntimeException e){
+            runtimeStatus.setStatus(PIPER_OFFLINE);
+            runtimeStatus.setException(e);
+        }
+        runtimeStatus.setDeploymentStatus(actionsService.getDeploymentState(topology.getId()));
+        runtimeStatus.setNamespaceId(this.namespaceId);
+        runtimeStatus.setNamespaceName(this.namespaceName);
+        runtimeStatus.setRuntimeAppId(applicationId);
+        runtimeStatus.setRuntimeAppUrl(getRuntimeAppUrl(applicationId));
+
+        return runtimeStatus;
     }
 
     @Override
@@ -222,26 +244,6 @@ public class PiperTopologyActionsImpl implements TopologyActions {
 
         deployment.put(PIPER_CONFIG_DATACENTER_CHOICE_MODE, dataCenterChoiceMode);
         return deployment;
-    }
-
-    private Status getRuntimeStatus(Map stateResponse, String runtimeAppId) {
-        StatusImpl runtimeStatus = new StatusImpl();
-
-        if (stateResponse != null) {
-            String runtimeStatusString = PiperUtil.getRuntimeStatus(stateResponse);
-            runtimeStatus.setStatus(runtimeStatusString);
-            runtimeStatus.putExtra(PIPER_METRIC_LATEST_EXECUTION_DATE,
-                    (String)stateResponse.get(STATE_KEY_EXECUTION_DATE));
-            runtimeStatus.putExtra(PIPER_METRIC_LATEST_EXECUTION_STATUS,
-                    (String)stateResponse.get(STATE_KEY_EXECUTION_STATE));
-
-            runtimeStatus.setNamespaceId(this.namespaceId);
-            runtimeStatus.setNamespaceName(this.namespaceName);
-            runtimeStatus.setRuntimeAppId(runtimeAppId);
-            runtimeStatus.setRuntimeAppUrl(getRuntimeAppUrl(runtimeAppId));
-        }
-
-        return runtimeStatus;
     }
 
     private String getRuntimeAppUrl(String runtimeAppId) {

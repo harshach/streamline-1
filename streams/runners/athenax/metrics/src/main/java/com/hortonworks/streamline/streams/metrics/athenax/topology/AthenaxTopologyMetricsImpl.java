@@ -72,7 +72,7 @@ public class AthenaxTopologyMetricsImpl implements TopologyMetrics {
 
     @Override
     public void init(Engine engine, Namespace namespace, TopologyCatalogHelperService topologyCatalogHelperService,
-                     Subject subject) throws ConfigException {
+                     Map<String, Object> configuration, Subject subject) throws ConfigException {
         this.topologyCatalogHelperService = topologyCatalogHelperService;
         this.configMap = getConfigMap(namespace, engine);
 
@@ -83,10 +83,10 @@ public class AthenaxTopologyMetricsImpl implements TopologyMetrics {
     }
 
     @Override
-    public TopologyMetric getTopologyMetric(TopologyLayout topologyLayout, String asUser) throws IOException {
+    public TopologyMetric getTopologyMetric(Topology topology, String asUser) throws IOException {
         Map<String, Object> metrics = new HashMap<>();
 
-        String topologyRuntimeId = getTopologyRuntimeId(topologyLayout);
+        String topologyRuntimeId = getTopologyRuntimeId(topology);
         if (topologyRuntimeId != null) {
             String yarnDataCenter = configMap.get(AthenaxConstants.ATHENAX_YARN_DATA_CENTER_KEY);
             String yarnCluster = configMap.get(AthenaxConstants.ATHENAX_YARN_CLUSTER_KEY);
@@ -95,13 +95,45 @@ public class AthenaxTopologyMetricsImpl implements TopologyMetrics {
             metrics.putAll(statusMap);
         }
 
-        return new TopologyMetric(ATHENAX_METRIC_FRAMEWORK, topologyLayout.getName(), metrics);
+        return new TopologyMetric(ATHENAX_METRIC_FRAMEWORK, topology.getName(), metrics);
     }
 
     @Override
-    public Map<String, ComponentMetric> getMetricsForTopology(TopologyLayout topologyLayout, String asUser) {
+    public Map<String, ComponentMetric> getComponentMetrics(Topology topologyLayout, String asUser) {
         Map<String, ComponentMetric> metricMap = new HashMap<>();
         return metricMap;
+    }
+
+    @Override
+    public Map<String, Object> getExecution(Topology topology, String executionDate, String asUser) {
+        throw new UnsupportedOperationException("getExecution not implemented");
+    }
+
+    @Override
+    public Map<String, Object> getExecutions(Topology topology, Long from, Long to,
+                                             Integer page, Integer pageSize, String asUser) {
+        throw new UnsupportedOperationException("getExecutions not implemented");
+    }
+
+    @Override
+    public Map<Long, Double> getTopologyTimeSeriesMetrics(Topology topology, String metricKeyName,
+                                                          Map<String, String> metricQueryParams,
+                                                          long from, long to, String asUser) {
+        throw new UnsupportedOperationException("getTopologyTimeSeriesMetrics not implemented");
+    }
+
+    @Override
+    public Map<Long, Map<Long, Double>> getComponentTimeSeriesMetrics(Topology topology, String metricKeyName,
+                                                                      Map<String, String> metricQueryParams,
+                                                                      long from, long to, String asUser) {
+        throw new UnsupportedOperationException("getComponentTimeSeriesMetrics not implemented");
+    }
+
+    @Override
+    public Map<Long, Double> getComponentTimeSeriesMetrics(Topology topology, TopologyComponent topoloyComponent,
+                                                           String metricKeyName, Map<String, String> metricQueryParams,
+                                                           long from, long to, String asUser) {
+        throw new UnsupportedOperationException("getComponentTimeSeriesMetrics not implemented");
     }
 
     public Map<Long, Object> getTimeSeriesMetrics(Topology topology, String metricKeyName,
@@ -169,12 +201,7 @@ public class AthenaxTopologyMetricsImpl implements TopologyMetrics {
         return configMap;
     }
 
-    private String getTopologyRuntimeId(TopologyLayout topologyLayout) {
-        Topology topology = topologyCatalogHelperService.getTopology(topologyLayout.getId());
-        if (topology == null) {
-            throw new IllegalStateException("Cannot find topology with id: " + topologyLayout.getId());
-        }
-
+    private String getTopologyRuntimeId(Topology topology) {
         TopologyRuntimeIdMap topologyRuntimeIdMap = topologyCatalogHelperService.getTopologyRuntimeIdMap(
                 topology.getId(), topology.getNamespaceId());
         if (topologyRuntimeIdMap == null) {

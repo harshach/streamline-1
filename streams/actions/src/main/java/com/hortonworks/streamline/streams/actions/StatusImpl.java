@@ -15,9 +15,15 @@
  **/
 package com.hortonworks.streamline.streams.actions;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import java.util.HashMap;
 import java.util.Map;
 
+
+@JsonIgnoreProperties(value = { "exception" })
 public class StatusImpl implements TopologyActions.Status {
     private String status = STATUS_UNKNOWN; // default
     private final Map<String, String> extra = new HashMap<>();
@@ -25,9 +31,48 @@ public class StatusImpl implements TopologyActions.Status {
     private Long namespaceId;
     private String namespaceName;
     private String runtimeAppUrl;
+    private String deploymentStatus;
+    private Throwable exception;
 
     public void setStatus(String status) {
         this.status = status;
+    }
+
+    public String getDeploymentStatus() {
+        return deploymentStatus;
+    }
+
+    public void setDeploymentStatus(String deploymentStatus) {
+        this.deploymentStatus = deploymentStatus;
+    }
+
+    public Throwable getException() {
+        return exception;
+    }
+
+    public String getError() {
+        // For now, return exception's message.  In future may return error code by exception type
+        try {
+            if (exception != null) {
+                Throwable cause = getCause(exception);
+                StringBuilder sb = new StringBuilder();
+                sb.append(cause.getMessage());
+                sb.append(" - ");
+                sb.append(cause.getClass());
+                return sb.toString();
+            }
+        } catch (Throwable e) {
+            StringBuilder sb = new StringBuilder();
+            sb.append("Failed to extract original error");
+            sb.append(" - ");
+            sb.append(e.toString());
+            return sb.toString();
+        }
+        return "";
+    }
+
+    public void setException(Exception exception) {
+        this.exception = exception;
     }
 
     public void setNamespaceId(Long namespaceId) {
@@ -48,7 +93,7 @@ public class StatusImpl implements TopologyActions.Status {
 
     @Override
     public String getStatus() {
-        return status;
+            return status;
     }
 
     @Override
@@ -71,4 +116,10 @@ public class StatusImpl implements TopologyActions.Status {
     public Map<String, String> getExtra() {
         return extra;
     }
+
+    // Recursive - get exception cause
+    private Throwable getCause(Throwable throwable) {
+        return throwable.getCause() == null ? throwable : getCause(throwable.getCause());
+    }
+
 }

@@ -2,12 +2,17 @@ package com.hortonworks.streamline.streams.metrics.topology.service;
 
 import com.hortonworks.streamline.common.QueryParam;
 import com.hortonworks.streamline.streams.catalog.Engine;
+import com.hortonworks.streamline.streams.catalog.EngineMetricsBundle;
 import com.hortonworks.streamline.streams.catalog.Topology;
 import com.hortonworks.streamline.streams.catalog.TopologyComponent;
 import com.hortonworks.streamline.streams.catalog.TopologyRuntimeIdMap;
 import com.hortonworks.streamline.streams.catalog.TopologyTask;
 import com.hortonworks.streamline.streams.catalog.service.StreamCatalogService;
-import com.hortonworks.streamline.streams.cluster.catalog.*;
+import com.hortonworks.streamline.streams.cluster.catalog.Component;
+import com.hortonworks.streamline.streams.cluster.catalog.ComponentProcess;
+import com.hortonworks.streamline.streams.cluster.catalog.Namespace;
+import com.hortonworks.streamline.streams.cluster.catalog.Service;
+import com.hortonworks.streamline.streams.cluster.catalog.ServiceConfiguration;
 import com.hortonworks.streamline.streams.cluster.service.EnvironmentService;
 
 import java.util.Collection;
@@ -30,6 +35,10 @@ public class TopologyCatalogHelperService {
 
     public Engine getEngine(Long engineId) {
         return streamCatalogService.getEngine(engineId);
+    }
+
+    public EngineMetricsBundle getEngineMetricsBundle(Long engineId) {
+        return streamCatalogService.getEngineMetricsBundle(engineId);
     }
 
     public Topology getTopology(Long topologyId) {

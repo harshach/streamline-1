@@ -41,7 +41,6 @@ import static javax.ws.rs.core.Response.Status.OK;
 @Produces(MediaType.APPLICATION_JSON)
 public class BatchTopologyViewModeResource {
 
-    public static final int THRESHOLD_VALID_MINIMUM_METRICS_POINTS = 3;
     private final StreamlineAuthorizer authorizer;
     private final StreamCatalogService catalogService;
     private final TopologyMetricsService metricsService;
@@ -63,14 +62,14 @@ public class BatchTopologyViewModeResource {
     @GET
     @Path("/topologies/{topologyId}/metrics/{metricKeyName}")
     @Timed
-    public Response getTopologyMetrics(@PathParam("topologyId") Long topologyId,
-                                       @PathParam("metricKeyName") String metricKeyName,
-                                       @QueryParam("metricQuery") String metricQuery,
-                                       @QueryParam("from") Long from,
-                                       @QueryParam("to") Long to,
-                                       @QueryParam("namespaceId") Long namespaceId,
-                                       @Context UriInfo uriInfo,
-                                       @Context SecurityContext securityContext) throws IOException {
+    public Response getTopologyTimeSeriesMetrics(@PathParam("topologyId") Long topologyId,
+                                                 @PathParam("metricKeyName") String metricKeyName,
+                                                 @QueryParam("metricQuery") String metricQuery,
+                                                 @QueryParam("from") Long from,
+                                                 @QueryParam("to") Long to,
+                                                 @QueryParam("namespaceId") Long namespaceId,
+                                                 @Context UriInfo uriInfo,
+                                                 @Context SecurityContext securityContext) throws IOException {
 
         SecurityUtil.checkRoleOrPermissions(authorizer, securityContext, Roles.ROLE_TOPOLOGY_USER,
                 Topology.NAMESPACE, topologyId, READ);
@@ -88,22 +87,13 @@ public class BatchTopologyViewModeResource {
         MultivaluedMap<String, String> queryParams = uriInfo.getQueryParameters();
 
         List<String> ignore = Arrays.asList(PARAM_TO, PARAM_FROM, PARAM_METRIC_KEY_NAME, PARAM_METRIC_QUERY);
+
         Map<String, String> metricParams = toSingleValueMap(queryParams, ignore);
 
-        // FIXME remove once UI is passing namespaceId
-        if (namespaceId == null) {
-            namespaceId = topology.getNamespaceId();
-        }
-
-        // FIXME T2184621 remove hack, need interface updates
-        PiperTopologyMetricsImpl topologyMetricsService = (PiperTopologyMetricsImpl)
-                metricsService.getTopologyMetricsInstanceHack(topology, namespaceId);
-
-        Map<Long, Object> topologyMetrics = topologyMetricsService.getTimeSeriesMetrics(
-                topology, metricKeyName, metricQuery, metricParams, from, to, asUser);
+        Map<Long, Map<Long, Double>> topologyMetrics = metricsService.getComponentTimeSeriesMetrics(
+                topology, namespaceId, metricKeyName, metricParams, from, to, asUser);
 
         return WSUtils.respondEntity(topologyMetrics, OK);
-
     }
 
 
@@ -115,85 +105,9 @@ public class BatchTopologyViewModeResource {
                                 @QueryParam("to") Long to,
                                 @QueryParam("namespaceId") Long namespaceId,
                                 @Context SecurityContext securityContext) throws IOException {
-        SecurityUtil.checkRoleOrPermissions(authorizer, securityContext, Roles.ROLE_TOPOLOGY_USER,
-                Topology.NAMESPACE, topologyId, READ);
 
-        assertTimeRange(from, to);
 
-        Topology topology = catalogService.getTopology(topologyId);
-        if (topology != null) {
-            String asUser = WSUtils.getUserFromSecurityContext(securityContext);
-
-            // FIXME remove once UI is passing namespaceId
-            if (namespaceId == null) {
-                namespaceId = topology.getNamespaceId();
-            }
-
-            TopologyTimeSeriesMetrics.TimeSeriesComponentMetric topologyMetrics =
-                    metricsService.getTopologyStats(topology, from, to, namespaceId, asUser);
-
-            long prevFrom = from - (to - from);
-            long prevTo = from - 1;
-
-            TopologyTimeSeriesMetrics.TimeSeriesComponentMetric prevTopologyMetrics =
-                    metricsService.getTopologyStats(topology, prevFrom, prevTo, namespaceId, asUser);
-
-            if (!checkMetricsResponseHasFullRangeOfTime(prevTopologyMetrics, prevFrom, prevTo)) {
-                prevTopologyMetrics = null;
-            }
-
-            ComponentMetricSummary viewModeComponentMetric = ComponentMetricSummary.convertStreamingComponentMetric(
-                    topologyMetrics, prevTopologyMetrics);
-            com.hortonworks.streamline.streams.service.BatchTopologyViewModeResource.TopologyWithMetric metric = new com.hortonworks.streamline.streams.service.BatchTopologyViewModeResource.TopologyWithMetric(topology, viewModeComponentMetric,
-                    topologyMetrics);
-            return WSUtils.respondEntity(metric, OK);
-        }
-
-        throw EntityNotFoundException.byId(topologyId.toString());
-    }
-
-    private boolean checkMetricsResponseHasFullRangeOfTime(TopologyTimeSeriesMetrics.TimeSeriesComponentMetric metrics,
-                                                           long from, long to) {
-        if (metrics == null) {
-            return false;
-        }
-
-        Map<Long, Double> target = metrics.getMetrics().get("processTime");
-        if (target == null || target.size() == 0) {
-            // fail back to see output records
-            target = metrics.getMetrics().get("outputRecords");
-
-            if (target == null || target.size() == 0) {
-                return false;
-            }
-        }
-
-        List<Long> sortedTimestamp = target.keySet().stream().sorted().collect(toList());
-        if (sortedTimestamp.size() < THRESHOLD_VALID_MINIMUM_METRICS_POINTS) {
-            // no granularity to check, or not enough values to use
-            return false;
-        }
-
-        Long firstTimestamp = sortedTimestamp.get(0);
-        Long secondTimestamp = sortedTimestamp.get(1);
-        Long lastTimestamp = sortedTimestamp.get(sortedTimestamp.size() - 1);
-
-        long granularity = secondTimestamp - firstTimestamp;
-
-        // assuming that time-series DB will provide the self-aggregated metrics points
-        // only with ranges which raw points are available
-
-        // this means time-series DB doesn't have metric points in earlier part of time range
-        if (firstTimestamp - from > granularity) {
-            return false;
-        }
-
-        // this means time-series DB doesn't have metric points in later part of time range
-        if (to - lastTimestamp > granularity) {
-            return false;
-        }
-
-        return true;
+        throw new UnsupportedOperationException("/v1/catalog/batch/topologies/{topologyId}/metrics endpoint not implemented");
     }
 
 
@@ -220,20 +134,11 @@ public class BatchTopologyViewModeResource {
             throw new EntityNotFoundException("Topology not found topologyId: " + topologyId);
         }
 
-        // FIXME remove once UI is passing namespaceId
-        if (namespaceId == null) {
-            namespaceId = topology.getNamespaceId();
-        }
+        String asUser = WSUtils.getUserFromSecurityContext(securityContext);
 
-        // FIXME T2184621 remove hack, need interface updates
-        PiperTopologyMetricsImpl topologyMetrics = (PiperTopologyMetricsImpl)
-                metricsService.getTopologyMetricsInstanceHack(topology, namespaceId);
-
-        Map executions = topologyMetrics.getExecutions(
-                CatalogToLayoutConverter.getTopologyLayout(topology), from, to, page, pageSize);
+        Map executions = metricsService.getExecutions(topology, namespaceId, from, to, page, pageSize, asUser);
 
         return WSUtils.respondEntity(executions, OK);
-
     }
 
     @GET
@@ -254,18 +159,9 @@ public class BatchTopologyViewModeResource {
             throw new EntityNotFoundException("Topology not found topologyId: " + topologyId);
         }
 
-        // FIXME remove once UI is passing namespaceId
-        if (namespaceId == null) {
-            namespaceId = topology.getNamespaceId();
-        }
+        String asUser = WSUtils.getUserFromSecurityContext(securityContext);
 
-        // FIXME T2184621 remove hack, need interface updates
-        PiperTopologyMetricsImpl topologyMetrics = (PiperTopologyMetricsImpl)
-                metricsService.getTopologyMetricsInstanceHack(topology, namespaceId);
-
-        Map execution = topologyMetrics.getExecution(
-                            CatalogToLayoutConverter.getTopologyLayout(topology),
-                            executionDate);
+        Map execution = metricsService.getExecution(topology, namespaceId, executionDate, asUser);
 
         return WSUtils.respondEntity(execution, OK);
 
@@ -295,56 +191,5 @@ public class BatchTopologyViewModeResource {
             }
         }
         return result;
-    }
-
-    private static class TopologyWithMetric {
-        private final Topology topology;
-        private final ComponentMetricSummary overviewMetrics;
-        private final TopologyTimeSeriesMetrics.TimeSeriesComponentMetric timeSeriesMetrics;
-
-        public TopologyWithMetric(Topology topology, ComponentMetricSummary overviewMetrics,
-                                  TopologyTimeSeriesMetrics.TimeSeriesComponentMetric timeSeriesMetrics) {
-            this.topology = topology;
-            this.overviewMetrics = overviewMetrics;
-            this.timeSeriesMetrics = timeSeriesMetrics;
-        }
-
-        public Topology getTopology() {
-            return topology;
-        }
-
-        public ComponentMetricSummary getOverviewMetrics() {
-            return overviewMetrics;
-        }
-
-        public TopologyTimeSeriesMetrics.TimeSeriesComponentMetric getTimeSeriesMetrics() {
-            return timeSeriesMetrics;
-        }
-    }
-
-    private static class TopologyComponentWithMetric {
-        private final TopologyComponent component;
-        private final ComponentMetricSummary overviewMetrics;
-        private final TopologyTimeSeriesMetrics.TimeSeriesComponentMetric timeSeriesMetrics;
-
-        public TopologyComponentWithMetric(TopologyComponent component,
-                                           ComponentMetricSummary overviewMetrics,
-                                           TopologyTimeSeriesMetrics.TimeSeriesComponentMetric timeSeriesMetrics) {
-            this.component = component;
-            this.overviewMetrics = overviewMetrics;
-            this.timeSeriesMetrics = timeSeriesMetrics;
-        }
-
-        public TopologyComponent getComponent() {
-            return component;
-        }
-
-        public ComponentMetricSummary getOverviewMetrics() {
-            return overviewMetrics;
-        }
-
-        public TopologyTimeSeriesMetrics.TimeSeriesComponentMetric getTimeSeriesMetrics() {
-            return timeSeriesMetrics;
-        }
     }
 }

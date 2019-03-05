@@ -15,6 +15,8 @@
  **/
 package com.hortonworks.streamline.streams.metrics.topology;
 
+import com.hortonworks.streamline.streams.catalog.Topology;
+import com.hortonworks.streamline.streams.catalog.TopologyComponent;
 import com.hortonworks.streamline.streams.layout.component.Component;
 import com.hortonworks.streamline.streams.layout.component.TopologyLayout;
 import com.hortonworks.streamline.streams.metrics.TimeSeriesQuerier;
@@ -34,6 +36,58 @@ public interface TopologyTimeSeriesMetrics {
     void setTimeSeriesQuerier(TimeSeriesQuerier timeSeriesQuerier);
 
     /**
+     * Get instance of TimeSeriesQuerier.
+     */
+    TimeSeriesQuerier getTimeSeriesQuerier();
+
+    /**
+     * Retrieve time series data for Topology.
+     *
+     * @param topology           topology catalog instance
+     * @param metricKeyName      name of metric in engine-metrics.json, used to lookup query.
+     * @param metricQueryParams  queries may have params that can be substituted eg:  $topology_id
+     * @param from               beginning of the time period: timestamp (in milliseconds)
+     * @param to                 end of the time period: timestamp (in milliseconds)
+     * @param asUser             username if request needs impersonation to specific user
+     * @return Map of data points by timestamp eg.  {timestamp: value} for topology
+     */
+    Map<Long, Double> getTopologyTimeSeriesMetrics(Topology topology, String metricKeyName,
+                                                   Map<String, String> metricQueryParams,
+                                                   long from, long to, String asUser);
+    /**
+     * Retrieve time series data for all of Topology's components.
+     *
+     * @param topology     topology catalog instance
+     * @param metricKeyName      name of metric in engine-metrics.json, used to lookup query.
+     * @param metricQueryParams  queries may have params that can be substituted eg:  $topology_id
+     * @param from               beginning of the time period: timestamp (in milliseconds)
+     * @param to                 end of the time period: timestamp (in milliseconds)
+     * @param asUser            username if request needs impersonation to specific user
+     * @return Map of Component Id to timeseries data.  eg {componentId: {timestamp: value}}
+     */
+    Map<Long, Map<Long, Double>> getComponentTimeSeriesMetrics(Topology topology, String metricKeyName,
+                                                               Map<String, String> metricQueryParams,
+                                                               long from, long to, String asUser);
+    /**
+     * Retrieve time series data for a particular Topology component.
+     *
+     * @param topology           topology catalog instance
+     @ @param topologyComponent  topologyComponent catalog instance
+     * @param metricKeyName      name of metric in engine-metrics.json, used to lookup query
+     * @param metricQueryParams  queries may have params that can be substituted eg:  $topology_id
+     * @param from               beginning of the time period: timestamp (in milliseconds)
+     * @param to                 end of the time period: timestamp (in milliseconds)
+     * @param asUser             username if request needs impersonation to specific user
+     * @return Map of data points by timestamp eg.  {timestamp: value} for component
+     */
+    Map<Long, Double> getComponentTimeSeriesMetrics(Topology topology, TopologyComponent topologyComponent,
+                                                    String metricKeyName, Map<String, String> metricQueryParams,
+                                                    long from, long to, String asUser);
+
+
+    /**
+     * @Deprecated
+     *
      * Retrieve "topology stats" on topology.
      * Implementator should aggregate all components' metrics values to make topology stats.
      * The return value is a TimeSeriesComponentMetric which value of componentName is dummy or topology name.
@@ -47,6 +101,8 @@ public interface TopologyTimeSeriesMetrics {
     TimeSeriesComponentMetric getTopologyStats(TopologyLayout topology, long from, long to, String asUser);
 
     /**
+     * @Deprecated
+     *
      * Retrieve "complete latency" on source.
      *
      * @param topology  topology catalog instance
@@ -59,6 +115,8 @@ public interface TopologyTimeSeriesMetrics {
     Map<Long, Double> getCompleteLatency(TopologyLayout topology, Component component, long from, long to, String asUser);
 
     /**
+     * @Deprecated
+     *
      * Retrieve "kafka topic offsets" on source.
      * <p/>
      * This method retrieves three metrics,<br/>
@@ -78,6 +136,8 @@ public interface TopologyTimeSeriesMetrics {
     Map<String, Map<Long, Double>> getkafkaTopicOffsets(TopologyLayout topology, Component component, long from, long to, String asUser);
 
     /**
+     * @Deprecated
+     *
      * Retrieve "component stats" on component.
      *
      * @param topology      topology catalog instance
@@ -89,12 +149,10 @@ public interface TopologyTimeSeriesMetrics {
      */
     TimeSeriesComponentMetric getComponentStats(TopologyLayout topology, Component component, long from, long to, String asUser);
 
-    /**
-     * Get instance of TimeSeriesQuerier.
-     */
-    TimeSeriesQuerier getTimeSeriesQuerier();
 
     /**
+     * @Deprecated
+     *
      * Data structure of Metrics for each component on topology.
      * Fields are extracted from common metrics among various streaming frameworks.
      *

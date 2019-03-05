@@ -17,8 +17,8 @@ package com.hortonworks.streamline.streams.metrics.topology;
 
 import com.hortonworks.streamline.common.exception.ConfigException;
 import com.hortonworks.streamline.streams.catalog.Engine;
+import com.hortonworks.streamline.streams.catalog.Topology;
 import com.hortonworks.streamline.streams.cluster.catalog.Namespace;
-import com.hortonworks.streamline.streams.layout.component.TopologyLayout;
 import com.hortonworks.streamline.streams.metrics.topology.service.TopologyCatalogHelperService;
 
 import javax.security.auth.Subject;
@@ -38,8 +38,8 @@ public interface TopologyMetrics extends TopologyTimeSeriesMetrics {
      *
      * @throws ConfigException throw when instance can't be initialized with this configuration (misconfigured).
      */
-    void init (Engine engine, Namespace namespace, TopologyCatalogHelperService topologyCatalogHelperService,
-               Subject subject) throws ConfigException;
+    void init(Engine engine, Namespace namespace, TopologyCatalogHelperService topologyCatalogHelperService,
+              Map<String, Object> configuration, Subject subject) throws ConfigException;
 
     /**
      * Retrieves topology metric for Streamline topology/
@@ -48,10 +48,10 @@ public interface TopologyMetrics extends TopologyTimeSeriesMetrics {
      * @param asUser   username if request needs impersonation to specific user
      * @return TopologyMetrics
      */
-    TopologyMetric getTopologyMetric(TopologyLayout topology, String asUser) throws IOException;
+    TopologyMetric getTopologyMetric(Topology topology, String asUser) throws IOException;
 
     /**
-     * Retrieves metrics data for Streamline topology.
+     * Retrieves metrics data for Topology components.
      *
      * @param topology topology catalog instance. Implementations should find actual runtime topology with provided topology.
      * @param asUser   username if request needs impersonation to specific user
@@ -59,7 +59,34 @@ public interface TopologyMetrics extends TopologyTimeSeriesMetrics {
      * Implementations should ensure that component name is same to UI name of component
      * so that it can be matched to Streamline topology.
      */
-    Map<String, ComponentMetric> getMetricsForTopology(TopologyLayout topology, String asUser);
+    Map<String, ComponentMetric> getComponentMetrics(Topology topology, String asUser);
+
+
+    /**
+     * Retrieve execution status by date for a Batch Topology.
+     *
+     * @param topology      topology catalog instance.
+     * @param executionDate executionDate is a unique identifier for the execution
+     * @param asUser        username if request needs impersonation to specific user
+     * @return FIMXE
+     * Batch specific, Streaming engines may choose not to implement.
+     */
+    Map<String, Object> getExecution(Topology topology, String executionDate, String asUser);
+
+    /**
+     * Retrieve list of executions for Batch Topologies, supports Pagination.
+     *
+     * @param topology      topology catalog instance.
+     * @param from          beginning of the time period: timestamp (in milliseconds)
+     * @param to            end of the time period: timestamp (in milliseconds)
+     * @param page          page number
+     * @param pageSize      results per page
+     * @param asUser        username if request needs impersonation to specific user
+     * @return FIXME
+     * Batch specific, Streaming engines may choose not to implement.
+     */
+    Map<String, Object> getExecutions(Topology topology, Long from, Long to, Integer page, Integer pageSize, String asUser);
+
 
     /**
      * Data structure of Metrics for each component on topology.

@@ -19,9 +19,9 @@ package com.hortonworks.streamline.streams.actions.topology.service;
 
 import com.hortonworks.streamline.common.transaction.TransactionIsolation;
 import com.hortonworks.streamline.common.util.FileStorage;
+import com.hortonworks.streamline.registries.model.client.MLModelRegistryClient;
 import com.hortonworks.streamline.storage.TransactionManager;
 import com.hortonworks.streamline.storage.transaction.ManagedTransaction;
-import com.hortonworks.streamline.registries.model.client.MLModelRegistryClient;
 import com.hortonworks.streamline.streams.actions.StatusImpl;
 import com.hortonworks.streamline.streams.actions.TopologyActions;
 import com.hortonworks.streamline.streams.actions.TopologyActionsFactory;
@@ -30,7 +30,14 @@ import com.hortonworks.streamline.streams.actions.topology.state.TopologyContext
 import com.hortonworks.streamline.streams.actions.topology.state.TopologyState;
 import com.hortonworks.streamline.streams.actions.topology.state.TopologyStateMachine;
 import com.hortonworks.streamline.streams.actions.topology.state.TopologyStateMachineFactory;
-import com.hortonworks.streamline.streams.catalog.*;
+import com.hortonworks.streamline.streams.catalog.CatalogToDeploymentConverter;
+import com.hortonworks.streamline.streams.catalog.CatalogToLayoutConverter;
+import com.hortonworks.streamline.streams.catalog.Engine;
+import com.hortonworks.streamline.streams.catalog.Topology;
+import com.hortonworks.streamline.streams.catalog.TopologyDeployment;
+import com.hortonworks.streamline.streams.catalog.TopologyRuntimeIdMap;
+import com.hortonworks.streamline.streams.catalog.TopologyTestRunCase;
+import com.hortonworks.streamline.streams.catalog.TopologyTestRunHistory;
 import com.hortonworks.streamline.streams.catalog.service.StreamCatalogService;
 import com.hortonworks.streamline.streams.catalog.topology.component.TopologyDagBuilder;
 import com.hortonworks.streamline.streams.cluster.catalog.Namespace;
@@ -45,8 +52,12 @@ import org.slf4j.LoggerFactory;
 
 import javax.security.auth.Subject;
 import java.io.File;
-import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 
 
 public class TopologyActionsService implements ContainingNamespaceAwareContainer {
@@ -163,10 +174,10 @@ public class TopologyActionsService implements ContainingNamespaceAwareContainer
                 } catch (Exception e) {
                     LOG.error(String.format("failed to fetch status for  topology %s because of exception %s", topology.getId(),
                             e.getMessage()));
-                    statuses.add(addUnknownStatus(region));
+                    statuses.add(getErrorStatus(topology, region, e));
                 }
             } else {
-               statuses.add(addUnknownStatus(region));
+               statuses.add(getUndeployedStatus(topology, region));
             }
         }
         return statuses;
@@ -255,11 +266,31 @@ public class TopologyActionsService implements ContainingNamespaceAwareContainer
         return new TopologyContext(topology, topologyActions, this, state, topologyDeployment, asUser);
     }
 
-    private TopologyActions.Status addUnknownStatus(Long region) {
+    public TopologyActions.Status getErrorStatus(Topology topology, Long region, Exception e) {
         StatusImpl runtimeStatus = new StatusImpl();
+        String deploymentState = getDeploymentState(topology.getId());
         Namespace namespace =  environmentService.getNamespace(region);
         runtimeStatus.setNamespaceId(namespace.getId());
         runtimeStatus.setNamespaceName(namespace.getName());
+        runtimeStatus.setDeploymentStatus(deploymentState);
+        runtimeStatus.setException(e);
         return runtimeStatus;
+    }
+
+    public TopologyActions.Status getUndeployedStatus(Topology topology, Long region) {
+        StatusImpl runtimeStatus = new StatusImpl();
+        String deploymentState = getDeploymentState(topology.getId());
+        Namespace namespace =  environmentService.getNamespace(region);
+        runtimeStatus.setNamespaceId(namespace.getId());
+        runtimeStatus.setNamespaceName(namespace.getName());
+        runtimeStatus.setDeploymentStatus(deploymentState);
+        runtimeStatus.setStatus(TopologyActions.Status.STATUS_NOT_DEPLOYED);
+        return runtimeStatus;
+    }
+
+    public String getDeploymentState(Long topologyId) {
+        Optional<com.hortonworks.streamline.streams.catalog.topology.state.TopologyState> deploymentState
+                = catalogService.getTopologyState(topologyId);
+        return deploymentState.isPresent() ? deploymentState.get().getName() : null;
     }
 }

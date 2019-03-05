@@ -121,11 +121,16 @@ public interface TopologyActions {
 
     interface Status {
         String STATUS_UNKNOWN = "Unknown";
+        String STATUS_NOT_DEPLOYED = "Not Deployed";
         String getStatus();
         Long getNamespaceId();
         String getNamespaceName();
         String getRuntimeAppId();
         String getRuntimeAppUrl();
+        String getDeploymentStatus();
+        Throwable getException();
+        String getError();
+
         Map<String, String> getExtra();
     }
 

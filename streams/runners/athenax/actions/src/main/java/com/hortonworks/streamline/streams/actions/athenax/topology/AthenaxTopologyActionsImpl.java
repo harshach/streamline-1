@@ -19,6 +19,7 @@ import com.hortonworks.streamline.streams.common.athenax.entity.JobStatusRequest
 import com.hortonworks.streamline.streams.common.athenax.entity.StopJobRequest;
 import com.hortonworks.streamline.streams.layout.component.TopologyDag;
 import com.hortonworks.streamline.streams.layout.component.TopologyLayout;
+import com.hortonworks.streamline.streams.layout.component.impl.RTASink;
 import com.hortonworks.streamline.streams.layout.component.impl.testing.TestRunProcessor;
 import com.hortonworks.streamline.streams.layout.component.impl.testing.TestRunRulesProcessor;
 import com.hortonworks.streamline.streams.layout.component.impl.testing.TestRunSink;
@@ -83,14 +84,15 @@ public class AthenaxTopologyActionsImpl implements TopologyActions {
 		TopologyDag topologyDag = topology.getTopologyDag();
 		topologyDag.traverse(requestGenerator);
 
-		// send request to rta-ums if RTA is enabled
-		if (requestGenerator.isRTAEnabled()) {
-			RTACreateTableRequest rtaCreateTableRequest = requestGenerator.extractRTACreateTableRequest();
+		// send requests to rta-ums for RTA connectors, if there is any
+		RTACreateTableRequest rtaCreateTableRequest;
+		for (RTASink rtaSink : requestGenerator.getRTASinkList()) {
+			rtaCreateTableRequest = requestGenerator.extractRTACreateTableRequest(rtaSink);
 			rtaRestAPIClient.createTable(JsonClientUtil.convertRequestToJson(rtaCreateTableRequest));
 
 			String tableName = rtaCreateTableRequest.name();
 			if (rtaRestAPIClient.getTableDeployStatus(tableName).isEmpty()) {
-				RTADeployTableRequest rtaDeployTableRequest = requestGenerator.extractRTADeployTableRequest();
+				RTADeployTableRequest rtaDeployTableRequest = requestGenerator.extractRTADeployTableRequest(rtaSink);
 				rtaRestAPIClient.deployTable(rtaDeployTableRequest, tableName);
 			}
 		}

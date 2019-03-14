@@ -16,6 +16,7 @@ import com.hortonworks.streamline.streams.layout.component.StreamlineSink;
 import com.hortonworks.streamline.streams.layout.component.StreamlineSource;
 import com.hortonworks.streamline.streams.layout.component.TopologyDagVisitor;
 import com.hortonworks.streamline.streams.layout.component.TopologyLayout;
+import com.hortonworks.streamline.streams.layout.component.impl.CassandraSink;
 import com.hortonworks.streamline.streams.layout.component.impl.KafkaSink;
 import com.hortonworks.streamline.streams.layout.component.impl.KafkaSource;
 import com.hortonworks.streamline.streams.layout.component.impl.RTASink;
@@ -26,6 +27,7 @@ import com.hortonworks.streamline.streams.registry.table.RTADeployTableRequest;
 import com.hortonworks.streamline.streams.registry.table.RTAQueryTypes;
 import com.hortonworks.streamline.streams.registry.table.RTATableField;
 import com.hortonworks.streamline.streams.registry.table.RTATableMetadata;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -51,7 +53,6 @@ public class AthenaxJobGraphGenerator extends TopologyDagVisitor {
 	private static final String HEATPIPE_APP_ID = "heatpipe.app_id";
 	private static final String HEATPIPE_KAFKA_HOST_PORT = "heatpipe.kafka.hostport";
 	private static final String HEATPIPE_SCHEMA_SERVICE_HOST_PORT = "heatpipe.schemaservice.hostport";
-	private static final String TYPE_KAFKA = "kafka";
 	private static final String KAFKA_TOPIC = "topic";
 	private static final String HEATPIPE_PROTOCOL_PREFIX = "kafka+heatpipe://";
 
@@ -60,7 +61,7 @@ public class AthenaxJobGraphGenerator extends TopologyDagVisitor {
 	private TopologyLayout topology;
 	private String runAsUser;
 	private List<StreamlineSource> streamlineSourceList = new ArrayList<>();
-	private StreamlineSink streamlineSink;
+	private List<StreamlineSink> streamlineSinkList = new ArrayList<>();
 	private String sql;
 	private boolean legalAthenaXJob;
 
@@ -89,15 +90,11 @@ public class AthenaxJobGraphGenerator extends TopologyDagVisitor {
 	@Override
 	public void visit(StreamlineSink sink) {
 		LOG.debug("Visiting sink: {}", sink);
-		if (streamlineSink != null) {
+		if (!(sink instanceof RTASink || sink instanceof KafkaSink || sink instanceof CassandraSink)) {
 			legalAthenaXJob = false;
-			LOG.error("Only single sink supported in AthenaX");
+			LOG.error("Only Kafka/RTA/Cassandra sinks supported in AthenaX");
 		}
-		if (!(sink instanceof RTASink || sink instanceof KafkaSink)) {
-			legalAthenaXJob = false;
-			LOG.error("Only Kafka/RTA sinks supported in AthenaX");
-		}
-		streamlineSink = sink;
+		streamlineSinkList.add(sink);
 	}
 
 	@Override
@@ -118,24 +115,25 @@ public class AthenaxJobGraphGenerator extends TopologyDagVisitor {
 		LOG.debug("Visiting edge: {}", edge);
 	}
 
-	public boolean isRTAEnabled() {
-		return streamlineSink instanceof RTASink;
+	public List<RTASink> getRTASinkList() {
+		List<RTASink> rtaSinkList = new ArrayList<>();
+		for (StreamlineSink sink : streamlineSinkList) {
+			if (sink instanceof RTASink) {
+				rtaSinkList.add((RTASink) sink);
+			}
+		}
+		return rtaSinkList;
 	}
 
-	public RTACreateTableRequest extractRTACreateTableRequest() {
-		if (!isRTAEnabled()) {
-			LOG.error("Cannot extract RTA create table request when RTA is not enabled");
-			return null;
-		}
-
+	public RTACreateTableRequest extractRTACreateTableRequest(RTASink rtaSink) {
 		RTACreateTableRequest request = new RTACreateTableRequest();
 
-		Config rtaSinkConfig = streamlineSink.getConfig();
+		Config rtaSinkConfig = rtaSink.getConfig();
 
 		// TODO: Change to use email in runAsUser when available
 		request.setOwner(runAsUser + "@uber.com");
 		request.setName(rtaSinkConfig.get(RTAConstants.TABLE_NAME));
-		request.setRtaTableMetadata(extractRTATableMetadata());
+		request.setRtaTableMetadata(extractRTATableMetadata(rtaSink));
 
 		List<RTATableField> rtaTableFields = new ArrayList<>();
 		List<Map<String, Object>> tableFieldConfigs = rtaSinkConfig.getAny(RTAConstants.TABLE_FIELDS);
@@ -156,15 +154,10 @@ public class AthenaxJobGraphGenerator extends TopologyDagVisitor {
 		return request;
 	}
 
-	private RTATableMetadata extractRTATableMetadata() {
-		if (!isRTAEnabled()) {
-			LOG.error("Cannot extract RTA table metadata when RTA is not enabled");
-			return null;
-		}
-
+	private RTATableMetadata extractRTATableMetadata(RTASink rtaSink) {
 		RTATableMetadata metaData = new RTATableMetadata();
 
-		Config rtaSinkConfig = streamlineSink.getConfig();
+		Config rtaSinkConfig = rtaSink.getConfig();
 
 		List<String> primaryKeys = new ArrayList<>();
 		List<Map<String, Object>> tableFieldConfigs = rtaSinkConfig.getAny(RTAConstants.TABLE_FIELDS);
@@ -193,14 +186,9 @@ public class AthenaxJobGraphGenerator extends TopologyDagVisitor {
 		return metaData;
 	}
 
-	public RTADeployTableRequest extractRTADeployTableRequest() {
-		if (!isRTAEnabled()) {
-			LOG.error("Cannot extract RTA deploy table request when RTA is not enabled");
-			return null;
-		}
-
+	public RTADeployTableRequest extractRTADeployTableRequest(RTASink rtaSink) {
 		RTADeployTableRequest request = new RTADeployTableRequest();
-		Namespace namespace = getNamespaceFromComponent(streamlineSink);
+		Namespace namespace = getNamespaceFromComponent(rtaSink);
 		Map<String, String> kafkaConfigMap = getKafkaConfigMap(namespace);
 		request.setKafkaCluster(kafkaConfigMap.get(PARAM_CLUSTER_NAME));
 		return request;
@@ -273,7 +261,7 @@ public class AthenaxJobGraphGenerator extends TopologyDagVisitor {
 			String topicName = sourceConfig.get(KAFKA_TOPIC);
 			Connector kafkaInput = new Connector();
 			kafkaInput.setProperties(kafkaProperties);
-			kafkaInput.setType(TYPE_KAFKA);
+			kafkaInput.setType(Connector.KAFKA);
 			kafkaInput.setName(topicName);
 
 			kafkaInput.setUri(HEATPIPE_PROTOCOL_PREFIX + getHostPortListOnly(zkConnectionStr) + "/" + topicName);
@@ -292,29 +280,58 @@ public class AthenaxJobGraphGenerator extends TopologyDagVisitor {
 		return zkConnectionStr.split("/")[0];
 	}
 
-	private List<Connector> getOutputConnectors() {
+	private List<Connector> getOutputConnectors() throws Exception {
 		List<Connector> outputConnectors = new ArrayList<>();
 
-		Config sinkConfig = streamlineSink.getConfig();
+		for (StreamlineSink sink : streamlineSinkList) {
+			if (sink instanceof KafkaSink || sink instanceof RTASink) {
+				Config sinkConfig = sink.getConfig();
 
-		// extract kafka properties
-		Properties kafkaProperties = new Properties();
-		String bootStrapServers = sinkConfig.get("bootstrapServers");
-		kafkaProperties.put(BOOTSTRAP_SERVERS, bootStrapServers);
-		kafkaProperties.put(HEATPIPE_APP_ID, topology.getName());
-		kafkaProperties.put(HEATPIPE_KAFKA_HOST_PORT, "localhost:18083");
-		kafkaProperties.put(HEATPIPE_SCHEMA_SERVICE_HOST_PORT, "localhost:14040");
-		kafkaProperties.put(CLIENT_ID, UWORC_SERVICE_NAME + "/" + topology.getName());
+				// extract kafka properties
+				Properties kafkaProperties = new Properties();
+				String bootStrapServers = sinkConfig.get("bootstrapServers");
+				kafkaProperties.put(BOOTSTRAP_SERVERS, bootStrapServers);
+				kafkaProperties.put(HEATPIPE_APP_ID, topology.getName());
+				kafkaProperties.put(HEATPIPE_KAFKA_HOST_PORT, "localhost:18083");
+				kafkaProperties.put(HEATPIPE_SCHEMA_SERVICE_HOST_PORT, "localhost:14040");
+				kafkaProperties.put(CLIENT_ID, UWORC_SERVICE_NAME + "/" + topology.getName());
 
-		String topicName = sinkConfig.get(KAFKA_TOPIC);
-		Connector kafkaOutput = new Connector();
-		kafkaOutput.setProperties(kafkaProperties);
-		kafkaOutput.setType(TYPE_KAFKA);
-		kafkaOutput.setName(topicName);
+				String topicName = sinkConfig.get(KAFKA_TOPIC);
+				Connector kafkaOutput = new Connector();
+				kafkaOutput.setProperties(kafkaProperties);
+				kafkaOutput.setType(Connector.KAFKA);
+				kafkaOutput.setName(topicName);
 
-		kafkaOutput.setUri(HEATPIPE_PROTOCOL_PREFIX + bootStrapServers + "/" + topicName);
+				kafkaOutput.setUri(HEATPIPE_PROTOCOL_PREFIX + bootStrapServers + "/" + topicName);
 
-		outputConnectors.add(kafkaOutput);
+				outputConnectors.add(kafkaOutput);
+			} else if (sink instanceof CassandraSink) {
+				Config sinkConfig = sink.getConfig();
+
+				Properties cassandraProperties = new Properties();
+				String ttl = sinkConfig.get("ttl");
+				if (ttl != null) {
+					cassandraProperties.put("ttl", ttl);
+				}
+
+				String uriFormat = "cassandra://%s/%s/%s";
+				String servers = sinkConfig.get("servers");
+				UnsContactPointsResolver unsContactPointsResolver = new UnsContactPointsResolver();
+				List<String> hostAddrs
+						= unsContactPointsResolver.getContactPoints(servers, "NativeTransport");
+				String keyspace = sinkConfig.get("keyspace");
+				String table = sinkConfig.get("table");
+				String uri = String.format(uriFormat, StringUtils.join(hostAddrs, ","), keyspace, table);
+
+				Connector cassandraOutput = new Connector();
+				cassandraOutput.setName(sinkConfig.get("name"));
+				cassandraOutput.setProperties(cassandraProperties);
+				cassandraOutput.setType(Connector.CASSANDRA);
+				cassandraOutput.setUri(uri);
+
+				outputConnectors.add(cassandraOutput);
+			}
+		}
 
 		return outputConnectors;
 	}

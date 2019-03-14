@@ -1,0 +1,51 @@
+{
+  "type": "SINK",
+  "name": "Cassandra",
+  "subType": "CASSANDRA",
+  "engine": "ATHENAX",
+  "template": ["Blank"],
+  "builtin": true,
+  "transformationClass": "com.hortonworks.streamline.streams.layout.component.impl.CassandraSink",
+  "mavenDeps": "",
+  "input": true,
+  "output": false,
+  "topologyComponentUISpecification": {
+    "fields": [
+      {
+        "uiName": "Name",
+        "fieldName": "name",
+        "isOptional": false,
+        "tooltip": "Unique identifier for your Cassandra output",
+        "type": "string"
+      },
+      {
+        "uiName": "Servers",
+        "fieldName": "servers",
+        "isOptional": false,
+        "tooltip": "Comma separated string host:port of Cassandra servers",
+        "type": "string"
+      },
+      {
+        "uiName": "Keyspace",
+        "fieldName": "keyspace",
+        "isOptional": false,
+        "tooltip": "Keyspace in which table exists",
+        "type": "string"
+      },
+      {
+        "uiName": "Table",
+        "fieldName": "table",
+        "isOptional": false,
+        "tooltip": "Cassandra table to write to",
+        "type": "string"
+      },
+      {
+        "uiName": "TTL",
+        "fieldName": "ttl",
+        "isOptional": false,
+        "tooltip": "Cassandra table TTL",
+        "type": "number"
+      }
+    ]
+  }
+}

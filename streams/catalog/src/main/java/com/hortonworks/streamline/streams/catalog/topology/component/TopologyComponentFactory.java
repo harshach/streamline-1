@@ -44,6 +44,7 @@ import com.hortonworks.streamline.streams.layout.component.StreamlineTask;
 import com.hortonworks.streamline.streams.layout.component.StreamlineProcessor;
 import com.hortonworks.streamline.streams.layout.component.StreamlineSource;
 import com.hortonworks.streamline.streams.layout.component.StreamlineSink;
+import com.hortonworks.streamline.streams.layout.component.impl.CassandraSink;
 import com.hortonworks.streamline.streams.layout.component.impl.GenericTask;
 import com.hortonworks.streamline.streams.layout.component.impl.HBaseSink;
 import com.hortonworks.streamline.streams.layout.component.impl.HdfsSink;
@@ -76,6 +77,7 @@ import java.util.Map;
 import java.util.Set;
 
 import static com.hortonworks.streamline.common.ComponentTypes.BRANCH;
+import static com.hortonworks.streamline.common.ComponentTypes.CASSANDRA;
 import static com.hortonworks.streamline.common.ComponentTypes.HBASE;
 import static com.hortonworks.streamline.common.ComponentTypes.HDFS;
 import static com.hortonworks.streamline.common.ComponentTypes.HIVE;
@@ -272,6 +274,7 @@ public class TopologyComponentFactory {
         builder.put(hiveSinkProvider());
         builder.put(kafkaSinkProvider());
         builder.put(rtaSinkProvider());
+        builder.put(cassandraSinkProvider());
         return builder.build();
     }
 
@@ -626,5 +629,15 @@ public class TopologyComponentFactory {
             }
         };
         return new SimpleImmutableEntry<>(RTA, provider);
+    }
+
+    private Map.Entry<String, Provider<StreamlineSink>> cassandraSinkProvider() {
+        Provider<StreamlineSink> provider = new Provider<StreamlineSink>() {
+            @Override
+            public StreamlineSink create(TopologyComponent component) {
+                return new CassandraSink();
+            }
+        };
+        return new SimpleImmutableEntry<>(CASSANDRA, provider);
     }
 }

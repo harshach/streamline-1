@@ -178,6 +178,8 @@
         <hikari.version>2.2.5</hikari.version>
         <h2database.version>1.4.188</h2database.version>
         <heatpipe4j.version>4.02.011</heatpipe4j.version>
+        <tchannel.version>0.6.1</tchannel.version>
+        <unsclient.version>1.0.0</unsclient.version>
 
         <!-- Runtime Scope Dependencies -->
         <logback.version>1.1.7</logback.version>
@@ -338,6 +340,22 @@
                 <groupId>com.uber</groupId>
                 <artifactId>heatpipe4j</artifactId>
                 <version>${heatpipe4j.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.uber.infra.uns</groupId>
+                <artifactId>uns-client-core</artifactId>
+                <version>${unsclient.version}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>org.slf4j</groupId>
+                        <artifactId>slf4j-log4j12</artifactId>
+                    </exclusion>
+                </exclusions>
+            </dependency>
+            <dependency>
+                <groupId>com.uber.tchannel</groupId>
+                <artifactId>tchannel-core</artifactId>
+                <version>${tchannel.version}</version>
             </dependency>
             <dependency>
                 <groupId>com.zaxxer</groupId>

@@ -59,7 +59,7 @@ public class AthenaxJobGraphGenerator extends TopologyDagVisitor {
 	private EnvironmentService environmentService;
 	private TopologyLayout topology;
 	private String runAsUser;
-	private StreamlineSource streamlineSource;
+	private List<StreamlineSource> streamlineSourceList = new ArrayList<>();
 	private StreamlineSink streamlineSink;
 	private String sql;
 	private boolean legalAthenaXJob;
@@ -79,15 +79,11 @@ public class AthenaxJobGraphGenerator extends TopologyDagVisitor {
 	@Override
 	public void visit(StreamlineSource source) {
 		LOG.debug("Visiting source: {}", source);
-		if (streamlineSource != null) {
-			legalAthenaXJob = false;
-			LOG.error("Only single source supported in AthenaX");
-		}
 		if (!(source instanceof KafkaSource)) {
 			legalAthenaXJob = false;
-			LOG.error("Only Kafka source supported in AthenaX");
+			LOG.error("Only Kafka sources supported in AthenaX");
 		}
-		streamlineSource = source;
+		streamlineSourceList.add(source);
 	}
 
 	@Override
@@ -254,34 +250,36 @@ public class AthenaxJobGraphGenerator extends TopologyDagVisitor {
 	}
 
 	private List<Connector> getInputConnectors(String dataCenter, String cluster) {
-		Namespace namespace = getNamespaceFromComponent(streamlineSource);
-		Map<String, String> kafkaConfigMap = getKafkaConfigMap(namespace);
-		String zkConnectionStr = kafkaConfigMap.get(PARAM_ZOOKEEPER_CONNECT);
-
 		// input connectors(kafka only for AthenaX)
 		List<Connector> inputConnectors = new ArrayList<>();
 
-		Config sourceConfig = streamlineSource.getConfig();
+		for (StreamlineSource streamlineSource : streamlineSourceList) {
+			Namespace namespace = getNamespaceFromComponent(streamlineSource);
+			Map<String, String> kafkaConfigMap = getKafkaConfigMap(namespace);
+			String zkConnectionStr = kafkaConfigMap.get(PARAM_ZOOKEEPER_CONNECT);
 
-		// extract kafka properties
-		Properties kafkaProperties = new Properties();
-		kafkaProperties.put(BOOTSTRAP_SERVERS, sourceConfig.get("bootstrapServers"));
-		kafkaProperties.put(GROUP_ID, getConsumerGroupId(dataCenter, cluster));
+			Config sourceConfig = streamlineSource.getConfig();
 
-		kafkaProperties.put(ENABLE_AUTO_COMMIT, "false");
-		kafkaProperties.put(HEATPIPE_APP_ID, topology.getName());
-		kafkaProperties.put(HEATPIPE_KAFKA_HOST_PORT, "localhost:18083");
-		kafkaProperties.put(HEATPIPE_SCHEMA_SERVICE_HOST_PORT, "localhost:14040");
+			// extract kafka properties
+			Properties kafkaProperties = new Properties();
+			kafkaProperties.put(BOOTSTRAP_SERVERS, sourceConfig.get("bootstrapServers"));
+			kafkaProperties.put(GROUP_ID, getConsumerGroupId(dataCenter, cluster));
 
-		String topicName = sourceConfig.get(KAFKA_TOPIC);
-		Connector kafkaInput = new Connector();
-		kafkaInput.setProperties(kafkaProperties);
-		kafkaInput.setType(TYPE_KAFKA);
-		kafkaInput.setName(topicName);
+			kafkaProperties.put(ENABLE_AUTO_COMMIT, "false");
+			kafkaProperties.put(HEATPIPE_APP_ID, topology.getName());
+			kafkaProperties.put(HEATPIPE_KAFKA_HOST_PORT, "localhost:18083");
+			kafkaProperties.put(HEATPIPE_SCHEMA_SERVICE_HOST_PORT, "localhost:14040");
 
-		kafkaInput.setUri(HEATPIPE_PROTOCOL_PREFIX + getHostPortListOnly(zkConnectionStr) + "/" + topicName);
+			String topicName = sourceConfig.get(KAFKA_TOPIC);
+			Connector kafkaInput = new Connector();
+			kafkaInput.setProperties(kafkaProperties);
+			kafkaInput.setType(TYPE_KAFKA);
+			kafkaInput.setName(topicName);
 
-		inputConnectors.add(kafkaInput);
+			kafkaInput.setUri(HEATPIPE_PROTOCOL_PREFIX + getHostPortListOnly(zkConnectionStr) + "/" + topicName);
+
+			inputConnectors.add(kafkaInput);
+		}
 
 		return inputConnectors;
 	}

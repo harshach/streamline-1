@@ -338,6 +338,9 @@ a.dropdown-toggle~ul.dropdown-menu {
   height: 550px;
   /*overflow-y: auto;*/
 }
+.config-modal>.modal-content>.modal-body {
+  height: 600px;
+}
 
 .rule-modal-fixed-height>.modal-content>.modal-body {
   height: 550px;
@@ -476,7 +479,6 @@ label {
 .source-modal-form {
   margin-left: 10px;
   width: 72%;
-  position: absolute;
   top: 0;
   padding-top: 5px !important;
   margin: 0 !important;
@@ -6078,4 +6080,7 @@ background: #fff
 }
 .no-access-note{
   margin-top: 100px;
+}
+.position-absolute {
+  position: absolute !important;
 }

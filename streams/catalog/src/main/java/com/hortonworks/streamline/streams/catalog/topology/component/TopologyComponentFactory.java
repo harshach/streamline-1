@@ -52,6 +52,7 @@ import com.hortonworks.streamline.streams.layout.component.impl.HdfsSource;
 import com.hortonworks.streamline.streams.layout.component.impl.HiveSink;
 import com.hortonworks.streamline.streams.layout.component.impl.KafkaSink;
 import com.hortonworks.streamline.streams.layout.component.impl.KafkaSource;
+import com.hortonworks.streamline.streams.layout.component.impl.M3Sink;
 import com.hortonworks.streamline.streams.layout.component.impl.MultiLangProcessor;
 import com.hortonworks.streamline.streams.layout.component.impl.NotificationSink;
 import com.hortonworks.streamline.streams.layout.component.impl.RTASink;
@@ -83,6 +84,7 @@ import static com.hortonworks.streamline.common.ComponentTypes.HDFS;
 import static com.hortonworks.streamline.common.ComponentTypes.HIVE;
 import static com.hortonworks.streamline.common.ComponentTypes.JOIN;
 import static com.hortonworks.streamline.common.ComponentTypes.KAFKA;
+import static com.hortonworks.streamline.common.ComponentTypes.M3;
 import static com.hortonworks.streamline.common.ComponentTypes.MULTILANG;
 import static com.hortonworks.streamline.common.ComponentTypes.NORMALIZATION;
 import static com.hortonworks.streamline.common.ComponentTypes.NOTIFICATION;
@@ -275,6 +277,7 @@ public class TopologyComponentFactory {
         builder.put(kafkaSinkProvider());
         builder.put(rtaSinkProvider());
         builder.put(cassandraSinkProvider());
+        builder.put(m3SinkProvider());
         return builder.build();
     }
 
@@ -639,5 +642,15 @@ public class TopologyComponentFactory {
             }
         };
         return new SimpleImmutableEntry<>(CASSANDRA, provider);
+    }
+
+    private Map.Entry<String, Provider<StreamlineSink>> m3SinkProvider() {
+        Provider<StreamlineSink> provider = new Provider<StreamlineSink>() {
+            @Override
+            public StreamlineSink create(TopologyComponent component) {
+                return new M3Sink();
+            }
+        };
+        return new SimpleImmutableEntry<>(M3, provider);
     }
 }

@@ -11,6 +11,10 @@ public class AthenaxConstants {
     public static final String ATHENAX_RUNTIME_STATUS_INACTIVE = "inactive";
     public static final String ATHENAX_RUNTIME_STATUS_UNKNOWN = "unknown";
 
+    public static final String ATHENAX_METRIC_PARAM_JOB_NAME = "jobName";
+    public static final String ATHENAX_METRIC_PARAM_DC = "dc";
+    public static final String ATHENAX_METRIC_PARAM_ENV = "env";
+
     // TODO: consolidate the following with the ones in com.hortonworks.streamline.streams.cluster.register.impl.AthenaxServiceRegistrar
     public static final String ATHENAX_SERVICE_NAME = "ATHENAX";
     public static final String ATHENAX_SERVICE_HOST_KEY = "athenax.service.host";

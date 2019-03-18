@@ -1,11 +1,13 @@
 package com.hortonworks.streamline.streams.actions.athenax.topology;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.hortonworks.streamline.common.Config;
 import com.hortonworks.streamline.streams.cluster.catalog.Namespace;
 import com.hortonworks.streamline.streams.cluster.catalog.Service;
 import com.hortonworks.streamline.streams.cluster.catalog.ServiceConfiguration;
 import com.hortonworks.streamline.streams.cluster.discovery.ambari.ServiceConfigurations;
 import com.hortonworks.streamline.streams.cluster.service.EnvironmentService;
+import com.hortonworks.streamline.streams.common.athenax.AthenaxConstants;
 import com.hortonworks.streamline.streams.common.athenax.entity.Connector;
 import com.hortonworks.streamline.streams.common.athenax.entity.DeployRequest;
 import com.hortonworks.streamline.streams.common.athenax.entity.JobDefinition;
@@ -19,6 +21,7 @@ import com.hortonworks.streamline.streams.layout.component.TopologyLayout;
 import com.hortonworks.streamline.streams.layout.component.impl.CassandraSink;
 import com.hortonworks.streamline.streams.layout.component.impl.KafkaSink;
 import com.hortonworks.streamline.streams.layout.component.impl.KafkaSource;
+import com.hortonworks.streamline.streams.layout.component.impl.M3Sink;
 import com.hortonworks.streamline.streams.layout.component.impl.RTASink;
 import com.hortonworks.streamline.streams.layout.component.impl.RulesProcessor;
 import com.hortonworks.streamline.streams.layout.component.impl.SqlProcessor;
@@ -27,12 +30,12 @@ import com.hortonworks.streamline.streams.registry.table.RTADeployTableRequest;
 import com.hortonworks.streamline.streams.registry.table.RTAQueryTypes;
 import com.hortonworks.streamline.streams.registry.table.RTATableField;
 import com.hortonworks.streamline.streams.registry.table.RTATableMetadata;
-import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
@@ -90,9 +93,10 @@ public class AthenaxJobGraphGenerator extends TopologyDagVisitor {
 	@Override
 	public void visit(StreamlineSink sink) {
 		LOG.debug("Visiting sink: {}", sink);
-		if (!(sink instanceof RTASink || sink instanceof KafkaSink || sink instanceof CassandraSink)) {
+		if (!(sink instanceof RTASink || sink instanceof KafkaSink
+                || sink instanceof CassandraSink || sink instanceof M3Sink)) {
 			legalAthenaXJob = false;
-			LOG.error("Only Kafka/RTA/Cassandra sinks supported in AthenaX");
+			LOG.error("Only Kafka/M3/RTA/Cassandra sinks supported in AthenaX");
 		}
 		streamlineSinkList.add(sink);
 	}
@@ -201,8 +205,8 @@ public class AthenaxJobGraphGenerator extends TopologyDagVisitor {
 		// input connectors (kafka only)
 		jobDef.setInput(getInputConnectors(dataCenter, cluster));
 
-		// output connectors(kafka/RTA only)
-		jobDef.setOutput(getOutputConnectors());
+		// output connectors(Kafka/M3/RTA/Cassandra)
+		jobDef.setOutput(getOutputConnectors(dataCenter, cluster));
 
 		// only stream is supported at this time
 		jobDef.setIsBackfill(false);
@@ -280,7 +284,7 @@ public class AthenaxJobGraphGenerator extends TopologyDagVisitor {
 		return zkConnectionStr.split("/")[0];
 	}
 
-	private List<Connector> getOutputConnectors() throws Exception {
+	private List<Connector> getOutputConnectors(String dataCenter, String cluster) throws Exception {
 		List<Connector> outputConnectors = new ArrayList<>();
 
 		for (StreamlineSink sink : streamlineSinkList) {
@@ -306,34 +310,100 @@ public class AthenaxJobGraphGenerator extends TopologyDagVisitor {
 
 				outputConnectors.add(kafkaOutput);
 			} else if (sink instanceof CassandraSink) {
-				Config sinkConfig = sink.getConfig();
-
-				Properties cassandraProperties = new Properties();
-				String ttl = sinkConfig.get("ttl");
-				if (ttl != null) {
-					cassandraProperties.put("ttl", ttl);
-				}
-
-				String uriFormat = "cassandra://%s/%s/%s";
-				String servers = sinkConfig.get("servers");
-				UnsContactPointsResolver unsContactPointsResolver = new UnsContactPointsResolver();
-				List<String> hostAddrs
-						= unsContactPointsResolver.getContactPoints(servers, "NativeTransport");
-				String keyspace = sinkConfig.get("keyspace");
-				String table = sinkConfig.get("table");
-				String uri = String.format(uriFormat, StringUtils.join(hostAddrs, ","), keyspace, table);
-
-				Connector cassandraOutput = new Connector();
-				cassandraOutput.setName(sinkConfig.get("name"));
-				cassandraOutput.setProperties(cassandraProperties);
-				cassandraOutput.setType(Connector.CASSANDRA);
-				cassandraOutput.setUri(uri);
-
-				outputConnectors.add(cassandraOutput);
+				outputConnectors.add(buildCassandraOutput(sink));
+			} else if (sink instanceof M3Sink) {
+				outputConnectors.add(buildM3Output(sink, dataCenter, cluster));
 			}
 		}
-
 		return outputConnectors;
+	}
+
+	private Connector buildCassandraOutput(StreamlineSink sink) throws Exception {
+		Config sinkConfig = sink.getConfig();
+
+		Properties cassandraProperties = new Properties();
+		String ttl = sinkConfig.get("ttl");
+		if (ttl != null) {
+			cassandraProperties.put("ttl", ttl);
+		}
+
+		String uriFormat = "cassandra://%s/%s/%s";
+		String servers = sinkConfig.get("servers");
+		UnsContactPointsResolver unsContactPointsResolver = new UnsContactPointsResolver();
+		List<String> hostAddrs
+				= unsContactPointsResolver.getContactPoints(servers, "NativeTransport");
+		String keyspace = sinkConfig.get("keyspace");
+		String table = sinkConfig.get("table");
+		String uri = String.format(uriFormat, String.join(",", hostAddrs), keyspace, table);
+
+		Connector cassandraOutput = new Connector();
+		cassandraOutput.setName(sinkConfig.get("name"));
+		cassandraOutput.setProperties(cassandraProperties);
+		cassandraOutput.setType(Connector.CASSANDRA);
+		cassandraOutput.setUri(uri);
+
+		return cassandraOutput;
+	}
+
+	private Connector buildM3Output(StreamlineSink sink, String dataCenter, String cluster) throws Exception {
+		Config sinkConfig = sink.getConfig();
+
+		Properties m3Properties = new Properties();
+		ObjectMapper mapper = new ObjectMapper();
+
+		Map<String, String> commonTagMap = new HashMap<>();
+		commonTagMap.put(AthenaxConstants.ATHENAX_METRIC_PARAM_DC, dataCenter);
+		commonTagMap.put(AthenaxConstants.ATHENAX_METRIC_PARAM_ENV, cluster);
+		commonTagMap.put(AthenaxConstants.ATHENAX_METRIC_PARAM_JOB_NAME, topology.getName());
+		m3Properties.put("m3.commonTag", mapper.writeValueAsString(commonTagMap));
+
+		List<Map<String, Object>> m3Metrics = sinkConfig.getAny("metrics");
+		Map<String, Map<String, String>> fieldTagMap = getFieldTagMap(m3Metrics);
+		m3Properties.put("m3.fieldTag", mapper.writeValueAsString(fieldTagMap));
+		String uri = getM3Uri(m3Metrics);
+
+		Connector m3Output = new Connector();
+		m3Output.setName(sinkConfig.get("outputName"));
+		m3Output.setProperties(m3Properties);
+		m3Output.setType(Connector.M3);
+		m3Output.setUri(uri);
+
+		return m3Output;
+	}
+
+	protected static String getM3Uri(List<Map<String, Object>> m3Metrics) {
+		String uri = "m3://?";
+		Map<String, List<String>> typeNamesMapping = new HashMap<>();
+		for (Map<String, Object> m3Metric : m3Metrics) {
+			String metricName = (String) m3Metric.get("metricName");
+			String metricType = (String) m3Metric.get("metricType");
+
+			typeNamesMapping.putIfAbsent(metricType, new ArrayList<>());
+			typeNamesMapping.get(metricType).add(metricName);
+		}
+		List<String> typeParams = new ArrayList<>();
+		for (Map.Entry<String, List<String>> entry : typeNamesMapping.entrySet()) {
+			typeParams.add(String.format("%s=%s", entry.getKey(), String.join(",", entry.getValue())));
+		}
+		return uri.concat(String.join("&", typeParams));
+	}
+
+	protected static Map<String, Map<String, String>> getFieldTagMap(List<Map<String, Object>> m3Metrics) {
+		Map<String, Map<String, String>> fieldTagMap = new HashMap<>();
+		for (Map<String, Object> m3Metric : m3Metrics) {
+			String metricName = (String) m3Metric.get("metricName");
+			String tagString = (String) m3Metric.get("tags");
+
+			Map<String, String> tagValueMap = new HashMap<>();
+			for (String splitTagString : tagString.split(",")) {
+				String[] tagValue = splitTagString.split(":", 2);
+				String tag = tagValue[0].trim();
+				String value = tagValue[1].trim();
+				tagValueMap.put(tag, value);
+			}
+			fieldTagMap.putIfAbsent(metricName, tagValueMap);
+		}
+		return fieldTagMap;
 	}
 
 	private void errorIfIllegalAthenaxJob() throws Exception {

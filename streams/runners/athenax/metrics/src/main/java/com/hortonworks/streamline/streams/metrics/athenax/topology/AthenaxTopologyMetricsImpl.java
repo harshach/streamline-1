@@ -31,9 +31,6 @@ import java.util.Map;
 public class AthenaxTopologyMetricsImpl implements TopologyMetrics {
 
     private static final String ATHENAX_METRIC_FRAMEWORK = "ATHENAX";
-    private static final String ATHENAX_METRIC_PARAM_JOB_NAME = "jobName";
-    private static final String ATHENAX_METRIC_PARAM_DC = "dc";
-    private static final String ATHENAX_METRIC_PARAM_ENV = "env";
 
     private Map<String, String> configMap;
     private TimeSeriesQuerier timeSeriesQuerier;
@@ -147,9 +144,9 @@ public class AthenaxTopologyMetricsImpl implements TopologyMetrics {
         String jobName = topology.getName();
         String yarnDataCenter = configMap.get(AthenaxConstants.ATHENAX_YARN_DATA_CENTER_KEY);
         String yarnCluster = configMap.get(AthenaxConstants.ATHENAX_YARN_CLUSTER_KEY);
-        metricParams.put(ATHENAX_METRIC_PARAM_JOB_NAME, jobName);
-        metricParams.put(ATHENAX_METRIC_PARAM_DC, yarnDataCenter);
-        metricParams.put(ATHENAX_METRIC_PARAM_ENV, yarnCluster);
+        metricParams.put(AthenaxConstants.ATHENAX_METRIC_PARAM_JOB_NAME, jobName);
+        metricParams.put(AthenaxConstants.ATHENAX_METRIC_PARAM_DC, yarnDataCenter);
+        metricParams.put(AthenaxConstants.ATHENAX_METRIC_PARAM_ENV, yarnCluster);
 
         // merge (overwrite) params from client
         for (Map.Entry<String,String> entry : clientMetricParams.entrySet()) {

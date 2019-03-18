@@ -1,5 +1,6 @@
 package com.hortonworks.streamline.streams.actions.athenax.topology;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.hortonworks.streamline.common.Config;
 import com.hortonworks.streamline.streams.cluster.catalog.ServiceConfiguration;
 import com.hortonworks.streamline.streams.cluster.service.EnvironmentService;
@@ -15,6 +16,10 @@ import mockit.Mocked;
 import mockit.integration.junit4.JMockit;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -77,5 +82,21 @@ public class AthenaxJobGraphGeneratorTest {
     assertEquals("uworc", job.serviceName());
     assertEquals(sql, job.transformQuery());
     assertFalse(job.isBackfill());
+  }
+
+  @Test
+  public void testGetM3Config() throws Exception {
+    ObjectMapper mapper = new ObjectMapper();
+
+    String configStr = "[{\"metricName\":\"name1\",\"metricType\":\"count\",\"tags\":\"tag1:value1\"},{\"metricName\":\"name2\",\"metricType\":\"count\",\"tags\":\"tag2:value2\"},{\"metricName\":\"name3\",\"metricType\":\"gauge\",\"tags\":\"tag3:value3\"},{\"metricName\":\"name4\",\"metricType\":\"timer\",\"tags\":\"tag4:value4,tag5:value5\"}]";
+    List<Map<String, Object>> metrics = mapper.readValue(configStr, ArrayList.class);
+
+    String m3Uri = AthenaxJobGraphGenerator.getM3Uri(metrics);
+    assertEquals("m3://?gauge=name3&timer=name4&count=name1,name2", m3Uri);
+
+    Map<String, Map<String, String>> fieldTagMap = AthenaxJobGraphGenerator.getFieldTagMap(metrics);
+    String expectedMapStr = "{\"name1\":{\"tag1\":\"value1\"},\"name2\":{\"tag2\":\"value2\"},\"name3\":{\"tag3\":\"value3\"},\"name4\":{\"tag4\":\"value4\",\"tag5\":\"value5\"}}";
+    Map<String, Map<String, String>> expectedFieldTagMap = mapper.readValue(expectedMapStr, Map.class);
+    assertEquals(expectedFieldTagMap, fieldTagMap);
   }
 }

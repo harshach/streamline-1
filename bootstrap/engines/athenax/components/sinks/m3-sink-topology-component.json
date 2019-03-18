@@ -1,0 +1,55 @@
+{
+  "type": "SINK",
+  "name": "M3",
+  "subType": "M3",
+  "engine": "ATHENAX",
+  "template": ["Blank"],
+  "builtin": true,
+  "transformationClass": "com.hortonworks.streamline.streams.layout.component.impl.M3Sink",
+  "mavenDeps": "",
+  "input": true,
+  "output": false,
+  "topologyComponentUISpecification": {
+    "fields": [
+      {
+        "uiName": "Output Name",
+        "fieldName": "outputName",
+        "isOptional": false,
+        "tooltip": "Unique identifier for your M3 output",
+        "type": "string"
+      },
+      {
+        "uiName": "Metrics",
+        "fieldName": "metrics",
+        "tooltip": "List of output metrics",
+        "isOptional": false,
+        "type": "array.object",
+        "fields": [
+          {
+            "uiName": "Metric Name",
+            "fieldName": "metricName",
+            "isOptional": false,
+            "tooltip": "Descriptive name of the metric. This should appear as a SELECT field in the transform SQL query",
+            "type": "string"
+          },
+          {
+            "uiName": "Metric Type",
+            "fieldName": "metricType",
+            "tooltip": "Type of the metric",
+            "isOptional": false,
+            "type": "enumstring",
+            "isUserInput": false,
+            "options": ["Gauge", "Timer", "Count"]
+          },
+          {
+            "uiName": "Tags",
+            "fieldName": "tags",
+            "tooltip": "Associated tags in the format of tag1:value1,tag2:value2",
+            "isOptional": false,
+            "type": "string"
+          }
+        ]
+      }
+    ]
+  }
+}

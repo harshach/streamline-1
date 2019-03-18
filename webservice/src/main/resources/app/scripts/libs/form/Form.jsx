@@ -75,9 +75,13 @@ export default class FSForm extends Component {
           if(this.props.showRequired === false){
             if(this.props.showSecurity) {
               className = child.props.fieldJson.hint && child.props.fieldJson.hint.indexOf('security_') > -1 ? '' :'hidden';
+            } else if(this.props.showDataCenter){
+              className = child.props.fieldJson.hint && child.props.fieldJson.hint.indexOf('datacenter') > -1 ? '' :'hidden';
             } else {
               className = child.props.fieldJson.isOptional ? '' :'hidden';
-              if(child.props.fieldJson.hint && child.props.fieldJson.hint.indexOf('security_') > -1) {
+              if(child.props.fieldJson.hint &&
+                  (child.props.fieldJson.hint.indexOf('security_') > -1 || child.props.fieldJson.hint.indexOf('datacenter') > -1)
+                ) {
                 className = 'hidden';
               }
             }
@@ -85,8 +89,11 @@ export default class FSForm extends Component {
           if(this.props.showRequired == null){
             if(this.props.showSecurity == true) {
               className = child.props.fieldJson.hint && child.props.fieldJson.hint.indexOf('security_') > -1 ? '' :'hidden';
+            } else if(this.props.showDataCenter == true){
+              className = child.props.fieldJson.hint && child.props.fieldJson.hint.indexOf('datacenter') > -1 ? '' :'hidden';
             } else {
-              className = child.props.fieldJson.hint && child.props.fieldJson.hint.indexOf('security_') > -1 ? 'hidden' :'';
+              className = child.props.fieldJson.hint &&
+                (child.props.fieldJson.hint.indexOf('security_') > -1 || child.props.fieldJson.hint.indexOf('datacenter') > -1) ? 'hidden' :'';
             }
           }
           if(this.props.showRequired === true && child.props.fieldJson.isOptional === false ){

@@ -1,0 +1,132 @@
+ol.progtrckr {
+  list-style-type: none;
+  padding: 0;
+}
+
+ol.progtrckr li {
+  position: relative;
+  display: inline-block;
+  text-align: center;
+  line-height: 4.5rem;
+  cursor: pointer;
+}
+ol.progtrckr li:last-child {
+  display: none;
+}
+ol.progtrckr li:after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: calc(50% + 0.5em);
+  width: 100%;
+  border-top: 2px #E5E5E5 solid;
+}
+ol.progtrckr li:nth-last-child(2):after {
+  border: none;
+}
+
+ol.progtrckr li + li {
+  margin-left: -4px;
+}
+
+ol.progtrckr li span {
+  padding: 0 1.5rem;
+}
+
+@media (max-width: 650px) {
+  .progtrckr li span {
+    display: none;
+  }
+}
+.progtrckr em {
+  display: none;
+  font-weight: 700;
+  padding-left: 1rem;
+}
+
+@media (max-width: 650px) {
+  .progtrckr em {
+    display: inline;
+  }
+}
+
+ol.progtrckr li.progtrckr-todo {
+  color: #999999;
+}
+
+ol.progtrckr li.progtrckr-doing {
+  color: black;
+}
+
+ol.progtrckr li.progtrckr-done {
+  color: #999999;
+}
+ol.progtrckr li.progtrckr-done:after {
+  border-color: #1B6DE0;
+}
+
+ol.progtrckr li:before {
+  position: relative;
+  top: -6px;
+  float: left;
+  left: 50%;
+  z-index: 9;
+}
+
+ol.progtrckr li.progtrckr-todo:before {
+  content: "";
+  color: white;
+  background-color: #CCCCCC;
+  width: 1em;
+  height: 1em;
+  line-height: 1em;
+  border-radius: 1em;
+}
+
+ol.progtrckr li.progtrckr-todo:hover:before {
+  color: #ff4500;
+}
+
+ol.progtrckr li.progtrckr-doing:before {
+  content: "\2022";
+  color: #1B6DE0;
+  background-color: #E8F0FC;
+  width: 1em;
+  line-height: 1em;
+  border-radius: 1em;
+}
+
+ol.progtrckr li.progtrckr-doing:hover:before {
+  color: #E8F0FC;
+  background-color: #1B6DE0;
+}
+
+ol.progtrckr li.progtrckr-done:before {
+  content: "";
+  color: white;
+  background-color: #1B6DE0;
+  width: 1em;
+  height: 1em;
+  line-height: 1em;
+  border-radius: 1em;
+}
+
+ol.progtrckr li.progtrckr-done:hover:before {
+  color: #333;
+}
+.footer-buttons:before,
+.footer-buttons:after {
+  content: " ";
+  display: table
+}
+.footer-buttons:after {
+  clear: both
+}
+.footer-buttons {
+  border-top: 1px solid #E8E8E8;
+  padding: 15px 0;
+  text-align: right;
+}
+.step-progress .source-modal-form.app-config {
+  padding-bottom: 15px;
+}

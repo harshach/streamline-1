@@ -368,7 +368,7 @@ export default class SourceNodeForm extends Component {
             <img src="styles/img/start-loader.gif" alt="loading"/>
           </div>
         </div>
-      : <div className="source-modal-form">
+      : <div className="source-modal-form position-absolute">
         <Scrollbars autoHide renderThumbHorizontal={props => <div {...props} style={{
           display: "none"
         }}/>}>

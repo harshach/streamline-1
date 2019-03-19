@@ -1367,7 +1367,7 @@ export class TopologyEditorContainer extends Component {
             versionId={this.versionId} data={mapTopologyConfig}
             topologyName={this.state.topologyName} uiConfigFields={this.topologyConfigData}
             testRunActivated={this.state.testRunActivated} topologyNodes={this.graphData.nodes}
-            handleSaveConfig={this.handleSaveConfig.bind(this)}
+            handleSaveConfig={this.handleSaveConfig.bind(this)} engine={this.engine}
           />
         </Modal>
         {/* NodeModal for Development Mode for source*/}

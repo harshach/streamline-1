@@ -362,6 +362,8 @@ export default class TopologyConfigContainer extends Component {
                       showSecurity={false}
                       FormRef={this.refs.Form}
                       getFormData={this.getFormData}
+                      engine={this.props.engine}
+                      handleSaveConfig={this.state.hasSecurity ? null : this.props.handleSaveConfig}
                     />
       }
     ];
@@ -377,20 +379,24 @@ export default class TopologyConfigContainer extends Component {
                       FormRef={this.refs.Form}
                       populateClusterFields={this.populateClusterFields.bind(this)}
                       getFormData={this.getFormData}
+                      engine={this.props.engine}
+                      handleSaveConfig={this.props.handleSaveConfig}
                     />
       });
     }
-    steps.push({
-      name: 'Advanced (Optional)',
-      component: <AdvSetting
-                    disabledFields={disabledFields}
-                    advancedField={advancedField}
-                    advanedFieldChange={this.advanedFieldChange.bind(this)}
-                    addAdvancedRowField={this.addAdvancedRowField.bind(this)}
-                    deleteAdvancedRowField={this.deleteAdvancedRowField.bind(this)}
-                    handleSaveConfig={this.props.handleSaveConfig}
-                  />
-    });
+    if(this.props.engine.name.toLowerCase() == 'storm'){
+      steps.push({
+        name: 'Advanced (Optional)',
+        component: <AdvSetting
+                      disabledFields={disabledFields}
+                      advancedField={advancedField}
+                      advanedFieldChange={this.advanedFieldChange.bind(this)}
+                      addAdvancedRowField={this.addAdvancedRowField.bind(this)}
+                      deleteAdvancedRowField={this.deleteAdvancedRowField.bind(this)}
+                      handleSaveConfig={this.props.handleSaveConfig}
+                    />
+      });
+    }
     steps.push({
       name: 'Blank',
       component: <Blank/>
@@ -431,7 +437,7 @@ class Settings extends Component{
     super(props);
   }
   isValidated(){
-    let {showDCFields, getFormData} = this.props;
+    let {showDCFields, getFormData, engine, handleSaveConfig} = this.props;
     let validDataFlag = false, validateError = [];
     const {isFormValid, invalidFields} = this.refs.Form.validate();
     if (isFormValid) {
@@ -455,6 +461,9 @@ class Settings extends Component{
       }
     }
     getFormData(this.refs.Form.state.FormData);
+    if(engine && engine.name.toLowerCase() !== 'storm' && handleSaveConfig !== undefined){
+      handleSaveConfig();
+    }
     return true;
   }
   render(){

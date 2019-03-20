@@ -1,0 +1,65 @@
+{
+  "type": "SINK",
+  "name": "MySQL",
+  "subType": "MYSQL",
+  "engine": "ATHENAX",
+  "template": ["Blank"],
+  "builtin": true,
+  "transformationClass": "com.hortonworks.streamline.streams.layout.component.impl.JDBCSink",
+  "mavenDeps": "",
+  "input": true,
+  "output": false,
+  "topologyComponentUISpecification": {
+    "fields": [
+      {
+        "uiName": "Name",
+        "fieldName": "name",
+        "isOptional": false,
+        "tooltip": "Unique identifier for your MySQL output",
+        "type": "string"
+      },
+      {
+        "uiName": "Connection String",
+        "fieldName": "connectionString",
+        "isOptional": false,
+        "tooltip": "URL for MySQL/JDBC connection",
+        "type": "string"
+      },
+      {
+        "uiName": "Table",
+        "fieldName": "table",
+        "isOptional": false,
+        "tooltip": "MySQL table to write to",
+        "type": "string"
+      },
+      {
+        "uiName": "Username",
+        "fieldName": "username",
+        "isOptional": false,
+        "tooltip": "MySQL username",
+        "type": "string"
+      },
+      {
+        "uiName": "Password",
+        "fieldName": "password",
+        "isOptional": false,
+        "tooltip": "MySQL password",
+        "type": "string"
+      },
+      {
+        "uiName": "Field Names",
+        "fieldName": "fieldNames",
+        "isOptional": false,
+        "tooltip": "Comma separated string of field names",
+        "type": "string"
+      },
+      {
+        "uiName": "Produce Query",
+        "fieldName": "produceQuery",
+        "isOptional": false,
+        "tooltip": "MySQL query to insert data into the table",
+        "type": "string"
+      }
+    ]
+  }
+}

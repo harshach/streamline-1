@@ -19,6 +19,7 @@ import com.hortonworks.streamline.streams.layout.component.StreamlineSource;
 import com.hortonworks.streamline.streams.layout.component.TopologyDagVisitor;
 import com.hortonworks.streamline.streams.layout.component.TopologyLayout;
 import com.hortonworks.streamline.streams.layout.component.impl.CassandraSink;
+import com.hortonworks.streamline.streams.layout.component.impl.JDBCSink;
 import com.hortonworks.streamline.streams.layout.component.impl.KafkaSink;
 import com.hortonworks.streamline.streams.layout.component.impl.KafkaSource;
 import com.hortonworks.streamline.streams.layout.component.impl.M3Sink;
@@ -35,6 +36,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -95,9 +98,9 @@ public class AthenaxJobGraphGenerator extends TopologyDagVisitor {
 		LOG.debug("Visiting sink: {}", sink);
 		if (!(sink instanceof RTASink || sink instanceof KafkaSink
                 || sink instanceof CassandraSink || sink instanceof M3Sink
-				|| sink instanceof TChannelSink)) {
+				|| sink instanceof TChannelSink || sink instanceof JDBCSink)) {
 			legalAthenaXJob = false;
-			LOG.error("Only Kafka/M3/RTA/Cassandra/TChannel sinks supported in AthenaX");
+			LOG.error("Only Kafka/M3/RTA/Cassandra/TChannel/JDBC sinks supported in AthenaX");
 		}
 		streamlineSinkList.add(sink);
 	}
@@ -206,7 +209,7 @@ public class AthenaxJobGraphGenerator extends TopologyDagVisitor {
 		// input connectors (kafka only)
 		jobDef.setInput(getInputConnectors(dataCenter, cluster));
 
-		// output connectors(Kafka/M3/RTA/Cassandra/TChannel)
+		// output connectors(Kafka/M3/RTA/Cassandra/TChannel/JDBC)
 		jobDef.setOutput(getOutputConnectors(dataCenter, cluster));
 
 		// only stream is supported at this time
@@ -316,6 +319,8 @@ public class AthenaxJobGraphGenerator extends TopologyDagVisitor {
 				outputConnectors.add(buildM3Output(sink, dataCenter, cluster));
 			} else if (sink instanceof TChannelSink) {
 				outputConnectors.add(buildTChannelOutput(sink));
+			} else if (sink instanceof JDBCSink) {
+				outputConnectors.add(buildJDBCOutput(sink));
 			}
 		}
 		return outputConnectors;
@@ -325,7 +330,7 @@ public class AthenaxJobGraphGenerator extends TopologyDagVisitor {
 		Config sinkConfig = sink.getConfig();
 
 		Properties cassandraProperties = new Properties();
-		String ttl = sinkConfig.get(CassandraConstants.TTL);
+		String ttl = sinkConfig.getAny(CassandraConstants.TTL);
 		if (ttl != null) {
 			cassandraProperties.put(CassandraConstants.TTL, ttl);
 		}
@@ -389,6 +394,45 @@ public class AthenaxJobGraphGenerator extends TopologyDagVisitor {
 		tChannelOutput.setUri(uri);
 
 		return tChannelOutput;
+	}
+
+	private Connector buildJDBCOutput(StreamlineSink sink) throws Exception {
+		Config sinkConfig = sink.getConfig();
+
+		String username = sinkConfig.get(JDBCConstants.USERNAME);
+		// TODO: use Langley key here instead
+		String password = sinkConfig.get(JDBCConstants.PASSWORD);
+		String table = sinkConfig.get(JDBCConstants.TABLE);
+		String produceQuery = sinkConfig.get(JDBCConstants.PRODUCE_QUERY);
+		String connectionString = sinkConfig.get(JDBCConstants.CONNECTION_STRING);
+
+		String uri = parseJDBCConnectionStringToFlinkJDBCUri(connectionString, table);
+
+		Properties jdbcProperties = new Properties();
+		jdbcProperties.put(JDBCConstants.CONNECTOR_KEY_USERNAME, username);
+		jdbcProperties.put(JDBCConstants.CONNECTOR_KEY_PASSWORD, password);
+		jdbcProperties.put(JDBCConstants.CONNECTOR_KEY_CONNECTION_STRING, connectionString);
+		jdbcProperties.put(JDBCConstants.CONNECTOR_KEY_QUERY, produceQuery);
+
+		Connector jdbcOutput = new Connector();
+		jdbcOutput.setName(sinkConfig.get(JDBCConstants.NAME));
+		jdbcOutput.setProperties(jdbcProperties);
+		jdbcOutput.setType(Connector.JDBC);
+		jdbcOutput.setUri(uri);
+
+		return jdbcOutput;
+	}
+
+	private static String parseJDBCConnectionStringToFlinkJDBCUri(String connString, String table) throws URISyntaxException {
+		if (!connString.startsWith("jdbc:")) {
+			throw new IllegalArgumentException("Invalid JDBC Conn String!");
+		}
+		URI uri = new URI(connString.substring(5).replaceAll("/$", "") + "/" + table);
+		if (uri.isOpaque()) {
+			throw new IllegalArgumentException("JDBC Connector does not support Opaque URI: " + uri);
+		}
+		String uriFormat = "jdbc://%s%s";
+		return String.format(uriFormat, uri.getAuthority(), uri.getPath());
 	}
 
 	protected static String getM3Uri(List<Map<String, Object>> m3Metrics) {

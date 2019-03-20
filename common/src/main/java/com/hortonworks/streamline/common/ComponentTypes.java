@@ -38,6 +38,7 @@ public class ComponentTypes {
     public static final String CASSANDRA = "CASSANDRA";
     public static final String M3 = "M3";
     public static final String TCHANNEL = "TCHANNEL";
+    public static final String JDBC = "JDBC";
     public static final String PROJECTION = "PROJECTION";
     public static final String BRANCH = "BRANCH";
     public static final String WINDOW = "WINDOW";

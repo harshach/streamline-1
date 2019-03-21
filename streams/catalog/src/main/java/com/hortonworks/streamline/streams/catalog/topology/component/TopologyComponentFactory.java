@@ -59,6 +59,7 @@ import com.hortonworks.streamline.streams.layout.component.impl.RTASink;
 import com.hortonworks.streamline.streams.layout.component.impl.RulesProcessor;
 import com.hortonworks.streamline.streams.layout.component.impl.JoinProcessor;
 import com.hortonworks.streamline.streams.layout.component.impl.SqlProcessor;
+import com.hortonworks.streamline.streams.layout.component.impl.TChannelSink;
 import com.hortonworks.streamline.streams.layout.component.impl.model.ModelProcessor;
 import com.hortonworks.streamline.streams.layout.component.impl.normalization.NormalizationConfig;
 import com.hortonworks.streamline.streams.layout.component.impl.normalization.NormalizationProcessor;
@@ -96,6 +97,7 @@ import static com.hortonworks.streamline.common.ComponentTypes.SPLIT;
 import static com.hortonworks.streamline.common.ComponentTypes.SQL;
 import static com.hortonworks.streamline.common.ComponentTypes.STAGE;
 import static com.hortonworks.streamline.common.ComponentTypes.TASK;
+import static com.hortonworks.streamline.common.ComponentTypes.TCHANNEL;
 import static com.hortonworks.streamline.common.ComponentTypes.WINDOW;
 import static java.util.AbstractMap.SimpleImmutableEntry;
 
@@ -278,6 +280,7 @@ public class TopologyComponentFactory {
         builder.put(rtaSinkProvider());
         builder.put(cassandraSinkProvider());
         builder.put(m3SinkProvider());
+        builder.put(tChannelSinkProvider());
         return builder.build();
     }
 
@@ -652,5 +655,15 @@ public class TopologyComponentFactory {
             }
         };
         return new SimpleImmutableEntry<>(M3, provider);
+    }
+
+    private Map.Entry<String, Provider<StreamlineSink>> tChannelSinkProvider() {
+        Provider<StreamlineSink> provider = new Provider<StreamlineSink>() {
+            @Override
+            public StreamlineSink create(TopologyComponent component) {
+                return new TChannelSink();
+            }
+        };
+        return new SimpleImmutableEntry<>(TCHANNEL, provider);
     }
 }

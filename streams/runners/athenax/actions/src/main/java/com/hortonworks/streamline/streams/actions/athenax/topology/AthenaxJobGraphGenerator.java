@@ -25,6 +25,7 @@ import com.hortonworks.streamline.streams.layout.component.impl.M3Sink;
 import com.hortonworks.streamline.streams.layout.component.impl.RTASink;
 import com.hortonworks.streamline.streams.layout.component.impl.RulesProcessor;
 import com.hortonworks.streamline.streams.layout.component.impl.SqlProcessor;
+import com.hortonworks.streamline.streams.layout.component.impl.TChannelSink;
 import com.hortonworks.streamline.streams.registry.table.RTACreateTableRequest;
 import com.hortonworks.streamline.streams.registry.table.RTADeployTableRequest;
 import com.hortonworks.streamline.streams.registry.table.RTAQueryTypes;
@@ -56,7 +57,6 @@ public class AthenaxJobGraphGenerator extends TopologyDagVisitor {
 	private static final String HEATPIPE_APP_ID = "heatpipe.app_id";
 	private static final String HEATPIPE_KAFKA_HOST_PORT = "heatpipe.kafka.hostport";
 	private static final String HEATPIPE_SCHEMA_SERVICE_HOST_PORT = "heatpipe.schemaservice.hostport";
-	private static final String KAFKA_TOPIC = "topic";
 	private static final String HEATPIPE_PROTOCOL_PREFIX = "kafka+heatpipe://";
 
 
@@ -94,9 +94,10 @@ public class AthenaxJobGraphGenerator extends TopologyDagVisitor {
 	public void visit(StreamlineSink sink) {
 		LOG.debug("Visiting sink: {}", sink);
 		if (!(sink instanceof RTASink || sink instanceof KafkaSink
-                || sink instanceof CassandraSink || sink instanceof M3Sink)) {
+                || sink instanceof CassandraSink || sink instanceof M3Sink
+				|| sink instanceof TChannelSink)) {
 			legalAthenaXJob = false;
-			LOG.error("Only Kafka/M3/RTA/Cassandra sinks supported in AthenaX");
+			LOG.error("Only Kafka/M3/RTA/Cassandra/TChannel sinks supported in AthenaX");
 		}
 		streamlineSinkList.add(sink);
 	}
@@ -184,7 +185,7 @@ public class AthenaxJobGraphGenerator extends TopologyDagVisitor {
 		metaData.setQueryTypes(queryTypes);
 
 		// source topic for RTA ingestion, which is the topic defined in RTA sink
-		String rtaSourceTopicName = rtaSinkConfig.get(KAFKA_TOPIC);
+		String rtaSourceTopicName = rtaSinkConfig.get(RTAConstants.TOPIC);
 		metaData.setSourceName(rtaSourceTopicName);
 
 		return metaData;
@@ -205,7 +206,7 @@ public class AthenaxJobGraphGenerator extends TopologyDagVisitor {
 		// input connectors (kafka only)
 		jobDef.setInput(getInputConnectors(dataCenter, cluster));
 
-		// output connectors(Kafka/M3/RTA/Cassandra)
+		// output connectors(Kafka/M3/RTA/Cassandra/TChannel)
 		jobDef.setOutput(getOutputConnectors(dataCenter, cluster));
 
 		// only stream is supported at this time
@@ -254,7 +255,7 @@ public class AthenaxJobGraphGenerator extends TopologyDagVisitor {
 
 			// extract kafka properties
 			Properties kafkaProperties = new Properties();
-			kafkaProperties.put(BOOTSTRAP_SERVERS, sourceConfig.get("bootstrapServers"));
+			kafkaProperties.put(BOOTSTRAP_SERVERS, sourceConfig.get(KafkaConstants.BOOTSTRAP_SERVERS));
 			kafkaProperties.put(GROUP_ID, getConsumerGroupId(dataCenter, cluster));
 
 			kafkaProperties.put(ENABLE_AUTO_COMMIT, "false");
@@ -262,7 +263,7 @@ public class AthenaxJobGraphGenerator extends TopologyDagVisitor {
 			kafkaProperties.put(HEATPIPE_KAFKA_HOST_PORT, "localhost:18083");
 			kafkaProperties.put(HEATPIPE_SCHEMA_SERVICE_HOST_PORT, "localhost:14040");
 
-			String topicName = sourceConfig.get(KAFKA_TOPIC);
+			String topicName = sourceConfig.get(KafkaConstants.TOPIC);
 			Connector kafkaInput = new Connector();
 			kafkaInput.setProperties(kafkaProperties);
 			kafkaInput.setType(Connector.KAFKA);
@@ -293,14 +294,14 @@ public class AthenaxJobGraphGenerator extends TopologyDagVisitor {
 
 				// extract kafka properties
 				Properties kafkaProperties = new Properties();
-				String bootStrapServers = sinkConfig.get("bootstrapServers");
+				String bootStrapServers = sinkConfig.get(KafkaConstants.BOOTSTRAP_SERVERS);
 				kafkaProperties.put(BOOTSTRAP_SERVERS, bootStrapServers);
 				kafkaProperties.put(HEATPIPE_APP_ID, topology.getName());
 				kafkaProperties.put(HEATPIPE_KAFKA_HOST_PORT, "localhost:18083");
 				kafkaProperties.put(HEATPIPE_SCHEMA_SERVICE_HOST_PORT, "localhost:14040");
 				kafkaProperties.put(CLIENT_ID, UWORC_SERVICE_NAME + "/" + topology.getName());
 
-				String topicName = sinkConfig.get(KAFKA_TOPIC);
+				String topicName = sinkConfig.get(KafkaConstants.TOPIC);
 				Connector kafkaOutput = new Connector();
 				kafkaOutput.setProperties(kafkaProperties);
 				kafkaOutput.setType(Connector.KAFKA);
@@ -313,6 +314,8 @@ public class AthenaxJobGraphGenerator extends TopologyDagVisitor {
 				outputConnectors.add(buildCassandraOutput(sink));
 			} else if (sink instanceof M3Sink) {
 				outputConnectors.add(buildM3Output(sink, dataCenter, cluster));
+			} else if (sink instanceof TChannelSink) {
+				outputConnectors.add(buildTChannelOutput(sink));
 			}
 		}
 		return outputConnectors;
@@ -322,22 +325,22 @@ public class AthenaxJobGraphGenerator extends TopologyDagVisitor {
 		Config sinkConfig = sink.getConfig();
 
 		Properties cassandraProperties = new Properties();
-		String ttl = sinkConfig.get("ttl");
+		String ttl = sinkConfig.get(CassandraConstants.TTL);
 		if (ttl != null) {
-			cassandraProperties.put("ttl", ttl);
+			cassandraProperties.put(CassandraConstants.TTL, ttl);
 		}
 
 		String uriFormat = "cassandra://%s/%s/%s";
-		String servers = sinkConfig.get("servers");
+		String servers = sinkConfig.get(CassandraConstants.SERVERS);
 		UnsContactPointsResolver unsContactPointsResolver = new UnsContactPointsResolver();
 		List<String> hostAddrs
 				= unsContactPointsResolver.getContactPoints(servers, "NativeTransport");
-		String keyspace = sinkConfig.get("keyspace");
-		String table = sinkConfig.get("table");
+		String keyspace = sinkConfig.get(CassandraConstants.KEYSPACE);
+		String table = sinkConfig.get(CassandraConstants.TABLE);
 		String uri = String.format(uriFormat, String.join(",", hostAddrs), keyspace, table);
 
 		Connector cassandraOutput = new Connector();
-		cassandraOutput.setName(sinkConfig.get("name"));
+		cassandraOutput.setName(sinkConfig.get(CassandraConstants.NAME));
 		cassandraOutput.setProperties(cassandraProperties);
 		cassandraOutput.setType(Connector.CASSANDRA);
 		cassandraOutput.setUri(uri);
@@ -355,15 +358,15 @@ public class AthenaxJobGraphGenerator extends TopologyDagVisitor {
 		commonTagMap.put(AthenaxConstants.ATHENAX_METRIC_PARAM_DC, dataCenter);
 		commonTagMap.put(AthenaxConstants.ATHENAX_METRIC_PARAM_ENV, cluster);
 		commonTagMap.put(AthenaxConstants.ATHENAX_METRIC_PARAM_JOB_NAME, topology.getName());
-		m3Properties.put("m3.commonTag", mapper.writeValueAsString(commonTagMap));
+		m3Properties.put(M3Constants.M3_COMMON_TAG, mapper.writeValueAsString(commonTagMap));
 
-		List<Map<String, Object>> m3Metrics = sinkConfig.getAny("metrics");
+		List<Map<String, Object>> m3Metrics = sinkConfig.getAny(M3Constants.METRICS);
 		Map<String, Map<String, String>> fieldTagMap = getFieldTagMap(m3Metrics);
-		m3Properties.put("m3.fieldTag", mapper.writeValueAsString(fieldTagMap));
+		m3Properties.put(M3Constants.M3_FIELD_TAG, mapper.writeValueAsString(fieldTagMap));
 		String uri = getM3Uri(m3Metrics);
 
 		Connector m3Output = new Connector();
-		m3Output.setName(sinkConfig.get("outputName"));
+		m3Output.setName(sinkConfig.get(M3Constants.OUTPUT_NAME));
 		m3Output.setProperties(m3Properties);
 		m3Output.setType(Connector.M3);
 		m3Output.setUri(uri);
@@ -371,12 +374,29 @@ public class AthenaxJobGraphGenerator extends TopologyDagVisitor {
 		return m3Output;
 	}
 
+	private Connector buildTChannelOutput(StreamlineSink sink) {
+		Config sinkConfig = sink.getConfig();
+
+		String serviceName = sinkConfig.get(TChannelConstants.SERVICE_NAME);
+		String topicName = sinkConfig.get(TChannelConstants.TOPIC_NAME);
+		String uri = String.format("tchannel://%s/%s", serviceName, topicName);
+		Properties tChannelProperties = new Properties();
+
+		Connector tChannelOutput = new Connector();
+		tChannelOutput.setName(sinkConfig.get(TChannelConstants.OUTPUT_NAME));
+		tChannelOutput.setProperties(tChannelProperties);
+		tChannelOutput.setType(Connector.TCHANNEL);
+		tChannelOutput.setUri(uri);
+
+		return tChannelOutput;
+	}
+
 	protected static String getM3Uri(List<Map<String, Object>> m3Metrics) {
 		String uri = "m3://?";
 		Map<String, List<String>> typeNamesMapping = new HashMap<>();
 		for (Map<String, Object> m3Metric : m3Metrics) {
-			String metricName = (String) m3Metric.get("metricName");
-			String metricType = (String) m3Metric.get("metricType");
+			String metricName = (String) m3Metric.get(M3Constants.METRIC_NAME);
+			String metricType = (String) m3Metric.get(M3Constants.METRIC_TYPE);
 
 			typeNamesMapping.putIfAbsent(metricType, new ArrayList<>());
 			typeNamesMapping.get(metricType).add(metricName);
@@ -391,8 +411,8 @@ public class AthenaxJobGraphGenerator extends TopologyDagVisitor {
 	protected static Map<String, Map<String, String>> getFieldTagMap(List<Map<String, Object>> m3Metrics) {
 		Map<String, Map<String, String>> fieldTagMap = new HashMap<>();
 		for (Map<String, Object> m3Metric : m3Metrics) {
-			String metricName = (String) m3Metric.get("metricName");
-			String tagString = (String) m3Metric.get("tags");
+			String metricName = (String) m3Metric.get(M3Constants.METRIC_NAME);
+			String tagString = (String) m3Metric.get(M3Constants.TAGS);
 
 			Map<String, String> tagValueMap = new HashMap<>();
 			for (String splitTagString : tagString.split(",")) {

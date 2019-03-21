@@ -1,0 +1,37 @@
+{
+  "type": "SINK",
+  "name": "TChannel",
+  "subType": "TCHANNEL",
+  "engine": "ATHENAX",
+  "template": ["Blank"],
+  "builtin": true,
+  "transformationClass": "com.hortonworks.streamline.streams.layout.component.impl.TChannelSink",
+  "mavenDeps": "",
+  "input": true,
+  "output": false,
+  "topologyComponentUISpecification": {
+    "fields": [
+      {
+        "uiName": "Output Name",
+        "fieldName": "outputName",
+        "isOptional": false,
+        "tooltip": "Unique identifier for your TChannel output",
+        "type": "string"
+      },
+      {
+        "uiName": "Service Name",
+        "fieldName": "serviceName",
+        "isOptional": false,
+        "tooltip": "TChannel service name",
+        "type": "string"
+      },
+      {
+        "uiName": "TChannel Topic Name",
+        "fieldName": "topicName",
+        "isOptional": false,
+        "tooltip": "TChannel topic name",
+        "type": "string"
+      }
+    ]
+  }
+}

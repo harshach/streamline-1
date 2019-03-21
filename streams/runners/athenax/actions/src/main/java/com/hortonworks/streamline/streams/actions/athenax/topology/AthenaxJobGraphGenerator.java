@@ -20,6 +20,7 @@ import com.hortonworks.streamline.streams.layout.component.TopologyDagVisitor;
 import com.hortonworks.streamline.streams.layout.component.TopologyLayout;
 import com.hortonworks.streamline.streams.layout.component.impl.CassandraSink;
 import com.hortonworks.streamline.streams.layout.component.impl.JDBCSink;
+import com.hortonworks.streamline.streams.layout.component.impl.HTTPSink;
 import com.hortonworks.streamline.streams.layout.component.impl.KafkaSink;
 import com.hortonworks.streamline.streams.layout.component.impl.KafkaSource;
 import com.hortonworks.streamline.streams.layout.component.impl.M3Sink;
@@ -97,10 +98,11 @@ public class AthenaxJobGraphGenerator extends TopologyDagVisitor {
 	public void visit(StreamlineSink sink) {
 		LOG.debug("Visiting sink: {}", sink);
 		if (!(sink instanceof RTASink || sink instanceof KafkaSink
-                || sink instanceof CassandraSink || sink instanceof M3Sink
-				|| sink instanceof TChannelSink || sink instanceof JDBCSink)) {
+				|| sink instanceof CassandraSink || sink instanceof M3Sink
+				|| sink instanceof TChannelSink || sink instanceof JDBCSink
+				|| sink instanceof HTTPSink)) {
 			legalAthenaXJob = false;
-			LOG.error("Only Kafka/M3/RTA/Cassandra/TChannel/JDBC sinks supported in AthenaX");
+			LOG.error("Only Kafka/M3/RTA/Cassandra/TChannel/JDBC/HTTP sinks supported in AthenaX");
 		}
 		streamlineSinkList.add(sink);
 	}
@@ -209,7 +211,7 @@ public class AthenaxJobGraphGenerator extends TopologyDagVisitor {
 		// input connectors (kafka only)
 		jobDef.setInput(getInputConnectors(dataCenter, cluster));
 
-		// output connectors(Kafka/M3/RTA/Cassandra/TChannel/JDBC)
+		// output connectors(Kafka/M3/RTA/Cassandra/TChannel/JDBC/HTTP)
 		jobDef.setOutput(getOutputConnectors(dataCenter, cluster));
 
 		// only stream is supported at this time
@@ -321,6 +323,8 @@ public class AthenaxJobGraphGenerator extends TopologyDagVisitor {
 				outputConnectors.add(buildTChannelOutput(sink));
 			} else if (sink instanceof JDBCSink) {
 				outputConnectors.add(buildJDBCOutput(sink));
+			} else if (sink instanceof HTTPSink) {
+				outputConnectors.add(buildHTTPOutput(sink));
 			}
 		}
 		return outputConnectors;
@@ -468,6 +472,25 @@ public class AthenaxJobGraphGenerator extends TopologyDagVisitor {
 			fieldTagMap.putIfAbsent(metricName, tagValueMap);
 		}
 		return fieldTagMap;
+	}
+
+	private Connector buildHTTPOutput(StreamlineSink sink) {
+		Config sinkConfig = sink.getConfig();
+
+		String uri = sinkConfig.get(HTTPConstants.ENDPOINT);
+		String contentType = sinkConfig.get(HTTPConstants.CONTENT_TYPE);
+		String extraHeaders = sinkConfig.get(HTTPConstants.EXTRA_HEADERS);
+
+		Properties httpProperties = new Properties();
+		httpProperties.put(HTTPConstants.CONTENT_TYPE, contentType);
+		httpProperties.put(HTTPConstants.EXTRA_HEADERS, extraHeaders);
+
+		Connector httpOutput = new Connector();
+		httpOutput.setName(sinkConfig.get(HTTPConstants.SERVICE_NAME));
+		httpOutput.setProperties(httpProperties);
+		httpOutput.setType(Connector.HTTP);
+		httpOutput.setUri(uri);
+		return httpOutput;
 	}
 
 	private void errorIfIllegalAthenaxJob() throws Exception {

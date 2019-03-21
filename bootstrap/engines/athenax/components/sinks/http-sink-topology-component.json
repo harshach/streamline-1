@@ -1,0 +1,46 @@
+{
+  "type": "SINK",
+  "name": "HTTP",
+  "subType": "HTTP",
+  "engine": "ATHENAX",
+  "template": ["Blank"],
+  "builtin": true,
+  "transformationClass": "com.hortonworks.streamline.streams.layout.component.impl.HTTPSink",
+  "mavenDeps": "",
+  "input": true,
+  "output": false,
+  "topologyComponentUISpecification": {
+    "fields": [
+      {
+        "uiName": "Service Name",
+        "fieldName": "serviceName",
+        "isOptional": false,
+        "tooltip": "Unique identifier for your HTTP output",
+        "type": "string"
+      },
+      {
+        "uiName": "Endpoint",
+        "fieldName": "endpoint",
+        "isOptional": false,
+        "tooltip": "Endpoint for the HTTP output",
+        "type": "string"
+      },
+      {
+        "uiName": "Content Type",
+        "fieldName": "contentType",
+        "isOptional": false,
+        "tooltip": "Content type for the HTTP output",
+        "type": "string",
+        "defaultValue": "application/json"
+      },
+      {
+        "uiName": "Extra Headers",
+        "fieldName": "extraHeaders",
+        "isOptional": false,
+        "tooltip": "Extra headers (as key/value pairs) for the HTTP output",
+        "type": "string",
+        "defaultValue": "{}"
+      }
+    ]
+  }
+}

@@ -47,6 +47,7 @@ import com.hortonworks.streamline.streams.layout.component.StreamlineSink;
 import com.hortonworks.streamline.streams.layout.component.impl.CassandraSink;
 import com.hortonworks.streamline.streams.layout.component.impl.GenericTask;
 import com.hortonworks.streamline.streams.layout.component.impl.HBaseSink;
+import com.hortonworks.streamline.streams.layout.component.impl.HTTPSink;
 import com.hortonworks.streamline.streams.layout.component.impl.HdfsSink;
 import com.hortonworks.streamline.streams.layout.component.impl.HdfsSource;
 import com.hortonworks.streamline.streams.layout.component.impl.HiveSink;
@@ -85,6 +86,7 @@ import static com.hortonworks.streamline.common.ComponentTypes.HBASE;
 import static com.hortonworks.streamline.common.ComponentTypes.HDFS;
 import static com.hortonworks.streamline.common.ComponentTypes.HIVE;
 import static com.hortonworks.streamline.common.ComponentTypes.JDBC;
+import static com.hortonworks.streamline.common.ComponentTypes.HTTP;
 import static com.hortonworks.streamline.common.ComponentTypes.JOIN;
 import static com.hortonworks.streamline.common.ComponentTypes.KAFKA;
 import static com.hortonworks.streamline.common.ComponentTypes.M3;
@@ -284,6 +286,7 @@ public class TopologyComponentFactory {
         builder.put(m3SinkProvider());
         builder.put(tChannelSinkProvider());
         builder.put(jdbcSinkProvider());
+        builder.put(httpSinkProvider());
         return builder.build();
     }
 
@@ -678,5 +681,15 @@ public class TopologyComponentFactory {
             }
         };
         return new SimpleImmutableEntry<>(JDBC, provider);
+    }
+
+    private Map.Entry<String, Provider<StreamlineSink>> httpSinkProvider() {
+        Provider<StreamlineSink> provider = new Provider<StreamlineSink>() {
+            @Override
+            public StreamlineSink create(TopologyComponent component) {
+                return new HTTPSink();
+            }
+        };
+        return new SimpleImmutableEntry<>(HTTP, provider);
     }
 }

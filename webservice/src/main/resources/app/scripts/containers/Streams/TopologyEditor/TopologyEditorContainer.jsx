@@ -288,8 +288,11 @@ export class TopologyEditorContainer extends Component {
             this.setState({deployStatus : topologyState.name}, () => {
               const clearTimer = setTimeout(() => {
                 clearInterval(this.interval);
-                this.refs.deployLoadingModal.hide();
+                if(this.refs.deployLoadingModal){
+                  this.refs.deployLoadingModal.hide();
+                }
                 if(topology) {
+                  this.setState({topologyStatus: this.status});
                   FSReactToastr.error(
                     <CommonNotification flag="error" content={topologyState.description}/>, '', toastOpt);
                 } else {
@@ -300,13 +303,16 @@ export class TopologyEditorContainer extends Component {
             },1000);
           } else {
             if(topology === undefined) {
-              this.refs.deployLoadingModal.show();
+              if(this.refs.deployLoadingModal){
+                this.refs.deployLoadingModal.show();
+              }
               this.setState({topologyStatus: 'DEPLOYING...', progressCount: 12});
             }
           }
           this.setState({deployStatus : topologyState.name});
         } else {
           if(topology) {
+            this.setState({topologyStatus: this.status});
             this.refs.deployLoadingModal.hide();
             FSReactToastr.error(
               <CommonNotification flag="error" content={topologyState.responseMessage}/>, '', toastOpt);

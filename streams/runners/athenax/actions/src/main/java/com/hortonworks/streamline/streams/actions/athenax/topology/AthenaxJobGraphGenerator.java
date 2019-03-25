@@ -39,6 +39,10 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.sql.Connection;
+import java.sql.DatabaseMetaData;
+import java.sql.DriverManager;
+import java.sql.ResultSet;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -408,7 +412,16 @@ public class AthenaxJobGraphGenerator extends TopologyDagVisitor {
 		String password = sinkConfig.get(JDBCConstants.PASSWORD);
 		String table = sinkConfig.get(JDBCConstants.TABLE);
 		String produceQuery = sinkConfig.get(JDBCConstants.PRODUCE_QUERY);
+		String fieldNames = sinkConfig.get(JDBCConstants.FIELD_NAMES);
+
 		String connectionString = sinkConfig.get(JDBCConstants.CONNECTION_STRING);
+		if (isUNS(connectionString)) {
+			UnsContactPointsResolver unsContactPointsResolver = new UnsContactPointsResolver();
+			List<String> hostAddress = unsContactPointsResolver.getContactPoints(connectionString, "memsql");
+			LOG.info("Host Address: {}", hostAddress);
+			connectionString = String.format("jdbc:mysql://%s/uber", hostAddress.get(0));
+			LOG.info("Connection String: {}", connectionString);
+		}
 
 		String uri = parseJDBCConnectionStringToFlinkJDBCUri(connectionString, table);
 
@@ -416,7 +429,22 @@ public class AthenaxJobGraphGenerator extends TopologyDagVisitor {
 		jdbcProperties.put(JDBCConstants.CONNECTOR_KEY_USERNAME, username);
 		jdbcProperties.put(JDBCConstants.CONNECTOR_KEY_PASSWORD, password);
 		jdbcProperties.put(JDBCConstants.CONNECTOR_KEY_CONNECTION_STRING, connectionString);
+		jdbcProperties.put(JDBCConstants.CONNECTOR_KEY_FIELD_NAME, fieldNames);
 		jdbcProperties.put(JDBCConstants.CONNECTOR_KEY_QUERY, produceQuery);
+
+		try (Connection connection = DriverManager.getConnection(connectionString, username, password)) {
+			DatabaseMetaData metaData = connection.getMetaData();
+			jdbcProperties.put(JDBCConstants.CONNECTOR_KEY_DRIVER_NAME, connection.getClass().getName());
+			ResultSet resultSet = metaData.getColumns(null, null, table, null);
+			Map<String, Integer> sqlTypeMap = new HashMap<>();
+			while (resultSet.next()) {
+				sqlTypeMap.put(resultSet.getString(4), resultSet.getInt(5));
+			}
+			ObjectMapper mapper = new ObjectMapper();
+			jdbcProperties.put(JDBCConstants.CONNECTOR_KEY_SCHEMA_MAP, mapper.writeValueAsString(sqlTypeMap));
+		} catch (Exception e) {
+			throw new IllegalArgumentException(String.format("Cannot acquire JDBC metadata for (%s)!", connectionString), e);
+		}
 
 		Connector jdbcOutput = new Connector();
 		jdbcOutput.setName(sinkConfig.get(JDBCConstants.NAME));
@@ -425,6 +453,15 @@ public class AthenaxJobGraphGenerator extends TopologyDagVisitor {
 		jdbcOutput.setUri(uri);
 
 		return jdbcOutput;
+	}
+
+	private static boolean isUNS(String connectionString) {
+		try {
+			URI uri = new URI(connectionString);
+			return "uns".equals(uri.getScheme());
+		} catch (URISyntaxException e) {
+			return false;
+		}
 	}
 
 	private static String parseJDBCConnectionStringToFlinkJDBCUri(String connString, String table) throws URISyntaxException {

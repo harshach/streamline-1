@@ -1,7 +1,7 @@
 {
   "type": "SINK",
-  "name": "MySQL",
-  "subType": "MYSQL",
+  "name": "JDBC",
+  "subType": "JDBC",
   "engine": "ATHENAX",
   "template": ["Blank"],
   "builtin": true,

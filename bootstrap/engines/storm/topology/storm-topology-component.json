@@ -7,7 +7,7 @@
   "builtin": true,
   "transformationClass": "dummy",
   "topologyComponentUISpecification": {
-    "sections": [
+    "steps": [
       {
         "key": "workflow",
         "label": "Workflow Settings"

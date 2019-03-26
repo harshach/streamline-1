@@ -15,6 +15,7 @@
  **/
 package com.hortonworks.streamline.common;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonValue;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -479,7 +480,41 @@ public class ComponentUISpecification {
 
     }
 
+
+    public static class UIStep {
+        private static final String KEY = "key";
+        private static final String LABEL = "label";
+
+        private String key;
+        private String label;
+
+        public UIStep () {}
+
+        public UIStep (UIStep uiStep) {
+            this.key = uiStep.key;
+            this.label = uiStep.label;
+        }
+        public String getKey() {
+            return key;
+        }
+
+        public void setKey(String key) {
+            this.key = key;
+        }
+
+        public String getLabel() {
+            return label;
+        }
+
+        public void setLabel(String label) {
+            this.label = label;
+        }
+
+    }
+
+
     private List<UIField> fields;
+    private List<UIStep> steps;
 
     public List<UIField> getFields() {
         return fields;
@@ -488,6 +523,10 @@ public class ComponentUISpecification {
     public void setFields(List<UIField> fields) {
         this.fields = fields;
     }
+
+    public void setSteps(List<UIStep> steps) { this.steps = steps; }
+
+    public List<UIStep> getSteps() { return steps; }
 
     @Override
     public String toString() {

@@ -338,6 +338,9 @@ a.dropdown-toggle~ul.dropdown-menu {
   height: 550px;
   /*overflow-y: auto;*/
 }
+.config-modal>.modal-content>.modal-body {
+  height: 600px;
+}
 
 .rule-modal-fixed-height>.modal-content>.modal-body {
   height: 550px;
@@ -476,7 +479,6 @@ label {
 .source-modal-form {
   margin-left: 10px;
   width: 72%;
-  position: absolute;
   top: 0;
   padding-top: 5px !important;
   margin: 0 !important;
@@ -3309,7 +3311,10 @@ span.alpha-badge {
 .CodeMirror-linenumbers {
   width: 29px !important;
 }
-
+.disable-codemirror,
+.disable-codemirror .CodeMirror-lines{
+  cursor: not-allowed;
+}
 .track-horizontal {
   right: -7px;
 }
@@ -4947,7 +4952,7 @@ ul.custom-pagination li.active{
 .version-current-label{
   position: absolute;
   right: 35px;
-  top: 181px;
+  top: 160px;
   background: white;
   font-size: 11px;
   line-height: 22px;
@@ -4959,6 +4964,7 @@ ul.custom-pagination li.active{
   text-align: center;
 }
 .version-container{
+  position: relative;
   display: inline-block;
   width: 100%;
   height: 216px;
@@ -5768,7 +5774,7 @@ aside.right-sidebar.active {
 .right-sidebar-body {
   padding: 0 20px;
   overflow-y: auto;
-  min-height: 500px;
+  max-height: calc(100vh - 150px);
 }
 .right-sidebar-header {
   padding: 10px;
@@ -6078,4 +6084,7 @@ background: #fff
 }
 .no-access-note{
   margin-top: 100px;
+}
+.position-absolute {
+  position: absolute !important;
 }

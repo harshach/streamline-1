@@ -288,8 +288,11 @@ export class TopologyEditorContainer extends Component {
             this.setState({deployStatus : topologyState.name}, () => {
               const clearTimer = setTimeout(() => {
                 clearInterval(this.interval);
-                this.refs.deployLoadingModal.hide();
+                if(this.refs.deployLoadingModal){
+                  this.refs.deployLoadingModal.hide();
+                }
                 if(topology) {
+                  this.setState({topologyStatus: this.status});
                   FSReactToastr.error(
                     <CommonNotification flag="error" content={topologyState.description}/>, '', toastOpt);
                 } else {
@@ -300,13 +303,16 @@ export class TopologyEditorContainer extends Component {
             },1000);
           } else {
             if(topology === undefined) {
-              this.refs.deployLoadingModal.show();
+              if(this.refs.deployLoadingModal){
+                this.refs.deployLoadingModal.show();
+              }
               this.setState({topologyStatus: 'DEPLOYING...', progressCount: 12});
             }
           }
           this.setState({deployStatus : topologyState.name});
         } else {
           if(topology) {
+            this.setState({topologyStatus: this.status});
             this.refs.deployLoadingModal.hide();
             FSReactToastr.error(
               <CommonNotification flag="error" content={topologyState.responseMessage}/>, '', toastOpt);
@@ -469,40 +475,25 @@ export class TopologyEditorContainer extends Component {
     });
   }
   handleSaveConfig() {
-    const {isFormValid, invalidFields} = this.refs.topologyConfig.refs.Form.validate();
-    if (isFormValid) {
-      this.refs.topologyConfig.handleSave().then(config => {
-        this.refs.TopologyConfigModal.hide();
-        if (config.responseMessage !== undefined) {
-          FSReactToastr.error(
-            <CommonNotification flag="error" content={config.responseMessage}/>, '', toastOpt);
-        } else {
-          FSReactToastr.success(
-            <strong>Configuration updated successfully</strong>
-          );
-          this.topologyName = config.name;
-          this.topologyConfig = (config.config && config.config.properties) ? config.config.properties : {};
-          this.lastUpdatedTime = new Date(config.timestamp);
-          this.setState({topologyName: this.topologyName, mapTopologyConfig: this.topologyConfig},() => {
-            if(this.state.deployFlag){
-              this.deployTopology();
-            }
-          });
-        }
-      });
-    } else {
-      const invalidField = invalidFields[0];
-      if(invalidField.props.fieldJson.hint
-          && invalidField.props.fieldJson.hint.indexOf('security_') > -1){
-        this.refs.topologyConfig.setState({
-          activeTabKey: 3
-        });
-      }else{
-        this.refs.topologyConfig.setState({
-          activeTabKey: 1
+    this.refs.topologyConfig.handleSave().then(config => {
+      this.refs.TopologyConfigModal.hide();
+      if (config.responseMessage !== undefined) {
+        FSReactToastr.error(
+          <CommonNotification flag="error" content={config.responseMessage}/>, '', toastOpt);
+      } else {
+        FSReactToastr.success(
+          <strong>Configuration updated successfully</strong>
+        );
+        this.topologyName = config.name;
+        this.topologyConfig = (config.config && config.config.properties) ? config.config.properties : {};
+        this.lastUpdatedTime = new Date(config.timestamp);
+        this.setState({topologyName: this.topologyName, mapTopologyConfig: this.topologyConfig},() => {
+          if(this.state.deployFlag){
+            this.deployTopology();
+          }
         });
       }
-    }
+    });
   }
   getModalScope(node) {
     return this.refs.EditorGraph.child.decoratedComponentInstance.getModalScope(node);
@@ -1151,7 +1142,9 @@ export class TopologyEditorContainer extends Component {
   }
 
   handleCancelConfig = () => {
-    this.refs.topologyConfig.refs.Form.clearErrors();
+    if(this.refs.topologyConfig.refs.StepZilla.refs.activeComponent.refs.Form){
+      this.refs.topologyConfig.refs.StepZilla.refs.activeComponent.refs.Form.clearErrors();
+    }
     this.setState({deployFlag : false}, () => {
       this.refs.TopologyConfigModal.hide();
     });
@@ -1372,13 +1365,15 @@ export class TopologyEditorContainer extends Component {
           className="u-form" ref="TopologyConfigModal"
           data-title={deployFlag ? "Are you sure want to continue with this configuration?" : "Workflow Configuration"}
           onKeyPress={this.handleKeyPress.bind(this)} data-resolve={this.handleSaveConfig.bind(this)}
-          data-reject={this.handleCancelConfig.bind(this)} dialogClassName="modal-fixed-height"
+          data-reject={this.handleCancelConfig.bind(this)} dialogClassName="modal-fixed-height config-modal"
+          hideFooter={true}
         >
           <TopologyConfig ref="topologyConfig" topologyData={topologyData}
             projectId={this.projectId} topologyId={this.topologyId}
             versionId={this.versionId} data={mapTopologyConfig}
             topologyName={this.state.topologyName} uiConfigFields={this.topologyConfigData}
             testRunActivated={this.state.testRunActivated} topologyNodes={this.graphData.nodes}
+            handleSaveConfig={this.handleSaveConfig.bind(this)} engine={this.engine}
           />
         </Modal>
         {/* NodeModal for Development Mode for source*/}

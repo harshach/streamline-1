@@ -7,6 +7,24 @@
   "builtin": true,
   "transformationClass": "dummy",
   "topologyComponentUISpecification": {
+    "steps": [
+      {
+        "key": "workflow",
+        "label": "Workflow Settings"
+      },
+      {
+        "key": "datacenter",
+        "label": "Data Center Settings"
+      },
+      {
+        "key": "security",
+        "label": "Security Settings"
+      },
+      {
+        "key": "advanced",
+        "label": "Advanced (Optional)"
+      }
+    ],
     "fields": [
       {
         "uiName": "Number of workers",

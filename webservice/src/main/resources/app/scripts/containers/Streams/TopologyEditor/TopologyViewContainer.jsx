@@ -108,7 +108,6 @@ class TopologyViewContainer extends TopologyEditorContainer {
     selectedExecution: {},
     selectedExecutionComponentsStatus: []
   };
-  getDeploymentState(){}
 
   fetchNameSpace(isAppRunning, namespaceId){
     if(isAppRunning){

@@ -167,7 +167,7 @@ export default class Metrics extends Component{
         </div>
       </div>
       <div className="right-sidebar-body">
-        {isBatchEngine ?
+        {isBatchEngine && isAppRunning ?
           <div className="execution-metrics">
             <div className="text-center">
               <span className="execution-page-btn" onClick={getPrevPageExecutions}><i className="fa fa-angle-left"></i></span>

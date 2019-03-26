@@ -479,7 +479,10 @@ export class sql extends BaseField {
     const width = fieldJson.width || '100%';
     const height = fieldJson.height || '250px';
 
-    return <div style={{position: 'relative'}}><CommonCodeMirror
+    return <div
+      className={this.context.Form.props.readOnly ? "disable-codemirror" : null}
+      style={{position: 'relative'}}
+    ><CommonCodeMirror
       ref="codemirror"
       modeType="sql"
       value={this.props.data[this.props.value]}
@@ -489,7 +492,7 @@ export class sql extends BaseField {
       width="100%"
       editMode={false}
       modeOptions={{
-        readOnly: this.context.Form.props.readOnly,
+        readOnly: this.context.Form.props.readOnly ? "nocursor" : false,
         mode:"text/x-sql",
         hint: CodeMirror.hint.sql,
         hintOptions:fieldJson.hintOptions || [],
@@ -506,7 +509,10 @@ export class shell extends sql {
     const width = fieldJson.width || '100%';
     const height = fieldJson.height || '250px';
 
-    return <div style={{position: 'relative'}}><CommonCodeMirror
+    return <div
+      className={this.context.Form.props.readOnly ? "disable-codemirror" : null}
+      style={{position: 'relative'}}
+    ><CommonCodeMirror
       ref="codemirror"
       modeType="shell"
       value={this.props.data[this.props.value]}
@@ -516,6 +522,9 @@ export class shell extends sql {
       width="100%"
       height={height}
       editMode={false}
+      modeOptions={{
+        readOnly: this.context.Form.props.readOnly ? "nocursor" : false
+      }}
     /></div>;
   }
 }

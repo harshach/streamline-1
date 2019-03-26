@@ -15,14 +15,6 @@
       {
         "key": "datacenter",
         "label": "Data Center Settings"
-      },
-      {
-        "key": "security",
-        "label": "Security Settings"
-      },
-      {
-        "key": "advanced",
-        "label": "Advanced (Optional)"
       }
     ],
     "fields": [

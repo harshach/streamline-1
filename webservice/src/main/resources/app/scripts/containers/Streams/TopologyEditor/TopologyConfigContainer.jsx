@@ -336,12 +336,12 @@ export default class TopologyConfigContainer extends Component {
     this.finalFormData = _.cloneDeep(data);
   }
 
-  getStepsComponents(sectionKey, isLastSection){
+  getStepsComponents(stepKey, isLastStep){
     const {formData, formField, advancedField} = this.state;
     let fields = Utils.genFields(formField.fields || [], [], formData);
     const disabledFields = this.props.testRunActivated ? true : false;
 
-    switch(sectionKey){
+    switch(stepKey){
     case "workflow":{
       return <Settings
                 formData={formData}
@@ -351,7 +351,7 @@ export default class TopologyConfigContainer extends Component {
                 showSecurity={false}
                 FormRef={this.refs.Form}
                 getFormData={this.getFormData}
-                handleSaveConfig={isLastSection ? this.props.handleSaveConfig : false}
+                handleSaveConfig={isLastStep ? this.props.handleSaveConfig : false}
               />;
       break;
     }
@@ -365,7 +365,7 @@ export default class TopologyConfigContainer extends Component {
                 FormRef={this.refs.Form}
                 getFormData={this.getFormData}
                 engine={this.props.engine}
-                handleSaveConfig={isLastSection ?  this.props.handleSaveConfig : false}
+                handleSaveConfig={isLastStep ?  this.props.handleSaveConfig : false}
               />;
       break;
     }
@@ -380,7 +380,7 @@ export default class TopologyConfigContainer extends Component {
                 populateClusterFields={this.populateClusterFields.bind(this)}
                 getFormData={this.getFormData}
                 engine={this.props.engine}
-                handleSaveConfig={isLastSection ?  this.props.handleSaveConfig : false}
+                handleSaveConfig={isLastStep ?  this.props.handleSaveConfig : false}
               />;
       break;
     }
@@ -391,7 +391,7 @@ export default class TopologyConfigContainer extends Component {
                 advanedFieldChange={this.advanedFieldChange.bind(this)}
                 addAdvancedRowField={this.addAdvancedRowField.bind(this)}
                 deleteAdvancedRowField={this.deleteAdvancedRowField.bind(this)}
-                handleSaveConfig={isLastSection ? this.props.handleSaveConfig : false}
+                handleSaveConfig={isLastStep ? this.props.handleSaveConfig : false}
               />;
       break;
     }
@@ -400,14 +400,14 @@ export default class TopologyConfigContainer extends Component {
 
   getSteps(){
     let {uiConfigFields} = this.props;
-    let sections = uiConfigFields.topologyComponentUISpecification.sections;
-    let steps = sections.map((section, index) => {
-      let isLastSection = false;
-      if(index === (sections.length - 1)){
-        isLastSection = true;
+    let stepConfigArr = uiConfigFields.topologyComponentUISpecification.steps;
+    let steps = stepConfigArr.map((step, index) => {
+      let isLastStep = false;
+      if(index === (stepConfigArr.length - 1)){
+        isLastStep = true;
       }
       return {
-        name: section.label, component: this.getStepsComponents(section.key, isLastSection)
+        name: step.label, component: this.getStepsComponents(step.key, isLastStep)
       };
     });
 

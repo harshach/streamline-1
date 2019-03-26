@@ -336,67 +336,83 @@ export default class TopologyConfigContainer extends Component {
     this.finalFormData = _.cloneDeep(data);
   }
 
-  getSteps(){
+  getStepsComponents(sectionKey, isLastSection){
     const {formData, formField, advancedField} = this.state;
     let fields = Utils.genFields(formField.fields || [], [], formData);
     const disabledFields = this.props.testRunActivated ? true : false;
-    let steps = [
-      {
-        name: 'Workflow Settings',
-        component: <Settings
-                      formData={formData}
-                      disabledFields={disabledFields}
-                      fields={fields}
-                      showDCFields={false}
-                      showSecurity={false}
-                      FormRef={this.refs.Form}
-                      getFormData={this.getFormData}
-                    />
-      },{
-        name: 'Data Center Settings',
-        component: <Settings
-                      formData={formData}
-                      disabledFields={disabledFields}
-                      fields={fields}
-                      showDCFields={true}
-                      showSecurity={false}
-                      FormRef={this.refs.Form}
-                      getFormData={this.getFormData}
-                      engine={this.props.engine}
-                      handleSaveConfig={this.state.hasSecurity ? null : this.props.handleSaveConfig}
-                    />
+
+    switch(sectionKey){
+    case "workflow":{
+      return <Settings
+                formData={formData}
+                disabledFields={disabledFields}
+                fields={fields}
+                showDCFields={false}
+                showSecurity={false}
+                FormRef={this.refs.Form}
+                getFormData={this.getFormData}
+                handleSaveConfig={isLastSection ? this.props.handleSaveConfig : false}
+              />;
+      break;
+    }
+    case "datacenter":{
+      return <Settings
+                formData={formData}
+                disabledFields={disabledFields}
+                fields={fields}
+                showDCFields={true}
+                showSecurity={false}
+                FormRef={this.refs.Form}
+                getFormData={this.getFormData}
+                engine={this.props.engine}
+                handleSaveConfig={isLastSection ?  this.props.handleSaveConfig : false}
+              />;
+      break;
+    }
+    case "security": {
+      return <Settings
+                formData={formData}
+                disabledFields={disabledFields}
+                fields={fields}
+                showDCFields={false}
+                showSecurity={true}
+                FormRef={this.refs.Form}
+                populateClusterFields={this.populateClusterFields.bind(this)}
+                getFormData={this.getFormData}
+                engine={this.props.engine}
+                handleSaveConfig={isLastSection ?  this.props.handleSaveConfig : false}
+              />;
+      break;
+    }
+    case "advanced":{
+      return <AdvSetting
+                disabledFields={disabledFields}
+                advancedField={advancedField}
+                advanedFieldChange={this.advanedFieldChange.bind(this)}
+                addAdvancedRowField={this.addAdvancedRowField.bind(this)}
+                deleteAdvancedRowField={this.deleteAdvancedRowField.bind(this)}
+                handleSaveConfig={isLastSection ? this.props.handleSaveConfig : false}
+              />;
+      break;
+    }
+    }
+  }
+
+  getSteps(){
+    let {uiConfigFields} = this.props;
+    let sections = uiConfigFields.topologyComponentUISpecification.sections;
+    let steps = sections.map((section, index) => {
+      let isLastSection = false;
+      if(index === (sections.length - 1)){
+        isLastSection = true;
       }
-    ];
-    if(this.state.hasSecurity){
-      steps.push({
-        name: 'Security Settings',
-        component: <Settings
-                      formData={formData}
-                      disabledFields={disabledFields}
-                      fields={fields}
-                      showDCFields={false}
-                      showSecurity={true}
-                      FormRef={this.refs.Form}
-                      populateClusterFields={this.populateClusterFields.bind(this)}
-                      getFormData={this.getFormData}
-                      engine={this.props.engine}
-                      handleSaveConfig={this.props.handleSaveConfig}
-                    />
-      });
-    }
-    if(this.props.engine.name.toLowerCase() == 'storm'){
-      steps.push({
-        name: 'Advanced (Optional)',
-        component: <AdvSetting
-                      disabledFields={disabledFields}
-                      advancedField={advancedField}
-                      advanedFieldChange={this.advanedFieldChange.bind(this)}
-                      addAdvancedRowField={this.addAdvancedRowField.bind(this)}
-                      deleteAdvancedRowField={this.deleteAdvancedRowField.bind(this)}
-                      handleSaveConfig={this.props.handleSaveConfig}
-                    />
-      });
-    }
+      return {
+        name: section.label, component: this.getStepsComponents(section.key, isLastSection)
+      };
+    });
+
+    //this is required for the stepzilla library to be present as the last step
+    //we are hiding it from the UI via CSS
     steps.push({
       name: 'Blank',
       component: <Blank/>
@@ -461,7 +477,7 @@ class Settings extends Component{
       }
     }
     getFormData(this.refs.Form.state.FormData);
-    if(engine && engine.name.toLowerCase() !== 'storm' && handleSaveConfig !== undefined){
+    if(handleSaveConfig){
       handleSaveConfig();
     }
     return true;
@@ -503,7 +519,11 @@ class AdvSetting extends Component{
       });
     }
     if(validateError.length === 0){
-      handleSaveConfig();
+      if(handleSaveConfig){
+        handleSaveConfig();
+      } else {
+        return true;
+      }
     } else {
       return false;
     }

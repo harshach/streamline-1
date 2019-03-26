@@ -7,6 +7,16 @@
   "builtin": true,
   "transformationClass": "dummy",
   "topologyComponentUISpecification": {
+    "sections": [
+      {
+        "key": "workflow",
+        "label": "Workflow Settings"
+      },
+      {
+        "key": "datacenter",
+        "label": "Data Center Settings"
+      }
+    ],
     "fields": [
       {
         "uiName": "Description",

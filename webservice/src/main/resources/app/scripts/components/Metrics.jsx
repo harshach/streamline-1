@@ -61,8 +61,10 @@ export default class Metrics extends Component{
         let componentObj = components.find((c)=>{return c.nodeId == data.component.id;});
         if(componentObj){
           let componentName = componentObj.uiname;
-          componentNames.push(componentName);
           let firstLineData = data.timeSeriesMetrics.metrics[keyName];
+          if(firstLineData){
+            componentNames.push(componentName);
+          }
           for(const key in firstLineData) {
             let date = new Date(parseInt(key));
             // check if array already has data for that particular timestamp
@@ -234,7 +236,11 @@ export default class Metrics extends Component{
   renderGraph = (componentId, keyName) => {
     const data = this.getTimeSeriesData(componentId, keyName);
     if(data.graphData.length === 0){
-      return (<CommonLoaderSign/>);
+      if(this.props.timeseriesData.length === 0){
+        return (<CommonLoaderSign/>);
+      } else {
+        return "No Data Found";
+      }
     }
     return (
       <TimeSeriesChart

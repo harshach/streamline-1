@@ -34,6 +34,7 @@ import java.util.List;
 public class TopologyDagBuilder {
     private final StreamCatalogService catalogService;
     private final TopologyComponentFactory factory;
+    private static String taskToIgnore = "HiveToCassandra";
 
     public TopologyDagBuilder(StreamCatalogService catalogService, MLModelRegistryClient modelRegistryClient) {
         this.catalogService = catalogService;
@@ -80,7 +81,8 @@ public class TopologyDagBuilder {
 
     private void addTasks(TopologyDag dag, Topology topology) throws Exception {
         for (TopologyTask topologyTask: catalogService.listTopologyTasks(queryParam(topology))) {
-            dag.add(factory.getStreamlineTask(topologyTask));
+            if (!topologyTask.getName().equalsIgnoreCase(taskToIgnore))
+                dag.add(factory.getStreamlineTask(topologyTask));
         }
     }
 

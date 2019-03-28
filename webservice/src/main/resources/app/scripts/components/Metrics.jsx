@@ -62,7 +62,7 @@ export default class Metrics extends Component{
         if(componentObj){
           let componentName = componentObj.uiname;
           let firstLineData = data.timeSeriesMetrics.metrics[keyName];
-          if(firstLineData){
+          if(firstLineData && !_.isEmpty(firstLineData)){
             componentNames.push(componentName);
           }
           for(const key in firstLineData) {
@@ -239,7 +239,7 @@ export default class Metrics extends Component{
       if(this.props.timeseriesData.length === 0){
         return (<CommonLoaderSign/>);
       } else {
-        return "No Data Found";
+        return <p className="text-center">No Data Found</p>;
       }
     }
     return (

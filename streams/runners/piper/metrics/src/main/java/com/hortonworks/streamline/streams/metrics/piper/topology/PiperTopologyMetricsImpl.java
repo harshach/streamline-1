@@ -319,7 +319,6 @@ public class PiperTopologyMetricsImpl implements TopologyMetrics {
     /**
      * Returns M3 timeseries data for pipeline level metrics
      *
-     * Piper Integration:  /api/v1/pipeline/runs/search
      */
 
     @Override
@@ -335,13 +334,12 @@ public class PiperTopologyMetricsImpl implements TopologyMetrics {
         Map<String, Map<Long, Double>> metricsByTag =
                 this.timeSeriesQuerier.getMetricsByTag(metricQueryFormat, metricParams, from, to);
 
-        return metricsByTag.get(topology.getName().toLowerCase());  // M3 downcases all tags
+        return metricsByTag.getOrDefault(topology.getName().toLowerCase(), new HashMap());  // M3 downcases all tags
     }
 
     /**
      * Returns M3 timeseries data for task level metrics
      *
-     * Piper Integration:  /api/v1/pipeline/runs/search
      */
 
     @Override
@@ -362,7 +360,7 @@ public class PiperTopologyMetricsImpl implements TopologyMetrics {
 
         if (components != null) {
             for (TopologyComponent component : components) {
-                Map<Long, Double> metrics = metricsByTag.get(component.getName().toLowerCase());  // M3 downcases all tags
+                Map<Long, Double> metrics = metricsByTag.getOrDefault(component.getName().toLowerCase(), new HashMap());  // M3 downcases all tags
                 results.put(component.getId(), metrics);
             }
         }
@@ -372,7 +370,6 @@ public class PiperTopologyMetricsImpl implements TopologyMetrics {
     /**
      * Returns M3 timeseries data for an individual task
      *
-     * Piper Integration:  /api/v1/pipeline/runs/search
      */
 
     @Override
@@ -387,7 +384,7 @@ public class PiperTopologyMetricsImpl implements TopologyMetrics {
         Map<String, Map<Long, Double>> metricsByTag =
                 this.timeSeriesQuerier.getMetricsByTag(metricQueryFormat, metricParams, from, to);
 
-        return metricsByTag.get(topologyComponent.getName().toLowerCase());  // M3 downcases all tags
+        return metricsByTag.getOrDefault(topologyComponent.getName().toLowerCase(), new HashMap());  // M3 downcases all tags
     }
 
     /**

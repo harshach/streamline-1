@@ -181,7 +181,7 @@ public final class CatalogResourceUtil {
 
                 TopologyMetrics.TopologyMetric topologyMetric = null;
 
-                if (runtimeAppId != null && status.getException() != null) {
+                if (runtimeAppId != null && status.getException() == null) {
                     try {
                         topologyMetric = metricsService.getTopologyMetric(topology, namespaceId, asUser);
                     } catch (Exception e) {

@@ -11,7 +11,7 @@ public class RTAConstants {
     public static final String IS_PRIMARY_KEY = "isPrimaryKey";
     public static final String TYPE = "type";
     public static final String NAME = "name";
-    public static final String LOGICAL_TYPE = "logicalType";
+    public static final String UBER_LOGICAL_TYPE = "uberLogicalType";
     public static final String COLUMN_TYPE = "columnType";
     public static final String CARDINALITY = "cardinality";
     public static final String DOC = "doc";

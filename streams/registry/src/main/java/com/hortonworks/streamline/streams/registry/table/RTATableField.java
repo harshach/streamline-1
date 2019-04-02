@@ -12,7 +12,7 @@ public class RTATableField {
     private String name;
 
     @JsonProperty
-    private String logicalType;
+    private String uberLogicalType;
 
     @JsonProperty
     private String columnType;
@@ -39,12 +39,12 @@ public class RTATableField {
         this.name = name;
     }
 
-    public String logicalType() {
-        return logicalType;
+    public String uberLogicalType() {
+        return uberLogicalType;
     }
 
-    public void setLogicalType(String logicalType) {
-        this.logicalType = logicalType;
+    public void setUberLogicalType(String uberLogicalType) {
+        this.uberLogicalType = uberLogicalType;
     }
 
     public String columnType() {

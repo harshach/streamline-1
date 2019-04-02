@@ -103,7 +103,7 @@
           },
           {
             "uiName": "Logical Type",
-            "fieldName": "logicalType",
+            "fieldName": "uberLogicalType",
             "tooltip": "logical data type",
             "isOptional": true,
             "type": "enumstring",

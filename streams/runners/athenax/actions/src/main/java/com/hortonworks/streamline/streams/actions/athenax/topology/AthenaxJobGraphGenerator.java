@@ -152,7 +152,7 @@ public class AthenaxJobGraphGenerator extends TopologyDagVisitor {
 
 			rtaTableField.setType((String) fieldConfig.get(RTAConstants.TYPE));
 			rtaTableField.setName((String) fieldConfig.get(RTAConstants.NAME));
-			rtaTableField.setLogicalType((String) fieldConfig.get(RTAConstants.LOGICAL_TYPE));
+			rtaTableField.setUberLogicalType((String) fieldConfig.get(RTAConstants.UBER_LOGICAL_TYPE));
 			rtaTableField.setCardinality((String) fieldConfig.get(RTAConstants.CARDINALITY));
 			rtaTableField.setColumnType((String) fieldConfig.get(RTAConstants.COLUMN_TYPE));
 			rtaTableField.setDoc((String) fieldConfig.get(RTAConstants.DOC));

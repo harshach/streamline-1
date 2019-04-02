@@ -607,14 +607,29 @@ public class TopologyCatalogResource {
         }
         TopologyVersion savedVersion = catalogService.getTopologyVersionInfo(versionId);
         if (savedVersion != null) {
-            catalogService.cloneTopologyVersion(topologyId, savedVersion.getId());
-             /*
-             * successfully cloned and set a new current version,
-             * remove the old current version of topology and version info
-             */
-            if (currentVersionInfo.isPresent()) {
-                catalogService.removeTopology(topologyId, currentVersionInfo.get().getId(), true);
+            TopologyVersion newVersionInfo = new TopologyVersion();
+            // update the current version with the new version info.
+            newVersionInfo.setTopologyId(topologyId);
+            Optional<TopologyVersion> latest = catalogService.getLatestVersionInfo(topologyId);
+            int suffix;
+            if (latest.isPresent()) {
+                suffix = latest.get().getVersionNumber() + 1;
+            } else {
+                suffix = 1;
             }
+            newVersionInfo.setName(VERSION_PREFIX + suffix);
+            if (currentVersionInfo.get().getDescription() != null) {
+                newVersionInfo.setDescription(currentVersionInfo.get().getDescription());
+            }
+            if (currentVersionInfo.get().getDagThumbnail() != null) {
+                newVersionInfo.setDagThumbnail(currentVersionInfo.get().getDagThumbnail());
+            }
+            catalogService.addOrUpdateTopologyVersionInfo(
+                    currentVersionInfo.get().getId(), newVersionInfo);
+            // Make older version as new 'CURRENT'
+            catalogService.addOrUpdateTopologyVersionInfo(
+                    savedVersion.getId(), currentVersionInfo.get());
+
             return WSUtils.respondEntity(savedVersion, CREATED);
         }
 

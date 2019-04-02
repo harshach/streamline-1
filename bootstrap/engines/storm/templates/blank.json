@@ -1,6 +1,9 @@
 {
   "name":"Blank",
   "description": "Blank template for Storm. This will present default Editor.",
-  "engineId": 1,
+  "topologyActionClass": "com.hortonworks.streamline.streams.actions.storm.topology.StormTopologyActionsBuilder",
+  "topologyStateMachineClass": "com.hortonworks.streamline.streams.actions.topology.state.DefaultTopologyStateMachine",
+  "topologyStatusMetricsClass": "com.hortonworks.streamline.streams.metrics.storm.topology.StormTopologyMetricsImpl",
+  "topologyTimeseriesMetricsClass": "com.hortonworks.streamline.streams.metrics.storm.ambari.AmbariMetricsServiceWithStormQuerier",
   "config": "{}"
 }

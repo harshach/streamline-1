@@ -18,7 +18,6 @@ package com.hortonworks.streamline.streams.service;
 
 import com.codahale.metrics.annotation.Timed;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.hortonworks.streamline.common.Config;
 import com.hortonworks.streamline.common.exception.service.exception.request.BadRequestException;
 import com.hortonworks.streamline.common.exception.service.exception.request.EntityNotFoundException;
 import com.hortonworks.streamline.common.util.WSUtils;
@@ -27,7 +26,6 @@ import com.hortonworks.streamline.streams.catalog.*;
 import com.hortonworks.streamline.streams.catalog.service.StreamCatalogService;
 import com.hortonworks.streamline.streams.catalog.topology.TopologyData;
 import com.hortonworks.streamline.streams.cluster.service.EnvironmentService;
-import com.hortonworks.streamline.streams.exception.TopologyNotAliveException;
 import com.hortonworks.streamline.streams.security.Permission;
 import com.hortonworks.streamline.streams.security.Roles;
 import com.hortonworks.streamline.streams.security.SecurityUtil;
@@ -55,8 +53,6 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.SecurityContext;
 import javax.ws.rs.core.UriInfo;
-import javax.ws.rs.core.MultivaluedMap;
-import javax.ws.rs.core.MultivaluedHashMap;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.net.URI;
@@ -177,6 +173,28 @@ public class TopologyCatalogResource {
         return response;
     }
 
+    @GET
+    @Path("/system/engines/templates")
+    @Timed
+    public Response listTemplates(@Context SecurityContext securityContext) {
+        Collection<Template> templates = catalogService.listTemplates(new ArrayList<>());
+        boolean topologyUser = SecurityUtil.hasRole(authorizer, securityContext, Roles.ROLE_TOPOLOGY_USER);
+        if (topologyUser) {
+            LOG.debug("Returning all templates since user has role: {}", Roles.ROLE_TOPOLOGY_USER);
+        } else {
+            templates = SecurityUtil.filter(authorizer, securityContext, NAMESPACE, templates, READ);
+        }
+
+        Response response;
+        if (templates != null) {
+            response = WSUtils.respondEntities(templates, OK);
+        } else {
+            response = WSUtils.respondEntities(Collections.emptyList(), OK);
+        }
+
+        return response;
+    }
+
     @POST
     @Path("/system/engines/{engineName}/templates")
     @Timed
@@ -202,18 +220,18 @@ public class TopologyCatalogResource {
     @GET
     @Path("/system/engines/metrics")
     @Timed
-    public Response listEngineComponentBundles(@Context SecurityContext securityContext) {
-        Collection<EngineMetricsBundle> engineMetricsBundles = catalogService.listEngineMetricsBundles();
+    public Response listEngineTemplateMetricsBundles(@Context SecurityContext securityContext) {
+        Collection<EngineTemplateMetricsBundle> engineTemplateMetricsBundles = catalogService.listEngineTemplateMetricsBundles();
         boolean topologyUser = SecurityUtil.hasRole(authorizer, securityContext, Roles.ROLE_TOPOLOGY_USER);
         if (topologyUser) {
             LOG.debug("Returning all projects since user has role: {}", Roles.ROLE_TOPOLOGY_USER);
         } else {
-            engineMetricsBundles = SecurityUtil.filter(authorizer, securityContext, NAMESPACE, engineMetricsBundles, READ);
+            engineTemplateMetricsBundles = SecurityUtil.filter(authorizer, securityContext, NAMESPACE, engineTemplateMetricsBundles, READ);
         }
 
         Response response;
-        if (engineMetricsBundles != null) {
-            response = WSUtils.respondEntities(engineMetricsBundles, OK);
+        if (engineTemplateMetricsBundles != null) {
+            response = WSUtils.respondEntities(engineTemplateMetricsBundles, OK);
         } else {
             response = WSUtils.respondEntities(Collections.emptyList(), OK);
         }
@@ -225,15 +243,15 @@ public class TopologyCatalogResource {
     @POST
     @Path("/system/engines/metrics")
     @Timed
-    public Response addEngineMetricsBundle(EngineMetricsBundle engineMetricsBundle, @Context SecurityContext securityContext) {
+    public Response addEngineTemplateMetricsBundle(EngineTemplateMetricsBundle engineTemplateMetricsBundle, @Context SecurityContext securityContext) {
         SecurityUtil.checkRole(authorizer, securityContext, Roles.ROLE_TOPOLOGY_ADMIN);
-        if (StringUtils.isEmpty(engineMetricsBundle.getName())) {
-            throw BadRequestException.missingParameter(EngineMetricsBundle.NAME);
+        if (StringUtils.isEmpty(engineTemplateMetricsBundle.getName())) {
+            throw BadRequestException.missingParameter(EngineTemplateMetricsBundle.NAME);
         }
-        EngineMetricsBundle createdEngineBundle = catalogService.addEngineMetricsBundle(engineMetricsBundle);
-        SecurityUtil.addAcl(authorizer, securityContext, EngineMetricsBundle.NAME_SPACE, createdEngineBundle.getId(),
+        EngineTemplateMetricsBundle createdBundle = catalogService.addEngineTemplateMetricsBundle(engineTemplateMetricsBundle);
+        SecurityUtil.addAcl(authorizer, securityContext, EngineTemplateMetricsBundle.NAME_SPACE, createdBundle.getId(),
                 EnumSet.allOf(Permission.class));
-        return WSUtils.respondEntity(createdEngineBundle, CREATED);
+        return WSUtils.respondEntity(createdBundle, CREATED);
     }
 
 

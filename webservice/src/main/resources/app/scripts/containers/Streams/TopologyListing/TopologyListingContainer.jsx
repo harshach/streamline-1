@@ -160,12 +160,10 @@ class TopologyItems extends Component {
     const {topologyList} = this.props;
     const {topology, namespaces } = topologyList;
 
-    const engine = Utils.getEngineById(topologyList.topology.engineId);
-    const template = Utils.getListingMetricsTemplate(engine);
-    const layout = engine.metricsTemplate.metricsUISpec.layout.listing;
-
+    const template = Utils.getTemplateById(topologyList.topology.templateId);
+    const layout = template.metricsBundle.metricsUISpec.layout.listing;
     const getMetric = (name) => {
-      return _.find(engine.metricsTemplate.metricsUISpec.metrics, (m) => {
+      return _.find(template.metricsBundle.metricsUISpec.metrics, (m) => {
         return m.name == name;
       });
     };
@@ -405,14 +403,14 @@ class TopologyListingContainer extends Component {
         }
       });
       let stateObj = {};
-      // environment result[0]
+      // environment results[0]
       environmentLen = results[0].entities.length;
       stateObj.namespacesArr = results[0].entities;
 
-      // source component result[1]
+      // source component results[1]
       sourceLen = results[1].entities.length;
 
-      // All topology result[2]
+      // All topology results[2]
       let resultEntities = Utils.sortArray(results[2].entities.slice(), 'timestamp', false);
       if (sourceLen !== 0) {
         if (resultEntities.length === 0 && environmentLen > 1) {

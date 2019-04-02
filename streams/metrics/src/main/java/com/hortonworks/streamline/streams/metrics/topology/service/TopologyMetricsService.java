@@ -16,6 +16,7 @@
 package com.hortonworks.streamline.streams.metrics.topology.service;
 
 import com.hortonworks.streamline.streams.catalog.Engine;
+import com.hortonworks.streamline.streams.catalog.Template;
 import com.hortonworks.streamline.streams.cluster.container.ContainingNamespaceAwareContainer;
 import com.hortonworks.streamline.streams.metrics.TopologyMetricsFactory;
 import org.apache.commons.lang3.tuple.ImmutablePair;
@@ -176,7 +177,7 @@ public class TopologyMetricsService implements ContainingNamespaceAwareContainer
             throw new RuntimeException("Corresponding namespace not found: " + topology.getNamespaceId());
         }
         Engine engine = topologyCatalogHelperService.getEngine(topology.getEngineId());
-        TopologyMetrics topologyMetrics = topologyMetricsFactory.getTopologyMetrics(engine, namespace, topologyCatalogHelperService, subject);
-        return topologyMetrics;
+        Template template = topologyCatalogHelperService.getTemplate(topology.getTemplateId());
+        return topologyMetricsFactory.getTopologyMetrics(engine, namespace, template, topologyCatalogHelperService, subject);
     }
 }

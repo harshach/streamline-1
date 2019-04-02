@@ -1,0 +1,89 @@
+  {
+  "name": "Kafka RTA METRICS",
+  "engine": "ATHENAX",
+  "template": ["KafkaRTA"],
+  "metricsUISpec": {
+    "metrics": [
+    ],
+    "timeseries": [
+    ],
+    "layout":{
+      "listing": [{
+        "left": [{
+          "name": "dc",
+          "type": "title"
+        }],
+        "right": [{
+          "name": "status",
+          "type": "status"
+        }]
+      }],
+      "viewmode": {
+        "DAG": {
+          "metrics": {
+            "topology": [],
+            "source": {
+              "baseMetrics" : [],
+              "component_metrics": {}
+            },
+            "processor": {
+              "baseMetrics" : [],
+              "component_metrics": {}
+            },
+            "sink": {
+              "baseMetrics" : [],
+              "component_metrics": {}
+            }
+          },
+          "timeseries": {
+            "topology": [],
+            "source": {
+              "baseMetrics" : [],
+              "component_metrics": {}
+            },
+            "processor": {
+              "baseMetrics" : [],
+              "component_metrics": {}
+            },
+            "sink": {
+              "baseMetrics" : [],
+              "component_metrics": {}
+            }
+          }
+        },
+        "metricsSection": {
+          "metrics": {
+            "topology": [],
+            "source": {
+              "baseMetrics" : [],
+              "component_metrics": {}
+            },
+            "processor": {
+              "baseMetrics" : [],
+              "component_metrics": {}
+            },
+            "sink": {
+              "baseMetrics" : [],
+              "component_metrics": {}
+            }
+          },
+          "timeseries": {
+            "topology": [],
+            "source": {
+              "baseMetrics" : [],
+              "component_metrics": {}
+            },
+            "processor": {
+              "baseMetrics" : [],
+              "component_metrics": {}
+            },
+            "sink": {
+              "baseMetrics" : [],
+              "component_metrics": {}
+            }
+          }
+        }
+      }
+    }
+  }
+}

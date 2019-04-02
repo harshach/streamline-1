@@ -7,7 +7,6 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.hortonworks.registries.common.Schema;
 import com.hortonworks.streamline.common.MetricsUISpec;
-import com.hortonworks.streamline.common.MetricsUISpec.TimeseriesMetricField;
 import com.hortonworks.streamline.storage.PrimaryKey;
 import com.hortonworks.streamline.storage.Storable;
 import com.hortonworks.streamline.storage.StorableKey;
@@ -19,10 +18,10 @@ import java.util.HashMap;
 import java.util.Map;
 
 @StorableEntity
-public class EngineMetricsBundle implements Storable {
-	private static final Logger LOG = LoggerFactory.getLogger(EngineMetricsBundle.class);
+public class EngineTemplateMetricsBundle implements Storable {
+    private static final Logger LOG = LoggerFactory.getLogger(EngineTemplateMetricsBundle.class);
 
-    public static final String NAME_SPACE = "engine_metrics_bundle";
+    public static final String NAME_SPACE = "engine_template_metrics_bundle";
     public static final String ID = "id";
     public static final String NAME = "name";
     public static final String TIMESTAMP = "timestamp";
@@ -184,7 +183,7 @@ public class EngineMetricsBundle implements Storable {
 
     @Override
     public String toString () {
-        return "EngineMetricsBundle{" +
+        return "EngineTemplateMetricsBundle{" +
                 "id=" + id +
                 ", name='" + name + '\'' +
                 ", timestamp=" + timestamp +
@@ -199,7 +198,7 @@ public class EngineMetricsBundle implements Storable {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
 
-        EngineMetricsBundle that = (EngineMetricsBundle) o;
+        EngineTemplateMetricsBundle that = (EngineTemplateMetricsBundle) o;
 
         if (id != null ? !id.equals(that.id) : that.id != null) return false;
         if (name != null ? !name.equals(that.name) : that.name != null)

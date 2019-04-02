@@ -1,0 +1,28 @@
+{
+  "type": "TOPOLOGY",
+  "name": "Kafka RTA topology",
+  "subType": "TOPOLOGY",
+  "engine": "ATHENAX",
+  "template": ["KafkaRTA"],
+  "builtin": true,
+  "transformationClass": "dummy",
+  "topologyComponentUISpecification": {
+    "steps": [
+      {
+        "key": "datacenter",
+        "label": "Data Center Settings"
+      }
+    ],
+    "fields": [
+      {
+        "uiName": "Datacenter to run on?",
+        "fieldName": "deploymentSettings.namespaceIds",
+        "isOptional": false,
+        "tooltip": "On which datacenter to run workflow upon",
+        "type": "enumstring",
+        "options": [],
+        "hint": "datacenter-showCurrent"
+      }
+    ]
+  }
+}

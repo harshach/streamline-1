@@ -31,7 +31,7 @@ const EngineREST = {
         return response.json();
       });
   },
-  getAllTemplates(engineId, options) {
+  getTemplatesByEngineId(engineId, options) {
     options = options || {};
     options.method = options.method || 'GET';
     options.credentials = 'same-origin';
@@ -40,7 +40,7 @@ const EngineREST = {
         return response.json();
       });
   },
-  getAllEngineMetricsTemplate(options) {
+  getAllEngineTemplateMetricsBundles(options) {
     options = options || {};
     options.method = options.method || 'GET';
     options.credentials = 'same-origin';
@@ -49,7 +49,16 @@ const EngineREST = {
         return response.json();
       });
   },
-  getEngineMetricsTemplate(engineId, options) {
+  getAllTemplates(options) {
+    options = options || {};
+    options.method = options.method || 'GET';
+    options.credentials = 'same-origin';
+    return fetch(baseUrl + engineBaseURL + "/templates")
+      .then((response) => {
+        return response.json();
+      });
+  },
+  getEngineTemplateMetricsBundle(engineId, options) {
     options = options || {};
     options.method = options.method || 'GET';
     options.credentials = 'same-origin';

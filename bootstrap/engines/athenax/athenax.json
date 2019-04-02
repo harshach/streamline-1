@@ -6,9 +6,5 @@
     "componentTypes": "[\"SOURCE\",\"PROCESSOR\",\"SINK\"]",
     "schemaAware": "true",
     "enabled": "true",
-    "topologyActionClass": "com.hortonworks.streamline.streams.actions.athenax.topology.AthenaxTopologyActionBuilder",
-    "topologyStateMachineClass": "com.hortonworks.streamline.streams.actions.topology.state.DefaultTopologyStateMachine",
-    "topologyStatusMetricsClass": "com.hortonworks.streamline.streams.metrics.athenax.topology.AthenaxTopologyMetricsImpl",
-    "topologyTimeseriesMetricsClass": "com.hortonworks.streamline.streams.metrics.M3MetricsQuerier",
     "config": "{}"
 }

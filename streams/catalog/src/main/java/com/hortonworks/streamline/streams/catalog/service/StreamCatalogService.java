@@ -89,7 +89,7 @@ import com.hortonworks.streamline.streams.catalog.TopologyEditorToolbar;
 import com.hortonworks.streamline.streams.catalog.TopologyOutputComponent;
 import com.hortonworks.streamline.streams.catalog.TopologyRuntimeIdMap;
 import com.hortonworks.streamline.streams.catalog.Engine;
-import com.hortonworks.streamline.streams.catalog.EngineMetricsBundle;
+import com.hortonworks.streamline.streams.catalog.EngineTemplateMetricsBundle;
 
 
 import com.hortonworks.streamline.streams.catalog.Notifier;
@@ -159,7 +159,7 @@ public class StreamCatalogService {
 
     // TODO: the namespace and Id generation logic should be moved inside DAO
     private static final String ENGINE_NAMESPACE = new Engine().getNameSpace();
-    private static final String ENGINE_METRICS_BUNDLE_NAMESPACE = new EngineMetricsBundle().getNameSpace();
+    private static final String ENGINE_TEMPLATE_METRICS_BUNDLE_NAMESPACE = new EngineTemplateMetricsBundle().getNameSpace();
     private static final String TEMPLATE_NAMESPACE = new Template().getNameSpace();
     private static final String PROJECT_NAMESPACE = new Project().getNameSpace();
     private static final String NOTIFIER_INFO_NAMESPACE = new Notifier().getNameSpace();
@@ -267,31 +267,31 @@ public class StreamCatalogService {
         return (engines != null && engines.size() > 0 ? engines.iterator().next() : null);
     }
 
-    public EngineMetricsBundle addEngineMetricsBundle (EngineMetricsBundle engineMetricsBundle) {
-        if (engineMetricsBundle.getId() == null) {
-            engineMetricsBundle.setId(this.dao.nextId(EngineMetricsBundle.NAME_SPACE));
+    public EngineTemplateMetricsBundle addEngineTemplateMetricsBundle(EngineTemplateMetricsBundle engineTemplateMetricsBundle) {
+        if (engineTemplateMetricsBundle.getId() == null) {
+            engineTemplateMetricsBundle.setId(this.dao.nextId(EngineTemplateMetricsBundle.NAME_SPACE));
         }
-        if (engineMetricsBundle.getTimestamp() == null) {
-            engineMetricsBundle.setTimestamp(System.currentTimeMillis());
+        if (engineTemplateMetricsBundle.getTimestamp() == null) {
+            engineTemplateMetricsBundle.setTimestamp(System.currentTimeMillis());
         }
-        this.dao.add(engineMetricsBundle);
-        return engineMetricsBundle;
+        this.dao.add(engineTemplateMetricsBundle);
+        return engineTemplateMetricsBundle;
     }
 
-    public Collection<EngineMetricsBundle> listEngineMetricsBundles() {
-        return listEngineMetricsBundles(new ArrayList<QueryParam>());
+    public Collection<EngineTemplateMetricsBundle> listEngineTemplateMetricsBundles() {
+        return listEngineTemplateMetricsBundles(new ArrayList<>());
     }
 
-    public Collection<EngineMetricsBundle> listEngineMetricsBundles(List<QueryParam>queryParams) {
-        Collection<EngineMetricsBundle> results = dao.find(ENGINE_METRICS_BUNDLE_NAMESPACE, queryParams);
+    public Collection<EngineTemplateMetricsBundle> listEngineTemplateMetricsBundles(List<QueryParam>queryParams) {
+        Collection<EngineTemplateMetricsBundle> results = dao.find(ENGINE_TEMPLATE_METRICS_BUNDLE_NAMESPACE, queryParams);
         return results;
     }
 
-    public EngineMetricsBundle getEngineMetricsBundle(Long engineId) {
-        Engine engine = getEngine(engineId);
+    public EngineTemplateMetricsBundle getEngineTemplateMetricsBundle(Long templateId) {
+        Template template = getTemplate(templateId);
         List<QueryParam> queryParams = new ArrayList<>();
-        queryParams.add(new QueryParam(EngineMetricsBundle.ENGINE, engine.getName()));
-        Collection<EngineMetricsBundle> bundles = listEngineMetricsBundles(queryParams);
+        queryParams.add(new QueryParam(EngineTemplateMetricsBundle.TEMPLATE, template.getName()));
+        Collection<EngineTemplateMetricsBundle> bundles = listEngineTemplateMetricsBundles(queryParams);
         if (bundles.size() >= 1) {
             return bundles.iterator().next();
         }

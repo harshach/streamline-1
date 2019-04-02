@@ -39,7 +39,8 @@ class App extends Component {
     let promiseArr = [
       MiscREST.getAllConfigs(),
       EngineREST.getAllEngines(),
-      EngineREST.getAllEngineMetricsTemplate()
+      EngineREST.getAllEngineTemplateMetricsBundles(),
+      EngineREST.getAllTemplates()
     ];
 
     Promise.all(promiseArr)
@@ -67,10 +68,14 @@ class App extends Component {
             e.deploymentModes = JSON.parse(e.deploymentModes);
             e.componentTypes = JSON.parse(e.componentTypes);
             e.config = JSON.parse(e.config);
-            Utils.defineEngineProps(e);
           });
 
-          app_state.enginesMetricsTemplates = results[2].entities;
+          app_state.engineTemplateMetricsBundles = results[2].entities;
+
+          app_state.templates = results[3].entities;
+          _.each(app_state.templates, (t) => {
+            Utils.defineTemplateProps(t);
+          });
 
           if(app_state.streamline_config.secureMode){
             // let userProfile = {

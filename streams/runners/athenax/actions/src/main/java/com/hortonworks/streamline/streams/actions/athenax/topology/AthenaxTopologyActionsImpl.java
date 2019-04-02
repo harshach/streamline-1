@@ -82,19 +82,19 @@ public class AthenaxTopologyActionsImpl implements TopologyActions {
 										  TopologyActionContext ctx, String asUser) throws Exception {
 		LOG.debug("Initial Topology config {}", topology.getConfig());
 		List<DeployedRuntimeId> deployedRuntimeIds = new ArrayList<>();
-		AthenaxJobGraphGenerator requestGenerator = new AthenaxJobGraphGenerator(topology, environmentService, asUser);
+		AthenaxJobGraphGenerator requestGenerator = new AthenaxJobGraphGenerator(topology, environmentService);
 		TopologyDag topologyDag = topology.getTopologyDag();
 		topologyDag.traverse(requestGenerator);
 
 		// send requests to rta-ums for RTA connectors, if there is any
 		RTACreateTableRequest rtaCreateTableRequest;
 		for (RTASink rtaSink : requestGenerator.getRTASinkList()) {
-			rtaCreateTableRequest = requestGenerator.extractRTACreateTableRequest(rtaSink);
+			rtaCreateTableRequest = RTAUtils.extractRTACreateTableRequest(rtaSink, asUser);
 			rtaRestAPIClient.createTable(JsonClientUtil.convertRequestToJson(rtaCreateTableRequest));
 
 			String tableName = rtaCreateTableRequest.name();
 			if (rtaRestAPIClient.getTableDeployStatus(tableName).isEmpty()) {
-				RTADeployTableRequest rtaDeployTableRequest = requestGenerator.extractRTADeployTableRequest(rtaSink);
+				RTADeployTableRequest rtaDeployTableRequest = RTAUtils.extractRTADeployTableRequest(rtaSink);
 				rtaRestAPIClient.deployTable(rtaDeployTableRequest, tableName);
 			}
 		}
@@ -183,7 +183,7 @@ public class AthenaxTopologyActionsImpl implements TopologyActions {
   @Override
 	public void validate(TopologyLayout topology) throws Exception {
 		LOG.debug("Initial Topology config {}", topology.getConfig());
-		AthenaxJobGraphGenerator requestGenerator = new AthenaxJobGraphGenerator(topology, environmentService, null);
+		AthenaxJobGraphGenerator requestGenerator = new AthenaxJobGraphGenerator(topology, environmentService);
 		TopologyDag topologyDag = topology.getTopologyDag();
 		topologyDag.traverse(requestGenerator);
 

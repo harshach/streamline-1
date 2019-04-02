@@ -10,7 +10,7 @@
 -- See the License for the specific language governing permissions and
 -- limitations under the License.
 
-CREATE TABLE IF NOT EXISTS engine_metrics_bundle (
+CREATE TABLE IF NOT EXISTS engine_template_metrics_bundle (
     id BIGINT AUTO_INCREMENT NOT NULL,
     name VARCHAR(256) NOT NULL,
     engine TEXT NOT NULL,

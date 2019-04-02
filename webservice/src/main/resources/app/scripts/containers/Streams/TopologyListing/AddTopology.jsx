@@ -61,7 +61,7 @@ class AddTopology extends Component {
   fetchData = () => {
     let promiseArr = [TopologyREST.getTopologyConfig()];
     if(this.props.topologyData){
-      promiseArr.push(EngineREST.getAllTemplates(this.props.topologyData.topology.engineId));
+      promiseArr.push(EngineREST.getTemplatesByEngineId(this.props.topologyData.topology.engineId));
     }
     Promise.all(promiseArr).then(result => {
       this.allEngineSettings = result[0];
@@ -194,7 +194,7 @@ class AddTopology extends Component {
   }
   handleOnChangeEngine = (obj) => {
     if (obj) {
-      EngineREST.getAllTemplates(obj.id).then(templates=>{
+      EngineREST.getTemplatesByEngineId(obj.id).then(templates=>{
         const engineData = this.getEngineDataById(obj.id);
         const settings = this.findSettingsByEngineName(engineData.name);
         const namespaceOptions = this.syncNamespaces(engineData.name);
@@ -334,7 +334,7 @@ class AddTopology extends Component {
         </div>
         {engineId ?
           <div>
-            {/*<div className="form-group">
+            <div className="form-group">
               <label data-stest="selectEnvLabel">Workflow Templates
                 <span className="text-danger">*</span>
               </label>
@@ -348,7 +348,7 @@ class AddTopology extends Component {
               </FormGroup>
               <div className="row templates-container">{filteredTemplates.length ?
                 _.map(filteredTemplates, (t) => {
-                  return <div className={`col-md-6 template-box ${templateId == t.id ? 'selected-template' : ''}`} key={t.name}>
+                  return <div className={`col-md-6 template-box ${templateId == t.id ? 'selected-template' : ''}`} onClick={() => this.handleOnChangeTemplate(t)} key={t.name}>
                     <span className="name">{t.name}</span>
                     <span className="description">{t.description}</span>
                   </div>;
@@ -357,7 +357,7 @@ class AddTopology extends Component {
                 <div className="text-center">No Template Found!</div>
               }
               </div>
-            </div>*/}
+            </div>
             <hr />
             <div className="form-group">
               <label data-stest="selectEnvLabel">Choose the Regions

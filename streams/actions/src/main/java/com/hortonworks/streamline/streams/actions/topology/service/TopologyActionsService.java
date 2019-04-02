@@ -33,6 +33,7 @@ import com.hortonworks.streamline.streams.actions.topology.state.TopologyStateMa
 import com.hortonworks.streamline.streams.catalog.CatalogToDeploymentConverter;
 import com.hortonworks.streamline.streams.catalog.CatalogToLayoutConverter;
 import com.hortonworks.streamline.streams.catalog.Engine;
+import com.hortonworks.streamline.streams.catalog.Template;
 import com.hortonworks.streamline.streams.catalog.Topology;
 import com.hortonworks.streamline.streams.catalog.TopologyDeployment;
 import com.hortonworks.streamline.streams.catalog.TopologyRuntimeIdMap;
@@ -172,7 +173,7 @@ public class TopologyActionsService implements ContainingNamespaceAwareContainer
                     statuses.add(topologyActions.status(CatalogToLayoutConverter.getTopologyLayout(topology),
                             runtimeIdMap.getApplicationId(), asUser));
                 } catch (Exception e) {
-                    LOG.error(String.format("failed to fetch status for  topology %s because of exception %s", topology.getId(),
+                    LOG.error(String.format("failed to fetch status for topology %s because of exception %s", topology.getId(),
                             e.getMessage()));
                     statuses.add(getErrorStatus(topology, region, e));
                 }
@@ -245,14 +246,15 @@ public class TopologyActionsService implements ContainingNamespaceAwareContainer
             throw new RuntimeException("Corresponding namespace not found: " + namespaceId);
         }
         Engine engine = catalogService.getEngine(topology.getEngineId());
+        Template template = catalogService.getTemplate(topology.getTemplateId());
         TopologyActionsBuilder topologyActionsBuilder = topologyActionsFactory.getTopologyActionsBuilder(engine, namespace,
-                this, environmentService, conf, subject);
+                template, this, environmentService, conf, subject);
         return topologyActionsBuilder.getTopologyActions();
     }
 
     private TopologyStateMachine getTopologyStateMachineInstance(Topology topology) {
-        Engine engine = catalogService.getEngine(topology.getEngineId());
-        return topologyStateMachineFactory.getTopologyStateMachine(engine);
+        Template template = catalogService.getTemplate(topology.getTemplateId());
+        return topologyStateMachineFactory.getTopologyStateMachine(template);
     }
 
     private TopologyContext getTopologyContext(Topology topology, String asUser) throws Exception {

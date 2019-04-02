@@ -1,6 +1,9 @@
 {
     "name":"Blank",
     "description": "Blank template for AthenaX. This will present default Editor.",
-    "engineId": 3,
+    "topologyActionClass": "com.hortonworks.streamline.streams.actions.athenax.topology.AthenaxTopologyActionBuilder",
+    "topologyStateMachineClass": "com.hortonworks.streamline.streams.actions.topology.state.DefaultTopologyStateMachine",
+    "topologyStatusMetricsClass": "com.hortonworks.streamline.streams.metrics.athenax.topology.AthenaxTopologyMetricsImpl",
+    "topologyTimeseriesMetricsClass": "com.hortonworks.streamline.streams.metrics.M3MetricsQuerier",
     "config": "{}"
 }

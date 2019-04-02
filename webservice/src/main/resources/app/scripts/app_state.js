@@ -35,7 +35,8 @@ class app_state {
   @observable versionPanelCollapsed = true
   @observable zoomScale = 0.8
   engines = []
-  enginesMetricsTemplates = []
+  engineTemplateMetricsBundles = []
+  templates = []
 }
 
 export default new app_state();

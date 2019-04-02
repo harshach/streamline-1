@@ -6,9 +6,5 @@
     "componentTypes": "[\"TASK\"]",
     "schemaAware": "false",
     "enabled": "true",
-    "topologyActionClass": "com.hortonworks.streamline.streams.actions.piper.topology.PiperTopologyActionsBuilder",
-    "topologyStatusMetricsClass": "com.hortonworks.streamline.streams.metrics.piper.topology.PiperTopologyMetricsImpl",
-    "topologyTimeseriesMetricsClass": "com.hortonworks.streamline.streams.metrics.M3MetricsQuerier",
-    "topologyStateMachineClass": "com.hortonworks.streamline.streams.actions.topology.state.DefaultTopologyStateMachine",
     "config": "{}"
 }

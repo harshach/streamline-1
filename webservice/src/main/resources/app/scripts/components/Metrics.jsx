@@ -32,11 +32,11 @@ import _ from 'lodash';
 export default class Metrics extends Component{
   constructor(props) {
     super(props);
-    let templates = Utils.getViewModeTimeseriesMetricsTemplate(props.engine, 'topology');
+    let bundles = Utils.getViewModeTimeseriesMetricsBundle(props.template, 'topology');
     this.state = {
-      timeseriesTemplate: templates,
-      selectedMetrics: templates[0] ? templates[0].uiName : '',
-      selectedMetricsName: templates[0] ? templates[0].name : ''
+      timeseriesTemplate: bundles,
+      selectedMetrics: bundles[0] ? bundles[0].uiName : '',
+      selectedMetricsName: bundles[0] ? bundles[0].name : ''
     };
   }
   componentDidMount(){

@@ -145,6 +145,7 @@ class EditorGraph extends Component {
       componentLevelAction,
       contextRouter,
       engine,
+      template,
       topologyData,
       selectedExecutionComponentsStatus,
       versionName
@@ -186,6 +187,7 @@ class EditorGraph extends Component {
               viewModeContextRouter={contextRouter}
               componentsBundle={componentsBundle}
               engine={engine}
+              template={template}
               topologyData={topologyData}
               selectedExecutionComponentsStatus={selectedExecutionComponentsStatus || []}
             />

@@ -153,11 +153,13 @@ function add_all_bundles {
     post /system/engines/STORM/templates ${storm_dir}/templates/blank.json
     post /system/engines/PIPER/templates ${piper_dir}/templates/blank.json
     post /system/engines/ATHENAX/templates ${athenax_dir}/templates/blank.json
+    post /system/engines/ATHENAX/templates ${athenax_dir}/templates/kafka-rta.json
 
     # === Engine Metrics ===
     post /system/engines/metrics ${storm_dir}/metrics/storm-metrics.json
     post /system/engines/metrics ${piper_dir}/metrics/piper-metrics.json
     post /system/engines/metrics ${athenax_dir}/metrics/athenax-metrics.json
+    post /system/engines/metrics ${athenax_dir}/metrics/kafka-rta-metrics.json
 
     # === Topology Settings ===
     add_topology_component_bundle /streams/componentbundles/SOURCE ${storm_dir}/components/sources/kafka-source-topology-component.json
@@ -203,6 +205,7 @@ function add_all_bundles {
     add_topology_component_bundle /streams/componentbundles/TOPOLOGY ${storm_dir}/topology/storm-topology-component.json
     add_topology_component_bundle /streams/componentbundles/TOPOLOGY ${piper_dir}/topology/piper-topology-component.json
     add_topology_component_bundle /streams/componentbundles/TOPOLOGY ${athenax_dir}/topology/athenax-topology-component.json
+    add_topology_component_bundle /streams/componentbundles/TOPOLOGY ${athenax_dir}/topology/kafka-rta-topology-component.json
 
     #add_topology_component_bundle /streams/componentbundles/PROCESSOR ${storm_dir}/components/processors/split-topology-component
     #add_topology_component_bundle /streams/componentbundles/PROCESSOR ${storm_dir}/components/processors/normalization-processor-topology-component.json

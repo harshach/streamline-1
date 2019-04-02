@@ -373,10 +373,10 @@ class TopologyViewContainer extends TopologyEditorContainer {
     let {viewModeData, startDate, endDate, topologyNamespaces} = this.state;
 
     const promiseArr = [];
-    const template = _.find(app_state.enginesMetricsTemplates, (template) => {
-      return this.engine.name == template.engine;
+    const bundle = _.find(app_state.engineTemplateMetricsBundles, (bundle) => {
+      return this.engine.name == bundle.engine && this.template.name == bundle.template;
     });
-    const timeSeriesMetrics = template.metricsUISpec.timeseries;
+    const timeSeriesMetrics = bundle.metricsUISpec.timeseries;
     _.each(timeSeriesMetrics, (m) => {
       _.each(m.metricKeyName, (mKey) => {
         let name = m.name;
@@ -716,6 +716,7 @@ class TopologyViewContainer extends TopologyEditorContainer {
         dataCenterList={namespacesArr}
         isBatchEngine={this.engine.type.toLowerCase() == 'batch'}
         engine={this.engine}
+        template={this.template}
     />;
   }
 

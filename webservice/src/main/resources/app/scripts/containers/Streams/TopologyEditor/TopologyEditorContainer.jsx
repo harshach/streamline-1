@@ -190,6 +190,7 @@ export class TopologyEditorContainer extends Component {
         };
 
         this.engine = Utils.getEngineById(data.topology.engineId);
+        this.template = Utils.getTemplateById(data.topology.templateId);
 
         this.namespaceName = _.keys(data.namespaces)[0];
         this.namespaceId = data.namespaces[this.namespaceName].namespaceId;
@@ -203,7 +204,7 @@ export class TopologyEditorContainer extends Component {
         let isAppRunning = this.getAppRunningStatus(this.status);
 
         let promiseArr = [];
-        promiseArr.push(TopologyREST.getTopologyConfig(data.topology.engineId));
+        promiseArr.push(TopologyREST.getTopologyConfig(data.topology.templateId));
         promiseArr.push(ProjectREST.getProject(this.projectId));
         promiseArr.push(TopologyREST.getMetaInfo(this.topologyId, this.versionId));
 
@@ -1238,6 +1239,7 @@ export class TopologyEditorContainer extends Component {
       showComponentNodeContainer={state.showComponentNodeContainer}
       testRunActivated={this.state.testRunActivated}
       engine={this.engine}
+      template={this.template}
       topologyData={topologyData}
       setTopologyConfig={this.setTopologyConfig}
       viewModeData={this.state.viewModeData || {}}

@@ -152,27 +152,27 @@ export class EditorFooter extends Component{
       topologyMetric,
       components,
       viewModeData,
-      engine
+      template
     } = this.props;
     const selectedComponentId = viewModeData.selectedComponentId;
     let selectedComponent = selectedComponentId !== '' ? components.find((c)=>{return c.nodeId === parseInt(selectedComponentId);}) : {};
 
     const componentType = selectedComponent.parentType || 'topology';
     const componentName = null;
-    let template = Utils.getViewModeMetricsTemplate(engine, componentType, selectedComponent.currentType);
+    let bundles = Utils.getViewModeMetricsBundle(template, componentType, selectedComponent.currentType);
 
     const metrics = [];
     if(!_.isUndefined(viewModeData.overviewMetrics) && !_.isUndefined(viewModeData.overviewMetrics.metrics)){
-      _.each(template, (t) => {
-        const oValue = _.get(viewModeData.overviewMetrics.metrics, t.metricKeyName);
-        const value = Utils[t.valueFormat](oValue);
+      _.each(bundles, (b) => {
+        const oValue = _.get(viewModeData.overviewMetrics.metrics, b.metricKeyName);
+        const value = Utils[b.valueFormat](oValue);
         let diffValue;
         if(_.isObject(viewModeData.overviewMetrics.prevMetrics)){
-          diffValue = Utils[t.valueFormat](oValue - _.get(viewModeData.overviewMetrics.prevMetrics, t.metricKeyName));
+          diffValue = Utils[b.valueFormat](oValue - _.get(viewModeData.overviewMetrics.prevMetrics, b.metricKeyName));
         }
 
         const component = <div className="topology-foot-widget">
-          <h6>{t.uiName}
+          <h6>{b.uiName}
             {!_.isUndefined(diffValue) && <big>
                 <i className={diffValue.value <= 0 ? "fa fa-arrow-down" : "fa fa-arrow-up"}></i>
               </big>
@@ -197,14 +197,14 @@ export class EditorFooter extends Component{
       topologyMetric,
       components,
       viewModeData,
-      engine
+      template
     } = this.props;
     const selectedComponentId = viewModeData.selectedComponentId;
     let selectedComponent = selectedComponentId !== '' ? components.find((c)=>{return c.nodeId === parseInt(selectedComponentId);}) : {};
 
     const componentType = selectedComponent.parentType || 'topology';
     const componentName = null;
-    let template = Utils.getViewModeTimeseriesMetricsTemplate(engine, componentType, selectedComponent.currentType);
+    let bundles = Utils.getViewModeTimeseriesMetricsBundle(template, componentType, selectedComponent.currentType);
 
     const metrics = [];
     if(!_.isUndefined(viewModeData.timeSeriesMetrics) && !_.isEmpty(viewModeData.timeSeriesMetrics)){
@@ -215,14 +215,14 @@ export class EditorFooter extends Component{
         marginTop: "0px"
       }}/>;
 
-      _.each(template, (t) => {
+      _.each(bundles, (b) => {
         const graphData = [];
-        const firstLineData = timeSeriesMetrics[t.metricKeyName[0]];
+        const firstLineData = timeSeriesMetrics[b.metricKeyName[0]];
         for(const key in firstLineData) {
           const obj = {
             date: new Date(parseInt(key))
           };
-          _.each(t.metricKeyName, (kName) => {
+          _.each(b.metricKeyName, (kName) => {
             obj[kName] = timeSeriesMetrics[kName][key] || 0;
           });
           graphData.push(obj);
@@ -230,12 +230,12 @@ export class EditorFooter extends Component{
 
         const component = <div className="col-md-3">
           <div className="topology-foot-graphs">
-            <div style={{textAlign: "left", marginLeft: '10px', cursor:'pointer', textTransform: 'uppercase'}} onClick={this.showGraphInModal.bind(this, t.uiName, '_'+t.uiName, graphData, t.interpolate)}>{t.uiName}</div>
+            <div style={{textAlign: "left", marginLeft: '10px', cursor:'pointer', textTransform: 'uppercase'}} onClick={this.showGraphInModal.bind(this, b.uiName, '_'+b.uiName, graphData, b.interpolate)}>{b.uiName}</div>
             <div style={{
               height: '82px',
               textAlign: 'center'
             }}>
-              {this.state.loadingRecord ? loader : this.getGraph(t.uiName, graphData, t.interpolate)}
+              {this.state.loadingRecord ? loader : this.getGraph(b.uiName, graphData, b.interpolate)}
             </div>
           </div>
         </div>;

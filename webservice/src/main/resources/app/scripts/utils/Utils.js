@@ -877,7 +877,13 @@ const getEngineById = function(id){
   });
 };
 
-const defaultTemplate = {
+const getTemplateById = function (id) {
+  return app_state.templates.find((t) => {
+    return t.id == id;
+  });
+};
+
+const defaultBundle = {
   "metricsUISpec":{
     "metrics":[],
     "timeseries":[],
@@ -895,31 +901,19 @@ const defaultTemplate = {
     }
   }
 };
-const defineEngineProps = function(engine){
-  Object.defineProperty(engine, 'metricsTemplate', {
+const defineTemplateProps = function(template){
+  Object.defineProperty(template, 'metricsBundle', {
     get : function(){
-      const template = _.find(app_state.enginesMetricsTemplates, (template) => {
-        return this.name == template.engine;
+      const bundle = _.find(app_state.engineTemplateMetricsBundles, (bundle) => {
+        return this.name == bundle.template;
       });
-      if(template){
-        return template;
+      if(bundle){
+        return bundle;
       }else{
-        return defaultTemplate;
+        return defaultBundle;
       }
     }
   });
-};
-
-const getListingMetricsTemplate = function(engine){
-  const template = [];
-  const metricsUISpec = engine.metricsTemplate.metricsUISpec;
-  _.each(metricsUISpec.layout.listing, (mName) => {
-    const metric = _.find(metricsUISpec.metrics, (m) => {
-      return m.name == mName;
-    });
-    template.push(metric);
-  });
-  return template;
 };
 
 const filterTemplate = function(layout, metrics, componentType, componentName){
@@ -951,36 +945,36 @@ const filterTemplate = function(layout, metrics, componentType, componentName){
   return template;
 };
 
-const getViewModeMetricsTemplate = function(engine, componentType, componentName){
-  const metricsUISpec = engine.metricsTemplate.metricsUISpec;
+const getViewModeMetricsBundle = function(template, componentType, componentName){
+  const metricsUISpec = template.metricsBundle.metricsUISpec;
   return filterTemplate(metricsUISpec.layout.viewmode.metricsSection.metrics[componentType.toLowerCase()],
-    metricsUISpec.metrics,
-    componentType,
-    componentName);
+      metricsUISpec.metrics,
+      componentType,
+      componentName);
 };
 
-const getViewModeTimeseriesMetricsTemplate = function(engine, componentType, componentName){
-  const metricsUISpec = engine.metricsTemplate.metricsUISpec;
+const getViewModeTimeseriesMetricsBundle = function(template, componentType, componentName){
+  const metricsUISpec = template.metricsBundle.metricsUISpec;
   return filterTemplate(metricsUISpec.layout.viewmode.metricsSection.timeseries[componentType.toLowerCase()],
-    metricsUISpec.timeseries,
-    componentType,
-    componentName);
+      metricsUISpec.timeseries,
+      componentType,
+      componentName);
 };
 
-const getViewModeDAGMetricsTemplate = function(engine, componentType, componentName){
-  const metricsUISpec = engine.metricsTemplate.metricsUISpec;
+const getViewModeDAGMetricsBundle = function(template, componentType, componentName){
+  const metricsUISpec = template.metricsBundle.metricsUISpec;
   return filterTemplate(metricsUISpec.layout.viewmode.DAG.metrics[componentType.toLowerCase()],
-    metricsUISpec.metrics,
-    componentType,
-    componentName);
+      metricsUISpec.metrics,
+      componentType,
+      componentName);
 };
 
-const getViewModeDAGTimeseriesMetricsTemplate = function(engine, componentType, componentName){
-  const metricsUISpec = engine.metricsTemplate.metricsUISpec;
+const getViewModeDAGTimeseriesMetricsBundle = function(template, componentType, componentName) {
+  const metricsUISpec = template.metricsBundle.metricsUISpec;
   return filterTemplate(metricsUISpec.layout.viewmode.DAG.timeseries[componentType.toLowerCase()],
-    metricsUISpec.timeseries,
-    componentType,
-    componentName);
+      metricsUISpec.timeseries,
+      componentType,
+      componentName);
 };
 
 const isFromSharedProjects = function(){
@@ -1060,12 +1054,12 @@ export default {
   removeSpecialCharToSpace,
   isPromise,
   getEngineById,
-  defineEngineProps,
-  getListingMetricsTemplate,
-  getViewModeMetricsTemplate,
-  getViewModeTimeseriesMetricsTemplate,
-  getViewModeDAGMetricsTemplate,
-  getViewModeDAGTimeseriesMetricsTemplate,
+  getTemplateById,
+  defineTemplateProps,
+  getViewModeMetricsBundle,
+  getViewModeTimeseriesMetricsBundle,
+  getViewModeDAGMetricsBundle,
+  getViewModeDAGTimeseriesMetricsBundle,
   isFromSharedProjects,
   numValueFormatter
 };

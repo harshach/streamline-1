@@ -3,7 +3,7 @@
   "name": "Kafka",
   "subType": "KAFKA",
   "engine": "ATHENAX",
-  "template": ["Blank"],
+  "template": ["Blank", "KafkaRTA"],
   "builtin": true,
   "fieldHintProviderClass": "com.hortonworks.streamline.streams.cluster.bundle.impl.KafkaBundleHintProvider",
   "transformationClass": "dummy",

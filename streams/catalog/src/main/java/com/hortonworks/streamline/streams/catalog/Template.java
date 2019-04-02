@@ -18,6 +18,10 @@ public class Template implements Storable {
     public static final String NAME = "name";
     public static final String DESCRIPTION = "description";
     public static final String ENGINEID = "engineId";
+    public static final String TOPOLOGY_ACTION_CLASS = "topologyActionClass";
+    public static final String TOPOLOGY_STATE_MACHINE_CLASS = "topologyStateMachineClass";
+    public static final String TOPOLOGY_STATUS_METRICS_CLASS = "topologyStatusMetricsClass";
+    public static final String TOPOLOGY_TIME_SERIES_METRICS_CLASS = "topologyTimeSeriesMetricsClass";
     public static final String CONFIG = "config";
 
 
@@ -31,7 +35,15 @@ public class Template implements Storable {
 
     private Long engineId;
 
-    private String  config;
+    private String topologyActionClass;
+
+    private String topologyStateMachineClass;
+
+    private String topologyStatusMetricsClass;
+
+    private String topologyTimeseriesMetricsClass;
+
+    private String config;
 
     public Template() {}
 
@@ -41,6 +53,10 @@ public class Template implements Storable {
             setName(other.getName());
             setDescription(other.getDescription());
             setEngineId(other.getEngineId());
+            setTopologyActionClass(other.getTopologyActionClass());
+            setTopologyStateMachineClass(other.getTopologyStateMachineClass());
+            setTopologyStatusMetricsClass(other.getTopologyStatusMetricsClass());
+            setTopologyTimeseriesMetricsClass(other.getTopologyTimeseriesMetricsClass());
             setConfig(other.getConfig());
         }
     }
@@ -58,6 +74,10 @@ public class Template implements Storable {
                 new Schema.Field(NAME, Schema.Type.STRING),
                 new Schema.Field(DESCRIPTION, Schema.Type.STRING),
                 new Schema.Field(ENGINEID, Schema.Type.LONG),
+                new Schema.Field(TOPOLOGY_ACTION_CLASS, Schema.Type.STRING),
+                new Schema.Field(TOPOLOGY_STATE_MACHINE_CLASS, Schema.Type.STRING),
+                new Schema.Field(TOPOLOGY_STATUS_METRICS_CLASS, Schema.Type.STRING),
+                new Schema.Field(TOPOLOGY_TIME_SERIES_METRICS_CLASS, Schema.Type.STRING),
                 new Schema.Field(CONFIG, Schema.Type.STRING)
         );
     }
@@ -80,6 +100,10 @@ public class Template implements Storable {
         map.put(NAME, this.name);
         map.put(DESCRIPTION, this.descrption);
         map.put(ENGINEID, this.engineId);
+        map.put(TOPOLOGY_ACTION_CLASS, this.topologyActionClass);
+        map.put(TOPOLOGY_STATE_MACHINE_CLASS, this.topologyStateMachineClass);
+        map.put(TOPOLOGY_STATUS_METRICS_CLASS, this.topologyStatusMetricsClass);
+        map.put(TOPOLOGY_TIME_SERIES_METRICS_CLASS, this.topologyTimeseriesMetricsClass);
         map.put(CONFIG, this.config);
         return map;
     }
@@ -89,6 +113,10 @@ public class Template implements Storable {
         this.name = (String) map.get(NAME);
         this.descrption = (String) map.get(DESCRIPTION);
         this.engineId = (Long) map.get(ENGINEID);
+        this.topologyActionClass = (String) map.get(TOPOLOGY_ACTION_CLASS);
+        this.topologyStateMachineClass = (String) map.get(TOPOLOGY_STATE_MACHINE_CLASS);
+        this.topologyStatusMetricsClass = (String) map.get(TOPOLOGY_STATUS_METRICS_CLASS);
+        this.topologyTimeseriesMetricsClass = (String) map.get(TOPOLOGY_TIME_SERIES_METRICS_CLASS);
         this.config = (String)  map.get(CONFIG);
         return this;
     }
@@ -108,6 +136,24 @@ public class Template implements Storable {
     public Long getEngineId() { return engineId; }
 
     public void setEngineId(Long engineId) { this.engineId = engineId; }
+
+    public String getTopologyActionClass() { return topologyActionClass; }
+
+    public void setTopologyActionClass(String topologyActionClass) { this.topologyActionClass = topologyActionClass; }
+
+    public String getTopologyStateMachineClass() { return topologyStateMachineClass; }
+
+    public void setTopologyStateMachineClass(String topologyStateMachineClass) { this.topologyStateMachineClass = topologyStateMachineClass; }
+
+    public String getTopologyTimeseriesMetricsClass() { return topologyTimeseriesMetricsClass; }
+
+    public void setTopologyTimeseriesMetricsClass(String topologyTimeseriesMetricsClass) {
+        this.topologyTimeseriesMetricsClass = topologyTimeseriesMetricsClass;
+    }
+
+    public String getTopologyStatusMetricsClass() { return topologyStatusMetricsClass; }
+
+    public void setTopologyStatusMetricsClass(String topologyStatusMetricsClass ) { this.topologyStatusMetricsClass = topologyStatusMetricsClass; }
 
     public String getConfig() { return config; }
 

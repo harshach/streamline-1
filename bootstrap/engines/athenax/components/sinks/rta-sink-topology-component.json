@@ -3,7 +3,7 @@
   "name": "RTA",
   "subType": "RTA",
   "engine": "ATHENAX",
-  "template": ["Blank"],
+  "template": ["Blank", "KafkaRTA"],
   "builtin": true,
   "fieldHintProviderClass": "com.hortonworks.streamline.streams.cluster.bundle.impl.KafkaSinkBundleHintProvider",
   "transformationClass": "com.hortonworks.streamline.streams.layout.component.impl.RTASink",

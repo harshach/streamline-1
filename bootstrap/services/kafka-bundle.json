@@ -18,13 +18,6 @@
         "type": "string"
       },
       {
-        "uiName": "Kafka cluster name",
-        "fieldName": "clusterName",
-        "isOptional": false,
-        "tooltip": "Name of the Kafka cluster",
-        "type": "string"
-      },
-      {
         "uiName": "Security Inter-broker protocol",
         "fieldName": "security.inter.broker.protocol",
         "isOptional": true,

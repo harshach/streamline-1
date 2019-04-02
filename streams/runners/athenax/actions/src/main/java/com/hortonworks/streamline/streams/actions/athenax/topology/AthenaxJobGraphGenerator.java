@@ -25,14 +25,8 @@ import com.hortonworks.streamline.streams.layout.component.impl.KafkaSink;
 import com.hortonworks.streamline.streams.layout.component.impl.KafkaSource;
 import com.hortonworks.streamline.streams.layout.component.impl.M3Sink;
 import com.hortonworks.streamline.streams.layout.component.impl.RTASink;
-import com.hortonworks.streamline.streams.layout.component.impl.RulesProcessor;
 import com.hortonworks.streamline.streams.layout.component.impl.SqlProcessor;
 import com.hortonworks.streamline.streams.layout.component.impl.TChannelSink;
-import com.hortonworks.streamline.streams.registry.table.RTACreateTableRequest;
-import com.hortonworks.streamline.streams.registry.table.RTADeployTableRequest;
-import com.hortonworks.streamline.streams.registry.table.RTAQueryTypes;
-import com.hortonworks.streamline.streams.registry.table.RTATableField;
-import com.hortonworks.streamline.streams.registry.table.RTATableMetadata;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -49,7 +43,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
-import static com.hortonworks.streamline.streams.cluster.register.impl.KafkaServiceRegistrar.PARAM_CLUSTER_NAME;
 import static com.hortonworks.streamline.streams.cluster.register.impl.KafkaServiceRegistrar.PARAM_ZOOKEEPER_CONNECT;
 
 public class AthenaxJobGraphGenerator extends TopologyDagVisitor {
@@ -70,22 +63,15 @@ public class AthenaxJobGraphGenerator extends TopologyDagVisitor {
 
 	private EnvironmentService environmentService;
 	private TopologyLayout topology;
-	private String runAsUser;
 	private List<StreamlineSource> streamlineSourceList = new ArrayList<>();
 	private List<StreamlineSink> streamlineSinkList = new ArrayList<>();
 	private String sql;
 	private boolean legalAthenaXJob;
 
-	protected AthenaxJobGraphGenerator(TopologyLayout topology, EnvironmentService environmentService, String asUser) {
+	protected AthenaxJobGraphGenerator(TopologyLayout topology, EnvironmentService environmentService) {
 		this.environmentService = environmentService;
 		this.topology = topology;
-		this.runAsUser = asUser;
 		this.legalAthenaXJob = true;
-	}
-
-	@Override
-	public void visit(RulesProcessor rulesProcessor) {
-		throw new UnsupportedOperationException("Not supported");
 	}
 
 	@Override
@@ -137,75 +123,6 @@ public class AthenaxJobGraphGenerator extends TopologyDagVisitor {
 			}
 		}
 		return rtaSinkList;
-	}
-
-	public RTACreateTableRequest extractRTACreateTableRequest(RTASink rtaSink) {
-		RTACreateTableRequest request = new RTACreateTableRequest();
-
-		Config rtaSinkConfig = rtaSink.getConfig();
-
-		// TODO: Change to use email in runAsUser when available
-		request.setOwner(runAsUser + "@uber.com");
-		request.setName(rtaSinkConfig.get(RTAConstants.TABLE_NAME));
-		request.setRtaTableMetadata(extractRTATableMetadata(rtaSink));
-
-		List<RTATableField> rtaTableFields = new ArrayList<>();
-		List<Map<String, Object>> tableFieldConfigs = rtaSinkConfig.getAny(RTAConstants.TABLE_FIELDS);
-		for (Map<String, Object> fieldConfig : tableFieldConfigs) {
-			RTATableField rtaTableField = new RTATableField();
-
-			rtaTableField.setType((String) fieldConfig.get(RTAConstants.TYPE));
-			rtaTableField.setName((String) fieldConfig.get(RTAConstants.NAME));
-			rtaTableField.setUberLogicalType((String) fieldConfig.get(RTAConstants.UBER_LOGICAL_TYPE));
-			rtaTableField.setCardinality((String) fieldConfig.get(RTAConstants.CARDINALITY));
-			rtaTableField.setColumnType((String) fieldConfig.get(RTAConstants.COLUMN_TYPE));
-			rtaTableField.setDoc((String) fieldConfig.get(RTAConstants.DOC));
-
-			rtaTableFields.add(rtaTableField);
-		}
-		request.setFields(rtaTableFields);
-
-		return request;
-	}
-
-	private RTATableMetadata extractRTATableMetadata(RTASink rtaSink) {
-		RTATableMetadata metaData = new RTATableMetadata();
-
-		Config rtaSinkConfig = rtaSink.getConfig();
-
-		List<String> primaryKeys = new ArrayList<>();
-		List<Map<String, Object>> tableFieldConfigs = rtaSinkConfig.getAny(RTAConstants.TABLE_FIELDS);
-		for (Map<String, Object> fieldConfig : tableFieldConfigs) {
-			if ((boolean) fieldConfig.get(RTAConstants.IS_PRIMARY_KEY)) {
-				primaryKeys.add((String) fieldConfig.get(RTAConstants.NAME));
-			}
-		}
-		metaData.setPrimaryKeys(primaryKeys);
-
-		metaData.setIngestionRate(rtaSinkConfig.getAny(RTAConstants.INGESTION_RATE));
-		metaData.setRetentionDays(rtaSinkConfig.getAny(RTAConstants.RETENTION_DAYS));
-
-		List<String> queryTypes = new ArrayList<>();
-		for (RTAQueryTypes rtaQueryTypes : RTAQueryTypes.values()) {
-			if (rtaSinkConfig.getAny(rtaQueryTypes.getUiFieldName())) {
-				queryTypes.add(rtaQueryTypes.getRtaQueryTypeName());
-			}
-		}
-		metaData.setQueryTypes(queryTypes);
-
-		// source topic for RTA ingestion, which is the topic defined in RTA sink
-		String rtaSourceTopicName = rtaSinkConfig.get(RTAConstants.TOPIC);
-		metaData.setSourceName(rtaSourceTopicName);
-
-		return metaData;
-	}
-
-	public RTADeployTableRequest extractRTADeployTableRequest(RTASink rtaSink) {
-		RTADeployTableRequest request = new RTADeployTableRequest();
-		Namespace namespace = getNamespaceFromComponent(rtaSink);
-		Map<String, String> kafkaConfigMap = getKafkaConfigMap(namespace);
-		request.setKafkaCluster(kafkaConfigMap.get(PARAM_CLUSTER_NAME));
-		return request;
 	}
 
 	public JobDefinition extractJobDefinition(String dataCenter, String cluster) throws Exception {

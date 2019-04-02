@@ -64,25 +64,25 @@ class TopologyComponentMetrics extends Component {
     const {
       viewModeData,
       compData,
-      engine
+      template
     } = this.props;
 
     const componentType = compData.parentType;
     const componentName = null;
-    let template = Utils.getViewModeDAGMetricsTemplate(engine, componentType, compData.currentType);
+    let bundles = Utils.getViewModeDAGMetricsBundle(template, componentType, compData.currentType);
 
     const metrics = [];
     if(!_.isUndefined(overviewMetrics.metrics)){
-      _.each(template, (t, i) => {
-        const oValue = _.get(overviewMetrics.metrics, t.metricKeyName);
-        const value = Utils[t.valueFormat](oValue);
+      _.each(bundles, (b, i) => {
+        const oValue = _.get(overviewMetrics.metrics, b.metricKeyName);
+        const value = Utils[b.valueFormat](oValue);
 
         const colTimeWidth =  60, colStaticWidth = 40;
 
-        const uiNameArr = t.uiName.split(' ');
+        const uiNameArr = b.uiName.split(' ');
 
         const component = <tr key={"metrics-"+i}>
-            <td><span className="execution-metric-label">{t.uiName}</span></td>
+            <td><span className="execution-metric-label">{b.uiName}</span></td>
             <td>
               <span className="execution-metric-value">{value.value}</span>
               <small>{value.suffix}</small>
@@ -99,13 +99,13 @@ class TopologyComponentMetrics extends Component {
     const {
       viewModeData,
       compData,
-      engine
-    } = this.props;;
+      template
+    } = this.props;
     const showMetrics = viewModeData.selectedMode == 'Metrics' ? true : false;
 
     const componentType = compData.parentType;
     const componentName = null;
-    let template = Utils.getViewModeDAGTimeseriesMetricsTemplate(engine, componentType, compData.currentType);
+    let bundles = Utils.getViewModeDAGTimeseriesMetricsBundle(template, componentType, compData.currentType);
 
     const metrics = [];
     if(!_.isUndefined(timeSeriesMetrics.metrics)){
@@ -115,27 +115,27 @@ class TopologyComponentMetrics extends Component {
         marginTop: "0px"
       }}/>;
 
-      _.each(template, (t) => {
+      _.each(bundles, (b) => {
         const graphData = [];
-        const firstLineData = timeSeriesMetrics.metrics[t.metricKeyName[0]];
+        const firstLineData = timeSeriesMetrics.metrics[b.metricKeyName[0]];
         for(const key in firstLineData) {
           const obj = {
             date: new Date(parseInt(key))
           };
-          _.each(t.metricKeyName, (kName) => {
+          _.each(b.metricKeyName, (kName) => {
             obj[kName] = timeSeriesMetrics[kName][key] || 0;
           });
           graphData.push(obj);
         }
 
         const component = <div className="component-metric-graph">
-          <div style={{textAlign: "left"}}>{t.uiName}</div>
+          <div style={{textAlign: "left"}}>{b.uiName}</div>
           <div style={{
             height: '25px',
             textAlign: 'center',
             backgroundColor: '#f2f3f2'
           }}>
-            {this.state.loadingRecord ? loader : this.getGraph(t.uiName, graphData, t.interpolate, showMetrics)}
+            {this.state.loadingRecord ? loader : this.getGraph(b.uiName, graphData, b.interpolate, showMetrics)}
           </div>
         </div>;
 
@@ -147,7 +147,7 @@ class TopologyComponentMetrics extends Component {
   }
 
   render () {
-    let {viewModeData, compData, engine} = this.props;
+    let {viewModeData, compData} = this.props;
     const {componentLevelActionDetails} = viewModeData;
     let overviewMetrics = {}, timeSeriesMetrics = {},samplingVal= 0,
       logLevels = viewModeData.logTopologyLevel;

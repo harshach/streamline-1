@@ -143,6 +143,10 @@ echo "Component bundle Root dir: ${component_dir}"
 echo "Service bundle Root dir: ${service_dir}"
 echo "User/Role bundle Root dir: ${user_role_dir}"
 
+function add_root_project {
+    post /projects ${bootstrap_dir}/root_project.json
+}
+
 function add_all_bundles {
     # === Engine ===
     post /system/engines ${storm_dir}/storm.json
@@ -327,6 +331,7 @@ function main {
 
     echo "Executing ${bootstrap_dir}/bootstrap-notifiers.sh ${CATALOG_ROOT_URL}"
     ${bootstrap_dir}/bootstrap-notifiers.sh ${CATALOG_ROOT_URL}
+    add_root_project
 }
 
 main

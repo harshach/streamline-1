@@ -274,7 +274,6 @@ public class TopologyCatalogResource {
             } else {
                 listProjectIds = securityCatalogService.listOjectIdByOwner(user.getId(), Project.NAMESPACE);
             }
-
             for (String projectId: listProjectIds) {
                 Project project = catalogService.getProject(Long.parseLong(projectId));
                 if (project != null) projects.add(project);
@@ -374,8 +373,32 @@ public class TopologyCatalogResource {
     @GET
     @Path("/topologies")
     @Timed
-    public Response listTopologies (@Context SecurityContext securityContext) {
-        return listTopologies(securityContext, null);
+    public Response listTopologiesByProjectId (@javax.ws.rs.QueryParam("projectId") Long projectId,
+                                               @Context SecurityContext securityContext) {
+        if (projectId == null || projectId == StreamCatalogService.PLACEHOLDER_ID) {
+            return listTopologies(securityContext, StreamCatalogService.PLACEHOLDER_ID);
+        } else {
+            return listTopologies(securityContext, projectId);
+        }
+    }
+
+    @GET
+    @Path("/topologies/{topologyId}/runtimeApplicationId")
+    @Timed
+    public Response getRuntimeApplicationId (@PathParam("topologyId") Long topologyId,
+                                             @Context SecurityContext securityContext) {
+        SecurityUtil.checkRoleOrPermissions(authorizer, securityContext, Roles.ROLE_TOPOLOGY_USER,
+                NAMESPACE, topologyId, READ);
+
+        Topology topology = Optional.ofNullable(catalogService.getTopology(topologyId))
+                .orElseThrow(() -> EntityNotFoundException.byId(topologyId.toString()));
+        Collection<TopologyRuntimeIdMap> topologyRuntimeIdMapList = actionsService.getRuntimeTopologyId(topology);
+        if (!topologyRuntimeIdMapList.isEmpty()) {
+            TopologyRuntimeIdMap topologyRuntimeIdMap = topologyRuntimeIdMapList.iterator().next();
+            return WSUtils.respondEntity(topologyRuntimeIdMap, OK);
+        }
+
+        throw EntityNotFoundException.byId(topologyId.toString());
     }
 
     @GET

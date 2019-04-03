@@ -17,6 +17,8 @@
 
 package com.hortonworks.streamline.streams.catalog;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.hortonworks.registries.common.Schema;
 import com.hortonworks.streamline.storage.annotation.StorableEntity;
 import com.hortonworks.streamline.storage.PrimaryKey;
@@ -44,9 +46,11 @@ public class TopologyRuntimeIdMap extends AbstractStorable {
         this.applicationId = applicationId;
     }
 
+    @JsonIgnore
     @Override
     public String getNameSpace() { return NAMESPACE; }
 
+    @JsonIgnore
     @Override
     public PrimaryKey getPrimaryKey() {
         Map<Schema.Field, Object> fieldToObjectMap = new HashMap<>();
@@ -55,14 +59,17 @@ public class TopologyRuntimeIdMap extends AbstractStorable {
         return new PrimaryKey(fieldToObjectMap);
     }
 
+    @JsonIgnore
     public Long getTopologyId() { return topologyId; }
 
     public void setTopologyId(Long topologyId) { this.topologyId = topologyId; }
 
+    @JsonIgnore
     public Long getNamespaceId() { return namespaceId; }
 
     public void setNamespaceId(Long namespaceId) { this.namespaceId = namespaceId; }
 
+    @JsonProperty("applicationId")
     public String getApplicationId() { return applicationId; }
 
     public void setApplicationId(String applicationId) { this.applicationId = applicationId; }

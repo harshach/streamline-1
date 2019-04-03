@@ -139,6 +139,7 @@ public abstract class AbstractStorable implements Storable {
     }
 
     @Override
+    @JsonIgnore
     public Long getId() {
         throw new UnsupportedOperationException("Not implemented");
     }

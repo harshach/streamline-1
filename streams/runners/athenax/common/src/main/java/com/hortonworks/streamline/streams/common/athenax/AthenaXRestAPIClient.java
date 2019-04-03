@@ -12,6 +12,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.security.auth.Subject;
+import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.core.MediaType;
@@ -89,6 +90,9 @@ public class AthenaXRestAPIClient {
                     return JsonClientUtil.postEntityWithHeaders(client.target(requestUrl), athenaXHeaders, bodyObject, acceptType, String.class);
                 }
             });
+        } catch (WebApplicationException e) {
+            LOG.error(e.getResponse().readEntity(String.class));
+            throw new RuntimeException(e.getResponse().readEntity(String.class), e);
         } catch (javax.ws.rs.ProcessingException e) {
             if (e.getCause() instanceof IOException) {
                 throw new RuntimeException("Exception while requesting " + requestUrl, e);

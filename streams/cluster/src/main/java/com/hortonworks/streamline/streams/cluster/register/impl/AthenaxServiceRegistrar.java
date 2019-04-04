@@ -19,6 +19,7 @@ public class AthenaxServiceRegistrar extends AbstractServiceRegistrar {
     public static final String ATHENAX_SERVICE_PORT_KEY= "athenax.service.port";
     public static final String ATHENAX_YARN_DATA_CENTER_KEY = "athenax.yarn.dataCenter";
     public static final String ATHENAX_YARN_CLUSTER_KEY = "athenax.yarn.cluster";
+    public static final String ATHENAX_SERVICE_MUTTLEY_NAME = "athenax.service.muttleyName";
     public static final String SERVICE_NAME = "athenax";
     public static final String CONF_TYPE_PROPERTIES = "properties";
 
@@ -43,6 +44,7 @@ public class AthenaxServiceRegistrar extends AbstractServiceRegistrar {
         confMap.put(ATHENAX_SERVICE_PORT_KEY, String.valueOf((Integer) config.getAny(ATHENAX_SERVICE_PORT_KEY)));
         confMap.put(ATHENAX_YARN_DATA_CENTER_KEY, config.get(ATHENAX_YARN_DATA_CENTER_KEY));
         confMap.put(ATHENAX_YARN_CLUSTER_KEY, config.get(ATHENAX_YARN_CLUSTER_KEY));
+        confMap.put(ATHENAX_SERVICE_MUTTLEY_NAME, config.get(ATHENAX_SERVICE_MUTTLEY_NAME));
 
         ObjectMapper objectMapper = new ObjectMapper();
         try {

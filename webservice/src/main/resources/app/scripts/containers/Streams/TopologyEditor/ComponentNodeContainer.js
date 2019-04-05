@@ -368,24 +368,20 @@ export default class ComponentNodeContainer extends Component {
 }
 
 var getSourceProcessorSink = function(){
-  return [<h6 className="component-title">
-      Source
-    </h6>,
-    <ul className="component-list" key="source-ul">
-      {this.getNodeContainer("sources")}
-    </ul>,
-    <h6 className="component-title">
-      Processor
-    </h6>,
-    <ul className="component-list" key="processor-ul">
-      {this.getNodeContainer("processors")}
-    </ul>,
-    <h6 className="component-title">
-      Sink
-    </h6>,
-    <ul className="component-list" key="sink-ul">
-      {this.getNodeContainer("sinks")}
-    </ul>];
+  let arr = [];
+  if(this.state.datasources.length > 0){
+    arr.push(<h6 className="component-title" key="source-label">Source</h6>);
+    arr.push(<ul className="component-list" key="source-ul">{this.getNodeContainer("sources")}</ul>);
+  }
+  if(this.state.processors.length > 0){
+    arr.push(<h6 className="component-title" key="processor-label">Processor</h6>);
+    arr.push(<ul className="component-list" key="processor-ul">{this.getNodeContainer("processors")}</ul>);
+  }
+  if(this.state.sinks.length > 0){
+    arr.push(<h6 className="component-title" key="sink-label">Sink</h6>);
+    arr.push(<ul className="component-list" key="sink-ul">{this.getNodeContainer("sinks")}</ul>);
+  }
+  return arr;
 };
 
 class SPSComponentNodeContainer extends ComponentNodeContainer{

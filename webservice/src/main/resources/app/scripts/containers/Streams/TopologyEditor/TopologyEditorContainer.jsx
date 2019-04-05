@@ -192,6 +192,10 @@ export class TopologyEditorContainer extends Component {
         this.engine = Utils.getEngineById(data.topology.engineId);
         this.template = Utils.getTemplateById(data.topology.templateId);
 
+        if(typeof this.template.config === 'string'){
+          this.template.config = JSON.parse(this.template.config);
+        }
+
         this.namespaceName = _.keys(data.namespaces)[0];
         this.namespaceId = data.namespaces[this.namespaceName].namespaceId;
         this.lastUpdatedTime = new Date(data.topology.timestamp);

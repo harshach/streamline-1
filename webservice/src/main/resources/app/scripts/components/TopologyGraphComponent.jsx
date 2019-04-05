@@ -36,6 +36,10 @@ window.jQuery = jQuery;
 
 const componentTarget = {
   drop(props, monitor, component) {
+    if(props.avoidDagEditing){
+      FSReactToastr.warning(<strong>Action is not permitted since this workflow template cannot be customized.</strong>);
+      return;
+    }
     let parentRect = document.getElementsByClassName('graph-region')[0].getBoundingClientRect();
     const item = monitor.getItem();
     const delta = monitor.getClientOffset();
@@ -418,7 +422,7 @@ export default class TopologyGraphComponent extends Component {
       let prevEdge = internalFlags.selectedEdge;
       if (!prevEdge || prevEdge !== d) {
         TopologyUtils.replaceSelectEdge(d3, d3path, d, GraphUtils.customConstantObj.call(this,d), internalFlags, paths);
-        this.main_edgestream.style('display', 'block');
+        this.main_edgestream.style('display', 'none');
         d3.select('.edge-stream').attr('x', this.getBoundingBoxCenter(d3path)[0] - 100);
         d3.select('.edge-stream').attr('y', this.getBoundingBoxCenter(d3path)[1]);
         TopologyUtils.getEdgeData(d, this.topologyId, this.versionId, this.setEdgeData.bind(this));
@@ -432,28 +436,30 @@ export default class TopologyGraphComponent extends Component {
 
   setEdgeData(obj) {
     let thisGraph = this;
-    let name = obj.streamName;
-    if (name.length > 18)
-      {name = name.slice(0, 17) + '...';}
+    if(obj){
+      let name = obj.streamName;
+      if (name.length > 18)
+        {name = name.slice(0, 17) + '...';}
 
-    if (thisGraph.editMode) {
-      this.edgeStream.html('<div><p><strong>Stream:</strong> ' + name + '</p>' + '<p><strong>Grouping:</strong> ' + obj.grouping + '</p>' + '<p><button class="btn btn-xs btn-success editEdge"><i class="fa fa-pencil"></i> Edit</button> ' + '<button class="btn btn-xs btn-danger deleteEdge"><i class="fa fa-trash"></i> Delete</button></p>' + '</div>');
-      this.main_edgestream.style('display', 'block');
-      this.edgeStream.style('display', 'block');
-      d3.select('.editEdge').on("click", function() {
-        this.getEdgeConfigModal(this.topologyId, this.versionId, obj.edgeData, this.edges, this.updateGraph, null, obj.streamName, obj.grouping, obj.groupingFields);
-        this.edgeStream.style('display', 'none');
+      if (thisGraph.editMode) {
+        this.edgeStream.html('<div><p><strong>Stream:</strong> ' + name + '</p>' + '<p><strong>Grouping:</strong> ' + obj.grouping + '</p>' + '<p><button class="btn btn-xs btn-success editEdge"><i class="fa fa-pencil"></i> Edit</button> ' + '<button class="btn btn-xs btn-danger deleteEdge"><i class="fa fa-trash"></i> Delete</button></p>' + '</div>');
         this.main_edgestream.style('display', 'none');
-      }.bind(this));
-      d3.select('.deleteEdge').on("click", function() {
-        this.deleteEdge(this.internalFlags.selectedEdge);
         this.edgeStream.style('display', 'none');
+        d3.select('.editEdge').on("click", function() {
+          this.getEdgeConfigModal(this.topologyId, this.versionId, obj.edgeData, this.edges, this.updateGraph, null, obj.streamName, obj.grouping, obj.groupingFields);
+          this.edgeStream.style('display', 'none');
+          this.main_edgestream.style('display', 'none');
+        }.bind(this));
+        d3.select('.deleteEdge').on("click", function() {
+          this.deleteEdge(this.internalFlags.selectedEdge);
+          this.edgeStream.style('display', 'none');
+          this.main_edgestream.style('display', 'none');
+        }.bind(this));
+      } else {
+        this.edgeStream.html('<div><p><strong>Stream:</strong> ' + name + '</p>' + '<strong>Grouping:</strong> ' + obj.grouping + '</div>');
         this.main_edgestream.style('display', 'none');
-      }.bind(this));
-    } else {
-      this.edgeStream.html('<div><p><strong>Stream:</strong> ' + name + '</p>' + '<strong>Grouping:</strong> ' + obj.grouping + '</div>');
-      this.main_edgestream.style('display', 'block');
-      this.edgeStream.style('display', 'block');
+        this.edgeStream.style('display', 'none');
+      }
     }
   }
 
@@ -673,11 +679,11 @@ export default class TopologyGraphComponent extends Component {
       nodeLabel: itemObj.nodeLabel,
       topologyComponentBundleId: itemObj.topologyComponentBundleId
     };
-    let xcoord = 15, ycoord = 15;
+    let xcoord = 250, ycoord = 250;
     const {height,width} = GraphUtils.getSpecificNodeBboxData.call(this);
     if(nodes.length > 0) {
-      xcoord = _.minBy(nodes, function(o) {return o.x;}).x + ((width-39) / 2) - (width-39) + 40;
-      ycoord = _.maxBy(nodes, function(o) {return o.y;}).y - (height / 2) - 5.5 + 40;
+      xcoord = !_.isUndefined(itemObj.x) ? itemObj.x : _.minBy(nodes, function(o) {return o.x;}).x + ((width-39) / 2) - (width-39) + 140;
+      ycoord = !_.isUndefined(itemObj.y) ? itemObj.y : _.maxBy(nodes, function(o) {return o.y;}).y - (height / 2) - 5.5 + 140;
     }
     d.x = xcoord;
     d.y = ycoord;
@@ -701,10 +707,12 @@ export default class TopologyGraphComponent extends Component {
     case constants.BACKSPACE_KEY:
     case constants.DELETE_KEY:
       d3.event.preventDefault();
-      if (selectedEdge) {
-        this.deleteEdge(selectedEdge);
-      } else if(selectedNode) {
-        this.deleteNode(selectedNode);
+      if(!this.props.avoidDagEditing){
+        if (selectedEdge) {
+          this.deleteEdge(selectedEdge);
+        } else if(selectedNode) {
+          this.deleteNode(selectedNode);
+        }
       }
       break;
     case constants.TAB_KEY:
@@ -1027,7 +1035,9 @@ export default class TopologyGraphComponent extends Component {
       }
     }).on("mouseover", function(d) {
       if (thisGraph.editMode) {
-        d3.select(this.parentElement).select('text.fa.fa-times').style('display', thisGraph.testRunActivated ? 'none' : 'block');
+        if(!thisGraph.props.avoidDagEditing){
+          d3.select(this.parentElement).select('text.fa.fa-times').style('display', thisGraph.testRunActivated ? 'none' : 'block');
+        }
       } else {
         if(engine.schemaAware){
           TopologyUtils.getNodeStreams(thisGraph.topologyId, thisGraph.versionId, d.nodeId, d.parentType, thisGraph.edges, GraphUtils.showNodeStreams.bind(thisGraph, d, this));
@@ -1080,7 +1090,9 @@ export default class TopologyGraphComponent extends Component {
       return "url(#white-wash)";
     }).on("mouseover", function(d) {
       if (thisGraph.editMode) {
-        d3.select(this.parentElement).select('text.fa.fa-times').style('display', thisGraph.testRunActivated ? 'none' : 'block');
+        if(!thisGraph.props.avoidDagEditing){
+          d3.select(this.parentElement).select('text.fa.fa-times').style('display', thisGraph.testRunActivated ? 'none' : 'block');
+        }
       } else {
         if(engine.schemaAware){
           TopologyUtils.getNodeStreams(thisGraph.topologyId, thisGraph.versionId, d.nodeId, d.parentType, thisGraph.edges, GraphUtils.showNodeStreams.bind(thisGraph, d, d3.select(this.parentElement).select('rect').node()));
@@ -1255,7 +1267,9 @@ export default class TopologyGraphComponent extends Component {
       }).on("mouseover", function(d) {
         if (thisGraph.editMode) {
           !thisGraph.testRunActivated && nodeTitle.trim().length > thisGraph.constants.nodeTitleLength ? GraphUtils.showNodeTypeToolTip.call(thisGraph,d, this) : '';
-          d3.select(this.parentElement).select('text.fa.fa-times').style('display', thisGraph.testRunActivated ? 'none' : 'block');
+          if(!thisGraph.props.avoidDagEditing){
+            d3.select(this.parentElement).select('text.fa.fa-times').style('display', thisGraph.testRunActivated ? 'none' : 'block');
+          }
         } else {
           if(engine.schemaAware){
             TopologyUtils.getNodeStreams(thisGraph.topologyId, thisGraph.versionId, d.nodeId, d.parentType, thisGraph.edges, GraphUtils.showNodeStreams.bind(thisGraph, d, d3.select(this.parentElement).select('rect').node()));
@@ -1305,7 +1319,9 @@ export default class TopologyGraphComponent extends Component {
         return ((constants.rectangleHeight - 17));
       }).on("mouseover", function(d) {
         if (thisGraph.editMode) {
-          d3.select(this.parentElement).select('text.fa.fa-times').style('display', thisGraph.testRunActivated ? 'none' : 'block');
+          if(!thisGraph.props.avoidDagEditing){
+            d3.select(this.parentElement).select('text.fa.fa-times').style('display', thisGraph.testRunActivated ? 'none' : 'block');
+          }
         } else {
           if(engine.schemaAware){
             TopologyUtils.getNodeStreams(thisGraph.topologyId, thisGraph.versionId, d.nodeId, d.parentType, thisGraph.edges, GraphUtils.showNodeStreams.bind(thisGraph, d, d3.select(this.parentElement).select('rect').node()));

@@ -5,5 +5,5 @@
   "topologyStateMachineClass": "com.hortonworks.streamline.streams.actions.topology.state.DefaultTopologyStateMachine",
   "topologyStatusMetricsClass": "com.hortonworks.streamline.streams.metrics.athenax.topology.KafkaRTATopologyMetricsImpl",
   "topologyTimeseriesMetricsClass": "com.hortonworks.streamline.streams.metrics.M3MetricsQuerier",
-  "config": "{}"
+  "config": "{\"components\":[{\"type\":\"SOURCE\",\"subType\":\"KAFKA\",\"name\":\"Kafka\",\"co-ordinates\":{\"x\":250,\"y\":250}},{\"type\":\"SINK\",\"subType\":\"RTA\",\"name\":\"RTA Connector\",\"co-ordinates\":{\"x\":750,\"y\":250}}],\"edges\":[{\"source\":\"Kafka\",\"target\":\"RTA Connector\"}],\"restrict\":true}"
 }

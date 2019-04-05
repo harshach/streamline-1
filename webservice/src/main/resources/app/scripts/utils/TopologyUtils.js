@@ -1116,15 +1116,17 @@ const topologyFilter = function(entities, filterValue,entity) {
 };
 
 const getEdgeData = function(data, topologyId, versionId, callback) {
-  TopologyREST.getNode(topologyId, versionId, 'streams', data.streamGrouping.streamId).then((result) => {
-    let obj = {
-      streamName: result.streamId,
-      grouping: data.streamGrouping.grouping,
-      groupingFields: data.streamGrouping.fields,
-      edgeData: data
-    };
-    callback(obj);
-  });
+  if(data.streamGrouping && typeof data.streamGrouping === "object"){
+    TopologyREST.getNode(topologyId, versionId, 'streams', data.streamGrouping.streamId).then((result) => {
+      let obj = {
+        streamName: result.streamId,
+        grouping: data.streamGrouping.grouping,
+        groupingFields: data.streamGrouping.fields,
+        edgeData: data
+      };
+      callback(obj);
+    });
+  }
 };
 
 const getNodeStreams = function(topologyId, versionId, nodeId, parentType, edges, callback) {
@@ -1139,7 +1141,9 @@ const getNodeStreams = function(topologyId, versionId, nodeId, parentType, edges
     return obj.target.nodeId == nodeId;
   });
   connectingEdges.map((e) => {
-    promiseArr.push(TopologyREST.getNode(topologyId, versionId, 'streams', e.streamGrouping.streamId));
+    if(e.streamGrouping){
+      promiseArr.push(TopologyREST.getNode(topologyId, versionId, 'streams', e.streamGrouping.streamId));
+    }
   });
 
   Promise.all(promiseArr).then(results => {

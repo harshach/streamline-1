@@ -29,9 +29,11 @@ import com.hortonworks.streamline.streams.security.catalog.User;
 import com.hortonworks.streamline.streams.security.service.SecurityCatalogService;
 import jdk.nashorn.internal.runtime.regexp.joni.Option;
 import org.apache.commons.lang3.exception.ExceptionUtils;
+import org.datanucleus.store.types.wrappers.backed.Collection;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Collections;
 import java.util.EnumSet;
 import java.util.Map;
 import java.util.Optional;
@@ -121,7 +123,15 @@ public class DefaultStreamlineAuthorizer implements StreamlineAuthorizer {
 
     @Override
     public boolean hasPermissions(AuthenticationContext ctx, String targetEntityNamespace, Long targetEntityId, EnumSet<Permission> permissions) {
-        boolean result = checkPermissions(ctx, targetEntityNamespace, targetEntityId, permissions);
+        boolean result = checkPermissions(ctx, Collections.emptySet(), targetEntityNamespace, targetEntityId, permissions);
+        LOG.debug("DefaultStreamlineAuthorizer, AuthenticationContext: {}, targetEntityNamespace: {}, targetEntityId: {}, " +
+                "permissions: {}, result: {}", ctx, targetEntityNamespace, targetEntityId, permissions, result);
+        return result;
+    }
+
+    @Override
+    public boolean hasPermissions(AuthenticationContext ctx, Set<String> userGroups, String targetEntityNamespace, Long targetEntityId, EnumSet<Permission> permissions) {
+        boolean result = checkPermissions(ctx, userGroups, targetEntityNamespace, targetEntityId, permissions);
         LOG.debug("DefaultStreamlineAuthorizer, AuthenticationContext: {}, targetEntityNamespace: {}, targetEntityId: {}, " +
                 "permissions: {}, result: {}", ctx, targetEntityNamespace, targetEntityId, permissions, result);
         return result;
@@ -211,6 +221,19 @@ public class DefaultStreamlineAuthorizer implements StreamlineAuthorizer {
     }
 
     @Override
+    public AclEntry addAcl(String targetEntityNamespace, Long targetEntityId, AclEntry.SidType sidType, Long sidId, EnumSet<Permission> permissions) {
+        AclEntry aclEntry = new AclEntry();
+        aclEntry.setObjectId(targetEntityId);
+        aclEntry.setObjectNamespace(targetEntityNamespace);
+        aclEntry.setSidId(sidId);
+        aclEntry.setSidType(AclEntry.SidType.GROUP);
+        aclEntry.setOwner(false);
+        aclEntry.setGrant(true);
+        aclEntry.setPermissions(permissions);
+        return catalogService.addAcl(aclEntry);
+    }
+
+    @Override
     public void removeAcl(AuthenticationContext ctx, String targetEntityNamespace, Long targetEntityId) {
         validateAuthenticationContext(ctx);
         String userName = SecurityUtil.getUserName(ctx);
@@ -226,7 +249,7 @@ public class DefaultStreamlineAuthorizer implements StreamlineAuthorizer {
         });
     }
 
-    private boolean checkPermissions(AuthenticationContext ctx, String targetEntityNamespace, Long targetEntityId, EnumSet<Permission> permissions) {
+    private boolean checkPermissions(AuthenticationContext ctx, Set<String> userGroups, String targetEntityNamespace, Long targetEntityId, EnumSet<Permission> permissions) {
         validateAuthenticationContext(ctx);
         String userName = SecurityUtil.getUserName(ctx);
         User user = catalogService.getUser(userName);
@@ -236,7 +259,7 @@ public class DefaultStreamlineAuthorizer implements StreamlineAuthorizer {
             throw new AuthorizationException(msg);
         }
         return userHasRole(user, Roles.ROLE_ADMIN) ||
-                catalogService.checkUserPermissions(targetEntityNamespace, targetEntityId, user.getId(), permissions);
+                catalogService.checkUserPermissions(targetEntityNamespace, targetEntityId, user.getId(), userGroups, permissions);
     }
 
     private void validateAuthenticationContext(AuthenticationContext ctx) {

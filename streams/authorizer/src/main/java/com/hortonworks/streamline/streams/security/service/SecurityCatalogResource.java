@@ -21,7 +21,6 @@ import com.hortonworks.streamline.common.QueryParam;
 import com.hortonworks.streamline.common.exception.service.exception.request.EntityNotFoundException;
 import com.hortonworks.streamline.common.exception.service.exception.request.WebserviceAuthorizationException;
 import com.hortonworks.streamline.common.util.WSUtils;
-import com.hortonworks.streamline.storage.Storable;
 import com.hortonworks.streamline.streams.catalog.service.StreamCatalogService;
 import com.hortonworks.streamline.streams.security.AuthenticationContext;
 import com.hortonworks.streamline.streams.security.Permission;
@@ -33,11 +32,12 @@ import com.hortonworks.streamline.streams.security.catalog.Role;
 import com.hortonworks.streamline.streams.security.catalog.RoleHierarchy;
 import com.hortonworks.streamline.streams.security.catalog.User;
 import com.hortonworks.streamline.streams.security.catalog.UserRole;
+import io.dropwizard.jersey.sessions.Session;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.hadoop.security.authentication.client.AuthenticatedURL;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
+import javax.servlet.http.HttpSession;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
@@ -339,26 +339,46 @@ public class SecurityCatalogResource {
     }
 
     // user
-
     @GET
     @Path("/users/current")
     @Timed
     public Response getCurrentUser(@Context UriInfo uriInfo,
                                    @Context SecurityContext securityContext) throws Exception {
-
         return WSUtils.respondEntity(getCurrentUser(securityContext), OK);
     }
 
+    // Groups
+    @GET
+    @Path("/userGroups")
+    @Timed
+    public Response getGroups(@Context UriInfo uriInfo, @Context SecurityContext securityContext) throws Exception {
+        return WSUtils.respondEntity(securityCatalogService.getExistingGroupNames(), OK);
+    }
+
+    @POST
+    @Path("/userGroups")
+    @Timed
+    public Response addCurrentUserGroups(@Context UriInfo uriInfo,
+                                         @Context SecurityContext securityContext,
+                                         @Session HttpSession httpSession) throws Exception {
+        // Save additional groups which are missing from user's own groups
+        Set<String> groups = SecurityUtil.getAllUserGroups (httpSession);
+        securityCatalogService.addMissingGroupsFromUser(groups);
+        return WSUtils.respondEntity(groups, OK);
+    }
 
     @POST
     @Path("/users/current/logout")
     @Timed
-    public Response logoutCurrentUser(@Context UriInfo uriInfo,
+    public Response logoutCurrentUser(@Context UriInfo uriInfo, @Session HttpSession httpSession,
                                       @Context SecurityContext securityContext) throws Exception {
         User currentUser = getCurrentUser(securityContext);
         // Set-Cookie	hadoop.auth=deleted;Version=1;Path=/;Max-Age=0;HttpOnly;Expires=Thu, 01 Jan 1970 00:00:00 GMT
         Cookie cookie = new Cookie(AuthenticatedURL.AUTH_COOKIE, "deleted", "/", null);
         NewCookie newCookie = new NewCookie(cookie, null, 0, new Date(0), securityContext.isSecure(), true);
+        if (httpSession != null) {
+            httpSession.invalidate();
+        }
         return Response.status(OK)
                 .entity(currentUser)
                 .cookie(newCookie)

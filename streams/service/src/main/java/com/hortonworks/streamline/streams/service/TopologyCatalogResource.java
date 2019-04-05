@@ -30,15 +30,18 @@ import com.hortonworks.streamline.streams.security.Permission;
 import com.hortonworks.streamline.streams.security.Roles;
 import com.hortonworks.streamline.streams.security.SecurityUtil;
 import com.hortonworks.streamline.streams.security.StreamlineAuthorizer;
+import com.hortonworks.streamline.streams.security.catalog.OwnerGroup;
 import com.hortonworks.streamline.streams.security.catalog.User;
 import com.hortonworks.streamline.streams.security.service.SecurityCatalogService;
 import com.hortonworks.streamline.streams.security.catalog.AclEntry;
+import io.dropwizard.jersey.sessions.Session;
 import org.apache.commons.lang3.StringUtils;
 import org.glassfish.jersey.media.multipart.FormDataParam;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 
+import javax.servlet.http.HttpSession;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
@@ -95,11 +98,13 @@ public class TopologyCatalogResource {
     @Path("/applications/{applicationId}")
     @Timed
     public Response getApplicationStatus (@PathParam("applicationId") String applicationId,
-                                       @Context SecurityContext securityContext,
-                                       @Context UriInfo uriInfo) throws Exception {
+                                          @Context SecurityContext securityContext,
+                                          @Context UriInfo uriInfo,
+                                          @Session HttpSession httpSession) throws Exception {
         TopologyRuntimeIdMap topologyRuntimeIdMap = catalogService.getTopologyRuntimeIdMap(applicationId);
-        SecurityUtil.checkRoleOrPermissions(authorizer, securityContext, Roles.ROLE_TOPOLOGY_SUPER_ADMIN,
-                        NAMESPACE, topologyRuntimeIdMap.getTopologyId(), READ, EXECUTE);
+        Set<String> userGroups = SecurityUtil.getAllUserGroups(httpSession);
+        SecurityUtil.checkRoleOrPermissions(authorizer, securityContext, Roles.ROLE_TOPOLOGY_SUPER_ADMIN, userGroups,
+                NAMESPACE, topologyRuntimeIdMap.getTopologyId(), READ, EXECUTE);
         Topology result = catalogService.getTopology(topologyRuntimeIdMap.getTopologyId());
         if (result != null) {
             Long projectId  = result.getProjectId();
@@ -358,7 +363,7 @@ public class TopologyCatalogResource {
         Project removedProject = catalogService.removeProject(projectId);
         if (removedProject != null) {
             SecurityUtil.removeAcl(authorizer, securityContext, NAMESPACE, projectId);
-            return WSUtils.respondEntity(removedProject, OK); 
+            return WSUtils.respondEntity(removedProject, OK);
         }
         throw EntityNotFoundException.byId(projectId.toString());
     }
@@ -367,9 +372,10 @@ public class TopologyCatalogResource {
     @Path("/projects/{projectId}/topologies")
     @Timed
     public Response listTopologies (@PathParam("projectId") Long projectId,
-                                    @Context SecurityContext securityContext) {
+                                    @Context SecurityContext securityContext, @Session HttpSession httpSession) {
 
-        return listTopologies(securityContext, projectId);
+        Set<String> userGroups = SecurityUtil.getAllUserGroups(httpSession);
+        return listTopologies(securityContext, userGroups, projectId);
     }
 
 
@@ -377,11 +383,13 @@ public class TopologyCatalogResource {
     @Path("/topologies")
     @Timed
     public Response listTopologiesByProjectId (@javax.ws.rs.QueryParam("projectId") Long projectId,
-                                               @Context SecurityContext securityContext) {
+                                               @Context SecurityContext securityContext, @Session HttpSession httpSession) {
+
+        Set<String> userGroups = SecurityUtil.getAllUserGroups(httpSession);
         if (projectId == null || projectId == StreamCatalogService.PLACEHOLDER_ID) {
-            return listTopologies(securityContext, StreamCatalogService.PLACEHOLDER_ID);
+            return listTopologies(securityContext, userGroups, StreamCatalogService.PLACEHOLDER_ID);
         } else {
-            return listTopologies(securityContext, projectId);
+            return listTopologies(securityContext, userGroups, projectId);
         }
     }
 
@@ -451,8 +459,10 @@ public class TopologyCatalogResource {
     public Response shareTopology(@PathParam("topologyId") Long topologyId,
                                   @Context SecurityContext securityContext,
                                   @javax.ws.rs.QueryParam("sidId") long sidId,
-                                  @javax.ws.rs.QueryParam("permission") String permission) {
-        SecurityUtil.checkRoleOrPermissions(authorizer, securityContext, Roles.ROLE_TOPOLOGY_USER,
+                                  @javax.ws.rs.QueryParam("permission") String permission,
+                                  @Session HttpSession httpSession) {
+        Set<String> userGroups = SecurityUtil.getAllUserGroups(httpSession);
+        SecurityUtil.checkRoleOrPermissions(authorizer, securityContext, Roles.ROLE_TOPOLOGY_USER, userGroups,
                 NAMESPACE, topologyId, READ);
         Topology topology = Optional.ofNullable(catalogService.getTopology(topologyId))
                 .orElseThrow(() -> EntityNotFoundException.byId(topologyId.toString()));
@@ -468,8 +478,10 @@ public class TopologyCatalogResource {
     @Timed
     public Response getTopologyByIdAndVersion(@PathParam("topologyId") Long topologyId,
                                               @PathParam("versionId") Long versionId,
-                                              @Context SecurityContext securityContext) {
-        SecurityUtil.checkRoleOrPermissions(authorizer, securityContext, Roles.ROLE_TOPOLOGY_USER,
+                                              @Context SecurityContext securityContext,
+                                              @Session HttpSession httpSession) {
+        Set<String> userGroups = SecurityUtil.getAllUserGroups(httpSession);
+        SecurityUtil.checkRoleOrPermissions(authorizer, securityContext, Roles.ROLE_TOPOLOGY_USER, userGroups,
                 NAMESPACE, topologyId, READ);
 
         Topology result = catalogService.getTopology(topologyId, versionId);
@@ -483,8 +495,9 @@ public class TopologyCatalogResource {
     @GET
     @Path("/topologies/{topologyId}/versions")
     @Timed
-    public Response listTopologyVersions(@PathParam("topologyId") Long topologyId, @Context SecurityContext securityContext) {
-        SecurityUtil.checkRoleOrPermissions(authorizer, securityContext, Roles.ROLE_TOPOLOGY_USER,
+    public Response listTopologyVersions(@PathParam("topologyId") Long topologyId, @Context SecurityContext securityContext, @Session HttpSession httpSession) {
+        Set<String> userGroups = SecurityUtil.getAllUserGroups(httpSession);
+        SecurityUtil.checkRoleOrPermissions(authorizer, securityContext, Roles.ROLE_TOPOLOGY_USER, userGroups,
                 NAMESPACE, topologyId, READ);
         Collection<TopologyVersion> versionInfos = catalogService.listTopologyVersionInfos(
                 WSUtils.buildTopologyIdAwareQueryParams(topologyId, null));
@@ -511,7 +524,19 @@ public class TopologyCatalogResource {
         Topology createdTopology = catalogService.addTopology(topology);
         SecurityUtil.addAcl(authorizer, securityContext, Topology.NAMESPACE, createdTopology.getId(),
                 EnumSet.allOf(Permission.class));
+        // Add OwnerGroup level ACL
+        addAclForTopology(createdTopology.getId(), topology.getOwnergroups());
         return WSUtils.respondEntity(createdTopology, CREATED);
+    }
+
+    private void addAclForTopology(Long topologyID, String groups) {
+        String[] data = groups.split(",");
+        Set<String> userGroupNames = new HashSet<>(Arrays.asList(data));
+        Set<OwnerGroup> userOwnerGroups = securityCatalogService.getGroups(userGroupNames);
+        userOwnerGroups.forEach((ownerGroup) -> {
+            SecurityUtil.addAcl(authorizer, Topology.NAMESPACE, topologyID,
+                    AclEntry.SidType.GROUP, ownerGroup.getId(), EnumSet.allOf(Permission.class));
+        });
     }
 
     @DELETE
@@ -520,8 +545,10 @@ public class TopologyCatalogResource {
     public Response removeTopology(@PathParam("topologyId") Long topologyId,
                                    @javax.ws.rs.QueryParam("onlyCurrent") boolean onlyCurrent,
                                    @javax.ws.rs.QueryParam("force") boolean force,
-                                   @Context SecurityContext securityContext)  {
-        SecurityUtil.checkRoleOrPermissions(authorizer, securityContext, Roles.ROLE_TOPOLOGY_SUPER_ADMIN,
+                                   @Context SecurityContext securityContext,
+                                   @Session HttpSession httpSession)  {
+        Set<String> userGroups = SecurityUtil.getAllUserGroups(httpSession);
+        SecurityUtil.checkRoleOrPermissions(authorizer, securityContext, Roles.ROLE_TOPOLOGY_SUPER_ADMIN, userGroups,
                 NAMESPACE, topologyId, DELETE);
 
         Topology result = catalogService.getTopology(topologyId);
@@ -531,7 +558,7 @@ public class TopologyCatalogResource {
 
         Collection<TopologyRuntimeIdMap> topologyRuntimeIdMapList = actionsService.getRuntimeTopologyId(result);
         if (!force && !result.getNamespaceId().equals(EnvironmentService.TEST_ENVIRONMENT_ID)
-                    && !topologyRuntimeIdMapList.isEmpty()) {
+                && !topologyRuntimeIdMapList.isEmpty()) {
             String asUser = WSUtils.getUserFromSecurityContext(securityContext);
             actionsService.killTopology(result, asUser);
         }
@@ -576,13 +603,15 @@ public class TopologyCatalogResource {
         throw EntityNotFoundException.byId(topologyId.toString());
     }
 
-
     @PUT
     @Path("/topologies/{topologyId}")
     @Timed
     public Response addOrUpdateTopology (@PathParam("topologyId") Long topologyId,
-                                         Topology topology, @Context SecurityContext securityContext) {
-        SecurityUtil.checkRoleOrPermissions(authorizer, securityContext, Roles.ROLE_TOPOLOGY_SUPER_ADMIN,
+                                         Topology topology,
+                                         @Context SecurityContext securityContext,
+                                         @Session HttpSession httpSession) {
+        Set<String> userGroups = SecurityUtil.getAllUserGroups(httpSession);
+        SecurityUtil.checkRoleOrPermissions(authorizer, securityContext, Roles.ROLE_TOPOLOGY_SUPER_ADMIN, userGroups,
                 NAMESPACE, topologyId, WRITE);
         if (StringUtils.isEmpty(topology.getName())) {
             throw BadRequestException.missingParameter(Topology.NAME);
@@ -619,9 +648,10 @@ public class TopologyCatalogResource {
     @Path("/topologies/{topologyId}/versions/save")
     @Timed
     public Response saveTopologyVersion(@PathParam("topologyId") Long topologyId, TopologyVersion versionInfo,
-                                        @Context SecurityContext securityContext) {
+                                        @Context SecurityContext securityContext, @Session HttpSession httpSession) {
         SecurityUtil.checkRole(authorizer, securityContext, Roles.ROLE_TOPOLOGY_ADMIN);
-        SecurityUtil.checkRoleOrPermissions(authorizer, securityContext, Roles.ROLE_TOPOLOGY_USER,
+        Set<String> userGroups = SecurityUtil.getAllUserGroups(httpSession);
+        SecurityUtil.checkRoleOrPermissions(authorizer, securityContext, Roles.ROLE_TOPOLOGY_USER, userGroups,
                 NAMESPACE, topologyId, READ);
         Optional<TopologyVersion> currentVersion = Optional.empty();
         try {
@@ -666,9 +696,11 @@ public class TopologyCatalogResource {
     @Timed
     public Response activateTopologyVersion(@PathParam("topologyId") Long topologyId,
                                             @PathParam("versionId") Long versionId,
-                                            @Context SecurityContext securityContext) {
+                                            @Context SecurityContext securityContext,
+                                            @Session HttpSession httpSession) {
         SecurityUtil.checkRole(authorizer, securityContext, Roles.ROLE_TOPOLOGY_ADMIN);
-        SecurityUtil.checkRoleOrPermissions(authorizer, securityContext, Roles.ROLE_TOPOLOGY_USER,
+        Set<String> userGroups = SecurityUtil.getAllUserGroups(httpSession);
+        SecurityUtil.checkRoleOrPermissions(authorizer, securityContext, Roles.ROLE_TOPOLOGY_USER, userGroups,
                 NAMESPACE, topologyId, READ);
         Optional<TopologyVersion> currentVersionInfo = catalogService.getCurrentTopologyVersionInfo(topologyId);
         if (currentVersionInfo.isPresent() && currentVersionInfo.get().getId().equals(versionId)) {
@@ -719,8 +751,9 @@ public class TopologyCatalogResource {
     @Path("/topologies/{topologyId}/actions/export")
     @Produces(MediaType.APPLICATION_OCTET_STREAM)
     @Timed
-    public Response exportTopology(@PathParam("topologyId") Long topologyId, @Context SecurityContext securityContext) throws Exception {
-        SecurityUtil.checkRoleOrPermissions(authorizer, securityContext, Roles.ROLE_TOPOLOGY_SUPER_ADMIN,
+    public Response exportTopology(@PathParam("topologyId") Long topologyId, @Context SecurityContext securityContext, @Session HttpSession httpSession) throws Exception {
+        Set<String> userGroups = SecurityUtil.getAllUserGroups(httpSession);
+        SecurityUtil.checkRoleOrPermissions(authorizer, securityContext, Roles.ROLE_TOPOLOGY_SUPER_ADMIN, userGroups,
                 NAMESPACE, topologyId, READ, EXECUTE);
         Topology topology = catalogService.getTopology(topologyId);
         if (topology != null) {
@@ -743,9 +776,11 @@ public class TopologyCatalogResource {
     public Response cloneTopology(@PathParam("topologyId") Long topologyId,
                                   @QueryParam("namespaceId") Long namespaceId,
                                   @QueryParam("projectId") Long projectId,
-                                  @Context SecurityContext securityContext) throws Exception {
+                                  @Context SecurityContext securityContext,
+                                  @Session HttpSession httpSession) throws Exception {
         SecurityUtil.checkRole(authorizer, securityContext, Roles.ROLE_TOPOLOGY_ADMIN);
-        SecurityUtil.checkRoleOrPermissions(authorizer, securityContext, Roles.ROLE_TOPOLOGY_SUPER_ADMIN,
+        Set<String> userGroups = SecurityUtil.getAllUserGroups(httpSession);
+        SecurityUtil.checkRoleOrPermissions(authorizer, securityContext, Roles.ROLE_TOPOLOGY_SUPER_ADMIN, userGroups,
                 NAMESPACE, topologyId, READ, EXECUTE);
         Topology originalTopology = catalogService.getTopology(topologyId);
         if (originalTopology != null) {
@@ -784,8 +819,10 @@ public class TopologyCatalogResource {
     @Path("/topologies/{topologyId}/reconfigure")
     @Timed
     public Response getComponentsToReconfigure(@PathParam("topologyId") Long topologyId,
-                                  @Context SecurityContext securityContext) throws Exception {
-        SecurityUtil.checkRoleOrPermissions(authorizer, securityContext, Roles.ROLE_TOPOLOGY_USER,
+                                               @Context SecurityContext securityContext,
+                                               @Session HttpSession httpSession) throws Exception {
+        Set<String> userGroups = SecurityUtil.getAllUserGroups(httpSession);
+        SecurityUtil.checkRoleOrPermissions(authorizer, securityContext, Roles.ROLE_TOPOLOGY_USER, userGroups,
                 NAMESPACE, topologyId, READ);
         Topology topology = catalogService.getTopology(topologyId);
         if (topology != null) {
@@ -794,7 +831,7 @@ public class TopologyCatalogResource {
         throw EntityNotFoundException.byId(topologyId.toString());
     }
 
-    private Response listTopologies(SecurityContext securityContext, Long projectId) {
+    private Response listTopologies(SecurityContext securityContext, Set<String> userGroups, Long projectId) {
         boolean adminUser = SecurityUtil.hasRole(authorizer, securityContext, Roles.ROLE_ADMIN);
         Collection<Topology> topologies;
         if (projectId == null) {
@@ -802,11 +839,10 @@ public class TopologyCatalogResource {
         } else {
             topologies = catalogService.listTopologies(projectId);
         }
-
         if (adminUser) {
             LOG.debug("Returning all topologies since user has role: {}", Roles.ROLE_ADMIN);
         } else {
-            topologies = SecurityUtil.filter(authorizer, securityContext, NAMESPACE, topologies, READ);
+            topologies = SecurityUtil.filter(authorizer, securityContext, userGroups, NAMESPACE, topologies, READ);
         }
         Response response;
         if (topologies != null) {
@@ -818,4 +854,3 @@ public class TopologyCatalogResource {
     }
 
 }
-

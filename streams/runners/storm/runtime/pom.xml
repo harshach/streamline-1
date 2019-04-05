@@ -138,6 +138,10 @@
                 <groupId>ring-cors</groupId>
                 <artifactId>ring-cors</artifactId>
               </exclusion>
+              <exclusion>
+                  <groupId>javax.servlet</groupId>
+                  <artifactId>servlet-api</artifactId>
+              </exclusion>
             </exclusions>
         </dependency>
         <dependency>

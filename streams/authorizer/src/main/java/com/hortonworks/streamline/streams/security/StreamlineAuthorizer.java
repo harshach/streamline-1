@@ -35,6 +35,12 @@ public interface StreamlineAuthorizer {
     boolean hasPermissions(AuthenticationContext ctx, String targetEntityNamespace, Long targetEntityId, EnumSet<Permission> permissions);
 
     /**
+     * Check if the authenticated user has given permission by his ID or by his Groups on the target entity
+     * identified by the given targetEntityId and targetEntityNamespace
+     */
+    boolean hasPermissions(AuthenticationContext ctx, Set<String> userGroups, String targetEntityNamespace, Long targetEntityId, EnumSet<Permission> permissions);
+
+    /**
      * Check if the authenticated user belongs to a role
      */
     boolean hasRole(AuthenticationContext ctx, String role);
@@ -48,6 +54,11 @@ public interface StreamlineAuthorizer {
      * Grant permissions to user on the target entity
      */
     AclEntry addAcl(AuthenticationContext ctx, String targetEntityNamespace, Long targetEntityId, Long userId, EnumSet<Permission> permissions);
+
+    /**
+     * Grant permissions to any SidType(USER, ROLE, GROUP) on the target entity
+     */
+    AclEntry addAcl(String targetEntityNamespace, Long targetEntityId, AclEntry.SidType sidType, Long sidId, EnumSet<Permission> permissions);
 
     /**
      * Remove permissions for the currently authenticated user on the target entity

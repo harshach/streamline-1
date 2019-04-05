@@ -29,7 +29,9 @@ import com.hortonworks.streamline.streams.layout.component.ValidationStatus;
 import com.hortonworks.streamline.streams.security.Roles;
 import com.hortonworks.streamline.streams.security.SecurityUtil;
 import com.hortonworks.streamline.streams.security.StreamlineAuthorizer;
+import io.dropwizard.jersey.sessions.Session;
 
+import javax.servlet.http.HttpSession;
 import javax.ws.rs.*;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
@@ -37,12 +39,15 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.SecurityContext;
 
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.ForkJoinPool;
 
 import static com.hortonworks.streamline.streams.catalog.Topology.NAMESPACE;
 import static com.hortonworks.streamline.streams.security.Permission.EXECUTE;
 import static com.hortonworks.streamline.streams.security.Permission.READ;
+import static com.hortonworks.streamline.streams.security.SecurityUtil.getAllUserGroups;
 import static javax.ws.rs.core.Response.Status.OK;
 
 @Path("/v1/catalog")
@@ -67,9 +72,11 @@ public class TopologyActionResource {
     @Path("/topologies/{topologyId}/actions/status")
     @Timed
     public Response topologyStatus (@PathParam("topologyId") Long topologyId,
-                                    @Context SecurityContext securityContext) throws Exception {
+                                    @Context SecurityContext securityContext,
+                                    @Session HttpSession httpSession) throws Exception {
+        Set<String> userGroups = getAllUserGroups(httpSession);
         SecurityUtil.checkRoleOrPermissions(authorizer, securityContext, Roles.ROLE_TOPOLOGY_SUPER_ADMIN,
-                NAMESPACE, topologyId, READ, EXECUTE);
+                userGroups, NAMESPACE, topologyId, READ, EXECUTE);
         Topology result = catalogService.getTopology(topologyId);
         if (result != null) {
             String asUser = WSUtils.getUserFromSecurityContext(securityContext);
@@ -91,9 +98,11 @@ public class TopologyActionResource {
     @Timed
     public Response topologyStatusVersion(@PathParam("topologyId") Long topologyId,
                                           @PathParam("versionId") Long versionId,
-                                          @Context SecurityContext securityContext) throws Exception {
+                                          @Context SecurityContext securityContext,
+                                          @Session HttpSession httpSession) throws Exception {
+        Set<String> userGroups = getAllUserGroups(httpSession);
         SecurityUtil.checkRoleOrPermissions(authorizer, securityContext, Roles.ROLE_TOPOLOGY_SUPER_ADMIN,
-                NAMESPACE, topologyId, READ, EXECUTE);
+                userGroups, NAMESPACE, topologyId, READ, EXECUTE);
         Topology result = catalogService.getTopology(topologyId, versionId);
         if (result != null) {
             String asUser = WSUtils.getUserFromSecurityContext(securityContext);
@@ -113,8 +122,9 @@ public class TopologyActionResource {
     @POST
     @Path("/topologies/{topologyId}/actions/validate")
     @Timed
-    public Response validateTopology (@PathParam("topologyId") Long topologyId, @Context SecurityContext securityContext) {
-        SecurityUtil.checkRoleOrPermissions(authorizer, securityContext, Roles.ROLE_TOPOLOGY_SUPER_ADMIN,
+    public Response validateTopology (@PathParam("topologyId") Long topologyId, @Context SecurityContext securityContext, @Session HttpSession httpSession) {
+        Set<String> userGroups = getAllUserGroups(httpSession);
+        SecurityUtil.checkRoleOrPermissions(authorizer, securityContext, Roles.ROLE_TOPOLOGY_SUPER_ADMIN, userGroups,
                 NAMESPACE, topologyId, READ, EXECUTE);
         Topology result = catalogService.getTopology(topologyId);
         if (result != null) {
@@ -129,8 +139,9 @@ public class TopologyActionResource {
     @Path("/topologies/{topologyId}/versions/{versionId}/actions/validate")
     @Timed
     public Response validateTopologyVersion(@PathParam("topologyId") Long topologyId,
-                                            @PathParam("versionId") Long versionId, @Context SecurityContext securityContext) {
-        SecurityUtil.checkRoleOrPermissions(authorizer, securityContext, Roles.ROLE_TOPOLOGY_SUPER_ADMIN,
+                                            @PathParam("versionId") Long versionId, @Context SecurityContext securityContext, @Session HttpSession httpSession) {
+        Set<String> userGroups = getAllUserGroups(httpSession);
+        SecurityUtil.checkRoleOrPermissions(authorizer, securityContext, Roles.ROLE_TOPOLOGY_SUPER_ADMIN, userGroups,
                 NAMESPACE, topologyId, READ, EXECUTE);
         Topology result = catalogService.getTopology(topologyId, versionId);
         if (result != null) {
@@ -151,8 +162,9 @@ public class TopologyActionResource {
     @POST
     @Path("/topologies/{topologyId}/actions/deploy")
     @Timed
-    public Response deployTopology (@PathParam("topologyId") Long topologyId, @Context SecurityContext securityContext) throws Exception {
-        SecurityUtil.checkRoleOrPermissions(authorizer, securityContext, Roles.ROLE_TOPOLOGY_SUPER_ADMIN,
+    public Response deployTopology (@PathParam("topologyId") Long topologyId, @Context SecurityContext securityContext, @Session HttpSession httpSession) throws Exception {
+        Set<String> userGroups = getAllUserGroups(httpSession);
+        SecurityUtil.checkRoleOrPermissions(authorizer, securityContext, Roles.ROLE_TOPOLOGY_SUPER_ADMIN, userGroups,
                 NAMESPACE, topologyId, READ, EXECUTE);
         Topology topology = catalogService.getTopology(topologyId);
         if (topology != null) {
@@ -167,8 +179,10 @@ public class TopologyActionResource {
     @Timed
     public Response deployTopologyVersion(@PathParam("topologyId") Long topologyId,
                                           @PathParam("versionId") Long versionId,
-                                          @Context SecurityContext securityContext) throws Exception {
-        SecurityUtil.checkRoleOrPermissions(authorizer, securityContext, Roles.ROLE_TOPOLOGY_SUPER_ADMIN,
+                                          @Context SecurityContext securityContext,
+                                          @Session HttpSession httpSession) throws Exception {
+        Set<String> userGroups = getAllUserGroups(httpSession);
+        SecurityUtil.checkRoleOrPermissions(authorizer, securityContext, Roles.ROLE_TOPOLOGY_SUPER_ADMIN, userGroups,
                 NAMESPACE, topologyId, READ, EXECUTE);
         Topology topology = catalogService.getTopology(topologyId, versionId);
         if (topology != null) {
@@ -190,8 +204,9 @@ public class TopologyActionResource {
     @POST
     @Path("/topologies/{topologyId}/actions/kill")
     @Timed
-    public Response killTopology (@PathParam("topologyId") Long topologyId, @Context SecurityContext securityContext) throws Exception {
-        SecurityUtil.checkRoleOrPermissions(authorizer, securityContext, Roles.ROLE_TOPOLOGY_SUPER_ADMIN,
+    public Response killTopology (@PathParam("topologyId") Long topologyId, @Context SecurityContext securityContext, @Session HttpSession httpSession) throws Exception {
+        Set<String> userGroups = getAllUserGroups(httpSession);
+        SecurityUtil.checkRoleOrPermissions(authorizer, securityContext, Roles.ROLE_TOPOLOGY_SUPER_ADMIN, userGroups,
                 NAMESPACE, topologyId, READ, EXECUTE);
         Topology result = catalogService.getTopology(topologyId);
         if (result != null) {
@@ -207,8 +222,10 @@ public class TopologyActionResource {
     @Timed
     public Response killTopologyVersion(@PathParam("topologyId") Long topologyId,
                                         @PathParam("versionId") Long versionId,
-                                        @Context SecurityContext securityContext) throws Exception {
-        SecurityUtil.checkRoleOrPermissions(authorizer, securityContext, Roles.ROLE_TOPOLOGY_SUPER_ADMIN,
+                                        @Context SecurityContext securityContext,
+                                        @Session HttpSession httpSession) throws Exception {
+        Set<String> userGroups = getAllUserGroups(httpSession);
+        SecurityUtil.checkRoleOrPermissions(authorizer, securityContext, Roles.ROLE_TOPOLOGY_SUPER_ADMIN, userGroups,
                 NAMESPACE, topologyId, READ, EXECUTE);
         Topology result = catalogService.getTopology(topologyId, versionId);
         if (result != null) {
@@ -222,8 +239,9 @@ public class TopologyActionResource {
     @POST
     @Path("/topologies/{topologyId}/actions/suspend")
     @Timed
-    public Response suspendTopology (@PathParam("topologyId") Long topologyId, @Context SecurityContext securityContext) throws Exception {
-        SecurityUtil.checkRoleOrPermissions(authorizer, securityContext, Roles.ROLE_TOPOLOGY_SUPER_ADMIN,
+    public Response suspendTopology (@PathParam("topologyId") Long topologyId, @Context SecurityContext securityContext, @Session HttpSession httpSession) throws Exception {
+        Set<String> userGroups = getAllUserGroups(httpSession);
+        SecurityUtil.checkRoleOrPermissions(authorizer, securityContext, Roles.ROLE_TOPOLOGY_SUPER_ADMIN, userGroups,
                 NAMESPACE, topologyId, READ, EXECUTE);
         Topology result = catalogService.getTopology(topologyId);
         if (result != null) {
@@ -239,8 +257,10 @@ public class TopologyActionResource {
     @Timed
     public Response suspendTopologyVersion(@PathParam("topologyId") Long topologyId,
                                            @PathParam("versionId") Long versionId,
-                                           @Context SecurityContext securityContext) throws Exception {
-        SecurityUtil.checkRoleOrPermissions(authorizer, securityContext, Roles.ROLE_TOPOLOGY_SUPER_ADMIN,
+                                           @Context SecurityContext securityContext,
+                                           @Session HttpSession httpSession) throws Exception {
+        Set<String> userGroups = getAllUserGroups(httpSession);
+        SecurityUtil.checkRoleOrPermissions(authorizer, securityContext, Roles.ROLE_TOPOLOGY_SUPER_ADMIN, userGroups,
                 NAMESPACE, topologyId, READ, EXECUTE);
         Topology result = catalogService.getTopology(topologyId, versionId);
         if (result != null) {
@@ -255,8 +275,10 @@ public class TopologyActionResource {
     @Path("/topologies/{topologyId}/actions/resume")
     @Timed
     public Response resumeTopology (@PathParam("topologyId") Long topologyId,
-                                    @Context SecurityContext securityContext) throws Exception {
-        SecurityUtil.checkRoleOrPermissions(authorizer, securityContext, Roles.ROLE_TOPOLOGY_SUPER_ADMIN,
+                                    @Context SecurityContext securityContext,
+                                    @Session HttpSession httpSession) throws Exception {
+        Set<String> userGroups = getAllUserGroups(httpSession);
+        SecurityUtil.checkRoleOrPermissions(authorizer, securityContext, Roles.ROLE_TOPOLOGY_SUPER_ADMIN, userGroups,
                 NAMESPACE, topologyId, READ, EXECUTE);
         Topology result = catalogService.getTopology(topologyId);
         if (result != null) {
@@ -272,8 +294,10 @@ public class TopologyActionResource {
     @Timed
     public Response resumeTopologyVersion(@PathParam("topologyId") Long topologyId,
                                           @PathParam("versionId") Long versionId,
-                                          @Context SecurityContext securityContext) throws Exception {
-        SecurityUtil.checkRoleOrPermissions(authorizer, securityContext, Roles.ROLE_TOPOLOGY_SUPER_ADMIN,
+                                          @Context SecurityContext securityContext,
+                                          @Session HttpSession httpSession) throws Exception {
+        Set<String> userGroups = getAllUserGroups(httpSession);
+        SecurityUtil.checkRoleOrPermissions(authorizer, securityContext, Roles.ROLE_TOPOLOGY_SUPER_ADMIN, userGroups,
                 NAMESPACE, topologyId, READ, EXECUTE);
         Topology result = catalogService.getTopology(topologyId, versionId);
         if (result != null) {

@@ -26,6 +26,10 @@
             <version>${storm.version}</version>
             <scope>provided</scope>
             <exclusions>
+                <exclusion>
+                    <groupId>javax.servlet</groupId>
+                    <artifactId>servlet-api</artifactId>
+                </exclusion>
               <exclusion>
                 <groupId>ring-cors</groupId>
                 <artifactId>ring-cors</artifactId>

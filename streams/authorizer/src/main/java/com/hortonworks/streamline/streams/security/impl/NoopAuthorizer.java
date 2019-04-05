@@ -24,6 +24,7 @@ import org.slf4j.LoggerFactory;
 
 import java.util.EnumSet;
 import java.util.Map;
+import java.util.Set;
 
 public class NoopAuthorizer implements StreamlineAuthorizer {
     private static final Logger LOG = LoggerFactory.getLogger(NoopAuthorizer.class);
@@ -34,6 +35,13 @@ public class NoopAuthorizer implements StreamlineAuthorizer {
 
     @Override
     public boolean hasPermissions(AuthenticationContext ctx, String targetEntityNamespace, Long targetEntityId, EnumSet<Permission> permissions) {
+        LOG.debug("NoopAuthorizer hasPermissions, AuthenticationContext: {}, targetEntityNamespace: {}, targetEntityId: {}, " +
+                "permissions: {}", ctx, targetEntityNamespace, targetEntityId, permissions);
+        return true;
+    }
+
+    @Override
+    public boolean hasPermissions(AuthenticationContext ctx, Set<String> userGroups, String targetEntityNamespace, Long targetEntityId, EnumSet<Permission> permissions) {
         LOG.debug("NoopAuthorizer hasPermissions, AuthenticationContext: {}, targetEntityNamespace: {}, targetEntityId: {}, " +
                 "permissions: {}", ctx, targetEntityNamespace, targetEntityId, permissions);
         return true;
@@ -59,6 +67,13 @@ public class NoopAuthorizer implements StreamlineAuthorizer {
     }
 
     @Override
+    public AclEntry addAcl(String targetEntityNamespace, Long targetEntityId, AclEntry.SidType sidType, Long sidId, EnumSet<Permission> permissions) {
+        LOG.debug("NoopAuthorizer addAcl, targetEntityNamespace: {}, targetEntityId: {}, " +
+                "permissions: {}", targetEntityNamespace, targetEntityId, permissions);
+        throw new UnsupportedOperationException("Not implemented, yet");
+    }
+
+        @Override
     public void removeAcl(AuthenticationContext ctx, String targetEntityNamespace, Long targetEntityId) {
         LOG.debug("NoopAuthorizer removeAcl, AuthenticationContext: {}, targetEntityNamespace: {}, targetEntityId: {}",
                 ctx, targetEntityNamespace, targetEntityId);

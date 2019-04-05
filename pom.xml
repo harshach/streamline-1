@@ -183,6 +183,7 @@
         <heatpipe4j.version>4.02.011</heatpipe4j.version>
         <tchannel.version>0.6.1</tchannel.version>
         <unsclient.version>1.0.0</unsclient.version>
+        <json.version>20180813</json.version>
 
         <!-- Runtime Scope Dependencies -->
         <logback.version>1.1.7</logback.version>
@@ -540,6 +541,14 @@
                         <groupId>org.apache.calcite</groupId>
                         <artifactId>calcite-core</artifactId>
                     </exclusion>
+                    <exclusion>
+                      <groupId>org.apache.hive</groupId>
+                      <artifactId>hive-serde</artifactId>
+                    </exclusion>
+                    <exclusion>
+                      <groupId>org.apache.hive</groupId>
+                      <artifactId>hive-llap-tez</artifactId>
+                    </exclusion>
                 </exclusions>
             </dependency>
             <dependency>
@@ -547,6 +556,14 @@
                 <artifactId>hive-metastore</artifactId>
                 <version>${hive.version}</version>
                 <exclusions>
+                  <exclusion>
+                    <groupId>org.apache.hive</groupId>
+                    <artifactId>hive-exec</artifactId>
+                  </exclusion>
+                    <exclusion>
+                        <groupId>javax.servlet</groupId>
+                        <artifactId>servlet-api</artifactId>
+                    </exclusion>
                     <exclusion>
                         <groupId>com.sun.jersey</groupId>
                         <artifactId>jersey-core</artifactId>
@@ -566,6 +583,14 @@
                     <exclusion>
                         <groupId>org.eclipse.jetty.aggregate</groupId>
                         <artifactId>jetty-all</artifactId>
+                    </exclusion>
+                    <exclusion>
+                      <groupId>org.apache.hive</groupId>
+                      <artifactId>hive-serde</artifactId>
+                    </exclusion>
+                    <exclusion>
+                      <groupId>org.apache.hive</groupId>
+                      <artifactId>hive-llap-tez</artifactId>
                     </exclusion>
                 </exclusions>
             </dependency>
@@ -1078,6 +1103,11 @@
                 <groupId>org.flywaydb</groupId>
                 <artifactId>flyway-maven-plugin</artifactId>
                 <version>${flyway.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.json</groupId>
+                <artifactId>json</artifactId>
+                <version>${json.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>

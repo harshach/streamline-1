@@ -152,6 +152,7 @@ CREATE TABLE IF NOT EXISTS topology (
     versionId BIGINT NOT NULL,
     projectId BIGINT NOT NULL,
     name VARCHAR(256) NOT NULL,
+    ownergroups TEXT,
     description TEXT,
     namespaceId BIGINT NOT NULL,
     engineId BIGINT NOT NULL,
@@ -512,6 +513,12 @@ CREATE TABLE IF NOT EXISTS user_role (
   PRIMARY KEY (userId, roleId),
   FOREIGN KEY (userId) REFERENCES user_entry (id),
   FOREIGN KEY (roleId) REFERENCES role (id)
+);
+
+CREATE TABLE IF NOT EXISTS owner_group (
+  id BIGINT AUTO_INCREMENT NOT NULL,
+  name VARCHAR(255) NOT NULL,
+  PRIMARY KEY (id)
 );
 
 CREATE TABLE IF NOT EXISTS topology_editor_toolbar (

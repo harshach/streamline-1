@@ -49,7 +49,7 @@ public class AclEntry extends AbstractStorable {
     public static final String GRANT = "grant";
     public static final String TIMESTAMP = "timestamp";
 
-    public enum SidType {USER, ROLE}
+    public enum SidType {USER, ROLE, GROUP}
 
     private Long id;
     private Long objectId;

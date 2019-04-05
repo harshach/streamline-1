@@ -48,6 +48,7 @@ import io.dropwizard.server.DefaultServerFactory;
 import io.dropwizard.setup.Bootstrap;
 import io.dropwizard.setup.Environment;
 import org.apache.commons.lang3.StringUtils;
+import org.eclipse.jetty.server.session.SessionHandler;
 import org.eclipse.jetty.servlet.ErrorPageErrorHandler;
 import org.eclipse.jetty.servlets.CrossOriginFilter;
 import org.glassfish.jersey.media.multipart.MultiPartFeature;
@@ -314,5 +315,6 @@ public class StreamlineApplication extends Application<StreamlineConfiguration> 
         final ErrorPageErrorHandler errorPageErrorHandler = new ErrorPageErrorHandler();
         errorPageErrorHandler.addErrorPage(Response.Status.UNAUTHORIZED.getStatusCode(), "/401.html");
         environment.getApplicationContext().setErrorHandler(errorPageErrorHandler);
+        environment.getApplicationContext().setSessionHandler(new SessionHandler());
     }
 }

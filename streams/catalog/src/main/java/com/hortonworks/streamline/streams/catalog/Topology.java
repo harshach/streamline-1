@@ -50,6 +50,7 @@ public class Topology implements Storable {
     public static final String CONFIG = "config";
     public static final String CONFIG_DATA = "configData";
     public static final String TIMESTAMP = "timestamp";
+    public static final String OWNERGROUPS = "ownergroups";
     public static final String DESCRIPTION = "description";
     public static final String ENGINEID = "engineId";
     public static final String TEMPLATEID = "templateId";
@@ -74,6 +75,11 @@ public class Topology implements Storable {
      */
     @SearchableField
     private String name;
+
+    /**
+     * Topology Owner-Groups
+     */
+    private String ownergroups;
 
     /**
      * Topology description
@@ -129,6 +135,7 @@ public class Topology implements Storable {
             setId(other.getId());
             setVersionId(other.getVersionId());
             setName(other.getName());
+            setOwnergroups(other.getOwnergroups());
             setDescription(other.getDescription());
             setProjectId(other.getProjectId());
             setConfig(new Config(other.getConfig()));
@@ -163,6 +170,7 @@ public class Topology implements Storable {
                 new Schema.Field(ID, Schema.Type.LONG),
                 new Schema.Field(VERSIONID, Schema.Type.LONG),
                 new Schema.Field(NAME, Schema.Type.STRING),
+                new Schema.Field(OWNERGROUPS, Schema.Type.STRING),
                 new Schema.Field(DESCRIPTION, Schema.Type.STRING),
                 new Schema.Field(PROJECTID, Schema.Type.LONG),
                 new Schema.Field(NAMESPACE_ID, Schema.Type.LONG),
@@ -190,6 +198,7 @@ public class Topology implements Storable {
         map.put(ID, this.id);
         map.put(VERSIONID, this.versionId);
         map.put(NAME, this.name);
+        map.put(OWNERGROUPS, this.ownergroups);
         map.put(DESCRIPTION, this.description);
         map.put(PROJECTID, this.projectId);
         map.put(NAMESPACE_ID, this.namespaceId);
@@ -208,6 +217,7 @@ public class Topology implements Storable {
         this.id = (Long) map.get(ID);
         this.versionId = (Long) map.get(VERSIONID);
         this.name = (String) map.get(NAME);
+        this.ownergroups = (String) map.get(OWNERGROUPS);
         this.description = (String) map.get(DESCRIPTION);
         this.projectId = (Long) map.get(PROJECTID);
         this.namespaceId = (Long) map.get(NAMESPACE_ID);
@@ -249,6 +259,12 @@ public class Topology implements Storable {
     public void setName(String name) {
         this.name = name;
     }
+
+    public String getOwnergroups() {
+        return ownergroups;
+    }
+
+    public void setOwnergroups(String groups) { this.ownergroups = groups; }
 
     public String getDescription() {
         return description;
@@ -331,6 +347,7 @@ public class Topology implements Storable {
                 ", name='" + name + '\'' +
                 ", namespaceId=" + namespaceId +
                 ", projectId=" + projectId +
+                ", ownergroups=" + ownergroups +
                 ", topologyDag=" + topologyDag +
                 ", configData=" + configData +
                 '}';

@@ -18,20 +18,25 @@ package com.hortonworks.streamline.streams.security;
 import com.hortonworks.streamline.storage.Storable;
 import com.hortonworks.streamline.common.exception.service.exception.request.WebserviceAuthorizationException;
 import com.hortonworks.streamline.common.function.SupplierException;
+import com.hortonworks.streamline.streams.security.authentication.StreamlineOpenIdAuthorizationRequestFilter;
 import com.hortonworks.streamline.streams.security.authentication.StreamlineSecurityContext;
 import com.hortonworks.streamline.streams.security.catalog.AclEntry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.security.auth.Subject;
+import javax.servlet.http.HttpSession;
 import javax.ws.rs.core.SecurityContext;
 import java.security.AccessController;
 import java.security.Principal;
 import java.security.PrivilegedActionException;
 import java.security.PrivilegedExceptionAction;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.EnumSet;
+import java.util.HashSet;
 import java.util.Optional;
+import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -71,11 +76,33 @@ public final class SecurityUtil {
         }
     }
 
+    public static void checkPermissions(StreamlineAuthorizer authorizer, SecurityContext securityContext, Set<String> userGroups,
+                                        String targetEntityNamespace, Long targetEntityId,
+                                        Permission first, Permission... rest) {
+        Principal principal = securityContext.getUserPrincipal();
+        EnumSet<Permission> permissions = EnumSet.of(first, rest);
+        if (!doCheckPermissions(authorizer, principal, userGroups, targetEntityNamespace, targetEntityId, permissions)) {
+            throw new WebserviceAuthorizationException("Principal: " + principal + " does not have permissions: "
+                    + permissions + " on namespace: " + targetEntityNamespace + " id: " + targetEntityId);
+        }
+    }
+
     public static void checkRoleOrPermissions(StreamlineAuthorizer authorizer, SecurityContext securityContext,
                                               String role, String targetEntityNamespace, Long targetEntityId,
                                               Permission first, Permission... rest) {
         if (!SecurityUtil.hasRole(authorizer, securityContext, role)) {
-            SecurityUtil.checkPermissions(authorizer, securityContext, targetEntityNamespace, targetEntityId, first, rest);
+            SecurityUtil.checkPermissions(authorizer, securityContext, Collections.emptySet(), targetEntityNamespace, targetEntityId, first, rest);
+        } else {
+            LOG.debug("Allowing since user has role: '{}'", role);
+        }
+    }
+
+
+    public static void checkRoleOrPermissions(StreamlineAuthorizer authorizer, SecurityContext securityContext,
+                                              String role, Set<String> userGroups, String targetEntityNamespace, Long targetEntityId,
+                                              Permission first, Permission... rest) {
+        if (!SecurityUtil.hasRole(authorizer, securityContext, role)) {
+            SecurityUtil.checkPermissions(authorizer, securityContext, userGroups, targetEntityNamespace, targetEntityId, first, rest);
         } else {
             LOG.debug("Allowing since user has role: '{}'", role);
         }
@@ -86,6 +113,12 @@ public final class SecurityUtil {
                               EnumSet<Permission> permissions) {
         AuthenticationContext ctx = SecurityUtil.getAuthenticationContext(securityContext.getUserPrincipal());
         authorizer.addAcl(ctx, targetEntityNamespace, targetEntityId, true, true, permissions);
+
+    }
+
+    public static void addAcl(StreamlineAuthorizer authorizer, String targetEntityNamespace, Long targetEntityId,
+                              AclEntry.SidType sidType, Long sidId, EnumSet<Permission> permissions) {
+        authorizer.addAcl(targetEntityNamespace, targetEntityId, sidType, sidId, permissions);
 
     }
 
@@ -105,7 +138,13 @@ public final class SecurityUtil {
     public static <T extends Storable> Collection<T> filter(StreamlineAuthorizer authorizer, SecurityContext securityContext,
                                                             String entityNamespace, Collection<T> entities,
                                                             Permission first, Permission... rest) {
-        return filter(authorizer, securityContext, entityNamespace, entities, Storable::getId, first, rest);
+        return filter(authorizer, securityContext, Collections.emptySet(), entityNamespace, entities, Storable::getId, first, rest);
+    }
+
+    public static <T extends Storable> Collection<T> filter(StreamlineAuthorizer authorizer, SecurityContext securityContext, Set<String> userGroups,
+                                                            String entityNamespace, Collection<T> entities,
+                                                            Permission first, Permission... rest) {
+        return filter(authorizer, securityContext, userGroups, entityNamespace, entities, Storable::getId, first, rest);
     }
 
     public static <T> Collection<T> filter(StreamlineAuthorizer authorizer, SecurityContext securityContext,
@@ -115,7 +154,18 @@ public final class SecurityUtil {
         Principal principal = securityContext.getUserPrincipal();
         EnumSet<Permission> permissions = EnumSet.of(first, rest);
         return entities.stream()
-                .filter(e -> doCheckPermissions(authorizer, principal, entityNamespace, idFunction.apply(e), permissions))
+                .filter(e -> doCheckPermissions(authorizer, principal, Collections.emptySet(), entityNamespace, idFunction.apply(e), permissions))
+                .collect(Collectors.toList());
+    }
+
+    public static <T> Collection<T> filter(StreamlineAuthorizer authorizer, SecurityContext securityContext, Set<String> userGroups,
+                                           String entityNamespace, Collection<T> entities,
+                                           Function<T, Long> idFunction,
+                                           Permission first, Permission... rest) {
+        Principal principal = securityContext.getUserPrincipal();
+        EnumSet<Permission> permissions = EnumSet.of(first, rest);
+        return entities.stream()
+                .filter(e -> doCheckPermissions(authorizer, principal, userGroups, entityNamespace, idFunction.apply(e), permissions))
                 .collect(Collectors.toList());
     }
 
@@ -132,6 +182,13 @@ public final class SecurityUtil {
                                               EnumSet<Permission> permissions) {
         AuthenticationContext authenticationCtx = SecurityUtil.getAuthenticationContext(principal);
         return authorizer.hasPermissions(authenticationCtx, targetEntityNamespace, targetEntityId, permissions);
+    }
+
+    private static boolean doCheckPermissions(StreamlineAuthorizer authorizer, Principal principal, Set<String> userGroups,
+                                              String targetEntityNamespace, Long targetEntityId,
+                                              EnumSet<Permission> permissions) {
+        AuthenticationContext authenticationCtx = SecurityUtil.getAuthenticationContext(principal);
+        return authorizer.hasPermissions(authenticationCtx, userGroups, targetEntityNamespace, targetEntityId, permissions);
     }
 
     private static AuthenticationContext getAuthenticationContext(Principal principal) {
@@ -178,5 +235,13 @@ public final class SecurityUtil {
         return securityContext != null
                 && securityContext.getAuthenticationScheme() != null
                 && securityContext.getAuthenticationScheme().equals(StreamlineSecurityContext.KERBEROS_AUTH);
+    }
+
+    public static Set<String> getAllUserGroups(HttpSession httpSession) {
+        Set<String> groups = (HashSet<String>) httpSession.getAttribute(StreamlineOpenIdAuthorizationRequestFilter.USER_GROUPS);
+        if (groups != null) {
+            return groups;
+        }
+        return Collections.emptySet();
     }
 }

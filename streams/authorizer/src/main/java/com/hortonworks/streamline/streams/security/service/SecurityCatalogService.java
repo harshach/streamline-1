@@ -24,6 +24,7 @@ import com.hortonworks.streamline.storage.StorageManager;
 import com.hortonworks.streamline.storage.util.StorageUtils;
 import com.hortonworks.streamline.streams.security.Permission;
 import com.hortonworks.streamline.streams.security.catalog.AclEntry;
+import com.hortonworks.streamline.streams.security.catalog.OwnerGroup;
 import com.hortonworks.streamline.streams.security.catalog.Role;
 import com.hortonworks.streamline.streams.security.catalog.RoleHierarchy;
 import com.hortonworks.streamline.streams.security.catalog.User;
@@ -43,7 +44,6 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import static com.hortonworks.streamline.streams.security.catalog.AclEntry.SidType.ROLE;
 import static com.hortonworks.streamline.streams.security.catalog.AclEntry.SidType.USER;
@@ -391,7 +391,7 @@ public class SecurityCatalogService {
         return dao.remove(new StorableKey(AclEntry.NAMESPACE, aclEntry.getPrimaryKey()));
     }
 
-    public boolean checkUserPermissions(String objectNamespace, Long objectId, Long userId, EnumSet<Permission> required) {
+    public boolean checkUserPermissions(String objectNamespace, Long objectId, Long userId, Set<String> userGroups, EnumSet<Permission> required) {
         User user = getUser(userId);
         if (user == null) {
             return false;
@@ -426,6 +426,26 @@ public class SecurityCatalogService {
                 }
             }
         }
+
+        // try OwnerGroup based permissions next
+        if (!remaining.isEmpty()) {
+            qps = QueryParam.params(
+                    AclEntry.OBJECT_NAMESPACE, objectNamespace,
+                    AclEntry.OBJECT_ID, String.valueOf(objectId),
+                    AclEntry.SID_TYPE, AclEntry.SidType.GROUP.toString());
+                acls = listAcls(qps);
+
+            if (acls.size() > 0) {
+                Iterator<AclEntry> it = acls.iterator();
+                while (!remaining.isEmpty() && it.hasNext()) {
+                    AclEntry groupEntry = it.next();
+                    if (userGroups.contains(getGroup(groupEntry.getSidId()).getName())) {
+                        remaining.removeAll(groupEntry.getPermissions());
+                    }
+                }
+            }
+        }
+
         return remaining.isEmpty();
     }
 
@@ -508,5 +528,41 @@ public class SecurityCatalogService {
             state.put(parentRoleId, State.VISITED);
         }
         return childRoles;
+    }
+
+    public void addMissingGroupsFromUser(Set<String> userGroups) {
+        Set<String> groupsInDB = getExistingGroupNames();
+        userGroups.removeAll(groupsInDB);
+        userGroups.forEach((g) -> addGroup(g));
+    }
+
+    public Set<String> getExistingGroupNames() {
+        Collection<OwnerGroup> ownerGroupList = this.dao.list(OwnerGroup.NAMESPACE);
+        if (ownerGroupList != null) {
+            return ownerGroupList.stream().map(OwnerGroup::getName).collect(Collectors.toSet());
+        }
+        return Collections.emptySet();
+    }
+
+    public Set<OwnerGroup> getGroups(Set<String> userGroups) {
+        Collection<OwnerGroup> ownerGroupList = this.dao.list(OwnerGroup.NAMESPACE);
+        if (ownerGroupList != null) {
+            return ownerGroupList.stream().filter(ownerGroup -> userGroups.contains(ownerGroup.getName())).collect(Collectors.toSet());
+        }
+        return Collections.emptySet();
+    }
+
+    public OwnerGroup addGroup(String name) {
+        OwnerGroup ownerGroup = new OwnerGroup();
+        ownerGroup.setName(name);
+        this.dao.add(ownerGroup);
+        return ownerGroup;
+    }
+
+    public OwnerGroup getGroup(Long id) {
+        OwnerGroup ownerGroup = new OwnerGroup();
+        ownerGroup.setId(id);
+        ownerGroup = this.dao.get(new StorableKey(OwnerGroup.NAMESPACE, ownerGroup.getPrimaryKey()));
+        return ownerGroup;
     }
 }

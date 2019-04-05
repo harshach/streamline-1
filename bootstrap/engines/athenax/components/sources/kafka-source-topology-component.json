@@ -6,7 +6,7 @@
   "template": ["Blank"],
   "builtin": true,
   "fieldHintProviderClass": "com.hortonworks.streamline.streams.cluster.bundle.impl.KafkaBundleHintProvider",
-  "transformationClass": "dummy",
+  "transformationClass": "com.hortonworks.streamline.streams.layout.component.impl.KafkaSource",
   "mavenDeps": "",
   "input": false,
   "output": true,

@@ -710,6 +710,7 @@ export class TopologyEditorContainer extends Component {
         FSReactToastr.error(
           <CommonNotification flag="error" content={msg}/>, '', toastOpt);
       } else {
+        this.syncEdgeData(savedNode);
         this.lastUpdatedTime = new Date(savedNode.timestamp);
         this.setState({
           altFlag: !this.state.altFlag
@@ -747,6 +748,36 @@ export class TopologyEditorContainer extends Component {
         }
       }
     });
+  }
+
+  //this is only required for those components who are added via template and
+  //treated as a one time activity to update the edges with appropriate output streams
+  syncEdgeData(componentNode){
+    let edgesArr = this.refs.EditorGraph.child.decoratedComponentInstance.edgesArr;
+    let updateEdgesArr = [];
+    edgesArr.map((o)=>{
+      if(o.fromId === componentNode.id && o.streamGroupings.length === 0){
+        updateEdgesArr.push(o);
+      }
+    });
+    if(updateEdgesArr.length > 0){
+      let promiseArr = [];
+      //source can have multiple outgoing edges
+      updateEdgesArr.map((edge)=>{
+        edge.streamGroupings = [{
+          streamId: componentNode.outputStreams[0].id,
+          grouping: "SHUFFLE"
+        }];
+        //update edges via Api
+        promiseArr.push(
+          TopologyREST.updateNode(this.topologyId, this.versionId, 'edges', edge.id, {body: JSON.stringify(edge)})
+        );
+      });
+      Promise.all(promiseArr).then((results)=>{
+        //update edges for graph
+        TopologyUtils.updateGraphEdges(this.graphData.edges, results);
+      });
+    }
   }
 
   reconfigurationNode(){

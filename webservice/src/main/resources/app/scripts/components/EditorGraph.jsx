@@ -148,6 +148,7 @@ class EditorGraph extends Component {
               streamGroupings: []
             };
             TopologyREST.createNode(this.props.topologyId, this.props.versionId, 'edges', {body: JSON.stringify(edgeData)}).then((response)=>{
+              this.edgesArr.push(response);
               graphInstance.edges.push({
                 source: sourceNode,
                 target: targetNode,
@@ -330,7 +331,7 @@ export class StreamEditorGraph extends EditorGraph{
       let sourcesNode = resultsArr[4].entities || [];
       let processorsNode = resultsArr[5].entities || [];
       let sinksNode = resultsArr[6].entities || [];
-      let edgesArr = resultsArr[7].entities || [];
+      let edgesArr = this.edgesArr = resultsArr[7].entities || [];
 
       graphData.nodes = TopologyUtils.syncNodeData(sourcesNode, processorsNode, sinksNode, graphData.metaInfo, this.sourceConfigArr, this.processorConfigArr, this.sinkConfigArr, this.notifyReconfigureCallback);
 
@@ -548,7 +549,7 @@ export class BatchEditorGraph extends EditorGraph{
       graphData.linkShuffleOptions = TopologyUtils.setShuffleOptions(this.linkConfigArr);
 
       let tasksNode = resultsArr[2].entities || [];
-      let edgesArr = resultsArr[3].entities || [];
+      let edgesArr = this.edgesArr = resultsArr[3].entities || [];
 
       graphData.nodes = [];
       TopologyUtils.generateNodeData(tasksNode, this.tasksConfigArr, graphData.metaInfo.tasks, graphData.nodes, {reconfigure: false});

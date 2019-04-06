@@ -99,10 +99,14 @@ class EditorGraph extends Component {
       type: item.type,
       imgPath: 'styles/img/'+iconsFrom+'icon-' + iconName,
       name: item.subType,
-      nodeLabel: item.subType,
+      nodeLabel: item.name || item.subType,
       nodeType: item.subType,
       topologyComponentBundleId: item.id
     };
+    if(item['co-ordinates']){
+      obj.x = item['co-ordinates'].x;
+      obj.y = item['co-ordinates'].y;
+    }
     if(item.subType === 'CUSTOM') {
       let config = item.topologyComponentUISpecification.fields,
         name = _.find(config, {fieldName: "name"});
@@ -111,6 +115,75 @@ class EditorGraph extends Component {
       obj.nodeType = 'Custom';
     }
     this.refs.TopologyGraph.decoratedComponentInstance.addComponentToGraph(obj);
+  }
+
+  syncDAGviaTemplate(){
+    let templateConfig = this.props.template.config;
+    //Adding of components into the canvas
+    if(templateConfig.components && templateConfig.components.length > 0){
+      templateConfig.components.map((component)=>{
+        component.id = this.getComponentBundleId(component);
+        this.addComponent(component);
+      });
+    }
+    //Connect components based on edges
+    if(templateConfig.edges && templateConfig.edges.length > 0){
+      let graphInstance = this.refs.TopologyGraph.decoratedComponentInstance;
+      //need an interval to keep on checking if all the above components have been added and
+      //that the components have their nodeId's created
+      //interval gets cleared as soon as the last component get's it id.
+      let intervalTimer = setInterval(()=>{
+        if(graphInstance.nodes[graphInstance.nodes.length - 1].nodeId){
+          clearInterval(intervalTimer);
+          templateConfig.edges.map((edge)=>{
+            let sourceNode = graphInstance.nodes.find((node)=>{
+              return node.nodeLabel.toLowerCase() === edge.source.toLowerCase();
+            });
+            let targetNode = graphInstance.nodes.find((node)=>{
+              return node.nodeLabel.toLowerCase() === edge.target.toLowerCase();
+            });
+            let edgeData = {
+              fromId: sourceNode.nodeId,
+              toId: targetNode.nodeId,
+              streamGroupings: []
+            };
+            TopologyREST.createNode(this.props.topologyId, this.props.versionId, 'edges', {body: JSON.stringify(edgeData)}).then((response)=>{
+              this.edgesArr.push(response);
+              graphInstance.edges.push({
+                source: sourceNode,
+                target: targetNode,
+                edgeId: response.id,
+                streamGrouping: []
+              });
+              graphInstance.updateGraph();
+            });
+          });
+        }
+      }, 1000);
+    }
+  }
+
+  getComponentBundleId(component){
+    let compObj = null;
+    switch(component.type){
+    case 'SOURCE':
+      compObj = this.sourceConfigArr.find((obj)=>{return obj.subType.toLowerCase() === component.subType.toLowerCase();});
+      break;
+    case 'PROCESSOR':
+      compObj = this.processorConfigArr.find((obj)=>{return obj.subType.toLowerCase() === component.subType.toLowerCase();});
+      break;
+    case 'SINK':
+      compObj = this.sinkConfigArr.find((obj)=>{return obj.subType.toLowerCase() === component.subType.toLowerCase();});
+      break;
+    case 'TASK':
+      compObj = this.tasksConfigArr.find((obj)=>{return obj.subType.toLowerCase() === component.subType.toLowerCase();});
+      break;
+    }
+    if(compObj){
+      return compObj.id;
+    } else {
+      console.error("Seems to be typo in template for "+component.name);
+    }
   }
 
   render() {
@@ -190,6 +263,7 @@ class EditorGraph extends Component {
               template={template}
               topologyData={topologyData}
               selectedExecutionComponentsStatus={selectedExecutionComponentsStatus || []}
+              avoidDagEditing={this.avoidDagEditing}
             />
             {state.showComponentNodeContainer && !viewMode && versionName == 'CURRENT'
               ? <ComponentNode
@@ -229,7 +303,7 @@ export class StreamEditorGraph extends EditorGraph{
   fetchBundles(){
     let promiseArr = [];
 
-    const {graphData} = this.props;
+    const {graphData, template} = this.props;
 
     graphData.metaInfo.sources = graphData.metaInfo.sources || [];
     graphData.metaInfo.processors = graphData.metaInfo.processors || [];
@@ -257,7 +331,7 @@ export class StreamEditorGraph extends EditorGraph{
       let sourcesNode = resultsArr[4].entities || [];
       let processorsNode = resultsArr[5].entities || [];
       let sinksNode = resultsArr[6].entities || [];
-      let edgesArr = resultsArr[7].entities || [];
+      let edgesArr = this.edgesArr = resultsArr[7].entities || [];
 
       graphData.nodes = TopologyUtils.syncNodeData(sourcesNode, processorsNode, sinksNode, graphData.metaInfo, this.sourceConfigArr, this.processorConfigArr, this.sinkConfigArr, this.notifyReconfigureCallback);
 
@@ -271,6 +345,11 @@ export class StreamEditorGraph extends EditorGraph{
       this.customProcessors = this.getCustomProcessors();
       this.processorSlideInterval(processorsNode); // NTUC
 
+      //Disable the Dragging of new components
+      if(template.config && template.config.restrict){
+        this.avoidDagEditing = true;
+      }
+
       this.setState({
         bundleArr: {
           sourceBundle: this.sourceConfigArr,
@@ -278,6 +357,10 @@ export class StreamEditorGraph extends EditorGraph{
           sinksBundle: this.sinkConfigArr
         },
         loading: false
+      },()=>{
+        if(sourcesNode.length == 0 && processorsNode.length == 0 && sinksNode.length == 0 && !this.props.viewMode){
+          this.syncDAGviaTemplate();
+        }
       });
     });
   }
@@ -448,7 +531,7 @@ export class BatchEditorGraph extends EditorGraph{
   fetchBundles(){
     let promiseArr = [];
 
-    const {graphData} = this.props;
+    const {graphData, template} = this.props;
 
     graphData.metaInfo.tasks = graphData.metaInfo.tasks || [];
 
@@ -466,7 +549,7 @@ export class BatchEditorGraph extends EditorGraph{
       graphData.linkShuffleOptions = TopologyUtils.setShuffleOptions(this.linkConfigArr);
 
       let tasksNode = resultsArr[2].entities || [];
-      let edgesArr = resultsArr[3].entities || [];
+      let edgesArr = this.edgesArr = resultsArr[3].entities || [];
 
       graphData.nodes = [];
       TopologyUtils.generateNodeData(tasksNode, this.tasksConfigArr, graphData.metaInfo.tasks, graphData.nodes, {reconfigure: false});
@@ -478,11 +561,20 @@ export class BatchEditorGraph extends EditorGraph{
 
       graphData.edges = TopologyUtils.syncEdgeData(edgesArr, graphData.nodes);
 
+      //Disable the Dragging of new components
+      if(template.config && template.config.restrict){
+        this.avoidDagEditing = true;
+      }
+
       this.setState({
         bundleArr: {
           tasks: this.tasksConfigArr
         },
         loading: false
+      },()=>{
+        if(tasksNode.length == 0 && !this.props.viewMode){
+          this.syncDAGviaTemplate();
+        }
       });
     });
   }

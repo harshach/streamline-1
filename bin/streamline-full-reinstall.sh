@@ -20,8 +20,8 @@ select yn in "Yes" "No"; do
     esac
 done
 
-rm -f hortonworks-streamline-0.6.0-SNAPSHOT.zip
-rm -Rf hortonworks-streamline-0.6.0-SNAPSHOT
+rm -f hortonworks-streamline-0.1.0-beta.zip
+rm -Rf hortonworks-streamline-0.1.0-beta
 
 mysql -u root -e "drop database streamline_db"
 mysql -u root -e "create database streamline_db"
@@ -31,9 +31,9 @@ mvn install -DskipTests -Dfindbugs.skip=true
 cd streamline-dist
 mvn -DskipTests clean package
 cd ..
-cp streamline-dist/target/hortonworks-streamline-0.6.0-SNAPSHOT.zip .
-unzip hortonworks-streamline-0.6.0-SNAPSHOT.zip
-cd hortonworks-streamline-0.6.0-SNAPSHOT
+cp streamline-dist/target/hortonworks-streamline-0.1.0-beta.zip .
+unzip hortonworks-streamline-0.1.0-beta.zip
+cd hortonworks-streamline-0.1.0-beta
 ./bootstrap/bootstrap-storage.sh migrate
 cerberus -s schema-service
 ./bin/streamline start
@@ -49,4 +49,4 @@ echo ""
 
 /usr/bin/open "http://localhost:8080"
 echo "\n\nStreamline running at: http://localhost:8080"
-echo "To stop, type './hortonworks-streamline-0.6.0-SNAPSHOT/bin/streamline stop'"
+echo "To stop, type './hortonworks-streamline-0.1.0-beta/bin/streamline stop'"

@@ -49,6 +49,8 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
 import javax.ws.rs.core.SecurityContext;
 
@@ -137,10 +139,16 @@ public class KafkaMetadataService implements AutoCloseable {
         return KafkaBrokersInfo.brokerIds(brokerIds, getSecurity(), getKafkaBrokerListeners());
     }
 
-    public KafkaTopics getTopicsFromZk() throws ZookeeperClientException, IOException {
+    public KafkaTopics getTopicsFromZk(Predicate<String> kafkaTopicFilter) throws ZookeeperClientException, IOException {
         final Security security = getSecurity();
         final List<String> topics = zkCli.getChildren(kafkaZkConnection.buildZkRootPath(ZK_RELATIVE_PATH_KAFKA_TOPICS));
-        return topics == null ? new KafkaTopics(Collections.emptyList(), security) : new KafkaTopics(topics, security);
+        if (topics == null) {
+            return new KafkaTopics(Collections.emptyList(), security);
+        }
+        final List<String> filteredTopics = topics.stream()
+                .filter(kafkaTopicFilter)
+                .collect(Collectors.toList());
+        return new KafkaTopics(filteredTopics, security);
     }
 
     public KafkaBrokerListeners getKafkaBrokerListeners() {

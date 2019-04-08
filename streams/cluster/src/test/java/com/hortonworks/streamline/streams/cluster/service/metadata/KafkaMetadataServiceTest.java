@@ -211,7 +211,7 @@ public class KafkaMetadataServiceTest {
 
     private List<String> getActualTopics() {
         try {
-            final List<String> actualTopics = kafkaMetadataService.getTopicsFromZk().list();
+            final List<String> actualTopics = kafkaMetadataService.getTopicsFromZk(KafkaTopicFilters::noop).list();
             Collections.sort(actualTopics);
             return actualTopics;
         } catch (ZookeeperClientException | IOException e) {

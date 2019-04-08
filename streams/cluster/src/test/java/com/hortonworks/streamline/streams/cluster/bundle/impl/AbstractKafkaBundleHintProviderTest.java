@@ -20,6 +20,7 @@ import org.junit.Assert;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Predicate;
 
 import mockit.Expectations;
 import mockit.Mocked;
@@ -52,7 +53,7 @@ public class AbstractKafkaBundleHintProviderTest {
         final Map<KafkaBrokerListeners.Protocol, List<String>> protocolToHostsWithPort = getProtocolToHostsWithPort();
 
         new Expectations() {{
-            kafkaMetadataService.getTopicsFromZk();
+            kafkaMetadataService.getTopicsFromZk((Predicate<String>)any);
             result = new KafkaTopics(topics, security);
 
             zookeeperMetadataService.getZookeeperServers();
@@ -74,7 +75,7 @@ public class AbstractKafkaBundleHintProviderTest {
                 hints.get(KafkaBundleHintProvider.FIELD_NAME_BOOTSTRAP_SERVERS));
 
         new Verifications() {{
-            kafkaMetadataService.getTopicsFromZk();
+            kafkaMetadataService.getTopicsFromZk((Predicate<String>)any);
             zookeeperMetadataService.getZookeeperServers();
         }};
     }
@@ -90,7 +91,7 @@ public class AbstractKafkaBundleHintProviderTest {
         final List<String> topics = Lists.newArrayList("test1", "test2", "test3");
 
         new Expectations() {{
-            kafkaMetadataService.getTopicsFromZk();
+            kafkaMetadataService.getTopicsFromZk((Predicate<String>)any);
             result = new KafkaTopics(topics, security);
 
             zookeeperMetadataService.getZookeeperServers();
@@ -107,7 +108,7 @@ public class AbstractKafkaBundleHintProviderTest {
         Assert.assertEquals(topics, hints.get(KafkaBundleHintProvider.FIELD_NAME_TOPIC));
 
         new Verifications() {{
-            kafkaMetadataService.getTopicsFromZk();
+            kafkaMetadataService.getTopicsFromZk((Predicate<String>)any);
             zookeeperMetadataService.getZookeeperServers();
         }};
     }

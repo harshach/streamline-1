@@ -8,6 +8,7 @@ import com.hortonworks.streamline.streams.cluster.exception.ServiceConfiguration
 import com.hortonworks.streamline.streams.cluster.exception.ServiceNotFoundException;
 import com.hortonworks.streamline.streams.cluster.Constants;
 import com.hortonworks.streamline.streams.cluster.service.metadata.KafkaMetadataService;
+import com.hortonworks.streamline.streams.cluster.service.metadata.KafkaTopicFilters;
 import com.hortonworks.streamline.streams.cluster.service.metadata.ZookeeperMetadataService;
 import com.hortonworks.streamline.streams.cluster.service.metadata.common.HostPort;
 import com.hortonworks.streamline.streams.cluster.service.metadata.json.KafkaBrokerListeners;
@@ -43,7 +44,7 @@ public abstract class AbstractKafkaBundleHintProvider extends AbstractSecureBund
     public Map<String, Object> getHintsOnCluster(Cluster cluster, SecurityContext securityContext, Subject subject) {
         Map<String, Object> hintClusterMap = new HashMap<>();
         try (KafkaMetadataService kms = KafkaMetadataService.newInstance(environmentService, cluster.getId(), securityContext)) {
-            KafkaTopics topics = kms.getTopicsFromZk();
+            KafkaTopics topics = kms.getTopicsFromZk(KafkaTopicFilters::isHeatpipeTopic);
 
             hintClusterMap.put(FIELD_NAME_TOPIC, topics.list());
 

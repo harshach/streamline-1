@@ -21,6 +21,7 @@ import com.hortonworks.streamline.streams.cluster.catalog.Cluster;
 import com.hortonworks.streamline.streams.cluster.exception.EntityNotFoundException;
 import com.hortonworks.streamline.streams.cluster.service.EnvironmentService;
 import com.hortonworks.streamline.streams.cluster.service.metadata.KafkaMetadataService;
+import com.hortonworks.streamline.streams.cluster.service.metadata.KafkaTopicFilters;
 import com.hortonworks.streamline.streams.security.SecurityUtil;
 import com.hortonworks.streamline.streams.security.StreamlineAuthorizer;
 
@@ -73,7 +74,7 @@ public class KafkaMetadataResource {
         SecurityUtil.checkPermissions(authorizer, securityContext, Cluster.NAMESPACE, clusterId, READ);
         try(final KafkaMetadataService kafkaMetadataService = KafkaMetadataService
                 .newInstance(environmentService, clusterId, securityContext)) {
-            return WSUtils.respondEntity(kafkaMetadataService.getTopicsFromZk(), OK);
+            return WSUtils.respondEntity(kafkaMetadataService.getTopicsFromZk(KafkaTopicFilters::noop), OK);
         } catch (EntityNotFoundException ex) {
             throw com.hortonworks.streamline.common.exception.service.exception.request.EntityNotFoundException.byId(ex.getMessage());
         }

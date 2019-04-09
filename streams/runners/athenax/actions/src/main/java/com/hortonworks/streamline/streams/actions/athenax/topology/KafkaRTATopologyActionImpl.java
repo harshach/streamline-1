@@ -13,6 +13,7 @@ import com.hortonworks.streamline.streams.cluster.service.EnvironmentService;
 import com.hortonworks.streamline.streams.common.athenax.AthenaxConstants;
 import com.hortonworks.streamline.streams.layout.component.TopologyDag;
 import com.hortonworks.streamline.streams.layout.component.TopologyLayout;
+import com.hortonworks.streamline.streams.layout.component.impl.KafkaSource;
 import com.hortonworks.streamline.streams.layout.component.impl.RTASink;
 import com.hortonworks.streamline.streams.layout.component.impl.testing.TestRunProcessor;
 import com.hortonworks.streamline.streams.layout.component.impl.testing.TestRunRulesProcessor;
@@ -57,12 +58,13 @@ public class KafkaRTATopologyActionImpl implements TopologyActions {
         TopologyDag topologyDag = topology.getTopologyDag();
         topologyDag.traverse(requestGenerator);
         RTASink rtaSink = requestGenerator.getRtaSink();
-        RTACreateTableRequest rtaCreateTableRequest = RTAUtils.extractRTACreateTableRequest(rtaSink, asUser);
+        KafkaSource kafkaSource = requestGenerator.getKafkaSource();
+        RTACreateTableRequest rtaCreateTableRequest = RTAUtils.extractRTACreateTableRequest(rtaSink, kafkaSource, asUser);
         rtaRestAPIClient.createTable(JsonClientUtil.convertRequestToJson(rtaCreateTableRequest));
 
         String tableName = rtaCreateTableRequest.name();
         if (rtaRestAPIClient.getTableDeployStatus(tableName).isEmpty()) {
-            RTADeployTableRequest rtaDeployTableRequest = RTAUtils.extractRTADeployTableRequest(rtaSink);
+            RTADeployTableRequest rtaDeployTableRequest = RTAUtils.extractRTADeployTableRequest(kafkaSource);
             rtaRestAPIClient.deployTable(rtaDeployTableRequest, tableName);
             for (Long region: deployment.getRegions()) {
                 deployedRuntimeIds.add(new DeployedRuntimeId(region, tableName));

@@ -35,6 +35,7 @@ public class ComponentTypes {
     public static final String STAGE = "STAGE";
     public static final String RULE = "RULE";
     public static final String RTA = "RTA";
+    public static final String RTA_WITH_KAFKA = "RTA_WITH_KAFKA";
     public static final String CASSANDRA = "CASSANDRA";
     public static final String M3 = "M3";
     public static final String TCHANNEL = "TCHANNEL";

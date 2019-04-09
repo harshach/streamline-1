@@ -1,16 +1,33 @@
 {
   "type": "SINK",
   "name": "RTA",
-  "subType": "RTA",
+  "subType": "RTA_WITH_KAFKA",
   "engine": "ATHENAX",
-  "template": ["KafkaRTA"],
+  "template": ["Blank"],
   "builtin": true,
-  "transformationClass": "com.hortonworks.streamline.streams.layout.component.impl.RTASink",
+  "fieldHintProviderClass": "com.hortonworks.streamline.streams.cluster.bundle.impl.KafkaSinkBundleHintProvider",
+  "transformationClass": "com.hortonworks.streamline.streams.layout.component.impl.RTASinkWithKafka",
   "mavenDeps": "",
   "input": true,
   "output": false,
   "topologyComponentUISpecification": {
     "fields": [
+      {
+        "uiName": "Bootstrap Servers",
+        "fieldName": "bootstrapServers",
+        "isOptional": false,
+        "tooltip": "Comma separated string of host:port kafka brokers",
+        "type": "string"
+      },
+      {
+        "uiName": "Kafka Topic",
+        "fieldName": "topic",
+        "isOptional": false,
+        "tooltip": "Kafka topic to write data to",
+        "type": "enumstring",
+        "options": [],
+        "hint": "schema"
+      },
       {
         "uiName": "Table Name",
         "fieldName": "tableName",

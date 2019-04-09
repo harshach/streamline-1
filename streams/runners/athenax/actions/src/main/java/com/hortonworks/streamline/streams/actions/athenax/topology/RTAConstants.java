@@ -2,6 +2,7 @@ package com.hortonworks.streamline.streams.actions.athenax.topology;
 
 public class RTAConstants {
     // RTA topology component field names
+    public static final String CLUSTERS = "clusters";
     public static final String TABLE_NAME = "tableName";
     public static final String TABLE_FIELDS = "tableFields";
     public static final String INGESTION_RATE = "ingestionRate";

@@ -48,4 +48,8 @@ public class KafkaRTAJobGraphGenerator extends TopologyDagVisitor {
     public RTASink getRtaSink() {
         return rtaSink;
     }
+
+    public KafkaSource getKafkaSource() {
+        return kafkaSource;
+    }
 }

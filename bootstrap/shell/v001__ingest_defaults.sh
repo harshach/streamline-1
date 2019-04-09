@@ -209,6 +209,7 @@ function add_all_bundles {
     add_topology_component_bundle /streams/componentbundles/SINK ${athenax_dir}/components/sinks/kafka-sink-topology-component.json
     add_topology_component_bundle /streams/componentbundles/SINK ${athenax_dir}/components/sinks/m3-sink-topology-component.json
     add_topology_component_bundle /streams/componentbundles/SINK ${athenax_dir}/components/sinks/rta-sink-topology-component.json
+    add_topology_component_bundle /streams/componentbundles/SINK ${athenax_dir}/components/sinks/rta-sink-with-kafka-topology-component.json
     add_topology_component_bundle /streams/componentbundles/SINK ${athenax_dir}/components/sinks/tchannel-sink-topology-component.json
     # === Topology ===
     add_topology_component_bundle /streams/componentbundles/TOPOLOGY ${storm_dir}/topology/storm-topology-component.json

@@ -58,6 +58,7 @@ import com.hortonworks.streamline.streams.layout.component.impl.M3Sink;
 import com.hortonworks.streamline.streams.layout.component.impl.MultiLangProcessor;
 import com.hortonworks.streamline.streams.layout.component.impl.NotificationSink;
 import com.hortonworks.streamline.streams.layout.component.impl.RTASink;
+import com.hortonworks.streamline.streams.layout.component.impl.RTASinkWithKafka;
 import com.hortonworks.streamline.streams.layout.component.impl.RulesProcessor;
 import com.hortonworks.streamline.streams.layout.component.impl.JoinProcessor;
 import com.hortonworks.streamline.streams.layout.component.impl.SqlProcessor;
@@ -96,6 +97,7 @@ import static com.hortonworks.streamline.common.ComponentTypes.NOTIFICATION;
 import static com.hortonworks.streamline.common.ComponentTypes.PMML;
 import static com.hortonworks.streamline.common.ComponentTypes.PROJECTION;
 import static com.hortonworks.streamline.common.ComponentTypes.RTA;
+import static com.hortonworks.streamline.common.ComponentTypes.RTA_WITH_KAFKA;
 import static com.hortonworks.streamline.common.ComponentTypes.RULE;
 import static com.hortonworks.streamline.common.ComponentTypes.SPLIT;
 import static com.hortonworks.streamline.common.ComponentTypes.SQL;
@@ -282,6 +284,7 @@ public class TopologyComponentFactory {
         builder.put(hiveSinkProvider());
         builder.put(kafkaSinkProvider());
         builder.put(rtaSinkProvider());
+        builder.put(rtaWithKafkaSinkProvider());
         builder.put(cassandraSinkProvider());
         builder.put(m3SinkProvider());
         builder.put(tChannelSinkProvider());
@@ -641,6 +644,16 @@ public class TopologyComponentFactory {
             }
         };
         return new SimpleImmutableEntry<>(RTA, provider);
+    }
+
+    private Map.Entry<String, Provider<StreamlineSink>> rtaWithKafkaSinkProvider() {
+        Provider<StreamlineSink> provider = new Provider<StreamlineSink>() {
+            @Override
+            public StreamlineSink create(TopologyComponent component) {
+                return new RTASinkWithKafka();
+            }
+        };
+        return new SimpleImmutableEntry<>(RTA_WITH_KAFKA, provider);
     }
 
     private Map.Entry<String, Provider<StreamlineSink>> cassandraSinkProvider() {

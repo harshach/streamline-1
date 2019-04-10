@@ -73,7 +73,6 @@ body {
   background-color: #F7F7F7;
   font-family: 'Uber Move', sans-serif;
   -webkit-font-smoothing: antialiased;
-  /*padding-bottom: 30px;*/
 }
 
 .view-mode-wrapper, body.graph-bg {
@@ -186,15 +185,15 @@ a:hover, a:focus {
 }
 
 .content-wrapper {
-  padding-left: 100px;
-  padding-right: 100px;
+  padding-left: 60px;
+  padding-right: 60px;
   padding-top: 70px;
   margin-left: 230px;
   -webkit-transition: -webkit-transform .3s ease-in-out, margin .3s ease-in-out;
   -moz-transition: -moz-transform .3s ease-in-out, margin .3s ease-in-out;
   -o-transition: -o-transform .3s ease-in-out, margin .3s ease-in-out;
   transition: transform .3s ease-in-out, margin .3s ease-in-out;
-  height: 100vh;
+  height: calc(100vh - 30px);
 }
 
 .content-wrapper.environment-wrapper {
@@ -203,7 +202,6 @@ a:hover, a:focus {
 
 .contentEditor-wrapper {
   padding-left: 102px;
-  padding-right: 50px;
   padding-top: 70px;
   margin-left: 230px;
   -webkit-transition: -webkit-transform .3s ease-in-out, margin .3s ease-in-out;
@@ -1437,6 +1435,7 @@ label {
   border-radius: 2px;
   margin: 3px 3px -5px 0px;
   cursor: pointer;
+  margin-right : 10px;
 }
 .execution-box::after{
   content: "\f00c";
@@ -1448,10 +1447,11 @@ label {
 .execution-box.execute-selected::after{
   visibility: visible;
 }
-.execution-box.succeeded,
-.execution-box.success{
-  background: #07A35A;
+.execution-box.unknown{
+  background: #ccc;
 }
+.execution-box.succeeded,
+.execution-box.success,
 .execution-box.done{
   background: #07A35A;
 }
@@ -2030,7 +2030,6 @@ label {
   /*right: 22px;*/
 }
 .editor-header{
-  height: 60px;
   background: #FFFFFF;
   border-bottom: 1px solid #E5E5E5;
   padding: 13px 13px;
@@ -2042,16 +2041,7 @@ label {
   margin-right: 390px !important;
 }
 .editor-header.active{
-  margin-right: 435px !important;
-}
-.topology-view-mode-container .editor-header.row.app-running{
-  margin-right: 35px;
-}
-.topology-view-mode-container .editor-header.row .pull-right{
-  margin-right: 8px;
-}
-.topology-view-mode-container .editor-header.row.app-running .pull-right{
-  margin-right: 14px;
+  margin-right: 0 !important;
 }
 .graph-region .editor-header.row .pull-right,
 .graph-region .editor-header.row.app-running .pull-right {
@@ -2225,11 +2215,6 @@ label {
   padding-left: 2px;
 }
 
-.topology-view-mode-container {
-  padding-left: 8px;
-  position: relative;
-}
-
 .static-label {
   display: inline-block;
   color: #545454;
@@ -2263,6 +2248,28 @@ label {
 .headContentText .title-separator {
   margin: 0 10px;
   color: #aaa;
+}
+
+.headContentText a.header-link {
+    position: relative;
+    top: 5px;
+    display: inline-block;
+    font-weight: 500;
+    color: #ccc;
+    padding: 0 15px;
+    margin-left: 25px;
+}
+.headContentText a.header-link.active {
+  color: #000;
+}
+.headContentText a.header-link.active:after {
+  content: '';
+  position: absolute;
+  width: 100%;
+  height: 2px;
+  bottom: 5px;
+  left: 0;
+  background-color: #1B6DE0;
 }
 
 span.version {
@@ -2505,7 +2512,7 @@ ul.project-engines li.no-workflow .badge{
 }
 .workflow-info {
   display: inline-block;
-  padding: 0 20px;
+  padding: 9px 20px;
 }
 .workflow-info h6 {
   font-size: 11px;
@@ -2842,20 +2849,21 @@ rect.extent {
 }
 
 .graph-tip {
-  /*background: rgba(78, 75, 41, 0.7);*/
   padding: 10px;
   font-size: 10px;
-  color: black;
-  background: rgba(185, 185, 185, 0.8);
+  color: #fff;
+  background: #333;
+  border-radius: 4px;
+  min-width: 150px;
+  font-weight: 500;
 }
 
-.tooltipTable td {
-  border: 1px whiteSmoke solid;
-  padding: 2px;
-}
-
+.tooltipTable td,
 .tooltipTable th {
-  padding: 2px 0;
+  padding: 3px;
+}
+.tooltipTable td .fa-square{
+  margin-right: 8px;
 }
 
 .delete-icon {
@@ -4963,16 +4971,23 @@ ul.custom-pagination li.active{
   height: 24px;
   text-align: center;
 }
+.version-wrapper{
+  display: flex;
+  flex-wrap: nowrap;
+  overflow: auto;
+  -webkit-overflow-scrolling: touch;
+  -ms-overflow-style: -ms-autohiding-scrollbar;
+}
 .version-container{
   position: relative;
   display: inline-block;
-  width: 100%;
+  min-width: 350px;
   height: 216px;
   text-align: left;
   cursor: pointer;
   border-radius: 5px;
   overflow: hidden;
-  margin-top: 20px;
+  margin: 20px 10px 0;
 }
 .version-thumb{
   display: block;
@@ -5949,7 +5964,6 @@ h6.version-control {
   border-radius: 6px;
   box-shadow: 0px 1px 4px rgba(0, 0, 0, 0.12);
   margin-bottom: 20px;
-  cursor: pointer;
 }
 .workflow-widget .workflow-header {
   background-color: #f0f7fe;
@@ -6087,4 +6101,188 @@ background: #fff
 }
 .position-absolute {
   position: absolute !important;
+}
+
+/* Workflow Table */
+.table-workflow .checkbox {
+        margin: 0;
+}
+.table-workflow .checkbox label {
+        min-height: 14px;
+}
+.table-workflow {
+        border-collapse: separate;
+        border-spacing: 0;
+        border: 1px solid #CCCCCC;
+        border-radius: 5px;
+        -moz-border-radius: 5px;
+}
+.workflow-widget .table-workflow h6 {
+  margin-top: 5px;
+  margin-bottom: 0px;
+}
+.table-workflow > thead > tr > th:first-child {
+        border-radius: 5px 0 0 0;
+}
+.table-workflow > thead > tr > th:last-child {
+        border-radius: 0 5px 0 0;
+}
+.table-workflow > thead > tr > th,
+.table-workflow > tbody > tr > th,
+.table-workflow > tfoot > tr > th,
+.table-workflow > thead > tr > td,
+.table-workflow > tbody > tr > td,
+.table-workflow > tfoot > tr > td {
+  padding: 14px 12px;
+  border: none;
+}
+.table-workflow > thead > tr > th {
+        font-weight: normal;
+        white-space: nowrap;
+        color: #666666;
+  background-color: #fff;
+  border-bottom: 1px #CCC solid;
+}
+.table-workflow > tbody > tr:nth-of-type(odd) {
+    background-color: #F7F7F7;
+}
+.workflow-name {
+  cursor: pointer;
+}
+.selected-workflow-panel {
+  position: fixed;
+  right: 0;
+  left: 70px;
+  bottom: 0;
+  padding: 25px 50px;
+  background: #FFFFFF;
+  box-shadow: 0px -3px 4px rgba(0, 0, 0, 0.05);
+}
+.selected-workflow-panel > div {
+  display: table;
+  width: 100%;
+  table-layout: fixed;
+}
+.selected-workflow-panel > div span {
+  display: table-cell;
+}
+.bottom-panel {
+    background-color: #fff;
+    position: fixed;
+    width: calc(100% - 72px);
+    height: 350px;
+    left: 72px;
+    bottom: 0px;
+    z-index: 3000;
+    border-top: 1px #E5E5E5 solid;
+    transition: all 0.5s ease 0s;
+}
+.bottom-panel.version-control {
+    bottom: -350px;
+}
+.bottom-panel.active {
+  height: calc(100vh - 60px);
+}
+.bottom-panel.version-control.active {
+    bottom: 0;
+    height: 350px;
+}
+.bottom-panel-header {
+    padding: 18px;
+    border-bottom: 1px #E5E5E5 solid;
+}
+.bottom-panel-content {
+    padding: 16px 32px;
+    max-height: 300px;
+    overflow-y: auto;
+}
+.bottom-panel.active .bottom-panel-content {
+  max-height: 770px;
+}
+@media (max-height: 700px) {
+  .bottom-panel.active .bottom-panel-content {
+    max-height: 550px;
+  }
+}
+
+.btn-bottom-panel {
+    position: absolute;
+    top: -33px;
+    right: 140px;
+    background: #FFFFFF;
+    box-shadow: 0px -1px 4px rgba(0, 0, 0, 0.2);
+    padding: 6px 18px;
+    border: none;
+    border-radius: 6px 6px 0px 0px;
+}
+
+.bottom-panel-header > .dropdown {
+        margin-left: 20px;
+}
+.bottom-panel-header > .dropdown > .btn-default {
+        background: #F7F7F7;
+    border: none;
+    border-radius: 4px;
+}
+.bottom-panel-header > .dropdown > .btn-default .caret {
+        margin-left: 25px;
+}
+.bottom-panel-header > .dropdown > .btn-link {
+        font-size: 14px;
+    color: #000;
+    font-weight: 500;
+}
+.metrics-graph-panel{
+  padding: 10px;
+  background: #fff;
+  box-shadow: 0px 1px 4px rgba(0, 0, 0, 0.12);
+  border-radius: 4px;
+  margin-bottom: 20px;
+}
+.metrics-graph-panel h6 {
+  margin: 10px 0px 0 10px;
+}
+.dropdown-icon{
+  vertical-align: text-top;
+  margin-right: 10px;
+}
+.btn-piper{
+  font-weight: 500;
+  color: #276EF1;
+}
+.btn-mode,
+.btn-mode:hover,
+.btn-mode:focus {
+  font-weight: 500;
+  background-color: #276EF1 !important;
+  border-color: #276EF1 !important;
+  border-radius: 4px;
+  color: #fff !important;
+  text-align: left;
+}
+.btn-mode small {
+  display: block;
+  color: #CCCCCC;
+}
+.btn-mode .caret {
+  margin: -15px 0px 0px 20px;
+  border-top: 6px dashed;
+  border-top: 6px solid \9;
+  border-right: 6px solid transparent;
+  border-left: 6px solid transparent;
+}
+.draft-label{
+  color: #276EF1;
+  border: 1px solid #276EF1;
+  border-radius: 2px;
+  padding : 3px 12px;
+  font-size: 0.875em;
+  margin-left: 10px;
+}
+.datacenter {
+  display: inline-block;
+  margin-right: 15px;
+}
+.btn-link:hover svg {
+  cursor: pointer;
 }

@@ -253,6 +253,10 @@ class ProjectListingContainer extends Component {
     }
   }
 
+  getHeaderContent() {
+    return [<Link to="/" className="header-link">Workflows</Link>,<Link to="/projects" className="header-link active">Projects</Link>];
+  }
+
   render() {
     const {entities, filterValue, fetchLoader, editModeData} = this.state;
     const filteredEntities = Utils.filterByName(entities, filterValue);
@@ -264,7 +268,7 @@ class ProjectListingContainer extends Component {
     });
 
     return (
-      <BaseContainer ref="BaseContainer" routes={this.props.routes} headerContent={this.props.routes[this.props.routes.length - 1].name}>
+      <BaseContainer ref="BaseContainer" routes={this.props.routes} headerContent={this.getHeaderContent()}>
         <div className="row">
           <div className="page-title-box clearfix">
             <div className="search-container">

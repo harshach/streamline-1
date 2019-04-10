@@ -717,6 +717,7 @@ class TopologyViewContainer extends TopologyEditorContainer {
         isBatchEngine={this.engine.type.toLowerCase() == 'batch'}
         engine={this.engine}
         template={this.template}
+        runtimeAppUrl={this.runtimeAppUrl}
     />;
   }
 

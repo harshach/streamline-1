@@ -85,7 +85,7 @@ export default class Sidebar extends Component {
                 : ''} onClick={this.handleClick.bind(this, 1)}>
                 <Link to="/">
                   <img src="/styles/img/uWorc/overview.png"/>
-                  <span>My Projects</span>
+                  <span>Workflows</span>
                 </Link>
               </li>
               : null

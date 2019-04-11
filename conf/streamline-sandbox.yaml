@@ -1,0 +1,209 @@
+modules:
+  - name: streams
+    className: com.hortonworks.streamline.streams.service.StreamsModule
+    config:
+      # directory to store the results of topology test run
+      topologyTestRunResultDir: /tmp
+      # schema registry configuration
+      streamlineSchemaRegistryClientClass: "com.hortonworks.streamline.streams.registry.HeatpipeSchemaServiceClientAdapter"
+      # streamlineSchemaRegistryClientClass: "com.hortonworks.streamline.streams.registry.SchemaRegistryClientAdapter"
+      # schemaRegistryUrl: "http://localhost:9090/api/v1"
+      rtaMetadataServiceUrl: "http://localhost:5436"
+      rtaMetadataServiceMuttleyName: "rtaums-staging"
+      #Custom processor upload configuration
+      #customProcessorWatchPath: "/tmp"
+      #customProcessorUploadFailPath: "/tmp/failed"
+      #customProcessorUploadSuccessPath: "/tmp/uploaded"
+
+catalogRootUrl: "http://localhost:8080/api/v1/catalog"
+
+enableCors: true
+corsUrlPatterns:
+  - "/api/v1/dashboards/*"
+
+server:
+  rootPath: '/api/*'
+  applicationConnectors:
+    - type: http
+      port: 8080
+  adminConnectors:
+    - type: http
+      port: 8081
+
+# ------------------------------------------------
+# File storage configuration
+# ------------------------------------------------
+# Note: In HA mode HDFS or DB based file storage should be used
+# --
+
+# --
+# Filesystem based file storage - uses local file system to store the uploaded files
+# Note: Make sure you configure this directory other than /tmp
+# --
+fileStorageConfiguration:
+  className: "com.hortonworks.streamline.common.util.LocalFileSystemStorage"
+  properties:
+    directory: "/tmp"
+
+# --
+# HDFS file storage - uses HDFS to store the uploaded files
+# --
+#fileStorageConfiguration:
+#  className: com.hortonworks.streamline.common.util.HdfsFileStorage
+#  properties:
+#    directory: /hdf/streamline/jars
+#    fsUrl: hdfs://localhost:9090
+
+# --
+# DB based file storage - stores the uploaded files as blob in Db
+# --
+#fileStorageConfiguration:
+# className: "com.hortonworks.streamline.storage.filestorage.DbFileStorage"
+
+# ------------------------------------------------
+# Storage provider configuration
+# ------------------------------------------------
+
+# --
+# MySQL based storage provider configuration:
+# --
+storageProviderConfiguration:
+  providerClass: "com.hortonworks.streamline.storage.impl.jdbc.JdbcStorageManager"
+  properties:
+    db.type: "mysql"
+    queryTimeoutInSecs: 30
+    credentials.secured: true
+    db.properties:
+      dataSourceClassName: "com.mysql.jdbc.jdbc2.optional.MysqlDataSource"
+      dataSource.url: "jdbc:mysql://127.5.6.6:17025/uworc_sandbox"
+      dataSource.user: "xxx"
+      dataSource.password: "xxx"
+
+# --
+# PostgreSQL based storage provider configuration
+# --
+#storageProviderConfiguration:
+# providerClass: "com.hortonworks.streamline.storage.impl.jdbc.JdbcStorageManager"
+# properties:
+#   db.type: "postgresql"
+#   queryTimeoutInSecs: 30
+#   db.properties:
+#     dataSourceClassName: "org.postgresql.ds.PGSimpleDataSource"
+#     dataSource.url: "jdbc:postgresql://localhost/streamline_db"
+#     dataSource.user: "streamline_user"
+#     dataSource.password: "streamline_password"
+
+# --
+# Oracle based storage provider configuration
+# --
+#storageProviderConfiguration:
+# providerClass: "com.hortonworks.streamline.storage.impl.jdbc.JdbcStorageManager"
+# properties:
+#   db.type: "oracle"
+#   queryTimeoutInSecs: 30
+#   db.properties:
+#     dataSourceClassName: "oracle.jdbc.pool.OracleDataSource"
+#     dataSource.url: "jdbc:oracle:thin:@localhost:1521/orclpdb1.localdomain"
+#     dataSource.user: "streamline_user"
+#     dataSource.password: "streamline_password"
+
+
+# --
+# In-memory storage provider configuration:
+# --
+#storageProviderConfiguration:
+#  providerClass: "com.hortonworks.streamline.storage.impl.memory.InMemoryStorageManager"
+
+# ------------------------------------------------
+# Dashboard configuration
+# ------------------------------------------------
+dashboardConfiguration:
+  url: ""
+
+# ------------------------------------------------
+# Logging configuration
+# ------------------------------------------------
+# Logging settings.
+logging:
+  # The default level of all loggers. Can be OFF, ERROR, WARN, INFO, DEBUG, TRACE, or ALL.
+  level: INFO
+  # Logger-specific levels.
+  loggers:
+    # Sets the level for 'com.example.app' to DEBUG.
+    com.hortonworks.streamline: DEBUG
+  appenders:
+    - type: file
+      threshold: DEBUG
+      logFormat: "%-6level [%d{HH:mm:ss.SSS}] [%t] %logger{5} - %X{code} %msg %n"
+      currentLogFilename: ./logs/streamline.log
+      archivedLogFilenamePattern: ./logs/streamline-%d{yyyy-MM-dd}-%i.log.gz
+      archivedFileCount: 7
+      timeZone: UTC
+      maxFileSize: 50MB
+
+#Set below 3 properties if server needs a proxy to connect. Useful to download mysql jar/maven artifacts for storm topology submission
+#httpProxyUrl: "http://proxyHost:port"
+#httpProxyUsername: "username"
+#httpProxyPassword: "password"
+
+# ------------------------------------------------
+# Authorizer configuration
+# ------------------------------------------------
+authorizerConfiguration:
+  className: "com.hortonworks.streamline.streams.security.impl.DefaultStreamlineAuthorizer"
+  adminPrincipals:
+    - "akira"
+    - "amody"
+    - "bzzhang"
+    - "harshach"
+    - "jchun"
+    - "jianyong"
+    - "pawan"
+    - "root"
+    - "pcullen"
+    - "mustaque"
+  containerRequestFilter: "com.hortonworks.streamline.streams.security.authentication.StreamlineOpenIdAuthorizationRequestFilter"
+  principalDomain: "uber.com"
+  # To add user for the first time logged-in
+  autoRegisterUser: true
+
+# ------------------------------------------------
+# Truststore configuration
+# ------------------------------------------------
+# Truststore information which is needed for importing certificated Ambari cluster.
+# which default truststore doesn't cover the CA or self-certified.
+# When the options are not provided, JDK default truststore will be used.
+# It only supports single truststores, so admin needs to maintain single truststore and import certificates to that.
+# --
+
+#trustStorePath: ""
+#trustStorePassword: ""
+
+# ------------------------------------------------
+# Authentication configuration
+# ------------------------------------------------
+
+#loginConfiguration:
+#  className: "com.hortonworks.streamline.auth.KerberosLogin"
+#  params:
+#      kinit.cmd: "/usr/local/bin/kinit"
+#      ticket.renew.window.factor: "0.8"
+#      ticket.renew.jitter: "0.05"
+#      min.time.before.relogin: "60000"
+
+#servletFilters:
+# - className: "com.hortonworks.registries.auth.server.AuthenticationFilter"
+#   params:
+#     type: "kerberos"
+#     kerberos.principal: "HTTP/streamline-ui-host.com"
+#     kerberos.keytab: "/vagrant/keytabs/http.keytab"
+#     kerberos.name.rules: "RULE:[2:$1@$0]([jt]t@.*EXAMPLE.COM)s/.*/$MAPRED_USER/ RULE:[2:$1@$0]([nd]n@.*EXAMPLE.COM)s/.*/$HDFS_USER/DEFAULT"
+#     token.validity: "36000"
+#     cookie.path: "/"
+#     allowed.resources: "401.html,back-default.png,favicon.ico"
+
+# ------------------------------------------------
+# Service Discovery configuration
+# ------------------------------------------------
+
+enableShadowNamespaces: true

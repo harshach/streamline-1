@@ -147,6 +147,11 @@
             <destName>streamline-env.sh</destName>
         </file>
         <file>
+            <source>${project.basedir}./conf/streamline-sandbox.yaml</source>
+            <outputDirectory>/conf</outputDirectory>
+            <destName>streamline-sandbox.yaml</destName>
+        </file>
+        <file>
             <source>${project.basedir}./conf/streamline_jaas.conf</source>
             <outputDirectory>/conf</outputDirectory>
             <destName>streamline_jaas.conf</destName>

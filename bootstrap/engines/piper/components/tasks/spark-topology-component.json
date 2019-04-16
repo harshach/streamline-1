@@ -101,7 +101,7 @@
         "isOptional": true,
         "defaultValue": "default_spark_conn_id",
         "type": "enumstring",
-        "options": [],
+        "options": ["default_spark_conn_id"],
         "hint": "override"
       },
       {

@@ -792,7 +792,7 @@ public class TopologyCatalogResource {
     }
 
     private Response listTopologies(SecurityContext securityContext, Long projectId) {
-        boolean topologyUser = SecurityUtil.hasRole(authorizer, securityContext, Roles.ROLE_TOPOLOGY_USER);
+        boolean adminUser = SecurityUtil.hasRole(authorizer, securityContext, Roles.ROLE_ADMIN);
         Collection<Topology> topologies;
         if (projectId == null) {
             topologies = catalogService.listTopologies();
@@ -800,8 +800,8 @@ public class TopologyCatalogResource {
             topologies = catalogService.listTopologies(projectId);
         }
 
-        if (topologyUser) {
-            LOG.debug("Returning all topologies since user has role: {}", Roles.ROLE_TOPOLOGY_USER);
+        if (adminUser) {
+            LOG.debug("Returning all topologies since user has role: {}", Roles.ROLE_ADMIN);
         } else {
             topologies = SecurityUtil.filter(authorizer, securityContext, NAMESPACE, topologies, READ);
         }

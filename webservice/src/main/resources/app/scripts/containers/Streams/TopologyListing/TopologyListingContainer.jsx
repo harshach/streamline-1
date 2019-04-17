@@ -101,7 +101,7 @@ class WorkflowListingTable extends Component {
     let permission=true,aclObject={};
     if(app_state.streamline_config.secureMode){
       data.map((workflowObj)=> {
-        aclObject = findSingleAclObj(workflowObj.topology.id ,allACL || []);
+        aclObject = findSingleAclObj(workflowObj.id ,allACL || []);
         const {p_permission,r_share} = handleSecurePermission(aclObject,userInfo,"Applications");
         permission = p_permission;
         workflowObj.rights_share = r_share;

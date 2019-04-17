@@ -383,6 +383,31 @@ public class TopologyCatalogResource {
     }
 
     @GET
+    @Path("/topologies/search")
+    @Timed
+    public Response searchTopologiesByName (@javax.ws.rs.QueryParam("name") String topologyName,
+                                            @Context SecurityContext securityContext) {
+        boolean adminUser = SecurityUtil.hasRole(authorizer, securityContext, Roles.ROLE_ADMIN);
+        Collection<Topology> topologies = catalogService.listTopologies(Collections.singletonList(
+                new com.hortonworks.streamline.common.QueryParam(Topology.NAME, topologyName)));
+
+        if (adminUser) {
+            LOG.debug("Returning all topologies since user has role: {}", Roles.ROLE_ADMIN);
+        } else {
+            topologies = SecurityUtil.filter(authorizer, securityContext, NAMESPACE, topologies, READ);
+        }
+
+        Response response;
+        if (topologies != null) {
+            response = WSUtils.respondEntities(topologies, OK);
+        } else {
+            response = WSUtils.respondEntities(Collections.emptyList(), OK);
+        }
+        return response;
+    }
+
+
+    @GET
     @Path("/topologies/{topologyId}/runtimeApplicationId")
     @Timed
     public Response getRuntimeApplicationId (@PathParam("topologyId") Long topologyId,

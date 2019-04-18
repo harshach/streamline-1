@@ -117,6 +117,12 @@ public class PostgresqlExecutor extends AbstractQueryExecutor {
     }
 
     @Override
+    public <T extends Storable> Collection<T> select(StorableKey storableKey, List<OrderByField> orderByFields, long offset, long limit) {
+        throw new UnsupportedOperationException("Not Implemented");
+    }
+
+
+    @Override
     public <T extends Storable> Collection<T> select(StorableKey storableKey, List<OrderByField> orderByFields) {
         return executeQuery(storableKey.getNameSpace(), new PostgresqlSelectQuery(storableKey, orderByFields));
     }

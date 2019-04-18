@@ -55,4 +55,18 @@ public class SqlSelectQuery extends AbstractSelectQuery {
         LOG.debug(sql);
         return sql;
     }
+
+    @Override
+    protected String getParameterizedSqlWithLimit() {
+        String sql = "SELECT * FROM " + tableName;
+        //where clause is defined by columns specified in the PrimaryKey
+        if (columns != null) {
+            sql += " WHERE " + join(getColumnNames(columns, "%s = ?"), " AND ");
+        }
+        sql += " LIMIT " + limit + " OFFSET " + offset;
+        LOG.debug(sql);
+        return sql;
+    }
+
+
 }

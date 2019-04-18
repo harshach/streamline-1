@@ -20,6 +20,7 @@ import com.hortonworks.streamline.storage.exception.StorageException;
 import com.hortonworks.streamline.storage.search.SearchQuery;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -113,6 +114,10 @@ public interface StorageManager {
      */
     <T extends Storable> Collection<T> find(String namespace, List<QueryParam> queryParams) throws StorageException;
 
+    default <T extends Storable> Collection<T> find(String namespace, long offset, long limit) {
+        return Collections.emptyList();
+    }
+
     /**
      * Returns the collection of storable entities in the given {@code namespace}, matching given {@code queryParams} and
      * order by the given list of {@code orderByFields}
@@ -125,6 +130,8 @@ public interface StorageManager {
      * @throws StorageException when any storage error occurs
      */
     <T extends Storable> Collection<T> find(String namespace, List<QueryParam> queryParams, List<OrderByField> orderByFields) throws StorageException;
+
+    <T extends Storable> Collection<T> find(String namespace, List<QueryParam> queryParams, List<OrderByField> orderByFields, long offset, long limit);
 
     /**
      *

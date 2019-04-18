@@ -113,8 +113,18 @@ public class MySqlExecutor extends AbstractQueryExecutor {
     }
 
     @Override
+    public <T extends Storable> Collection<T> select(String namespace, long offset, long limit) {
+        return executeQuery(namespace, new MySqlSelectQuery(namespace, offset, limit));
+    }
+
+    @Override
     public <T extends Storable> Collection<T> select(StorableKey storableKey, List<OrderByField> orderByFields) {
         return executeQuery(storableKey.getNameSpace(), new MySqlSelectQuery(storableKey, orderByFields));
+    }
+
+    @Override
+    public <T extends Storable> Collection<T> select(StorableKey storableKey, List<OrderByField> orderByFields, long offset, long limit) {
+        return executeQuery(storableKey.getNameSpace(), new MySqlSelectQuery(storableKey, orderByFields, offset, limit));
     }
 
     private void insertOrUpdateWithUniqueId(final Storable storable, final SqlQuery sqlQuery) {

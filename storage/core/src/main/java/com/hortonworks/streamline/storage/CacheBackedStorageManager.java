@@ -113,6 +113,15 @@ public class CacheBackedStorageManager implements StorageManager {
     }
 
     @Override
+    public <T extends Storable> Collection<T> find(final String namespace,
+                                                   final List<QueryParam> queryParams,
+                                                   final List<OrderByField> orderByFields,
+                                                   long offset,
+                                                   long limit) throws StorageException {
+        throw new UnsupportedOperationException("Not Implemented");
+    }
+
+    @Override
     public <T extends Storable> Collection<T> search(SearchQuery searchQuery) {
         return ((GuavaCache)cache).getDao().search(searchQuery);
     }

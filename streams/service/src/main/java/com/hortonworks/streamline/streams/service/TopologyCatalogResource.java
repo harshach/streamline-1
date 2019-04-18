@@ -46,6 +46,7 @@ import org.slf4j.LoggerFactory;
 import javax.servlet.http.HttpSession;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
+import javax.ws.rs.DefaultValue;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.PUT;
@@ -71,6 +72,7 @@ import static com.hortonworks.streamline.streams.security.Permission.DELETE;
 import static com.hortonworks.streamline.streams.security.Permission.EXECUTE;
 import static com.hortonworks.streamline.streams.security.Permission.READ;
 import static com.hortonworks.streamline.streams.security.Permission.WRITE;
+import static java.util.stream.Collectors.toList;
 import static javax.ws.rs.core.Response.Status.CREATED;
 import static javax.ws.rs.core.Response.Status.OK;
 
@@ -386,13 +388,13 @@ public class TopologyCatalogResource {
     @Path("/topologies")
     @Timed
     public Response listTopologiesByProjectId (@javax.ws.rs.QueryParam("projectId") Long projectId,
-                                               @Context SecurityContext securityContext, @Session HttpSession httpSession) {
-
-        Set<String> userGroups = SecurityUtil.getAllUserGroups(httpSession);
+                                               @Context SecurityContext securityContext,
+                                               @DefaultValue("0")   @javax.ws.rs.QueryParam("offset") Long offset,
+                                               @DefaultValue("10")  @javax.ws.rs.QueryParam("limit") Long limit) {
         if (projectId == null || projectId == StreamCatalogService.PLACEHOLDER_ID) {
-            return listTopologies(securityContext, userGroups, StreamCatalogService.PLACEHOLDER_ID);
+            return listTopologies(securityContext, StreamCatalogService.PLACEHOLDER_ID, offset, limit);
         } else {
-            return listTopologies(securityContext, userGroups, projectId);
+            return listTopologies(securityContext, projectId, offset, limit);
         }
     }
 
@@ -861,6 +863,31 @@ public class TopologyCatalogResource {
         } else {
             topologies = SecurityUtil.filter(authorizer, securityContext, userGroups, NAMESPACE, topologies, READ);
         }
+
+        Response response;
+        if (topologies != null) {
+            response = WSUtils.respondEntities(topologies, OK);
+        } else {
+            response = WSUtils.respondEntities(Collections.emptyList(), OK);
+        }
+        return response;
+    }
+
+    private Response listTopologies (SecurityContext securityContext, Long projectId, long offset, long limit) {
+        boolean topologyUser = SecurityUtil.hasRole(authorizer, securityContext, Roles.ROLE_TOPOLOGY_USER);
+        Collection<Topology> topologies;
+        if (projectId == null) {
+            topologies = catalogService.listTopologies(offset, limit);
+        } else {
+            topologies = catalogService.listTopologies(projectId, offset, limit);
+        }
+
+        if (topologyUser) {
+            LOG.debug("Returning all topologies since user has role: {}", Roles.ROLE_TOPOLOGY_USER);
+        } else {
+            topologies = SecurityUtil.filter(authorizer, securityContext, NAMESPACE, topologies, READ);
+        }
+
         Response response;
         if (topologies != null) {
             response = WSUtils.respondEntities(topologies, OK);

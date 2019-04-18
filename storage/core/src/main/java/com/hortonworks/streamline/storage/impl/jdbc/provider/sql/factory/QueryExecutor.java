@@ -32,6 +32,7 @@ import org.slf4j.LoggerFactory;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -77,6 +78,17 @@ public interface QueryExecutor {
     <T extends Storable> Collection<T> select(String namespace, List<OrderByField> orderByFields);
 
     /**
+     *
+     * @param namespace
+     * @param offset
+     * @param limit
+     * @return
+     */
+    default <T extends Storable> Collection<T> select(String namespace, long offset, long limit) {
+        return Collections.emptyList();
+    }
+
+    /**
      * @return all entries that match the specified {@link StorableKey}
      */
     <T extends Storable> Collection<T> select(StorableKey storableKey);
@@ -90,6 +102,8 @@ public interface QueryExecutor {
      */
     <T extends Storable> Collection<T> select(StorableKey storableKey, List<OrderByField> orderByFields);
 
+
+    <T extends Storable> Collection<T> select(StorableKey storableKey, List<OrderByField> orderByFields, long offset, long limit);
 
     /**
      * @return The next available id for the autoincrement column in the specified {@code namespace}

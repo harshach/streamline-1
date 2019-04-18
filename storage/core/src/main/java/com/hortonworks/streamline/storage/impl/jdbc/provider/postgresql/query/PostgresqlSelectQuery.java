@@ -83,4 +83,9 @@ public class PostgresqlSelectQuery extends AbstractSelectQuery {
         return sql;
     }
 
+    @Override
+    protected String getParameterizedSqlWithLimit() {
+        throw new UnsupportedOperationException("Not implemented yet.");
+    }
+
 }

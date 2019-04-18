@@ -114,6 +114,14 @@ public class JdbcStorageManager implements TransactionManager, StorageManager {
     }
 
     @Override
+    public <T extends Storable> Collection<T> find(String namespace,  long offset, long limit) throws StorageException {
+
+        log.debug("Searching for entries in table [{}] ", namespace);
+
+        return list(namespace, offset, limit);
+    }
+
+    @Override
     public <T extends Storable> Collection<T> find(String namespace,
                                                    List<QueryParam> queryParams,
                                                    List<OrderByField> orderByFields) throws StorageException {
@@ -140,6 +148,34 @@ public class JdbcStorageManager implements TransactionManager, StorageManager {
     }
 
     @Override
+    public <T extends Storable> Collection<T> find(String namespace,
+                                                   List<QueryParam> queryParams,
+                                                   List<OrderByField> orderByFields,
+                                                   long offset,
+                                                   long limit) throws StorageException {
+
+        log.debug("Searching for entries in table [{}] that match queryParams [{}] and order by [{}]", namespace, queryParams, orderByFields);
+
+        if (queryParams == null || queryParams.isEmpty()) {
+            return list(namespace, orderByFields);
+        }
+
+        Collection<T> entries = Collections.emptyList();
+        try {
+            StorableKey storableKey = buildStorableKey(namespace, queryParams);
+            if (storableKey != null) {
+                entries = queryExecutor.select(storableKey, orderByFields, offset, limit);
+            }
+        } catch (Exception e) {
+            throw new StorageException(e);
+        }
+
+        log.debug("Querying table = [{}]\n\t filter = [{}]\n\t returned [{}]", namespace, queryParams, entries);
+
+        return entries;
+    }
+
+    @Override
     public <T extends Storable> Collection<T> search(SearchQuery searchQuery) {
         return queryExecutor.select(searchQuery);
     }
@@ -147,6 +183,13 @@ public class JdbcStorageManager implements TransactionManager, StorageManager {
     private <T extends Storable> Collection<T> list(String namespace, List<OrderByField> orderByFields) {
         log.debug("Listing entries for table [{}]", namespace);
         final Collection<T> entries = queryExecutor.select(namespace, orderByFields);
+        log.debug("Querying table = [{}]\n\t returned [{}]", namespace, entries);
+        return entries;
+    }
+
+    private <T extends Storable> Collection<T> list(String namespace, long offset, long limit) {
+        log.debug("Listing entries for table [{}]", namespace);
+        final Collection<T> entries = queryExecutor.select(namespace, offset, limit);
         log.debug("Querying table = [{}]\n\t returned [{}]", namespace, entries);
         return entries;
     }

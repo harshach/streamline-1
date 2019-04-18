@@ -18,6 +18,7 @@ package com.hortonworks.streamline.storage.impl.jdbc.provider.oracle.factory;
 
 
 import com.google.common.cache.CacheBuilder;
+import com.hortonworks.streamline.common.QueryParam;
 import com.hortonworks.streamline.storage.OrderByField;
 import com.hortonworks.streamline.storage.Storable;
 import com.hortonworks.streamline.storage.StorableKey;
@@ -105,6 +106,11 @@ public class OracleExecutor extends AbstractQueryExecutor {
     @Override
     public <T extends Storable> Collection<T> select(StorableKey storableKey, List<OrderByField> orderByFields) {
         return executeQuery(storableKey.getNameSpace(), new OracleSelectQuery(storableKey, orderByFields));
+    }
+
+    @Override
+    public <T extends Storable> Collection<T> select(StorableKey storableKey, List<OrderByField> orderByFields, long offset, long limit) {
+        throw new UnsupportedOperationException("Not Implemented yet");
     }
 
     @Override

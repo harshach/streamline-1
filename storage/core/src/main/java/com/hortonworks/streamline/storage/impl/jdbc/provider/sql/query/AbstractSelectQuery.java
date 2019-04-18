@@ -41,6 +41,10 @@ import java.util.stream.Collectors;
 public abstract class AbstractSelectQuery extends AbstractStorableKeyQuery {
 
     protected List<OrderByField> orderByFields;
+    public static final int NO_MAX_ROWS = 0;
+
+    public long offset = 0;
+    public long limit = 0;
 
     protected SearchQuery searchQuery;
     protected Schema schema;
@@ -58,9 +62,23 @@ public abstract class AbstractSelectQuery extends AbstractStorableKeyQuery {
         this.orderByFields = orderByFields;
     }
 
+    public AbstractSelectQuery(String nameSpace, long offset, long limit) {
+        super(nameSpace);
+        this.orderByFields = orderByFields;
+        this.offset =  offset;
+        this.limit = limit;
+    }
+
     public AbstractSelectQuery(StorableKey storableKey, List<OrderByField> orderByFields) {
         super(storableKey);
         this.orderByFields = orderByFields;
+    }
+
+    public AbstractSelectQuery(StorableKey storableKey, List<OrderByField> orderByFields, long offset, long limit) {
+        super(storableKey);
+        this.orderByFields = orderByFields;
+        this.offset =  offset;
+        this.limit = limit;
     }
 
     public AbstractSelectQuery(SearchQuery searchQuery, Schema schema) {
@@ -70,6 +88,7 @@ public abstract class AbstractSelectQuery extends AbstractStorableKeyQuery {
     }
 
     protected abstract String getParameterizedSql();
+    protected abstract String getParameterizedSqlWithLimit();
     protected abstract String orderBySql();
 
     @Override
@@ -77,7 +96,12 @@ public abstract class AbstractSelectQuery extends AbstractStorableKeyQuery {
         if (searchQuery != null) {
             return buildSqlWithSearchQuery(searchQuery, schema);
         } else {
-            String sql = getParameterizedSql();
+            String sql = "";
+            if (limit == NO_MAX_ROWS) {
+                sql = getParameterizedSql();
+            } else {
+                sql = getParameterizedSqlWithLimit();
+            }
             String orderBy = orderBySql();
             if (!StringUtils.isEmpty(orderBy)) {
                 sql += orderBy;

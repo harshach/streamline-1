@@ -363,8 +363,16 @@ public class StreamCatalogService {
         return listTopologyVersionInfos(currentVersionQueryParam());
     }
 
+    public Collection<TopologyVersion> listCurrentTopologyVersionInfos(long offset, long limit) {
+        return listTopologyVersionInfos(currentVersionQueryParam(), offset, limit);
+    }
+
     public Collection<TopologyVersion> listTopologyVersionInfos(List<QueryParam> queryParams) {
         return dao.find(TOPOLOGY_VERSIONINFO_NAMESPACE, queryParams);
+    }
+
+    public Collection<TopologyVersion> listTopologyVersionInfos(List<QueryParam> queryParams, long offset, long limit) {
+        return dao.find(TOPOLOGY_VERSIONINFO_NAMESPACE, queryParams, Collections.emptyList(), offset, limit);
     }
 
 
@@ -508,6 +516,16 @@ public class StreamCatalogService {
         return topologies;
     }
 
+    public Collection<Topology> listTopologies(Long projectId, long offset, long limit) {
+        List<Topology> topologies = new ArrayList<>();
+        for (TopologyVersion version: listCurrentTopologyVersionInfos(offset, limit)) {
+            topologies.addAll(listTopologies(version.getId(), projectId));
+        }
+        return topologies;
+    }
+
+
+
     private Collection<Topology> listTopologies(Long versionId, Long projectId) {
         List<QueryParam> queryParams = new ArrayList<>();
         queryParams.add(new QueryParam(Topology.VERSIONID, versionId.toString()));
@@ -518,6 +536,7 @@ public class StreamCatalogService {
         return topologies;
     }
 
+
     public Collection<Topology> listTopologies() {
         List<Topology> topologies = new ArrayList<>();
         for (TopologyVersion version: listCurrentTopologyVersionInfos()) {
@@ -526,6 +545,17 @@ public class StreamCatalogService {
         }
         return topologies;
     }
+
+
+    public Collection<Topology> listTopologies(long offset, long limit) {
+        List<Topology> topologies = new ArrayList<>();
+        for (TopologyVersion version: listCurrentTopologyVersionInfos(offset, limit)) {
+            topologies.addAll(listTopologies(Collections.singletonList(new QueryParam(Topology.VERSIONID,
+                    version.getId().toString()))));
+        }
+        return topologies;
+    }
+
 
     public Collection<Topology> listTopologies(List<QueryParam> queryParams) {
         Collection<Topology> topologies = this.dao.find(TOPOLOGY_NAMESPACE, queryParams);

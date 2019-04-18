@@ -192,6 +192,15 @@ public class InMemoryStorageManager implements StorageManager {
     }
 
     @Override
+    public <T extends Storable> Collection<T> find(final String namespace,
+                                                   final List<QueryParam> queryParams,
+                                                   final List<OrderByField> orderByFields,
+                                                   long offset,
+                                                   long limit) throws StorageException {
+        throw new UnsupportedOperationException("Not Implemented");
+    }
+
+        @Override
     public <T extends Storable> Collection<T> search(SearchQuery searchQuery) {
         LOG.warn("This storage manager does not support search query, returning all instances with the given namespace [{}]", searchQuery.getNameSpace());
         return list(searchQuery.getNameSpace());

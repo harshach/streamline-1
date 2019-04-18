@@ -75,6 +75,11 @@ public class OracleSelectQuery extends AbstractSelectQuery {
     }
 
     @Override
+    protected String getParameterizedSqlWithLimit() {
+        throw new UnsupportedOperationException("Not implemented yet.");
+    }
+
+    @Override
     protected String orderBySql() {
         String sql = "";
         if (orderByFields != null && !orderByFields.isEmpty()) {

@@ -30,6 +30,10 @@ public class MySqlSelectQuery extends AbstractSelectQuery {
         super(nameSpace);
     }
 
+    public MySqlSelectQuery(String nameSpace, long offset, long limit) {
+        super(nameSpace, offset, limit);
+    }
+
     public MySqlSelectQuery(StorableKey storableKey) {
         super(storableKey);
     }
@@ -40,6 +44,10 @@ public class MySqlSelectQuery extends AbstractSelectQuery {
 
     public MySqlSelectQuery(StorableKey storableKey, List<OrderByField> orderByFields) {
         super(storableKey, orderByFields);
+    }
+
+    public MySqlSelectQuery(StorableKey storableKey, List<OrderByField> orderByFields, long offset, long limit) {
+        super(storableKey, orderByFields, offset, limit);
     }
 
     public MySqlSelectQuery(SearchQuery searchQuery, Schema schema) {
@@ -58,6 +66,18 @@ public class MySqlSelectQuery extends AbstractSelectQuery {
         if (columns != null) {
             sql += " WHERE " + join(getColumnNames(columns, "`%s` = ?"), " AND ");
         }
+        LOG.debug(sql);
+        return sql;
+    }
+
+    @Override
+    protected String getParameterizedSqlWithLimit() {
+        String sql = "SELECT * FROM " + tableName;
+        //where clause is defined by columns specified in the PrimaryKey
+        if (columns != null) {
+            sql += " WHERE " + join(getColumnNames(columns, "`%s` = ?"), " AND ");
+        }
+        sql += " LIMIT " + limit + " OFFSET " + offset;
         LOG.debug(sql);
         return sql;
     }

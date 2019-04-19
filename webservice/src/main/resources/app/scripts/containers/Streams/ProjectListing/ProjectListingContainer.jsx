@@ -254,7 +254,14 @@ class ProjectListingContainer extends Component {
   }
 
   getHeaderContent() {
-    return [<Link to="/" className="header-link">Workflows</Link>,<Link to="/projects" className="header-link active">Projects</Link>];
+    if(Utils.isFromSharedProjects()){
+      return this.props.routes[this.props.routes.length - 1].name;
+    } else {
+      return [
+        <Link to="/" className="header-link">Workflows</Link>,
+        <Link to="/projects" className="header-link active">Projects</Link>
+      ];
+    }
   }
 
   render() {

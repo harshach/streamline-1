@@ -141,7 +141,7 @@ class WorkflowListingTable extends Component {
           return (
             <Tr key={i}>
               <Td column="checkbox" width="5%">{
-                <input type="checkbox" className="checkbox" checked={workflowObj.isSelected} onChange={this.props.handleCheckbox.bind(this, i)}></input>}
+                <input type="checkbox" checked={workflowObj.isSelected} onChange={this.props.handleCheckbox.bind(this, i)}></input>}
               </Td>
               <Td column="name">
                 <span className= "workflow-name" onClick={this.viewMode.bind(this, workflowObj.id, workflowObj.projectId)}>{workflowObj.name}
@@ -162,26 +162,31 @@ class WorkflowListingTable extends Component {
                 <span>
                   <a className="btn btn-link btn-xs" title="Edit" disabled={!permission} onClick={this.onActionClick.bind(this, "edit/" + workflowObj.id, workflowObj.id, workflowObj.projectId)}>
                     {SVGIcons.editIcon}</a>
-                  <a className="btn btn-link btn-xs" title="Clone" disabled={!permission} onClick={this.onActionClick.bind(this, "clone/" + workflowObj.id, workflowObj.id, workflowObj.projectId)}>
-                     <i className="fa fa-clone"></i>
-                   </a>
-                  <a className="btn btn-link btn-xs" title="Export" disabled={!permission} onClick={this.onActionClick.bind(this, "export/" + workflowObj.id, workflowObj.id, workflowObj.projectId)}>
-                    <i className="fa fa-share-square-o"></i>
-                  </a>
-                  <a className="btn btn-link btn-xs" title="Delete" disabled={!permission} onClick={this.onActionClick.bind(this, "delete/" + workflowObj.id, workflowObj.id, workflowObj.projectId)}>
-                    {SVGIcons.trashIcon}
-                  </a>
                   { workflowObj.showShareIcon ?
                     <button
                       type="button"
-                      className="btn btn-link" onClick={this.onActionClick.bind(this, "share/" + workflowObj.id)}
+                      className="btn btn-link btn-xs" onClick={this.onActionClick.bind(this, "share/" + workflowObj.id)}
                       disabled={!workflowObj.rights_share}
                     >
-                      {SVGIcons.shareIcon}
+                      {SVGIcons.actionShareIcon}
                     </button>
                      :
                     null
                   }
+                  <DropdownButton title={SVGIcons.actionEllipsis} noCaret bsStyle="link btn-xs" id={"lisitng-"+i} onClick={this.handleClick}>
+                    <MenuItem title="Clone" disabled={!permission} onClick={this.onActionClick.bind(this, "clone/" + workflowObj.id, workflowObj.id, workflowObj.projectId)}>
+                      <i className="fa fa-clone"></i>
+                      &nbsp;Clone
+                    </MenuItem>
+                    <MenuItem title="Export" disabled={!permission} onClick={this.onActionClick.bind(this, "export/" + workflowObj.id, workflowObj.id, workflowObj.projectId)}>
+                      <i className="fa fa-share-square-o"></i>
+                      &nbsp;Export
+                    </MenuItem>
+                    <MenuItem title="Delete" disabled={!permission} onClick={this.onActionClick.bind(this, "delete/" + workflowObj.id, workflowObj.id, workflowObj.projectId)}>
+                      <i className="fa fa-trash"></i>
+                      &nbsp;Delete
+                    </MenuItem>
+                  </DropdownButton>
                 </span>
               </Td>
             </Tr>
@@ -214,6 +219,9 @@ class WorkflowListingTable extends Component {
       break;
     case 'failed':
       return 'failed';
+      break;
+    case 'paused':
+      return 'paused';
       break;
     default:
       return '';
@@ -260,14 +268,14 @@ class TopologyFooter extends Component{
     return(
       <div className={`selected-workflow-panel animated ${selectedWorkflowArr.length ? "fadeInUp": "fadeOutDown"}`}>
         <div>
-          <span><input type="checkbox" checked readOnly></input> {selectedWorkflowArr.length ==1 ?  "1 Workflow selected" : selectedWorkflowArr.length + " Workflows selected"}</span>
+          <span className="u-form"><input type="checkbox" checked readOnly></input> {selectedWorkflowArr.length ==1 ?  "1 Workflow selected" : selectedWorkflowArr.length + " Workflows selected"}</span>
             {folder}
           <a className="btn btn-link" title="Delete" onClick={this.props.footerAction}>
             {SVGIcons.trashIcon}
           </a>
-          <a className="btn btn-link" title="share">
+          {/*<a className="btn btn-link" title="share">
             {SVGIcons.shareIcon}
-          </a>
+          </a>*/}
         </div>
       </div>
     );
@@ -930,7 +938,7 @@ class TopologyListingContainer extends Component {
           : ''
         }
         {entities.length ?
-          <h4 className="m-b-lg">{entities.length == 1 ? "1 Workflow" : entities.length + " Workflows"}</h4>
+          <h4 className="m-b-lg workflowCount">{entities.length == 1 ? "1 Workflow" : entities.length + " Workflows"}</h4>
         : null}
         <div className="row">
           {(fetchLoader || searchLoader)

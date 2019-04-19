@@ -29,6 +29,7 @@ import Utils from '../utils/Utils';
 import CommonLoaderSign from './CommonLoaderSign';
 import _ from 'lodash';
 import {dbIcon} from '../utils/SVGIcons';
+import '../libs/timeline/d3-timeline';
 
 export default class Metrics extends Component{
   constructor(props) {
@@ -40,6 +41,7 @@ export default class Metrics extends Component{
       selectedMetricsName: bundles[0] ? bundles[0].name : '',
       metricsPanelExpanded: false
     };
+    this.renderFlag = true;
   }
   componentDidMount(){}
   handleExpandCollapse = () => {
@@ -120,6 +122,35 @@ export default class Metrics extends Component{
       onClick={this.handleExpandCollapse}
     ><i className={metricsPanelExpanded ? "fa fa-chevron-down" : "fa fa-chevron-up"}></i></button>;
   }
+  renderTimeline = () => {
+    const {executionInfo} = this.props;
+    if(executionInfo.executions && this.renderFlag){
+      this.renderFlag = false;
+      let timelineData = [];
+      executionInfo.executions.map((executionObj)=>{
+        let starting_time = moment(executionObj.createdAt).valueOf();
+        let obj = {
+          starting_time: starting_time,
+          display: 'circle'
+        };
+        let existingObj = timelineData.find((d)=>{return d.label === executionObj.status;});
+        if(existingObj){
+          if(existingObj.times){
+            existingObj.times.push(obj);
+          } else {
+            existingObj.times = [obj];
+          }
+        } else {
+          timelineData.push({
+            label: executionObj.status,
+            times: [obj]
+          });
+        }
+      });
+      let chart = d3.timeline().showTimeAxisTick().margin({left:70, right:30, top:30, bottom:30});
+      d3.select("#executionTimeline").append("svg").attr("width", 500).datum(timelineData).call(chart);
+    }
+  }
   getBody = () => {
     const {lastUpdatedTime, topologyName, executionInfo, selectedExecution,
       onSelectExecution, getPrevPageExecutions, getNextPageExecutions,
@@ -196,6 +227,13 @@ export default class Metrics extends Component{
         : null}
       </div>,
       <div className="bottom-panel-content" key="metrics-body">
+        {isBatchEngine && isAppRunning ?
+          <div className="row">
+            <div className="col-sm-12">
+              <div id="executionTimeline">{this.renderTimeline()}</div>
+            </div>
+          </div>
+        : null}
         {timeseriesTemplate.length > 0 ?
           <div className="row">
             {_.chunk(timeseriesTemplate, 3).map((templatesArr, index)=>{

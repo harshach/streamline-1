@@ -73,6 +73,7 @@ body {
   background-color: #F7F7F7;
   font-family: 'Uber Move', sans-serif;
   -webkit-font-smoothing: antialiased;
+  font-size: 12px;
 }
 
 .view-mode-wrapper, body.graph-bg {
@@ -187,7 +188,7 @@ a:hover, a:focus {
 .content-wrapper {
   padding-left: 60px;
   padding-right: 60px;
-  padding-top: 70px;
+  padding-top: 78px;
   margin-left: 230px;
   -webkit-transition: -webkit-transform .3s ease-in-out, margin .3s ease-in-out;
   -moz-transition: -moz-transform .3s ease-in-out, margin .3s ease-in-out;
@@ -1430,12 +1431,11 @@ label {
 }
 .execution-box{
   display: inline-block;
-  height: 22px;
-  width: 22px;
+  height: 16px;
+  width: 16px;
   border-radius: 2px;
-  margin: 3px 3px -5px 0px;
+  margin-right: 10px;
   cursor: pointer;
-  margin-right : 10px;
 }
 .execution-box::after{
   content: "\f00c";
@@ -2311,7 +2311,7 @@ span.version {
 .add-btn button.actionDropdown{
   width: 100%;
   color: #fff;
-  font-size: 16px;
+  font-size: 14px;
   line-height: 30px;
   background: transparent;
   color:white;
@@ -3069,6 +3069,7 @@ rect.extent {
 }
 .sidebar-menu span{
   margin: 0 0 0 9px;
+  font-size: 14px;
 }
 
 @media (min-width: 768px) {
@@ -5561,7 +5562,9 @@ h3.empty-project {
   padding: 8px 30px;
   font-weight: 500;
 }
-
+.u-form .dropdown.btn-xs {
+	padding: 0;
+}
 .u-form .btn-success{
   color: white;
   background: #1B6DE0;
@@ -5668,20 +5671,25 @@ h3.empty-project {
 }
 .u-form input[type=checkbox] {
   border: 2px solid #999999;
-  border-radius: 3px;
+  border-radius: 1px;
   -webkit-appearance: none;
-  margin: 0px 8px -3px 0px;
-  padding: 0 2px;
+  width: 12px;
+  height: 12px;
+  margin: 0;
   color: transparent;
+}
+.u-form input[type=checkbox]:checked {
+  background: #1a6ce0;
+  color: #ffffff;
+  border-color: #1a6ce0;
 }
 .u-form input[type=checkbox]:after {
   content: "\f00c";
   font-family: FontAwesome;
-}
-.u-form input[type=checkbox]:checked {
-  background: transparent;
-  color: #1a6ce0;
-  border-color: #1a6ce0;
+  font-size: 6px;
+  position: relative;
+  bottom: 5px;
+  left: 1px;
 }
 
 .u-form input[type="radio"]:checked,
@@ -5902,6 +5910,9 @@ h6.version-control {
   float: right;
   color: #333333;
 }
+.workflowCount{
+  font-size: 20px;
+}
 .workflow-status {
   font-size: 10px;
   margin-right: 5px;
@@ -6054,6 +6065,7 @@ background: #fff
 .fa.fa-square.running{
   color: #1B6DE0;
 }
+.fa.fa-square.paused,
 .fa.fa-square.queued{
   color: #F19248;
 }
@@ -6120,6 +6132,7 @@ background: #fff
 .workflow-widget .table-workflow h6 {
   margin-top: 5px;
   margin-bottom: 0px;
+  font-size: 11px;
 }
 .table-workflow > thead > tr > th:first-child {
         border-radius: 5px 0 0 0;
@@ -6133,11 +6146,11 @@ background: #fff
 .table-workflow > thead > tr > td,
 .table-workflow > tbody > tr > td,
 .table-workflow > tfoot > tr > td {
-  padding: 14px 12px;
+  padding: 12px;
   border: none;
 }
 .table-workflow > thead > tr > th {
-        font-weight: normal;
+        font-weight: 500;
         white-space: nowrap;
         color: #666666;
   background-color: #fff;
@@ -6145,6 +6158,11 @@ background: #fff
 }
 .table-workflow > tbody > tr:nth-of-type(odd) {
     background-color: #F7F7F7;
+}
+.table-workflow > tbody > tr > td:first-child,
+.table-workflow > thead > tr > th:first-child {
+  text-align: center;
+  vertical-align: middle;
 }
 .workflow-name {
   cursor: pointer;
@@ -6154,7 +6172,7 @@ background: #fff
   right: 0;
   left: 70px;
   bottom: 0;
-  padding: 25px 50px;
+  padding: 23px 75px;
   background: #FFFFFF;
   box-shadow: 0px -3px 4px rgba(0, 0, 0, 0.05);
 }
@@ -6165,6 +6183,15 @@ background: #fff
 }
 .selected-workflow-panel > div span {
   display: table-cell;
+}
+.selected-workflow-panel .u-form input[type=checkbox] {
+  margin-right: 8px;
+}
+.selected-workflow-panel .btn {
+  padding: 6px 8px;
+}
+.selected-workflow-panel .btn-link:first-child {
+  margin-right: 5px;
 }
 .bottom-panel {
     background-color: #fff;
@@ -6271,13 +6298,14 @@ background: #fff
   border-right: 6px solid transparent;
   border-left: 6px solid transparent;
 }
-.draft-label{
-  color: #276EF1;
-  border: 1px solid #276EF1;
+.draft-label {
+  color: #174EB6;
+  border: 1px solid #174EB6;
   border-radius: 2px;
-  padding : 3px 12px;
-  font-size: 0.875em;
-  margin-left: 10px;
+  padding: 4px 5px;
+  font-size: 10px;
+  font-weight: 500;
+  margin-left: 7px;
 }
 .datacenter {
   display: inline-block;

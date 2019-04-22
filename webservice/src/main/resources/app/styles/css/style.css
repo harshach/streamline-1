@@ -6205,6 +6205,7 @@ background: #fff
     transition: all 0.5s ease 0s;
 }
 .bottom-panel.version-control {
+    height: 350px;
     bottom: -350px;
 }
 .bottom-panel.active {

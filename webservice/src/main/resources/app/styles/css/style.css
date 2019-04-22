@@ -2828,8 +2828,8 @@ h5.environment-title span, .service-box .service-head h4 span {
 }
 
 .tick>text {
-  font-size: 13px;
-  fill: #6B6B76;
+  font-size: 12px;
+  fill: #999;
 }
 
 .metrics-timeseries-graph {
@@ -6197,7 +6197,7 @@ background: #fff
     background-color: #fff;
     position: fixed;
     width: calc(100% - 72px);
-    height: 350px;
+    height: 450px;
     left: 72px;
     bottom: 0px;
     z-index: 3000;
@@ -6220,13 +6220,19 @@ background: #fff
 }
 .bottom-panel-content {
     padding: 16px 32px;
-    max-height: 300px;
+    max-height: 400px;
     overflow-y: auto;
 }
 .bottom-panel.active .bottom-panel-content {
   max-height: 770px;
 }
 @media (max-height: 700px) {
+  .bottom-panel {
+    height: 350px;
+  }
+  .bottom-panel-content {
+    max-height: 300px;
+  }
   .bottom-panel.active .bottom-panel-content {
     max-height: 550px;
   }
@@ -6234,7 +6240,7 @@ background: #fff
 
 .btn-bottom-panel {
     position: absolute;
-    top: -33px;
+    top: -30px;
     right: 140px;
     background: #FFFFFF;
     box-shadow: 0px -1px 4px rgba(0, 0, 0, 0.2);

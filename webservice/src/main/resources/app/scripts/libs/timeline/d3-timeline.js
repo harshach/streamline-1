@@ -14,26 +14,39 @@
 
 import React, {Component} from 'react';
 import d3 from 'd3';
+import d3Tip from 'd3-tip';
 import _ from 'lodash';
 
 (function () {
   d3.timeline = function() {
+    var self = this;
     var DISPLAY_TYPES = ["circle", "rect"];
 
     var hover = function () {},
-      mouseover = function () {},
-      mouseout = function () {},
+      mouseover = function (d, i, datum) {
+        let date = new Date(d.starting_time);
+        let position = d3.event.currentTarget.getBoundingClientRect();
+        self.tooltip.html(tooltipDateFormat(date) + "<br/>"  + tooltipTimeFormat(date))
+          .style("left", (position.x + 30) + "px")
+          .style("top", (position.y - 14) + "px");
+        self.tooltip.style("display", "block");
+      },
+      mouseout = function () {
+        self.tooltip.style("display", 'none');
+      },
+      tooltipDateFormat = d3.time.format("%a,%d %b,%Y"),
+      tooltipTimeFormat = d3.time.format("%H:%M:%S"),
       click = function () {},
       scroll = function () {},
       labelFunction = function(label) { return label; },
       navigateLeft = function () {},
       navigateRight = function () {},
-      orient = "bottom",
+      orient = "top",
       width = null,
       height = null,
       rowSeparatorsColor = null,
       backgroundColor = null,
-      tickFormat = { format: d3.time.format("%I %p"),
+      tickFormat = { format: d3.time.format("%H:00"), format2: d3.time.format('%d/%m %H:00'),
         tickTime: d3.time.hours,
         tickInterval: 1,
         tickSize: 6,
@@ -54,7 +67,7 @@ import _ from 'lodash';
       itemMargin = 5,
       navMargin = 60,
       showTimeAxis = true,
-      showAxisTop = false,
+      showAxisTop = true,
       showTodayLine = false,
       timeAxisTick = false,
       timeAxisTickFormat = {stroke: "stroke-dasharray", spacing: "4 10"},
@@ -67,16 +80,41 @@ import _ from 'lodash';
       axisBgColor = "white",
       chartData = {};
 
+    var multiformat = function(date) {
+      return (date.getHours() === 0 ? tickFormat.format2 : tickFormat.format)(date);
+    };
+
+    var wrap = function(text) {
+      text.each(function(){
+        var text = d3.select(this),
+          value = text.text(),
+          y = text.attr("y"),
+          dy = parseFloat(text.attr("dy")),
+          tspan = text.text(null).append("tspan").attr("x",0).attr("y",y).attr("dy", dy + "em");
+        let arr = value.split(" ");
+        if(arr.length > 1){
+          tspan.text(arr[1]);
+          text.append("tspan").attr("x", 0).attr("y", y).attr("dy", (-1) + dy + "em").text(arr[0]);
+        } else {
+          tspan.text(arr[0]);
+        }
+      });
+    };
+
     var appendTimeAxis = function(g, xAxis, yPosition) {
 
       if(showAxisHeaderBackground){ appendAxisHeaderBackground(g, 0, 0); }
 
       if(showAxisNav){ appendTimeAxisNav(g); };
 
+      g.insert("rect").attr("x", 0).attr("y", 0).attr("width", '100%').attr("height", 35).attr("fill", "#f7f7f7");
+      g.insert("rect").attr("x", 0).attr("y", 35).attr("width", '100%').attr("height", 1).attr("fill", "#e5e5e5");
       var axis = g.append("g")
         .attr("class", "axis")
         .attr("transform", "translate(" + 0 + "," + yPosition + ")")
-        .call(xAxis);
+        .call(xAxis)
+        .selectAll(".tick text")
+        .call(wrap);
     };
 
     var appendTimeAxisCalendarYear = function (nav) {
@@ -192,7 +230,7 @@ import _ from 'lodash';
           d.forEach(function (datum, index) {
             datum.times.forEach(function (time, j) {
               if(index === 0 && j === 0){
-                originTime = time.starting_time;               //Store the timestamp that will serve as origin
+                var originTime = time.starting_time;               //Store the timestamp that will serve as origin
                 time.starting_time = 0;                        //Set the origin
                 time.ending_time = time.ending_time - originTime;     //Store the relative time (millis)
               }else{
@@ -250,7 +288,7 @@ import _ from 'lodash';
       var xAxis = d3.svg.axis()
         .scale(xScale)
         .orient(orient)
-        .tickFormat(tickFormat.format)
+        .tickFormat(multiformat)
         .tickSize(tickFormat.tickSize);
 
       if (tickFormat.tickValues != null) {
@@ -258,6 +296,12 @@ import _ from 'lodash';
       } else {
         xAxis.ticks(tickFormat.numTicks || tickFormat.tickTime, tickFormat.tickInterval);
       }
+
+      if(self.tooltip){
+        self.tooltip.remove();
+      }
+      self.tooltip = d3.select("body").append("div").attr("class", "timeline-tooltip")
+                      .style("display", 'none');
 
       // draw the chart
       g.each(function(d, i) {
@@ -280,14 +324,14 @@ import _ from 'lodash';
             .attr("x", getXPos)
             .attr("y", getStackPosition)
             .attr("width", function (d, i) {
-              return (d.ending_time - d.starting_time) * scaleFactor;
+              return 24;//(d.ending_time - d.starting_time) * scaleFactor;
             })
             .attr("cy", function(d, i) {
-              return getStackPosition(d, i) + itemHeight/2;
+              return getStackPosition(d, i) + itemHeight/2 + 10;
             })
             .attr("cx", getXPos)
             .attr("r", itemHeight / 2)
-            .attr("height", itemHeight)
+            .attr("height", 24)//itemHeight)
             .style("fill", function(d, i){
               var dColorPropName;
               if (d.color){
@@ -316,7 +360,7 @@ import _ from 'lodash';
               click(d, index, datum);
             })
             .attr("class", function (d, i) {
-              return datum.class ? "timelineSeries_"+datum.class : "timelineSeries_"+index;
+              return datum.class ? "timelineSeries_"+datum.class : "timelineSeries_"+datum.label;
             })
             .attr("id", function(d, i) {
               // use deprecated id field
@@ -365,7 +409,7 @@ import _ from 'lodash';
             if (stacked) {
               return margin.top + (itemHeight + itemMargin) * yAxisMapping[index];
             }
-            return margin.top;
+            return margin.top + 15;
           }
           function getStackTextPosition(d, i) {
             if (stacked) {
@@ -377,7 +421,7 @@ import _ from 'lodash';
       });
 
       var belowLastItem = (margin.top + (itemHeight + itemMargin) * maxStack);
-      var aboveFirstItem = margin.top;
+      var aboveFirstItem = margin.top + 5;
       var timeAxisYPosition = showAxisTop ? aboveFirstItem : belowLastItem;
       if (showTimeAxis) { appendTimeAxis(g, xAxis, timeAxisYPosition); }
       if (timeAxisTick) { appendTimeAxisTick(g, xAxis, maxStack); }
@@ -427,7 +471,7 @@ import _ from 'lodash';
       }
 
       function getXPos(d, i) {
-        return margin.left + (d.starting_time - beginning) * scaleFactor;
+        return (margin.left + (d.starting_time - beginning) * scaleFactor) - 12;
       }
 
       function getXTextPos(d, i) {
@@ -465,7 +509,7 @@ import _ from 'lodash';
           }
         } else if (!(width && gParentSize.width)) {
           try {
-            width = gParentItem.attr("width");
+            width = gParentSize.width; //gParentItem.attr("width");
           } catch (err) {
             console.log( err );
           }

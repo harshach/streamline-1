@@ -123,15 +123,15 @@ export default class Metrics extends Component{
     ><i className={metricsPanelExpanded ? "fa fa-chevron-down" : "fa fa-chevron-up"}></i></button>;
   }
   renderTimeline = () => {
-    const {executionInfo} = this.props;
-    if(executionInfo.executions && this.renderFlag){
+    const {executionInfo, startDate, endDate} = this.props;
+    if(executionInfo.executions){
       this.renderFlag = false;
       let timelineData = [];
       executionInfo.executions.map((executionObj)=>{
         let starting_time = moment(executionObj.createdAt).valueOf();
         let obj = {
           starting_time: starting_time,
-          display: 'circle'
+          ending_time: starting_time
         };
         let existingObj = timelineData.find((d)=>{return d.label === executionObj.status;});
         if(existingObj){
@@ -147,8 +147,16 @@ export default class Metrics extends Component{
           });
         }
       });
-      let chart = d3.timeline().showTimeAxisTick().margin({left:70, right:30, top:30, bottom:30});
-      d3.select("#executionTimeline").append("svg").attr("width", 500).datum(timelineData).call(chart);
+      let chart = d3.timeline().labelFormat(function label(){return '';})
+                    .margin({left:70, right:30, top:30, bottom:30})
+                    .beginning(startDate)
+                    .ending(endDate);
+      if(this.timelineChart){
+        console.log("running");
+        this.timelineChart.remove();
+      }
+      this.timelineChart = d3.select("#executionTimeline").append("svg").attr("width", "100%").attr("height", 80);
+      this.timelineChart.datum(timelineData).call(chart);
     }
   }
   getBody = () => {
@@ -228,11 +236,7 @@ export default class Metrics extends Component{
       </div>,
       <div className="bottom-panel-content" key="metrics-body">
         {isBatchEngine && isAppRunning ?
-          <div className="row">
-            <div className="col-sm-12">
-              <div id="executionTimeline">{this.renderTimeline()}</div>
-            </div>
-          </div>
+          <div id="executionTimeline">{this.renderTimeline()}</div>
         : null}
         {timeseriesTemplate.length > 0 ?
           <div className="row">

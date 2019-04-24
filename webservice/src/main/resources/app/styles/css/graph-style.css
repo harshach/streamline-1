@@ -397,9 +397,9 @@ svg>foreignObject>p {
   stroke: black;
   shape-rendering: crispEdges;
 } */
-.tick:nth-child(even) > text {
+/* .tick:nth-child(even) > text {
   display: none;
-}
+} */
 #executionTimeline {
   margin: -16px -32px 16px;
 }
@@ -449,4 +449,7 @@ svg>foreignObject>p {
 }
 .timelineSeries_queued {
   fill: #ED6F0E !important;
+}
+.zoom {
+  cursor: move;
 }

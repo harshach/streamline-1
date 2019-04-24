@@ -902,40 +902,36 @@ class TopologyListingContainer extends Component {
     return (
       <BaseContainer ref="BaseContainer" routes={this.props.routes} headerContent={this.getHeaderContent()}>
         {!fetchLoader
-          ? <div>
-              {hasEditCapability(accessCapabilities.APPLICATION) && (entities.length || filterValue) ?
-                <div className="add-btn text-center">
-                  <DropdownButton title={btnIcon} id="actionDropdown" className="actionDropdown success text-medium" noCaret>
-                    <MenuItem onClick={this.onActionMenuClicked.bind(this, "create")}>
-                      &nbsp;New Workflow
-                    </MenuItem>
-                    <MenuItem onClick={this.onActionMenuClicked.bind(this, "import")}>
-                      &nbsp;Import Workflow
-                    </MenuItem>
-                  </DropdownButton>
-                </div>
-                : null
-              }
-              {((filterValue && splitData.length === 0) || splitData.length !== 0)
-                ? <div className="row">
-                    <div className="page-title-box clearfix">
-                      <div className="search-container text-right">
-                        <FormGroup className="search-box">
-                          <InputGroup>
-                            <InputGroup.Addon>
-                              <i className="fa fa-search"></i>
-                            </InputGroup.Addon>
-                            <FormControl data-stest="searchBox" type="text" placeholder="Search by name" onKeyUp={this.onFilterChange} className="" />
-                          </InputGroup>
-                        </FormGroup>
-                      </div>
-                      <div className="col-md-1 col-sm-3 text-left"></div>
-                    </div>
+          ? ((filterValue && splitData.length === 0) || splitData.length !== 0)
+            ? <div className="row">
+                <div className="page-title-box clearfix">
+                  <div className="search-container text-right">
+                    <FormGroup className="search-box">
+                      <InputGroup>
+                        <InputGroup.Addon>
+                          <i className="fa fa-search"></i>
+                        </InputGroup.Addon>
+                        <FormControl data-stest="searchBox" type="text" placeholder="Search by name" onKeyUp={this.onFilterChange} className="" />
+                      </InputGroup>
+                    </FormGroup>
                   </div>
-                : ''
-              }
-            </div>
-          : ''
+                  {hasEditCapability(accessCapabilities.APPLICATION) && (entities.length || filterValue) ?
+                    <div className="add-btn text-center">
+                      <DropdownButton title={btnIcon} id="actionDropdown" className="actionDropdown success text-medium" noCaret>
+                        <MenuItem onClick={this.onActionMenuClicked.bind(this, "create")}>
+                          &nbsp;New Workflow
+                        </MenuItem>
+                        <MenuItem onClick={this.onActionMenuClicked.bind(this, "import")}>
+                          &nbsp;Import Workflow
+                        </MenuItem>
+                      </DropdownButton>
+                    </div>
+                    : null
+                  }
+                </div>
+              </div>
+            : null
+          : null
         }
         {entities.length ?
           <h4 className="m-b-lg workflowCount">{entities.length == 1 ? "1 Workflow" : entities.length + " Workflows"}</h4>

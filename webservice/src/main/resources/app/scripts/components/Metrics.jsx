@@ -124,6 +124,7 @@ export default class Metrics extends Component{
   }
   renderTimeline = () => {
     const {executionInfo, startDate, endDate} = this.props;
+    let endDte = moment(startDate).add(24, 'hours');
     if(executionInfo.executions){
       this.renderFlag = false;
       let timelineData = [];
@@ -131,7 +132,7 @@ export default class Metrics extends Component{
         let starting_time = moment(executionObj.createdAt).valueOf();
         let obj = {
           starting_time: starting_time,
-          ending_time: starting_time
+          ending_time: starting_time + 1250000
         };
         let existingObj = timelineData.find((d)=>{return d.label === executionObj.status;});
         if(existingObj){
@@ -150,9 +151,9 @@ export default class Metrics extends Component{
       let chart = d3.timeline().labelFormat(function label(){return '';})
                     .margin({left:70, right:30, top:30, bottom:30})
                     .beginning(startDate)
-                    .ending(endDate);
+                    .ending(endDte);
       if(this.timelineChart){
-        console.log("running");
+        console.log("removed");
         this.timelineChart.remove();
       }
       this.timelineChart = d3.select("#executionTimeline").append("svg").attr("width", "100%").attr("height", 80);
@@ -160,8 +161,8 @@ export default class Metrics extends Component{
     }
   }
   getBody = () => {
-    const {lastUpdatedTime, topologyName, executionInfo, selectedExecution,
-      onSelectExecution, getPrevPageExecutions, getNextPageExecutions,
+    const {lastUpdatedTime, topologyName, executionInfo,
+      getPrevPageExecutions, getNextPageExecutions,
       startDate, endDate, activeRangeLabel, isAppRunning, datePickerCallback,
       viewModeData, timeseriesData, dataCenterList, selectedDataCenter,
       handleDataCenterChange, isBatchEngine, components, compSelectCallback, runtimeAppUrl} = this.props;
@@ -179,9 +180,6 @@ export default class Metrics extends Component{
       monthNames: moment.monthsShort(),
       firstDay: moment.localeData().firstDayOfWeek()
     };
-
-    const selExeCreatedAt = isBatchEngine ? moment(selectedExecution.createdAt) : '';
-    const selExeDate = isBatchEngine ? moment(selectedExecution.executionDate) : '';
 
     let componentsArr = [{uiname: 'All Components', nodeId: ''}];
     components.map((comp)=>{
@@ -255,38 +253,6 @@ export default class Metrics extends Component{
           </div>
           : <p>No timeseries template found</p>
         }
-        {/*isBatchEngine && isAppRunning ?
-          <div className="execution-metrics">
-            <div className="text-center">
-              <span className="execution-page-btn" onClick={getPrevPageExecutions}><i className="fa fa-angle-left"></i></span>
-              <span className="execution-range">{startDate.format('LL') +' - '+endDate.format('LL')}</span>
-              <span className="execution-page-btn" onClick={getNextPageExecutions}><i className="fa fa-angle-right"></i></span>
-            </div>
-            <div className="executions-box-container">
-              {_.map(executionInfo.executions, (e, i) => {
-                return <div key={"executions-"+i} className={`execution-box ${e.status} ${e.createdAt === selectedExecution.createdAt ? "execute-selected" : ""}`} onClick={onSelectExecution.bind(this, e)}></div>;
-              })}
-            </div>
-            <div className="execution-metrics-container">
-              <table>
-                <tbody>
-                  <tr>
-                    <td><span className="execution-metric-label">Current Status</span></td>
-                    <td><span className="execution-metric-value">{selectedExecution.status && selectedExecution.status.toUpperCase()}</span></td>
-                  </tr>
-                  <tr>
-                    <td><span className="execution-metric-label">Created At</span></td>
-                    <td><span className="execution-metric-value">{selExeCreatedAt.format('MM/DD/YYYY HH:mm:ss')}</span></td>
-                  </tr>
-                  <tr>
-                    <td><span className="execution-metric-label">Execution Date</span></td>
-                    <td><span className="execution-metric-value">{selExeDate.format('MM/DD/YYYY HH:mm:ss')}</span></td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-          </div>
-        : null*/}
       </div>
     ]);
 

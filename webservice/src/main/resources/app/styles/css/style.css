@@ -188,7 +188,7 @@ a:hover, a:focus {
 .content-wrapper {
   padding-left: 60px;
   padding-right: 60px;
-  padding-top: 78px;
+  padding-top: 70px;
   margin-left: 230px;
   -webkit-transition: -webkit-transform .3s ease-in-out, margin .3s ease-in-out;
   -moz-transition: -moz-transform .3s ease-in-out, margin .3s ease-in-out;
@@ -1958,7 +1958,9 @@ label {
   color: #ef6062 !important;
 }
 
-
+.page-title-box{
+  margin-top: 10px;
+}
 /*.page-title-box .input-group{
   overflow: hidden;
 }

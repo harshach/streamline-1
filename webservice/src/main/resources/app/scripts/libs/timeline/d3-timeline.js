@@ -81,7 +81,11 @@ import _ from 'lodash';
       chartData = {};
 
     var multiformat = function(date) {
-      return (date.getHours() === 0 ? tickFormat.format2 : tickFormat.format)(date);
+      let d = date.getHours();
+      if(d%2 !== 0 ){
+        return '';
+      }
+      return (d === 0 ? tickFormat.format2 : tickFormat.format)(date);
     };
 
     var wrap = function(text) {
@@ -296,6 +300,18 @@ import _ from 'lodash';
       } else {
         xAxis.ticks(tickFormat.numTicks || tickFormat.tickTime, tickFormat.tickInterval);
       }
+      var move = function() {
+        // var x = Math.min(10, Math.max(gParentSize.width - width, d3.event.translate[0]));
+        // zoom.translate([x, 0]);
+        // g.attr("transform", "translate(" + x + ",0)");
+        // scroll(x*scaleFactor, xScale);
+        gParent.select('.axis').call(xAxis).selectAll(".tick text").call(wrap);
+
+        // gParent.select('rect')
+        //        .attr('x', (d) => transform.applyX(getXPos(d)))
+        //        .attr('width', (d) => transform.k*(spanW(d)));
+      };
+      var zoom = d3.behavior.zoom().x(xScale).scaleExtent([1,1]).on("zoom", move);
 
       if(self.tooltip){
         self.tooltip.remove();
@@ -316,6 +332,7 @@ import _ from 'lodash';
           }
 
           if (backgroundColor) { appendBackgroundBar(yAxisMapping, index, g, data, datum); }
+          var spanW = (d)=> (d.ending_time - d.starting_time) * scaleFactor;
 
           g.selectAll("svg").data(data).enter()
             .append(function(d, i) {
@@ -323,9 +340,7 @@ import _ from 'lodash';
             })
             .attr("x", getXPos)
             .attr("y", getStackPosition)
-            .attr("width", function (d, i) {
-              return 24;//(d.ending_time - d.starting_time) * scaleFactor;
-            })
+            .attr("width", (d) => spanW(d))
             .attr("cy", function(d, i) {
               return getStackPosition(d, i) + itemHeight/2 + 10;
             })
@@ -372,14 +387,14 @@ import _ from 'lodash';
             })
           ;
 
-          g.selectAll("svg").data(data).enter()
-            .append("text")
-            .attr("x", getXTextPos)
-            .attr("y", getStackTextPosition)
-            .text(function(d) {
-              return d.label;
-            })
-          ;
+          // g.selectAll("svg").data(data).enter()
+          //   .append("text")
+          //   .attr("x", getXTextPos)
+          //   .attr("y", getStackTextPosition)
+          //   .text(function(d) {
+          //     return d.label;
+          //   })
+          // ;
 
           if (rowSeparatorsColor) {
             var lineYAxis = ( itemHeight + itemMargin / 2 + margin.top + (itemHeight + itemMargin) * yAxisMapping[index]);
@@ -426,20 +441,9 @@ import _ from 'lodash';
       if (showTimeAxis) { appendTimeAxis(g, xAxis, timeAxisYPosition); }
       if (timeAxisTick) { appendTimeAxisTick(g, xAxis, maxStack); }
 
-      if (width > gParentSize.width) {
-        var move = function() {
-          var x = Math.min(0, Math.max(gParentSize.width - width, d3.event.translate[0]));
-          zoom.translate([x, 0]);
-          g.attr("transform", "translate(" + x + ",0)");
-          scroll(x*scaleFactor, xScale);
-        };
-
-        var zoom = d3.behavior.zoom().x(xScale).on("zoom", move);
-
-        gParent
+      gParent.select('g')
           .attr("class", "scrollable")
           .call(zoom);
-      }
 
       if (rotateTicks) {
         g.selectAll(".tick text")

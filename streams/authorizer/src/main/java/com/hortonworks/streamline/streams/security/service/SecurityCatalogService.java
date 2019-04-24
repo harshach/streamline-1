@@ -291,27 +291,27 @@ public class SecurityCatalogService {
         return listAcls(qps);
     }
 
-    public List<String> listOjectIdByOwner(Long userId, String targetEntityNamespace) {
+    public List<Long> listOjectIdByOwner(Long userId, String targetEntityNamespace) {
         List<QueryParam> qps = QueryParam.params(AclEntry.OBJECT_NAMESPACE, targetEntityNamespace,
                 AclEntry.SID_ID, userId.toString(),
                 AclEntry.SID_TYPE, AclEntry.SidType.USER.toString(),
                 AclEntry.OWNER, IsOwner);
         Collection<AclEntry> acls = listAcls(qps);
-        List<String> listObjectIds = acls.stream()
-                .map(acl -> acl.getObjectId().toString())
+        List<Long> listObjectIds = acls.stream()
+                .map(acl -> acl.getObjectId())
                 .collect(Collectors.toList());
         return listObjectIds;
     }
 
-    public List<String> listObjectIdSharedByOthers(Long userId, String targetEntityNamespace) {
+    public List<Long> listObjectIdSharedByOthers(Long userId, String targetEntityNamespace) {
         List<QueryParam> qps = QueryParam.params(AclEntry.OBJECT_NAMESPACE, targetEntityNamespace,
                 AclEntry.SID_ID, userId.toString(),
                 AclEntry.SID_TYPE, AclEntry.SidType.USER.toString(),
                 AclEntry.OWNER, IsNotOwner,
                 AclEntry.GRANT, HasAccessPermission);
         Collection<AclEntry> acls = listAcls(qps);
-        List<String> listObjectIds = acls.stream()
-                .map(acl -> acl.getObjectId().toString())
+        List<Long> listObjectIds = acls.stream()
+                .map(acl -> acl.getObjectId())
                 .collect(Collectors.toList());
         return listObjectIds;
     }

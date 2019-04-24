@@ -268,14 +268,17 @@ public class TopologyCatalogResource {
         } else {
             String userName = SecurityUtil.getUserName(securityContext.getUserPrincipal().getName());
             User user = securityCatalogService.getUser(userName);
-            List<String> listProjectIds;
+            List<Long> listProjectIds;
             if (sharedByOther == true) {
                 listProjectIds = securityCatalogService.listObjectIdSharedByOthers(user.getId(), Project.NAMESPACE);
             } else {
                 listProjectIds = securityCatalogService.listOjectIdByOwner(user.getId(), Project.NAMESPACE);
             }
-            for (String projectId: listProjectIds) {
-                Project project = catalogService.getProject(Long.parseLong(projectId));
+            for (long projectId: listProjectIds) {
+                if (projectId == StreamCatalogService.PLACEHOLDER_ID) {
+                    continue;
+                }
+                Project project = catalogService.getProject(projectId);
                 if (project != null) projects.add(project);
             }
         }

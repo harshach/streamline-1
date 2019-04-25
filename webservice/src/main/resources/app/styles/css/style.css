@@ -5673,10 +5673,10 @@ h3.empty-project {
 }
 .u-form input[type=checkbox] {
   border: 2px solid #999999;
-  border-radius: 1px;
+  border-radius: 2px;
   -webkit-appearance: none;
-  width: 12px;
-  height: 12px;
+  width: 16px;
+  height: 16px;
   margin: 0;
   color: transparent;
 }
@@ -5688,10 +5688,10 @@ h3.empty-project {
 .u-form input[type=checkbox]:after {
   content: "\f00c";
   font-family: FontAwesome;
-  font-size: 6px;
+  font-size: 12px;
   position: relative;
-  bottom: 5px;
-  left: 1px;
+  bottom: 1px;
+  left: 0px;
 }
 
 .u-form input[type="radio"]:checked,
@@ -6150,6 +6150,7 @@ background: #fff
 .table-workflow > tfoot > tr > td {
   padding: 12px;
   border: none;
+  vertical-align: middle;
 }
 .table-workflow > thead > tr > th {
         font-weight: 500;
@@ -6172,7 +6173,7 @@ background: #fff
 .selected-workflow-panel {
   position: fixed;
   right: 0;
-  left: 70px;
+  left: 48px;
   bottom: 0;
   padding: 23px 75px;
   background: #FFFFFF;

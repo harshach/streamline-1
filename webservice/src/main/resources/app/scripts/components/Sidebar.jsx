@@ -84,7 +84,7 @@ export default class Sidebar extends Component {
                 ? 'active'
                 : ''} onClick={this.handleClick.bind(this, 1)}>
                 <Link to="/">
-                  <img src="/styles/img/uWorc/overview.png"/>
+                  <img src="/styles/img/uWorc/workflow.svg"/>
                   <span>Workflows</span>
                 </Link>
               </li>
@@ -95,7 +95,7 @@ export default class Sidebar extends Component {
                 ? 'active'
                 : ''} onClick={this.handleClick.bind(this, 4)}>
                 <Link to="/shared-projects">
-                  <img src="/styles/img/uWorc/share.png"/>
+                  <img src="/styles/img/uWorc/share.svg"/>
                   <span>Shared Projects</span>
                 </Link>
               </li>
@@ -106,7 +106,7 @@ export default class Sidebar extends Component {
                 ? 'active'
                 : ''} onClick={this.handleClickOnRegistry.bind(this, 2)}>
                 <a href={watchTowerURL} target="_blank">
-                  <img src="/styles/img/uWorc/sr.png"/>
+                  <img src="/styles/img/uWorc/sr.svg"/>
                   <span>Watch Tower</span>
                 </a>
               </li>
@@ -118,7 +118,7 @@ export default class Sidebar extends Component {
                 ? 'treeview active'
                 : 'treeview'}>
                 <a href="javascript:void(0);" onClick={this.toggleMenu.bind(this)}>
-                  <img src="/styles/img/uWorc/config.png"/>
+                  <img src="/styles/img/uWorc/config.svg"/>
                   <span>Configuration</span>
                   <span className="pull-right-container">
                     <i className={app_state.sidebar_toggleFlag

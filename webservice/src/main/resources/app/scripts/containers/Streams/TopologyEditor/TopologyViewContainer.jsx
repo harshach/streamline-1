@@ -669,7 +669,9 @@ class TopologyViewContainer extends TopologyEditorContainer {
   }
 
   triggerUpdateGraph = () => {
-    this.refs.EditorGraph.child.decoratedComponentInstance.refs.TopologyGraph.decoratedComponentInstance.updateGraph();
+    if(this.refs.EditorGraph && this.refs.EditorGraph.child && this.refs.EditorGraph.child.decoratedComponentInstance.refs.TopologyGraph){
+      this.refs.EditorGraph.child.decoratedComponentInstance.refs.TopologyGraph.decoratedComponentInstance.updateGraph();
+    }
   }
 
   handleDataCenterChange = (value) => {

@@ -77,7 +77,7 @@ import _ from 'lodash';
       showAxisHeaderBackground = false,
       showAxisNav = false,
       showAxisCalendarYear = false,
-      axisBgColor = "white",
+      axisBgColor = "white", l=50, r=50,temp =0,xyz=0, diff,
       chartData = {};
 
     var multiformat = function(date) {
@@ -307,9 +307,47 @@ import _ from 'lodash';
         // scroll(x*scaleFactor, xScale);
         gParent.select('.axis').call(xAxis).selectAll(".tick text").call(wrap);
 
-        // gParent.select('rect')
-        //        .attr('x', (d) => transform.applyX(getXPos(d)))
-        //        .attr('width', (d) => transform.k*(spanW(d)));
+
+        let translate = d3.event.translate[0];
+        if(xyz){
+          translate = translate - xyz;
+          xyz += translate;
+        }
+
+        gParent.selectAll('.tempRect').forEach((elems)=>{
+          elems.forEach((obj)=>{
+            d3.select(obj).attr("x", (d)=>{
+              if(xyz){
+                d.a = d.a + translate;
+              } else {
+                d.a = d.position+translate;
+              }
+              return d.a;
+              // return getXPos(d)+d3.event.translate[0];
+            });
+          });
+        });
+        // diff = translate;
+        temp = d3.event.translate[0];
+
+      };
+
+      var moveLeft = function(){
+        console.log("Clicked");
+        // gParent.select('.axis').call(xAxis).selectAll(".tick text").call(wrap);
+        gParent.selectAll('.tempRect').forEach((elems)=>{
+          if(temp){
+            xyz = JSON.parse(JSON.stringify(temp));
+          }
+          elems.forEach((obj)=>{
+            d3.select(obj).attr("x", (d)=>{
+              d.a = d.a - 50;
+              // return getXPos(d) +(temp)-l;
+              return d.a;
+            });
+          });
+        });
+        temp = 0;
       };
       var zoom = d3.behavior.zoom().x(xScale).scaleExtent([1,1]).on("zoom", move);
 
@@ -332,15 +370,17 @@ import _ from 'lodash';
           }
 
           if (backgroundColor) { appendBackgroundBar(yAxisMapping, index, g, data, datum); }
-          var spanW = (d)=> (d.ending_time - d.starting_time) * scaleFactor;
 
           g.selectAll("svg").data(data).enter()
             .append(function(d, i) {
               return document.createElementNS(d3.ns.prefix.svg, "display" in d? d.display:display);
             })
-            .attr("x", getXPos)
+            .attr("x", (d)=>{
+              d.position = getXPos(d);
+              return d.position;
+            })
             .attr("y", getStackPosition)
-            .attr("width", (d) => spanW(d))
+            .attr("width", 24)
             .attr("cy", function(d, i) {
               return getStackPosition(d, i) + itemHeight/2 + 10;
             })
@@ -375,7 +415,7 @@ import _ from 'lodash';
               click(d, index, datum);
             })
             .attr("class", function (d, i) {
-              return datum.class ? "timelineSeries_"+datum.class : "timelineSeries_"+datum.label;
+              return datum.class ? "tempRect timelineSeries_"+datum.class : "tempRect timelineSeries_"+datum.label;
             })
             .attr("id", function(d, i) {
               // use deprecated id field
@@ -530,7 +570,19 @@ import _ from 'lodash';
           .style("stroke", lineFormat.color)//"rgb(6,120,155)")
           .style("stroke-width", lineFormat.width);
       }
+      //add left button
+      gParent.select('g').append("image").attr("xlink:href", function(d) {
+        return "styles/img/Chevron-Left.svg";
+      }).attr("x", 25).attr("y", 50).on("click" , function(d){
+        return moveLeft();
+      });
 
+    //add right button
+      gParent.select('g').append("image").attr("xlink:href", function(d) {
+        return "styles/img/Chevron-Right.svg";
+      }).attr("x", width-25).attr("y", 50).on("click", function(d){
+        return moveRight();
+      });
     }
 
     // SETTINGS

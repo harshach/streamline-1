@@ -416,6 +416,7 @@ svg>foreignObject>p {
 }
 #executionTimeline svg {
   border-bottom: 1px #E5E5E5 solid;
+  cursor: grab;
 }
 .timeline-tooltip {
   position: absolute;

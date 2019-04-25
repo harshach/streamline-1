@@ -41,7 +41,6 @@ export default class Metrics extends Component{
       selectedMetricsName: bundles[0] ? bundles[0].name : '',
       metricsPanelExpanded: false
     };
-    this.renderFlag = true;
   }
   componentDidMount(){}
   handleExpandCollapse = () => {
@@ -126,7 +125,6 @@ export default class Metrics extends Component{
     const {executionInfo, startDate, endDate} = this.props;
     let endDte = moment(startDate).add(24, 'hours');
     if(executionInfo.executions){
-      this.renderFlag = false;
       let timelineData = [];
       executionInfo.executions.map((executionObj)=>{
         let starting_time = moment(executionObj.createdAt).valueOf();
@@ -270,7 +268,7 @@ export default class Metrics extends Component{
       if(this.props.timeseriesData.length === 0){
         return (<CommonLoaderSign/>);
       } else {
-        return <p className="text-center">No Data Found</p>;
+        return <p className="no-data-label">No Data Found</p>;
       }
     }
     return (

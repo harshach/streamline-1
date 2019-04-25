@@ -277,26 +277,28 @@ class ProjectListingContainer extends Component {
     return (
       <BaseContainer ref="BaseContainer" routes={this.props.routes} headerContent={this.getHeaderContent()}>
         <div className="row">
-          <div className="page-title-box clearfix">
-            <div className="search-container">
-              {((filterValue && filteredEntities.length === 0) || filteredEntities.length !== 0) && entities.length
-                ? <FormGroup className="search-box">
-                    <InputGroup>
-                      <InputGroup.Addon>
-                        <i className="fa fa-search"></i>
-                      </InputGroup.Addon>
-                      <FormControl data-stest="searchBox" type="text" placeholder="Search..." onKeyUp={this.onFilterChange} className="" />
-                    </InputGroup>
-                  </FormGroup>
-                : ''}
+          <div className="col-sm-12">
+            <div className="page-title-box clearfix">
+              <div className="search-container">
+                {((filterValue && filteredEntities.length === 0) || filteredEntities.length !== 0) && entities.length
+                  ? <FormGroup className="search-box">
+                      <InputGroup>
+                        <InputGroup.Addon>
+                          <i className="fa fa-search"></i>
+                        </InputGroup.Addon>
+                        <FormControl data-stest="searchBox" type="text" placeholder="Search..." onKeyUp={this.onFilterChange} className="" />
+                      </InputGroup>
+                    </FormGroup>
+                  : ''}
+              </div>
+              {entities.length !== 0 &&
+              <div className="add-btn text-center">
+                <a href="javascript:void(0);" className="success actionDropdown text-medium" data-target="#addEnvironment" onClick={this.handleAdd.bind(this)}>
+                  <i className="fa fa-plus"></i> &ensp; New Project
+                </a>
+              </div>
+              }
             </div>
-            {entities.length !== 0 &&
-            <div className="add-btn text-center">
-              <a href="javascript:void(0);" className="success actionDropdown text-medium" data-target="#addEnvironment" onClick={this.handleAdd.bind(this)}>
-                <i className="fa fa-plus"></i> &ensp; New Project
-              </a>
-            </div>
-            }
           </div>
         </div>
         <div className="row">

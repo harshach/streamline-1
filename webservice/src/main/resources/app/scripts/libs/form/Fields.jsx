@@ -355,8 +355,8 @@ export class string extends BaseField {
       : this.props.fieldJson.hint !== undefined && this.props.fieldJson.hint.toLowerCase().indexOf("textarea") !== -1
           ? <textarea className={this.context.Form.state.Errors[this.props.valuePath]
               ? "form-control invalidInput"
-              : "form-control"} ref="input" disabled={disabledField} value={value} {...this.props.attrs} onChange={this.handleChange}/>
-            : <input name={this.props.value} type={this.props.fieldJson.hint !== undefined
+              : "form-control"} placeholder={this.props.fieldJson.placeholder || '' } ref="input" disabled={disabledField} value={value} {...this.props.attrs} onChange={this.handleChange}/>
+            : <input name={this.props.value} placeholder="Select file" type={this.props.fieldJson.hint !== undefined
             ? this.props.fieldJson.hint.toLowerCase().indexOf("password") !== -1
               ? "password"
               : this.props.fieldJson.hint.toLowerCase().indexOf("email") !== -1
@@ -364,7 +364,9 @@ export class string extends BaseField {
                 : "text"
             : "text"} className={this.context.Form.state.Errors[this.props.valuePath]
             ? "form-control invalidInput"
-            : "form-control"} ref="input" value={value} disabled={disabledField} {...this.props.attrs} onChange={this.handleChange} onBlur={this.handleOnBlur}/>
+            : "form-control"} ref="input" value={value}
+            disabled={disabledField} {...this.props.attrs} onChange={this.handleChange}
+            placeholder={this.props.fieldJson.placeholder || '' } onBlur={this.handleOnBlur}/>
     );
   }
 }
@@ -487,7 +489,7 @@ export class sql extends BaseField {
       modeType="sql"
       value={this.props.data[this.props.value]}
       callBack={this.handleChange}
-      placeHolder=" "
+      placeholder={this.props.fieldJson.placeholder || ' ' }
       editMode={true}
       width="100%"
       editMode={false}
@@ -517,7 +519,7 @@ export class shell extends sql {
       modeType="shell"
       value={this.props.data[this.props.value]}
       callBack={this.handleChange}
-      placeHolder=" "
+      placeholder={this.props.fieldJson.placeholder || ' ' }
       editMode={true}
       width="100%"
       height={height}
@@ -749,7 +751,9 @@ export class number extends BaseField {
       ? ''
       :<input name={this.props.value} type="number" className={this.context.Form.state.Errors[this.props.valuePath]
           ? "form-control invalidInput"
-          : "form-control"} ref="input" value={this.props.data[this.props.value]} disabled={disabledField} {...this.props.attrs} min={min} max={max} onChange={this.handleChange}/>
+          : "form-control"} ref="input" value={this.props.data[this.props.value]}
+          disabled={disabledField} {...this.props.attrs} min={min} max={max}
+          placeholder={this.props.fieldJson.placeholder || '' } onChange={this.handleChange}/>
     );
   }
 }
@@ -836,7 +840,7 @@ export class enumstring extends BaseField {
         ? "menu-outer-top"
         : ''}${this.context.Form.state.Errors[this.props.valuePath]
           ? "invalidSelect"
-          : ""}`}/>
+          : ""}`} placeholder={this.props.fieldJson.placeholder || '' }/>
         </div>);
   }
 }
@@ -890,7 +894,7 @@ export class CustomEnumstring extends BaseField {
     return (customEnumHint !== null && customEnumHint.toLowerCase().indexOf("hidden") !== -1
       ? ''
       : <div>
-        <Select placeholder="Select.." ref="select2" clearable={false} onChange={this.handleChange}
+        <Select placeholder={this.props.fieldJson.placeholder || 'Select..' } ref="select2" clearable={false} onChange={this.handleChange}
           {...this.props.fieldAttr} disabled={disabledField} value={selectedValue || ''}
           className={this.context.Form.state.Errors[this.props.valuePath]
         ? "invalidSelect"
@@ -939,7 +943,8 @@ export class arraystring extends BaseField {
         ? "menu-outer-top"
         : ''}${this.context.Form.state.Errors[this.props.valuePath]
           ? "invalidSelect"
-          : ""}`} valueKey="value" labelKey="value" value={arr} ref="select2"/>);
+          : ""}`} valueKey="value" labelKey="value" value={arr} ref="select2"
+          placeholder={this.props.fieldJson.placeholder || '' }/>);
   }
 }
 
@@ -993,7 +998,7 @@ export class creatableField extends BaseField {
     }
     return (creatableHint !== null && creatableHint.toLowerCase().indexOf("hidden") !== -1
       ? ''
-      : <Creatable placeholder="Select.." ref="select2" clearable={false} onChange={this.handleChange} multi={false} disabled={disabledField} {...this.props.fieldAttr} className={`${lastChild.props.label === this.props.fieldJson.uiName && fieldsShown.length > 4
+      : <Creatable placeholder={this.props.fieldJson.placeholder || 'Select..' } ref="select2" clearable={false} onChange={this.handleChange} multi={false} disabled={disabledField} {...this.props.fieldAttr} className={`${lastChild.props.label === this.props.fieldJson.uiName && fieldsShown.length > 4
         ? "menu-outer-top"
         : ''}${this.context.Form.state.Errors[this.props.valuePath]
           ? "invalidSelect"
@@ -1081,7 +1086,7 @@ export class arrayenumstring extends BaseField {
         ? "menu-outer-top"
         : ''}${this.context.Form.state.Errors[this.props.valuePath]
           ? "invalidSelect"
-          : ""}`} {...tempAttrObj} ref="select2"/>
+          : ""}`} {...tempAttrObj} ref="select2" placeholder={this.props.fieldJson.placeholder || '' }/>
         </div>);
   }
 }

@@ -179,6 +179,9 @@ class DateTimePickerDropdown extends Component {
     this.props.datePickerCallback(this.state.startDate, this.state.endDate);
     this.setState({showDateRangeSection: !this.state.showDateRangeSection});
   }
+  handleCancelBtnClick = () => {
+    this.setState({showDateRangeSection: !this.state.showDateRangeSection});
+  }
   handleSelectQuickRange (rangesObj, e) {
     if(e.target.nodeName == 'A' || e.target.nodeName == 'LI') {
       let currentRange = rangesObj[e.target.textContent]();
@@ -248,7 +251,8 @@ class DateTimePickerDropdown extends Component {
                 </Button>
               </InputGroup>
             </DatetimeRangePicker>
-            <Button type="button" className="btn-success pull-right row-margin-top" onClick={this.handleApplyBtnClick}>APPLY</Button>
+            <Button type="button" className="btn-primary pull-right row-margin-top" onClick={this.handleApplyBtnClick}>APPLY</Button>
+            <Button type="button" className="u-form btn-default pull-right row-margin-top margin-right" onClick={this.handleCancelBtnClick}>CANCEL</Button>
           </div>
           <div className="quick-ranges col-sm-8">
             <div className="sub-heading">Quick Ranges</div>

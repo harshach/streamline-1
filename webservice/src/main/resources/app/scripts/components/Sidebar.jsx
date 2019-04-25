@@ -62,7 +62,7 @@ export default class Sidebar extends Component {
       app_state.sidebar_toggleFlag = false;
     }
   }
-  handleClickOnRegistry(key, e) {
+  handleClickOnWatchTower(key, e) {
     app_state.sidebar_activeKey = key;
   }
   confirmLeave(flag) {
@@ -101,10 +101,10 @@ export default class Sidebar extends Component {
               </li>
               : null
             }
-            {hasModuleAccess(menuName.SCHEMA_REGISTRY) ?
+            {hasModuleAccess(menuName.WATCH_TOWER) ?
               <li className={app_state.sidebar_activeKey === 2
                 ? 'active'
-                : ''} onClick={this.handleClickOnRegistry.bind(this, 2)}>
+                : ''} onClick={this.handleClickOnWatchTower.bind(this, 2)}>
                 <a href={watchTowerURL} target="_blank">
                   <img src="/styles/img/uWorc/sr.svg"/>
                   <span>Watch Tower</span>

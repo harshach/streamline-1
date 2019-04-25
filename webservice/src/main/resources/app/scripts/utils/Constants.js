@@ -77,7 +77,7 @@ const menuName = {
   SHARED_PROJECTS: 'shared-projects',
   APPLICATION: 'topology',
   DASHBOARD: 'dashboard',
-  SCHEMA_REGISTRY: 'schemaRegistry',
+  WATCH_TOWER: 'watchTower',
   MODEL_REGISTRY: 'modelRegistry',
   UDF: 'udf',
   NOTIFIER: 'notifier',

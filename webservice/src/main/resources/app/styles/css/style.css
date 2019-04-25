@@ -178,6 +178,9 @@ a:hover, a:focus {
   background-color: #276EF1;
   border-color: #276EF1;
 }
+.dropdown-menu {
+  z-index: 9999;
+}
 .text-danger {
   color: red;
 }
@@ -332,6 +335,9 @@ a.dropdown-toggle~ul.dropdown-menu {
 
 
 /* Modal */
+.modal {
+  z-index: 5050;
+}
 
 .modal-fixed-height>.modal-content>.modal-body {
   height: 550px;
@@ -2034,7 +2040,7 @@ label {
 .editor-header{
   background: #FFFFFF;
   border-bottom: 1px solid #E5E5E5;
-  padding: 13px 13px;
+  padding: 13px 9px 13px 40px;
   margin-top: -9px;
   transition: all .5s ease;
   position: relative;
@@ -2239,7 +2245,7 @@ label {
   display: inline-block;
   font-size: 16px;
   line-height: 60px;
-  margin-left: 15px;
+  margin-left: 50px;
   color: #5f6571;
 }
 
@@ -2259,7 +2265,6 @@ label {
     font-weight: 500;
     color: #ccc;
     padding: 0 15px;
-    margin-left: 25px;
 }
 .headContentText a.header-link.active {
   color: #000;
@@ -5058,6 +5063,7 @@ ul.custom-pagination li.active{
 #datepicker-dropdown + .dropdown-menu {
   width: 765px;
   padding: 15px;
+  z-index: 9999;
 }
 #datepicker-dropdown + .dropdown-menu .sub-heading{
   font-size: 16px;
@@ -5610,12 +5616,20 @@ h3.empty-project {
 .u-form .btn-link.btn-danger{
   color: #d9534f;
 }
+.u-form.btn-default,
 .u-form .modal-dialog .btn-default{
   color: #999999;
   background: transparent;
   border:none;
 }
-.u-form .modal-dialog .btn-default:hover, .u-form .modal-dialog .btn-default:active, .u-form .modal-dialog .btn-default:focus, .u-form .modal-dialog .btn-default:active:focus{
+.u-form.btn-default:hover,
+.u-form.btn-default:active,
+.u-form.btn-default:focus,
+.u-form.btn-default:active:focus,
+.u-form .modal-dialog .btn-default:hover,
+.u-form .modal-dialog .btn-default:active,
+.u-form .modal-dialog .btn-default:focus,
+.u-form .modal-dialog .btn-default:active:focus{
   background: transparent;
 }
 
@@ -6159,6 +6173,12 @@ background: #fff
   background-color: #fff;
   border-bottom: 1px #CCC solid;
 }
+.table-workflow > tbody > tr > td:first-child {
+  border-radius: 0 0 0 5px;
+}
+.table-workflow > tbody > tr > td:last-child {
+  border-radius: 0 0 5px 0;
+}
 .table-workflow > tbody > tr:nth-of-type(odd) {
     background-color: #F7F7F7;
 }
@@ -6223,7 +6243,7 @@ background: #fff
     border-bottom: 1px #E5E5E5 solid;
 }
 .bottom-panel-content {
-    padding: 16px 32px;
+    padding: 16px 42px;
     max-height: 400px;
     overflow-y: auto;
 }
@@ -6254,7 +6274,7 @@ background: #fff
 }
 
 .bottom-panel-header > .dropdown {
-        margin-left: 20px;
+        margin-left: 23px;
 }
 .bottom-panel-header > .dropdown > .btn-default {
         background: #F7F7F7;

@@ -84,7 +84,8 @@ const menuName = {
   SERVICE_POOL: 'servicepool',
   ENVIRONMENT: 'environments',
   AUTHORIZER: 'authorizer',
-  COMPONENT_DEFINITIONS: 'componentDefinitions'
+  COMPONENT_DEFINITIONS: 'componentDefinitions',
+  CONFIGURATION: 'configuration'
 };
 const accessCapabilities = {
   PROJECT: 'Projects',

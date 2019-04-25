@@ -98,8 +98,7 @@ export default class Sidebar extends Component {
               </li>
               : null
             }
-            {hasModuleAccess(menuName.UDF) || hasModuleAccess(menuName.NOTIFIER) || hasModuleAccess(menuName.CUSTOM_PROCESSOR) ||
-              hasModuleAccess(menuName.SERVICE_POOL) || hasModuleAccess(menuName.ENVIRONMENT) || hasModuleAccess(menuName.AUTHORIZER) ?
+            {hasModuleAccess(menuName.CONFIGURATION) ?
               <li className={app_state.sidebar_activeKey === 3
                 ? 'treeview active'
                 : 'treeview'}>
@@ -129,18 +128,6 @@ export default class Sidebar extends Component {
                     </li>
                     : null
                   }
-                  {hasModuleAccess(menuName.ENVIRONMENT) && config.serviceDiscovery.showEnvironments ?
-                    <li onClick={this.handleClick.bind(this, 3)}>
-                      <Link to="/environments">Environments Shadow</Link>
-                    </li>
-                    : null
-                  }
-                  {/*hasModuleAccess(menuName.COMPONENT_DEFINITIONS) ?
-                    <li onClick={this.handleClick.bind(this, 3)}>
-                      <Link to="/component-definition">Component Definitions</Link>
-                    </li>
-                    : null
-                  */}
                   {hasModuleAccess(menuName.AUTHORIZER) ?
                     (app_state.streamline_config.secureMode ?
                       <li onClick={this.handleClick.bind(this, 3)}>

@@ -77,7 +77,6 @@ const menuName = {
   SHARED_PROJECTS: 'shared-projects',
   APPLICATION: 'topology',
   DASHBOARD: 'dashboard',
-  SCHEMA_REGISTRY: 'schemaRegistry',
   MODEL_REGISTRY: 'modelRegistry',
   UDF: 'udf',
   NOTIFIER: 'notifier',
@@ -85,7 +84,8 @@ const menuName = {
   SERVICE_POOL: 'servicepool',
   ENVIRONMENT: 'environments',
   AUTHORIZER: 'authorizer',
-  COMPONENT_DEFINITIONS: 'componentDefinitions'
+  COMPONENT_DEFINITIONS: 'componentDefinitions',
+  CONFIGURATION: 'configuration'
 };
 const accessCapabilities = {
   PROJECT: 'Projects',

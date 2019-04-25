@@ -239,7 +239,7 @@ class TopologyViewMode extends Component {
       <span><i className="fa fa-clock-o"></i> {moment.duration(startDate.diff(endDate)).humanize()}</span>
     );
     return (
-      <div></div>
+      null
     );
     return (
       <div>

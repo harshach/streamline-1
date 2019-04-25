@@ -17,6 +17,7 @@ import {OverlayTrigger, Tooltip} from 'react-bootstrap';
 import Utils from '../utils/Utils';
 import app_state from '../app_state';
 import {observer} from 'mobx-react';
+import {MenuItem, DropdownButton} from 'react-bootstrap';
 
 @observer
 class  ZoomPanelComponent extends Component {
@@ -84,61 +85,69 @@ class  ZoomPanelComponent extends Component {
       namespaceName,
       deployedVersion
     } = this.props;
-    let isActive = false;
-    if(!app_state.versionPanelCollapsed && mode == 'edit'){
-      isActive = true;
-    } else if(!app_state.versionPanelCollapsed && mode == 'view' && isAppRunning){
-      isActive = true;
-    }
+    const modeTitle = <span><small>Mode</small>{mode === 'view' ? "Monitor" : "Edit"}</span>;
     return (
-      <div>
-        <div className="col-md-12 zoomWrap clearfix">
-          <div className={`editor-header row ${isActive ? 'active' : ''} ${isAppRunning ? 'app-running' : ''}`}>
-            {mode === 'view' ?
-              null
-            :
-              <div className={`control-widget text-center ${isActive ? 'active' : ''} ${isAppRunning ? 'app-running' : ''}`}>
-                {this.renderActionButton()}
-              </div>
-            }
-            <div className="pull-left">
-              <div className="workflow-info">
-                <h6>Last Edited</h6>
-                <h5>{Utils.datetime(lastUpdatedTime).value}</h5>
-              </div>
-              <div className="workflow-info">
-                <h6>Workflow Status</h6>
-                <h5>
-                  <span>
-                    <i className={`fa fa-circle ${topologyStatus} workflow-status`}></i> {Utils.capitaliseFirstLetter(topologyStatus)}</span>
-                </h5>
-              </div>
-              {mode === 'edit' ?
-              <div className="workflow-info">
-                <h6>Data Center</h6>
-                <h5>{namespaceName}</h5>
-              </div>
-              : null }
-              {runtimeAppUrl ?
-                <div className="workflow-info">
-                  <h6>Deployed Version</h6>
-                  <h5>
-                    {deployedVersion}
-                  </h5>
-                </div>
-              : null}
-            </div>
-            <div className="pull-right">
-              <button className={`btn-panels no-margin ${mode == 'view' ? 'active' : ''}`} onClick={this.onViewClick}><img src="styles/img/uWorc/view.png" />&ensp; Monitor</button>
-              <button className={`btn-panels no-margin ${mode == 'edit' ? 'active' : ''}`} onClick={this.onEditClick}><img src="styles/img/uWorc/edit.png" />&ensp; Edit</button>
-              {engineType === 'batch' && runtimeAppUrl ?
-                <a
-                  href={runtimeAppUrl}
-                  target="_blank" className="btn-panels visible-lg-inline-block visible-md-inline-block"
-                > <img src="styles/img/uWorc/piper.png"/></a>
-              : null}
-            </div>
+      <div className={`editor-header clearfix`}>
+        {mode === 'view' ?
+          null
+        :
+          <div className={`control-widget text-center`}>
+            {this.renderActionButton()}
           </div>
+        }
+        <div className="pull-left">
+          <div className="workflow-info">
+            <h6>Workflow Status</h6>
+            <h5>
+              <span>
+                <i className={`fa fa-circle ${topologyStatus} workflow-status`}></i> {Utils.capitaliseFirstLetter(topologyStatus)}</span>
+            </h5>
+          </div>
+          {runtimeAppUrl ?
+            <div className="workflow-info">
+              <h6>Deployed Version</h6>
+              <h5>
+                {deployedVersion}
+              </h5>
+            </div>
+          : null}
+          <div className="workflow-info">
+            <h6>Workflow Last Updated</h6>
+            <h5>{Utils.datetime(lastUpdatedTime).value}</h5>
+          </div>
+          {mode === 'edit' ?
+          <div className="workflow-info">
+            <h6>Data Center</h6>
+            <h5>{namespaceName}</h5>
+          </div>
+          : null }
+          {runtimeAppUrl ?
+            <div className="workflow-info">
+              <h6>Piper ID</h6>
+              <h5>
+                {runtimeAppId}
+              </h5>
+            </div>
+          : null}
+        </div>
+        <div className="pull-right">
+          <DropdownButton className="btn-mode"
+            pullRight
+            title={modeTitle} id="mode-dropdown"
+            onSelect={(key) => {
+              if(key === 'view'){
+                this.onViewClick();
+              } else {
+                this.onEditClick();
+              }
+            }} >
+            <MenuItem active={mode === 'view' ? true : false}
+              eventKey={'view'}> Monitor
+            </MenuItem>
+            <MenuItem active={mode === 'edit' ? true : false}
+              eventKey={'edit'}> Edit
+            </MenuItem>
+          </DropdownButton>
         </div>
       </div>
     );

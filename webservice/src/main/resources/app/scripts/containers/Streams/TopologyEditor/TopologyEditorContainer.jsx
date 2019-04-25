@@ -1367,37 +1367,33 @@ export class TopologyEditorContainer extends Component {
         ref="BaseContainer" routes={this.props.routes} onLandingPage="false"
         headerContent={this.getTopologyHeader()} siblingContent={this.getRightSideBar()}
       >
-        <div className="row">
-          <div className="col-sm-12">
-            {fetchLoader
-              ? [<div key={"1"} className="loader-overlay"></div>,<CommonLoaderSign key={"2"} imgName={"viewMode"}/>]
-              : <div className="graph-region">
-                <ZoomPanelComponent
-                  mode="edit"
-                  router={this.props.router}
-                  projectId={this.projectId}
-                  topologyId={this.topologyId}
-                  testCompleted={testCompleted}
-                  lastUpdatedTime={this.lastUpdatedTime}
-                  versionName={this.versionName}
-                  zoomInAction={this.graphZoomAction.bind(this, 'zoom_in')}
-                  zoomOutAction={this.graphZoomAction.bind(this, 'zoom_out')}
-                  showConfig={this.showConfig.bind(this)}
-                  confirmMode={this.confirmMode.bind(this)}
-                  testRunActivated={testRunActivated}
-                  isAppRunning={isAppRunning}
-                  killTopology={this.killTopology.bind(this)}
-                  deployTopology={this.handleDeployTopology.bind(this)}
-                  topologyStatus={this.state.topologyStatus}
-                  engineType={this.engine.type}
-                  namespaceName={this.namespaceName}
-                  deployedVersion={this.deployedVersion}
-                />
-                {this.getEditorGraph()}
-              </div>
-            }
+        {fetchLoader
+          ? [<div key={"1"} className="loader-overlay"></div>,<CommonLoaderSign key={"2"} imgName={"viewMode"}/>]
+          : <div className="graph-region">
+            <ZoomPanelComponent
+              mode="edit"
+              router={this.props.router}
+              projectId={this.projectId}
+              topologyId={this.topologyId}
+              testCompleted={testCompleted}
+              lastUpdatedTime={this.lastUpdatedTime}
+              versionName={this.versionName}
+              zoomInAction={this.graphZoomAction.bind(this, 'zoom_in')}
+              zoomOutAction={this.graphZoomAction.bind(this, 'zoom_out')}
+              showConfig={this.showConfig.bind(this)}
+              confirmMode={this.confirmMode.bind(this)}
+              testRunActivated={testRunActivated}
+              isAppRunning={isAppRunning}
+              killTopology={this.killTopology.bind(this)}
+              deployTopology={this.handleDeployTopology.bind(this)}
+              topologyStatus={this.state.topologyStatus}
+              engineType={this.engine.type}
+              namespaceName={this.namespaceName}
+              deployedVersion={this.deployedVersion}
+            />
+            {this.getEditorGraph()}
           </div>
-        </div>
+        }
         <Modal
           className="u-form" ref="TopologyConfigModal"
           data-title={deployFlag ? "Are you sure want to continue with this configuration?" : "Workflow Configuration"}

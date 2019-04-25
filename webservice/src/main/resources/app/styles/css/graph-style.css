@@ -392,3 +392,68 @@ svg>foreignObject>p {
   stroke : red;
   stroke-width :2px;
 }
+/* .axis{
+  fill: none;
+  stroke: black;
+  shape-rendering: crispEdges;
+} */
+/* .tick:nth-child(even) > text {
+  display: none;
+} */
+#executionTimeline {
+  margin: -16px -42px 16px;
+}
+#executionTimeline .tick>text>tspan:nth-child(2) {
+  fill: #666;
+}
+#executionTimeline .axis>path {
+  fill: none;
+  stroke: none;
+}
+#executionTimeline .tick>line {
+  stroke: #E5E5E5;
+  opacity: 1;
+}
+#executionTimeline svg {
+  border-bottom: 1px #E5E5E5 solid;
+  cursor: grab;
+}
+.timeline-tooltip {
+  position: absolute;
+  z-index: 4000;
+  padding: 10px;
+  background-color: #333333;
+  color: #fff;
+  border-radius: 2px;
+}
+.timeline-tooltip:after {
+  right: 100%;
+  top: 50%;
+  border: solid transparent;
+  content: " ";
+  height: 0;
+  width: 0;
+  position: absolute;
+  pointer-events: none;
+  border-right-color: #333333;
+  border-width: 6px;
+  margin-top: -6px;
+}
+.timelineSeries_failed {
+  fill: #E54937 !important;
+}
+.timelineSeries_done {
+  fill: #07A35A !important;
+}
+.timelineSeries_running {
+  fill: #276EF1 !important;
+}
+.timelineSeries_queued {
+  fill: #ED6F0E !important;
+}
+.zoom {
+  cursor: move;
+}
+.no-data-label {
+  margin: 10px;
+}

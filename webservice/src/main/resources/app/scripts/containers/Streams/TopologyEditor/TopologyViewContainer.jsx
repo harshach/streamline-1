@@ -60,6 +60,7 @@ class TopologyViewContainer extends TopologyEditorContainer {
     this.checkAuth = true;
     this.sampleInputNotify = false;
     this.timeseriesData = [];
+    this.fetchMetrics = true;
   }
 
   componentDidUpdate(){}
@@ -83,7 +84,6 @@ class TopologyViewContainer extends TopologyEditorContainer {
     bundleArr: null,
     availableTimeSeriesDb: false,
     fetchLoader: true,
-    fetchMetrics: true,
     startDate: moment().subtract(1440, 'minutes'),
     endDate: moment(),
     activeRangeLabel: null,
@@ -105,7 +105,6 @@ class TopologyViewContainer extends TopologyEditorContainer {
     executionInfoPageSize: 30,
     executionInfoPage: 0,
     executionInfo: {},
-    selectedExecution: {},
     selectedExecutionComponentsStatus: []
   };
 
@@ -277,50 +276,40 @@ class TopologyViewContainer extends TopologyEditorContainer {
     };
   }
 
-  onSelectExecution = (ex) => {
+  onSelectExecution = (ex, viewModeData) => {
     if(ex){
-      const {executionInfo, viewModeData} = this.state;
+      const {executionInfo} = this.state;
       ex.loading = true;
+      ViewModeREST.getComponentExecutions(this.topologyId, ex.executionDate, this.selectedDataCenterId).then((res) => {
+        const selectedExecutionComponentsStatus = res.components || [];
+        ex.loading = false;
 
-      this.setState({executionInfo: executionInfo}, () => {
-        ViewModeREST.getComponentExecutions(this.topologyId, ex.executionDate, this.selectedDataCenterId).then((res) => {
-          const selectedExecutionComponentsStatus = res.components || [];
-          ex.loading = false;
+        const taskMetrics = [];
 
-          const taskMetrics = [];
-
-          _.each(selectedExecutionComponentsStatus, (compEx) => {
-            const timeSeriesMetricsData = _.find(this.timeseriesData || [], (d) => {
-              return d.component.id == compEx.componentId;
-            });
-            const compMetrics = {};
-            compMetrics.component = {
-              id: compEx.componentId
-            };
-            compMetrics.overviewMetrics = {
-              metrics: compEx
-            };
-            compMetrics.timeSeriesMetrics = timeSeriesMetricsData ? timeSeriesMetricsData.timeSeriesMetrics : {};
-            taskMetrics.push(compMetrics);
+        _.each(selectedExecutionComponentsStatus, (compEx) => {
+          const timeSeriesMetricsData = _.find(this.timeseriesData || [], (d) => {
+            return d.component.id == compEx.componentId;
           });
-
-          viewModeData.taskMetrics = taskMetrics;
-
-
-          viewModeData.topologyMetrics = {
-            overviewMetrics: {
-              metrics: ex
-            }
+          const compMetrics = {};
+          compMetrics.component = {
+            id: compEx.componentId
           };
-          this.setState({
-            selectedExecution: ex,
-            selectedExecutionComponentsStatus: selectedExecutionComponentsStatus,
-            viewModeData: viewModeData
-          }, () => {
-            this.syncComponentData();
-            this.triggerUpdateGraph();
-          });
+          compMetrics.overviewMetrics = {
+            metrics: compEx
+          };
+          compMetrics.timeSeriesMetrics = timeSeriesMetricsData ? timeSeriesMetricsData.timeSeriesMetrics : {};
+          taskMetrics.push(compMetrics);
         });
+
+        viewModeData.taskMetrics = taskMetrics;
+
+
+        viewModeData.topologyMetrics = {
+          overviewMetrics: {
+            metrics: ex
+          }
+        };
+        this.syncComponentData(viewModeData, {selectedExecutionComponentsStatus: selectedExecutionComponentsStatus});
       });
     }
   }
@@ -357,11 +346,7 @@ class TopologyViewContainer extends TopologyEditorContainer {
         }
       };
 
-      this.setState({
-        viewModeData: viewModeData
-      }, () => {
-        this.onSelectExecution(latestExecution);
-      });
+      this.onSelectExecution(latestExecution, viewModeData);
 
       return res;
     });
@@ -456,13 +441,10 @@ class TopologyViewContainer extends TopologyEditorContainer {
         }));
       });
     }
-
-    this.setState({fetchMetrics: true});
+    this.fetchMetrics = true;
     Promise.all(promiseArr).then((responseArr)=>{
-      this.setState({viewModeData: viewModeData, fetchMetrics: false}, ()=>{
-        const {graphData} = this;
-        this.syncComponentData();
-      });
+      this.fetchMetrics = false;
+      this.syncComponentData(viewModeData);
       if(this.refs.metricsPanelRef){
         this.refs.metricsPanelRef.setState({loadingRecord: false});
       }
@@ -492,16 +474,18 @@ class TopologyViewContainer extends TopologyEditorContainer {
           tempViewModeData.sourceMetrics[index].timeSeriesMetrics.kafkaLagOffset = results[i];
         }
       });
-      this.setState({viewModeData : tempViewModeData}, () => {this.syncComponentData();});
+      this.setState({viewModeData : tempViewModeData}, () => {this.syncComponentData(tempViewModeData);});
     });
   }
 
-  syncComponentData() {
-    let {viewModeData, fetchMetrics} = this.state;
+  syncComponentData(viewModeData, compStatusObj) {
     let {selectedComponentId, selectedComponent} = viewModeData;
     let overviewMetrics, timeSeriesMetrics;
 
-    if(fetchMetrics) {
+    if(this.fetchMetrics) {
+      if(compStatusObj){
+        this.setState(compStatusObj);
+      }
       return;
     }
     if(selectedComponent) {
@@ -522,13 +506,19 @@ class TopologyViewContainer extends TopologyEditorContainer {
     }
     viewModeData.overviewMetrics = overviewMetrics || {};
     viewModeData.timeSeriesMetrics = timeSeriesMetrics || {};
-    this.setState({viewModeData: viewModeData});
+    let stateObj = {viewModeData: viewModeData};
+    if(compStatusObj){
+      Object.assign(stateObj, compStatusObj);
+    }
+    this.setState(stateObj,()=>{
+      this.triggerUpdateGraph();
+    });
   }
   compSelectCallback = (id, obj) => {
     let {viewModeData} = this.state;
     viewModeData.selectedComponentId = id;
     viewModeData.selectedComponent = obj;
-    this.syncComponentData();
+    this.syncComponentData(viewModeData);
   }
   handleVersionChange(value) {
     this.fetchData(value);
@@ -679,7 +669,9 @@ class TopologyViewContainer extends TopologyEditorContainer {
   }
 
   triggerUpdateGraph = () => {
-    this.refs.EditorGraph.child.decoratedComponentInstance.refs.TopologyGraph.decoratedComponentInstance.updateGraph();
+    if(this.refs.EditorGraph && this.refs.EditorGraph.child && this.refs.EditorGraph.child.decoratedComponentInstance.refs.TopologyGraph){
+      this.refs.EditorGraph.child.decoratedComponentInstance.refs.TopologyGraph.decoratedComponentInstance.updateGraph();
+    }
   }
 
   handleDataCenterChange = (value) => {
@@ -690,7 +682,7 @@ class TopologyViewContainer extends TopologyEditorContainer {
   }
 
   getRightSideBar = () => {
-    const {topologyName, executionInfo, selectedExecution, topologyNamespaces} = this.state;
+    const {topologyName, executionInfo, topologyNamespaces} = this.state;
     let namespacesArr = [];
     _.keys(topologyNamespaces).map((name)=>{
       namespacesArr.push({
@@ -703,12 +695,10 @@ class TopologyViewContainer extends TopologyEditorContainer {
         executionInfo={executionInfo}
         lastUpdatedTime={this.lastUpdatedTime}
         topologyName={topologyName}
-        onSelectExecution={this.onSelectExecution}
         getPrevPageExecutions={this.getPrevPageExecutions}
         getNextPageExecutions={this.getNextPageExecutions}
         compSelectCallback={this.compSelectCallback}
         components={this.graphData.nodes}
-        selectedExecution={selectedExecution}
         datePickerCallback={this.datePickerCallback}
         timeseriesData={this.timeseriesData}
         handleDataCenterChange={this.handleDataCenterChange}
@@ -717,6 +707,7 @@ class TopologyViewContainer extends TopologyEditorContainer {
         isBatchEngine={this.engine.type.toLowerCase() == 'batch'}
         engine={this.engine}
         template={this.template}
+        runtimeAppUrl={this.runtimeAppUrl}
     />;
   }
 

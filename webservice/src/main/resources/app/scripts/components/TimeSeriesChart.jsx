@@ -256,7 +256,7 @@ TimeSeriesChart.defaultProps = {
   initTooltip() {
     const self = this;
     this.tooltip = d3.select('body'). //this.svg.append('foreignobject')
-    append('div').style("position", "absolute").classed('graph-tip', true).style({"z-index": "1070", visibility: 'hidden', "pointer-events": 'none'});
+    append('div').style("position", "absolute").classed('graph-tip', true).style({"z-index": "4000", visibility: 'hidden', "pointer-events": 'none'});
 
     this.tipcontainer = this.svg.append('g').classed('tip-g', true).attr("transform", "translate(" + 0 + "," + 0 + ")");
 
@@ -325,10 +325,10 @@ TimeSeriesChart.defaultProps = {
     return d;
   },
   addTooltipContent(d) {
-    var html = '<span><i class="fa fa-calendar" aria-hidden="true"></i> ' + d[this.props.xAttr].toLocaleDateString() + '</span><br><span><i class="fa fa-clock-o" aria-hidden="true"></i> ' + d[this.props.xAttr].toLocaleTimeString() + '</span><table class="tooltipTable" width="100%"><tbody>';
+    var html = '<p>' + d[this.props.xAttr].toDateString() + ' <br /> ' + d[this.props.xAttr].toLocaleTimeString() + '</p><table class="tooltipTable" width="100%"><tbody>';
     _.each(d, (val, key) => {
       if (key != this.props.xAttr) {
-        html += '<tr><td><i class="fa fa-minus" style="color:' + this.props.color(key) + '"></i>' + key + ' </td><td> ' + parseFloat(val.toFixed(2)) + '</td></tr>';
+        html += '<tr><td><i class="fa fa-square" style="color:' + this.props.color(key) + '"></i> ' + key + ' </td><td> ' + parseFloat(val.toFixed(2)) + '</td></tr>';
       }
     });
     html += '</tbody></table>';

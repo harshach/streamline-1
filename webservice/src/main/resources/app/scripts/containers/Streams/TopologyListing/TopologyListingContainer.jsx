@@ -27,6 +27,8 @@ import {
   Button
 } from 'react-bootstrap';
 import d3 from 'd3';
+import {Table, Th, Td, Thead, Tr, unsafe} from 'reactable';
+import SVGIcons from '../../../utils/SVGIcons';
 /* import common utils*/
 import TopologyREST from '../../../rest/TopologyREST';
 import Utils from '../../../utils/Utils';
@@ -41,10 +43,11 @@ import ProjectREST from '../../../rest/ProjectREST';
 import BaseContainer from '../../BaseContainer';
 import NoData, {BeginNew} from '../../../components/NoData';
 import CommonNotification from '../../../utils/CommonNotification';
-import {toastOpt, PieChartColor, accessCapabilities} from '../../../utils/Constants';
-import PieChart from '../../../components/PieChart';
+import {toastOpt, accessCapabilities} from '../../../utils/Constants';
 import Paginate from '../../../components/Paginate';
 import Modal from '../../../components/FSModal';
+import AddProject from '../ProjectListing/AddProject';
+import AddWorkflowsToProject from '../ProjectListing/AddWorkflowsToProject';
 import AddTopology from './AddTopology';
 import ImportTopology from './ImportTopology';
 import CloneTopology from './CloneTopology';
@@ -54,44 +57,16 @@ import {observer} from 'mobx-react';
 import {hasEditCapability, hasViewCapability,findSingleAclObj,handleSecurePermission} from '../../../utils/ACLUtils';
 import CommonShareModal from '../../../components/CommonShareModal';
 
-class CustPieChart extends PieChart {
-  drawPie() {
-    super.drawPie();
-
-    this.svg.selectAll('title').remove();
-
-    this.svg.selectAll('.pie-latency').remove();
-
-    this.container.append('text').attr({class: 'pie-latency', y: -15, 'text-anchor': 'middle', 'font-size': "9", fill: "#888e99"}).text('LATENCY');
-
-    const text = this.container.append('text').attr({class: 'pie-latency', 'text-anchor': 'middle'});
-    const latencyDefaultTxt = Utils.secToMinConverter(this.props.latency, "graph").split('/');
-    const tspan = text.append('tspan').attr({'font-size': "28", 'fill': "#323133", y: 20}).text(latencyDefaultTxt[0]);
-
-    const secText = text.append('tspan').attr({fill: "#6d6f72", "font-size": 10}).text(' ' + latencyDefaultTxt[1]);
-
-    if (!this.props.empty) {
-      this.container.selectAll('path').on('mouseenter', (d) => {
-        const val = Utils.secToMinConverter(d.value, "graph").split('/');
-        tspan.text(val[0]);
-        secText.text(val[1]);
-      }).on('mouseleave', (d) => {
-        tspan.text(latencyDefaultTxt[0]);
-        secText.text(' ' + latencyDefaultTxt[1]);
-      });
-    }
-  }
-}
-
 @observer
-class TopologyItems extends Component {
+class WorkflowListingTable extends Component {
   constructor(props) {
     super(props);
   }
 
-  onActionClick = (eventKey) => {
+  onActionClick = (eventKey,wId, pId) => {
     const {allACL} = this.props;
-    const topologyId =  this.streamRef.dataset.id;
+    const topologyId = wId;
+    const projectId = pId;
     if(app_state.streamline_config.secureMode){
       let permissions = true,rights_share=true;
       const userInfo = app_state.user_profile !== undefined ? app_state.user_profile.admin : false;
@@ -104,249 +79,215 @@ class TopologyItems extends Component {
         aclObject = {objectId : topologyId, objectNamespace : "topology"};
         permissions = hasEditCapability("Applications");
       }
-      // permission true only for refresh
-      eventKey.includes('refresh') ? permissions = true : '';
 
       if(permissions){
         if(eventKey.includes('share')){
-          rights_share ? this.props.topologyAction(eventKey,topologyId,aclObject) : '';
+          rights_share ? this.props.topologyAction(eventKey,topologyId,projectId,aclObject) : '';
         } else {
-          this.props.topologyAction(eventKey,topologyId,aclObject);
+          this.props.topologyAction(eventKey,topologyId,projectId,aclObject);
         }
       }
     } else {
-      this.props.topologyAction(eventKey,topologyId);
+      this.props.topologyAction(eventKey,topologyId,projectId);
     }
   }
-  streamBoxClick = (id, event) => {
-    const {allACL, projectId} = this.props;
-    // check whether the element of streamBox is click..
-    if ((event.target.nodeName !== 'BUTTON' && event.target.nodeName !== 'I' && event.target.nodeName !== 'A')) {
-      this.context.router.push((Utils.isFromSharedProjects() ? 'shared-projects/' : 'projects/')+projectId+'/applications/' + id + '/view');
-    } else if (event.target.title === "Edit") {
-      if(app_state.streamline_config.secureMode){
-        let permissions = true;
-        const userInfo = app_state.user_profile !== undefined ? app_state.user_profile.admin : false;
-        const aclObject = findSingleAclObj(Number(id),allACL || []);
-        if(!_.isEmpty(aclObject)){
-          const {p_permission} = handleSecurePermission(aclObject,userInfo,"Applications");
-          permissions = p_permission;
-        } else {
-          permissions = hasEditCapability("Applications");
-        }
-        if(permissions){
-          this.context.router.push(
-            (Utils.isFromSharedProjects() ? 'shared-projects/' : 'projects/')+projectId+'/applications/' + id + '/edit'
+  viewMode = (Wid, projectId) => {
+    this.context.router.push((Utils.isFromSharedProjects() ? 'shared-projects/' : 'projects/')+projectId+'/applications/' + Wid + '/view');
+  }
+
+  getTable(){
+    const {data,allACL} = this.props;
+    const userInfo = app_state.user_profile !== undefined ? app_state.user_profile.admin :false;
+    let permission=true,aclObject={};
+    if(app_state.streamline_config.secureMode){
+      data.map((workflowObj)=> {
+        aclObject = findSingleAclObj(workflowObj.id ,allACL || []);
+        const {p_permission,r_share} = handleSecurePermission(aclObject,userInfo,"Applications");
+        permission = p_permission;
+        workflowObj.rights_share = r_share;
+        workflowObj.showShareIcon = !_.isEmpty(aclObject) || userInfo;
+      });
+    }
+
+    return (<div className="table u-form">
+      <Table
+        className="table no-margin table-workflow"
+        currentPage={0}
+        itemsPerPage={data.length > 20 ? 20 : 0}
+        pageButtonLimit={5}
+      >
+        <Thead>
+          <Th column="checkbox"><input type= "checkbox" checked={this.props.headerCheckbox} onChange={this.props.toggleHeaderCheckbox}></input></Th>
+          <Th column="name">Name</Th>
+          <Th column="type">Type</Th>
+          <Th column="datacenterstatus">Data Center Status</Th>
+          <Th column="version">Version</Th>
+          <Th column="owner">Owner</Th>
+          <Th column="actions">Actions</Th>
+        </Thead>
+        {data.map((workflowObj,i)=>{
+          let engine = Utils.getEngineById(workflowObj.engineId);
+          let datacenterArr=[];
+          if(workflowObj.statusArr){
+            workflowObj.statusArr.map((statusObj)=>{
+              datacenterArr.push({
+                clusterName: statusObj.namespaceName,
+                status: statusObj.status,
+                runtimeAppId: statusObj.runtimeAppId
+              });
+            });
+          }
+
+          return (
+            <Tr key={i}>
+              <Td column="checkbox" width="5%">{
+                <input type="checkbox" checked={workflowObj.isSelected} onChange={this.props.handleCheckbox.bind(this, i)}></input>}
+              </Td>
+              <Td column="name">
+                <span className= "workflow-name" onClick={this.viewMode.bind(this, workflowObj.id, workflowObj.projectId)}>{workflowObj.name}
+                {datacenterArr[0]
+                ?
+                  datacenterArr[0].runtimeAppId ? "" : <span className="draft-label">Draft</span>
+                : "" }
+                <h6>{datacenterArr[0] ? datacenterArr[0].runtimeAppId : ""}</h6>
+                </span>
+              </Td>
+              <Td column="type"><span>{engine.displayName} </span></Td>
+              <Td column="datacenterstatus">
+                {!workflowObj.statusArr ? <span>Loading Data</span> : this.dataCenterStatus(datacenterArr) }
+              </Td>
+              <Td column="version">{<span>Version 1.0 {/*<h6>Scheduling on mm/dd/yy</h6>*/}</span>}</Td>
+              <Td column="owner">{<span>{workflowObj.config.properties['topology.owner'] || '---'} <h6>Last Modified on : {Utils.datetime(workflowObj.timestamp).value}</h6></span>}</Td>
+              <Td column="actions">
+                <span>
+                  <a className="btn btn-link btn-xs" title="Edit" disabled={!permission} onClick={this.onActionClick.bind(this, "edit/" + workflowObj.id, workflowObj.id, workflowObj.projectId)}>
+                    {SVGIcons.editIcon}</a>
+                  { workflowObj.showShareIcon ?
+                    <button
+                      type="button"
+                      className="btn btn-link btn-xs" onClick={this.onActionClick.bind(this, "share/" + workflowObj.id)}
+                      disabled={!workflowObj.rights_share}
+                    >
+                      {SVGIcons.actionShareIcon}
+                    </button>
+                     :
+                    null
+                  }
+                  <DropdownButton title={SVGIcons.actionEllipsis} noCaret bsStyle="link btn-xs" id={"lisitng-"+i} onClick={this.handleClick}>
+                    <MenuItem title="Clone" disabled={!permission} onClick={this.onActionClick.bind(this, "clone/" + workflowObj.id, workflowObj.id, workflowObj.projectId)}>
+                      <i className="fa fa-clone"></i>
+                      &nbsp;Clone
+                    </MenuItem>
+                    <MenuItem title="Export" disabled={!permission} onClick={this.onActionClick.bind(this, "export/" + workflowObj.id, workflowObj.id, workflowObj.projectId)}>
+                      <i className="fa fa-share-square-o"></i>
+                      &nbsp;Export
+                    </MenuItem>
+                    <MenuItem title="Delete" disabled={!permission} onClick={this.onActionClick.bind(this, "delete/" + workflowObj.id, workflowObj.id, workflowObj.projectId)}>
+                      <i className="fa fa-trash"></i>
+                      &nbsp;Delete
+                    </MenuItem>
+                  </DropdownButton>
+                </span>
+              </Td>
+            </Tr>
           );
-        }
+        })}
+      </Table>
+    </div>);
+  }
 
-      } else {
-        this.context.router.push(
-          (Utils.isFromSharedProjects() ? 'shared-projects/' : 'projects/')+projectId+'/applications/' + id + '/edit'
-        );
-      }
+  dataCenterStatus(statusArr){
+    let html = '';
+    statusArr.map((statusObj, x)=>{
+      html+= '<span class=datacenter key={'+x+'_stats}><div class="execution-box ' + this.getStatusBox(statusObj) + '"></div>' + statusObj.clusterName + '</span>';
+    });
+    return unsafe(html);
+  }
+
+  getStatusBox(status){
+    switch(status.status.toLowerCase()){
+    case 'not deployed':
+    case 'unknown':
+      return 'unknown';
+      break;
+    case 'enabled':
+    case 'active':
+      return 'done';
+      break;
+    case 'running':
+      return 'running';
+      break;
+    case 'failed':
+      return 'failed';
+      break;
+    case 'paused':
+      return 'paused';
+      break;
+    default:
+      return '';
+      break;
     }
-  }
-  checkRefId = (id) => {
-    const index = this.props.refIdArr.findIndex((x) => {
-      return x === id;
-    });
-    return index !== -1
-      ? true
-      : false;
-  }
-
-  getMetrics(){
-    const {topologyList} = this.props;
-    const {topology, namespaces } = topologyList;
-
-    const template = Utils.getTemplateById(topologyList.topology.templateId);
-    const layout = template.metricsBundle.metricsUISpec.layout.listing;
-    const getMetric = (name) => {
-      return _.find(template.metricsBundle.metricsUISpec.metrics, (m) => {
-        return m.name == name;
-      });
-    };
-
-    let clusterNamesList = _.keys(namespaces);
-    return clusterNamesList.map((clusterName, i)=>{
-      const namespaceName = namespaces[clusterName].clusterName;
-      let status = "unknown";
-      if(namespaces[clusterName].status && namespaces[clusterName].status.status){
-        status = namespaces[clusterName].status.status.toLowerCase();
-      }
-      const metricWrap = namespaces[clusterName].metric ?  namespaces[clusterName].metric.metrics : {};
-
-      const designs = {
-        title: (metricName) => {
-          return <h4>{namespaceName}</h4>;
-        },
-        status: (metricName) => {
-          return <h6 className="partition-status">{Utils.capitaliseFirstLetter(status)} &nbsp;</h6>;
-        },
-        labelValue: (metricName) => {
-          const metric = getMetric(metricName);
-          const val = Utils[metric.valueFormat](metricWrap[metric.metricKeyName]);
-          return [
-            <h6>{metric.uiName}</h6>,
-            <h6 className="value">{val.value} &nbsp;</h6>
-          ];
-        },
-        duration: (metricName) => {
-          const metric = getMetric(metricName);
-          const oVal = metricWrap[metric.metricKeyName] || 0;
-          const val = Utils[metric.valueFormat](oVal);
-          return <h6 className="duration">Duration {val.value + (val.prefix || '')}</h6>;
-        },
-        legendValue: (metricName) => {
-          const metric = getMetric(metricName);
-          let value = metricWrap[metric.metricKeyName];;
-          if(value){
-            return <h6 className="value"><i className={"fa fa-square "+value.toLowerCase()}></i> {Utils.capitaliseFirstLetter(value)}</h6>;
-          } else {
-            return null;
-          }
-        }
-      };
-
-      const leftMetrics = [];
-      const rightMetrics = [];
-
-      _.each(layout, (row, index) => {
-        const left = _.map(row.left, (m) => {
-          return designs[m.type](m.name);
-        });
-        const right = _.map(row.right, (m) => {
-          return designs[m.type](m.name);
-        });
-        leftMetrics.push(left);
-        rightMetrics.push(right);
-      });
-
-      return (
-        <div className="inner clearfix" key={i}>
-          <div className="pull-left">{leftMetrics}</div>
-          <div className="pull-right text-right">{rightMetrics}</div>
-        </div>
-      );
-    });
-  }
-  getHeader(dropdown){
-    const {topologyList} = this.props;
-    let clusterNamesList = _.keys(topologyList.namespaces);
-    const engine = Utils.getEngineById(topologyList.topology.engineId);
-    const metricWrap = topologyList.namespaces[clusterNamesList[0]].metric ?  topologyList.namespaces[clusterNamesList[0]].metric.metrics : {};
-
-    const typeValue = metricWrap['pipelineType'];
-
-    return <div className="workflow-header clearfix">
-      <div className="pull-left">
-        <label className={"workflow-badge " + engine.name.toLowerCase()+"-badge"}>{engine.displayName}</label>
-        <h4 className="workflow-title">{topologyList.topology.name}</h4>
-        <h6>
-          Last Updated on <span>{Utils.datetime(topologyList.topology.timestamp).value}</span>
-        </h6>
-      </div>
-      <div className="pull-right text-right">
-        <div className="btn-group btn-group-workflow">
-          { this.showShareIcon ?
-            <button
-              type="button"
-              className="btn btn-link" onClick={this.onActionClick.bind(this, "share/" + topologyList.topology.id)}
-              disabled={!this.rights_share}
-            >
-              <i className="fa fa-share-alt"></i>
-            </button>
-            :
-            null
-          }
-          {dropdown}
-        </div>
-        <h6 className="value">
-          {typeValue ? Utils.capitaliseFirstLetter(typeValue) : ""}
-        </h6>
-        {/*<h6>Run every 1 day at 11:00:00</h6>*/}
-      </div>
-    </div>;
   }
 
   render() {
-    const {topologyAction, topologyList,allACL} = this.props;
-    const {
-      topology,
-      namespaces
-    } = topologyList;
-    let clusterNamesList = _.keys(namespaces);
-    let status = "unknown";
-    if(namespaces[clusterNamesList[0]].status && namespaces[clusterNamesList[0]].status.status){
-      status = namespaces[clusterNamesList[0]].status.status.toLowerCase();
-    }
-    const ellipseIcon = <i className="fa fa-ellipsis-v"></i>;
-    const userInfo = app_state.user_profile !== undefined ? app_state.user_profile.admin :false;
-    let permission=true,aclObject={};
-    this.rights_share=true;
-    if(app_state.streamline_config.secureMode){
-      aclObject = findSingleAclObj(topology.id,allACL || []);
-      const {p_permission,r_share} = handleSecurePermission(aclObject,userInfo,"Applications");
-      permission = p_permission;
-      this.rights_share = r_share;
-    }
-    this.showShareIcon = !_.isEmpty(aclObject) || userInfo;
-
-    const dropdown = <DropdownButton title={ellipseIcon} id="actionDropdown" noCaret bsStyle="link workflow-dropdown">
-      <MenuItem title="Refresh" onClick={this.onActionClick.bind(this, "refresh/" + topology.id)}>
-        <i className="fa fa-refresh"></i>
-        &nbsp;Refresh
-      </MenuItem>
-      <MenuItem title="Edit" disabled={!permission} onClick={this.onActionClick.bind(this, "edit/" + topology.id)}>
-        <i className="fa fa-pencil"></i>
-        &nbsp;Edit
-      </MenuItem>
-      <MenuItem title="Clone" disabled={!permission}  onClick={this.onActionClick.bind(this, "clone/" + topology.id)}>
-        <i className="fa fa-clone"></i>
-        &nbsp;Clone
-      </MenuItem>
-      <MenuItem title="Export" disabled={!permission}  onClick={this.onActionClick.bind(this, "export/" + topology.id)}>
-        <i className="fa fa-share-square-o"></i>
-        &nbsp;Export
-      </MenuItem>
-      <MenuItem title="Delete" disabled={!permission} onClick={this.onActionClick.bind(this, "delete/" + topology.id)}>
-        <i className="fa fa-trash"></i>
-        &nbsp;Delete
-      </MenuItem>
-    </DropdownButton>;
-
+    const {topologyAction, topologyList,allACL, data} = this.props;
     return (
-      <div className="col-sm-5">
-        <div className="workflow-widget" data-id={topology.id} ref={(ref) => this.streamRef = ref} onClick={this.streamBoxClick.bind(this, topology.id)}>
-          {(this.checkRefId(topology.id))
-            ? <div className="workflow-widget-body">
-                <div className="loading-img text-center">
-                  <img src="styles/img/start-loader.gif" alt="loading" style={{
-                    width: "100px"
-                  }}/>
-                </div>
-              </div>
-            : <div>
-              {this.getHeader(dropdown)}
-              <div className="workflow-body">
-                {this.getMetrics()}
-              </div>
-            </div>
-          }
+        <div className="col-sm-12">
+          <div className = "workflow-widget">
+            {this.getTable()}
+          </div>
+      </div>
+    );
+  }
+}
 
+@observer
+class TopologyFooter extends Component{
+  constructor(props){
+    super(props);
+    this.state = {
+      folderClicked: false
+    };
+  }
+  handleClick = () => {
+    this.setState({folderClicked: !this.state.folderClicked});
+  }
+  render(){
+    let {folderClicked} = this.state;
+    let folderIcon= SVGIcons.folder(folderClicked);
+    const folder = <DropdownButton title={folderIcon} noCaret bsStyle="link workflow-dropdown" onToggle={this.handleClick.bind(this)} dropup id="worflow-list-footer" onClick={this.handleClick}>
+                    <MenuItem title="Create New project" onClick={this.props.newProject}>
+                      Create New Project
+                      </MenuItem>
+                    <MenuItem title="Add Project" onClick={this.props.addtoProject}>
+                      Add to Project
+                      </MenuItem>
+                  </DropdownButton>;
+
+    const {selectedWorkflowArr} =this.props;
+    return(
+      <div className={`selected-workflow-panel animated ${selectedWorkflowArr.length ? "fadeInUp": "fadeOutDown"}`}>
+        <div>
+          <span className="u-form"><input type="checkbox" checked readOnly></input> {selectedWorkflowArr.length ==1 ?  "1 Workflow selected" : selectedWorkflowArr.length + " Workflows selected"}</span>
+            {folder}
+          <a className="btn btn-link" title="Delete" onClick={this.props.footerAction}>
+            {SVGIcons.trashIcon}
+          </a>
+          {/*<a className="btn btn-link" title="share">
+            {SVGIcons.shareIcon}
+          </a>*/}
         </div>
       </div>
     );
   }
 }
 
-TopologyItems.propTypes = {
-  topologyList: PropTypes.object.isRequired,
+WorkflowListingTable.propTypes = {
+  data: PropTypes.array.isRequired,
   topologyAction: PropTypes.func.isRequired
 };
 
-TopologyItems.contextTypes = {
+WorkflowListingTable.contextTypes = {
   router: PropTypes.object.isRequired
 };
 
@@ -372,21 +313,35 @@ class TopologyListingContainer extends Component {
       sourceCheck: false,
       searchLoader : false,
       allACL : [],
-      shareObj : {}
+      shareObj : {},
+      selectedCheckboxArr: [],
+      isHeaderCheckbox : false , editModeData : {}
     };
+    this.projectId = props.params.projectId;
 
     this.fetchData();
   }
 
+  componentWillReceiveProps(newProps){
+    if(newProps.params.projectId !== this.props.params.projectId){
+      this.projectId = newProps.params.projectId;
+      this.fetchData();
+    }
+  }
+
   fetchData() {
     const sortKey = this.state.sorted.key;
-    const projectId = this.props.params.projectId;
+    const projectId = this.projectId;
     let promiseArr = [
       EnvironmentREST.getAllNameSpaces(),
-      TopologyREST.getSourceComponent(),
-      TopologyREST.getAllTopology(projectId, sortKey),
-      ProjectREST.getProject(projectId)
+      TopologyREST.getSourceComponent()
     ];
+    if(projectId){
+      promiseArr.push(TopologyREST.getAllTopologyWithoutConfig(projectId, sortKey));
+      promiseArr.push(ProjectREST.getProject(projectId));
+    } else {
+      promiseArr.push(TopologyREST.getAllAvailableTopologies(sortKey));
+    }
     if(app_state.streamline_config.secureMode){
       promiseArr.push(UserRoleREST.getAllACL('topology',app_state.user_profile.id,'USER'));
     }
@@ -412,6 +367,7 @@ class TopologyListingContainer extends Component {
 
       // All topology results[2]
       let resultEntities = Utils.sortArray(results[2].entities.slice(), 'timestamp', false);
+      this.syncDatacenterStatus(resultEntities);
       if (sourceLen !== 0) {
         if (resultEntities.length === 0 && environmentLen > 1) {
           environmentFlag = true;
@@ -427,12 +383,20 @@ class TopologyListingContainer extends Component {
       stateObj.sourceCheck = sourceFlag ;
       stateObj.searchLoader = false;
 
-      stateObj.projectData = results[3];
-
-      // If the application is in secure mode result[4]
-      if(results[4]){
-        stateObj.allACL = results[4].entities;
+      if(projectId){
+        stateObj.projectData = results[3];
+        // If the application is in secure mode result[4]
+        if(results[4]){
+          stateObj.allACL = results[4].entities;
+        }
+      } else {
+        stateObj.projectData = null;
+        // If the application is in secure mode result[3]
+        if(results[3]){
+          stateObj.allACL = results[3].entities;
+        }
       }
+
       this.setState(stateObj);
     });
   }
@@ -455,8 +419,9 @@ class TopologyListingContainer extends Component {
                 <CommonNotification flag="error" content={topology.responseMessage}/>, '', toastOpt);
               this.setState({searchLoader: false});
             } else {
-              let result = topology.entities;
-              this.setState({searchLoader: false, entities: result, pageIndex: 0});
+              let results = topology.entities;
+              this.syncDatacenterStatus(results);
+              this.setState({searchLoader: false, entities: results, pageIndex: 0});
             }
           });
         } else {
@@ -466,46 +431,25 @@ class TopologyListingContainer extends Component {
     }, 500);
   }
 
-  fetchSingleTopology = (ID) => {
-    const {refIdArr} = this.state;
-    const id = +ID;
-    const tempArr = refIdArr;
-    tempArr.push(id);
-    this.setState({
-      refIdArr: tempArr
-    }, () => {
-      TopologyREST.getTopology(id).then((topology) => {
-        const entities = this.updateSingleTopology(topology, id);
-        const tempDataArray = this.spliceTempArr(id);
-        this.setState({refIdArr: tempDataArray, entities});
-      }).catch((err) => {
-        const tempDataArray = this.spliceTempArr(id);
-        this.setState({refIdArr: tempDataArray});
-        FSReactToastr.error(
-          <CommonNotification flag="error" content={err.message}/>, '', toastOpt);
+  syncDatacenterStatus = (workflowArr) => {
+    let {selectedCheckboxArr} = this.state;
+    let statusPromiseArr = [];
+    let allSelected = true;
+    workflowArr.map((obj)=>{
+      if(selectedCheckboxArr.includes(obj.id)){
+        obj.isSelected = true;
+      } else {
+        allSelected = false;
+        obj.isSelected = false;
+      }
+      statusPromiseArr.push(TopologyREST.getTopologyActionStatus(obj.id,obj.versionId));
+    });
+    Promise.all(statusPromiseArr).then((statusResults) => {
+      workflowArr.map((obj,index)=>{
+        obj.statusArr = statusResults[index].entities;
       });
+      this.setState({entities: workflowArr, isHeaderCheckbox: allSelected});
     });
-  }
-
-  spliceTempArr = (id) => {
-    const tempArr = this.state.refIdArr;
-    const index = tempArr.findIndex((x) => {
-      return x === id;
-    });
-    if (index !== -1) {
-      tempArr.splice(index, 1);
-    }
-    return tempArr;
-  }
-
-  updateSingleTopology(newTopology, id) {
-    let entitiesWrap = [];
-    const elPosition = this.state.entities.map(function(x) {
-      return x.topology.id;
-    }).indexOf(id);
-    entitiesWrap = this.state.entities;
-    entitiesWrap[elPosition] = newTopology;
-    return entitiesWrap;
   }
 
   handleAddTopology() {
@@ -569,12 +513,9 @@ class TopologyListingContainer extends Component {
     this.refs.BaseContainer.refs.Confirm.cancel();
   }
 
-  actionHandler = (eventKey, id,obj) => {
+  actionHandler = (eventKey, id,projectId,obj) => {
     const key = eventKey.split('/');
     switch (key[0].toString()) {
-    case "refresh":
-      this.fetchSingleTopology(id);
-      break;
     case "clone":
       this.cloneTopologyAction(id);
       break;
@@ -585,14 +526,21 @@ class TopologyListingContainer extends Component {
       this.deleteSingleTopology(id);
       break;
     case "share":
-      this.shareSingleTopology(id,obj);
+      this.shareSingleTopology(id,projectId,obj);
       break;
-    default:
+    case "edit":
+      this.editSingleTopology(id,projectId);
       break;
     }
   }
 
-  shareSingleTopology = (id,obj) => {
+  editSingleTopology =(id,projectId) => {
+    this.context.router.push(
+      (Utils.isFromSharedProjects() ? 'shared-projects/' : 'projects/')+projectId+'/applications/' + id + '/edit'
+    );
+  }
+
+  shareSingleTopology = (id,projectId,obj) => {
     this.setState({shareObj : obj}, () => {
       this.refs.CommonShareModalRef.show();
     });
@@ -645,28 +593,9 @@ class TopologyListingContainer extends Component {
     case "import":
       this.handleImportTopology();
       break;
-    default:
-      break;
     }
   }
-  componentDidUpdate() {
-    // this.btnClassChange();
-  }
-  componentDidMount() {
-    // this.btnClassChange();
-  }
-  btnClassChange = () => {
-    const actionMenu = document.querySelector('.actionDropdown');
-    if (!this.state.fetchLoader && actionMenu) {
-      actionMenu.setAttribute("class", "actionDropdown hb lg success ");
-      if (this.state.entities.length !== 0) {
-        actionMenu.parentElement.setAttribute("class", "dropdown");
-        const sortDropdown = document.querySelector('.sortDropdown');
-        sortDropdown.setAttribute("class", "sortDropdown");
-        sortDropdown.parentElement.setAttribute("class", "dropdown");
-      }
-    }
-  }
+
   pagePosition = (index) => {
     this.setState({
       pageIndex: index || 0
@@ -674,8 +603,9 @@ class TopologyListingContainer extends Component {
   }
   handleSaveClicked = () => {
     const {projectId} = this.props.params;
+    const newProjectId = projectId ? projectId : -1;
     if (this.addTopologyRef.validate()) {
-      this.addTopologyRef.handleSave(projectId).then((topology) => {
+      this.addTopologyRef.handleSave(newProjectId).then((topology) => {
         if (topology.responseMessage !== undefined) {
           let errorMag = topology.responseMessage.indexOf('already exists') !== -1
             ? "Workflow with same name already exists. Please choose a unique Workflow Name"
@@ -688,7 +618,7 @@ class TopologyListingContainer extends Component {
                 <strong>Workflow's environment updated successfully</strong>
               );
             this.context.router.push(
-              (Utils.isFromSharedProjects() ? 'shared-projects/' : 'projects/')+projectId+'/applications/' + topology.id + '/edit'
+              (Utils.isFromSharedProjects() ? 'shared-projects/' : 'projects/')+newProjectId+'/applications/' + topology.id + '/edit'
             );
           } else {
             this.addTopologyRef.saveMetadata(topology.id).then(() => {
@@ -696,7 +626,7 @@ class TopologyListingContainer extends Component {
                 <strong>Workflow added successfully</strong>
               );
               this.context.router.push(
-                (Utils.isFromSharedProjects() ? 'shared-projects/' : 'projects/')+projectId+'/applications/' + topology.id + '/edit'
+                (Utils.isFromSharedProjects() ? 'shared-projects/' : 'projects/')+newProjectId+'/applications/' + topology.id + '/edit'
               );
             });
           }
@@ -806,8 +736,133 @@ class TopologyListingContainer extends Component {
         </span>
       );
     } else {
-      return '';
+      return [<Link to="/" className="header-link active">Workflows</Link>,<Link to="/projects" className="header-link">Projects</Link>];
     }
+  }
+
+  handleCheckbox = (index, event) => {
+    let {entities, selectedCheckboxArr, isHeaderCheckbox} = this.state;
+    if(event.target.checked){
+      entities[index].isSelected = true;
+      selectedCheckboxArr.push({ "WorkflowID" :entities[index].id});
+    } else {
+      entities[index].isSelected = false;
+      selectedCheckboxArr.splice(selectedCheckboxArr.indexOf(entities[index]),1);
+    }
+    if(entities.length === selectedCheckboxArr.length){
+      isHeaderCheckbox = true;
+    } else if(isHeaderCheckbox && selectedCheckboxArr.length < entities.length){
+      isHeaderCheckbox = false;
+    } else if(selectedCheckboxArr.length == 0){
+      isHeaderCheckbox = false;
+    }
+    this.setState({selectedCheckboxArr, entities, isHeaderCheckbox});
+  }
+
+  toggleHeaderCheckbox = (event) => {
+    let {entities, isHeaderCheckbox} = this.state;
+    let arr = [];
+    entities.map((workflowObj)=>{
+      if(event.target.checked){
+        isHeaderCheckbox =true;
+        workflowObj.isSelected = true;
+        arr.push(workflowObj.id);
+      } else{
+        isHeaderCheckbox = false;
+        workflowObj.isSelected = false;
+      }
+    });
+    this.setState({selectedCheckboxArr : arr, entities: entities, isHeaderCheckbox});
+  }
+
+  deleteAction = () => {
+    let {selectedCheckboxArr} = this.state;
+    this.refs.BaseContainer.refs.Confirm.show({title: 'Are you sure you want to delete?'}).then((confirmBox) => {
+      let deleteArr = selectedCheckboxArr;
+      this.setState({fetchLoader: true, selectedCheckboxArr : []});
+      let PromiseArr =[];
+      deleteArr.map((id)=>{
+        PromiseArr.push(TopologyREST.deleteTopology(id.WorkflowID));
+      });
+
+      Promise.all(PromiseArr).then((results) =>{
+        results.map((result) => {
+          if(result.responseMessage !== undefined){
+            FSReactToastr.error(
+              <CommonNotification flag="error" content={result.responseMessage}/>, '', toastOpt);
+          } else {
+            FSReactToastr.success(
+              <strong>Workflow deleted successfully</strong>
+            );
+          }
+        });
+        this.fetchData();
+      });
+      confirmBox.cancel();
+    }, () => {});
+  }
+
+  handleCreate = () => {
+    this.refs.addModal.show({
+      btnOkText: 'Create'
+    });
+  }
+
+  handleCreateProjectSave = () => {
+    if (this.refs.createProject.validate()) {
+      this.refs.createProject.handleSave().then((project) => {
+        this.refs.addModal.hide();
+        if (project.responseMessage !== undefined) {
+          this.setState({fetchLoader: false});
+          let errorMag = project.responseMessage.indexOf('already exists') !== -1
+            ? "Project with the same name is already existing"
+            : project.responseMessage;
+          FSReactToastr.error(
+            <CommonNotification flag="error" content={errorMag}/>, '', toastOpt);
+        } else {
+          this.updateWorkflowProjects(project.id);
+        }
+      });
+    }
+  }
+  addtoProject =() => {
+    this.refs.addToProjectsModal.show({
+      btnOkText: 'Add'
+    });
+  }
+
+  handleAddToProjectSave = () => {
+    let pid = this.refs.addProject.handleSave();
+    this.refs.addToProjectsModal.hide();
+    this.updateWorkflowProjects(pid);
+  }
+
+  updateWorkflowProjects = (projectId) => {
+    let {selectedCheckboxArr,entities} = this.state;
+
+    let promiseArr = [];
+    selectedCheckboxArr.map((obj,i)=>{
+      let workflowObj = entities.find((wObj) => {return wObj.id === obj.WorkflowID;});
+      if(workflowObj){
+        workflowObj.projectId = projectId;
+        delete workflowObj.isSelected;
+        delete workflowObj.statusArr;
+        promiseArr.push(TopologyREST.putTopology(workflowObj.id, workflowObj.versionId, {body: JSON.stringify(workflowObj)}) );
+      }
+    });
+
+    Promise.all(promiseArr).then((results) => {
+      if(results){
+        this.setState({
+          fetchLoader: true, selectedCheckboxArr: []
+        }, () => {
+          this.fetchData();
+          FSReactToastr.success(
+            <strong>Selected workflow added successfully</strong>
+          );
+        });
+      }
+    });
   }
 
   render() {
@@ -825,7 +880,9 @@ class TopologyListingContainer extends Component {
       allACL,
       shareObj,
       topologyData,
-      namespacesArr
+      namespacesArr,
+      selectedCheckboxArr,
+      isHeaderCheckbox
     } = this.state;
     const splitData = _.chunk(entities, pageSize) || [];
     const btnIcon = <span><i className="fa fa-plus"></i> &ensp; New Workflow</span>;
@@ -836,88 +893,89 @@ class TopologyListingContainer extends Component {
 
     const components = (splitData.length === 0)
     ? <NoData imgName={"default"} searchVal={filterValue} userRoles={app_state.user_profile}/>
-    : splitData[pageIndex].map((list) => {
-      return <TopologyItems key={list.topology.id} projectId={this.props.params.projectId} topologyList={list} topologyAction={this.actionHandler} refIdArr={refIdArr} allACL={allACL}/>;
-    });
+    : <WorkflowListingTable data ={entities} toggleHeaderCheckbox={this.toggleHeaderCheckbox}
+        handleCheckbox={this.handleCheckbox} projectId={this.projectId}
+        topologyAction={this.actionHandler} refIdArr={refIdArr} allACL={allACL}
+        headerCheckbox={isHeaderCheckbox}
+      />;
 
     return (
       <BaseContainer ref="BaseContainer" routes={this.props.routes} headerContent={this.getHeaderContent()}>
         {!fetchLoader
-          ? <div>
-              {hasEditCapability(accessCapabilities.APPLICATION) && (entities.length || filterValue) ?
-                <div className="add-btn text-center">
-                  <DropdownButton title={btnIcon} id="actionDropdown" className="actionDropdown success text-medium" noCaret>
-                    <MenuItem onClick={this.onActionMenuClicked.bind(this, "create")}>
-                      &nbsp;New Workflow
-                    </MenuItem>
-                    <MenuItem onClick={this.onActionMenuClicked.bind(this, "import")}>
-                      &nbsp;Import Workflow
-                    </MenuItem>
-                  </DropdownButton>
-                </div>
-                : null
-              }
-              {((filterValue && splitData.length === 0) || splitData.length !== 0)
-                ? <div className="row">
-                    <div className="page-title-box clearfix">
-                      <div className="search-container text-right">
-                        <FormGroup className="search-box">
-                          <InputGroup>
-                            <InputGroup.Addon>
-                              <i className="fa fa-search"></i>
-                            </InputGroup.Addon>
-                            <FormControl data-stest="searchBox" type="text" placeholder="Search by name" onKeyUp={this.onFilterChange} className="" />
-                          </InputGroup>
-                        </FormGroup>
-                      </div>
-
-                      {/*<div className="col-md-3 text-center">
-                        <DropdownButton title={sortTitle} id="sortDropdown" className="sortDropdown ">
-                          <MenuItem active={this.state.sorted.key === "name" ? true : false } onClick={this.onSortByClicked.bind(this, "name")}>
-                            &nbsp;Name
+          ? ((filterValue && splitData.length === 0) || splitData.length !== 0)
+            ? <div className="row">
+                <div className="col-sm-12">
+                  <div className="page-title-box clearfix">
+                    <div className="search-container text-right">
+                      <FormGroup className="search-box">
+                        <InputGroup>
+                          <InputGroup.Addon>
+                            <i className="fa fa-search"></i>
+                          </InputGroup.Addon>
+                          <FormControl data-stest="searchBox" type="text" placeholder="Search by name" onKeyUp={this.onFilterChange} className="" />
+                        </InputGroup>
+                      </FormGroup>
+                    </div>
+                    {hasEditCapability(accessCapabilities.APPLICATION) && (entities.length || filterValue) ?
+                      <div className="add-btn text-center">
+                        <DropdownButton title={btnIcon} id="actionDropdown" className="actionDropdown success text-medium" noCaret>
+                          <MenuItem onClick={this.onActionMenuClicked.bind(this, "create")}>
+                            &nbsp;New Workflow
                           </MenuItem>
-                          <MenuItem active={this.state.sorted.key === "last_updated" ? true : false } onClick={this.onSortByClicked.bind(this, "last_updated")}>
-                            &nbsp;Last Update
+                          <MenuItem onClick={this.onActionMenuClicked.bind(this, "import")}>
+                            &nbsp;Import Workflow
                           </MenuItem>
                         </DropdownButton>
-                      </div>*/}
-                      <div className="col-md-1 col-sm-3 text-left"></div>
-                    </div>
+                      </div>
+                      : null
+                    }
                   </div>
-                : ''
-}
-            </div>
-          : ''
-}
+                </div>
+              </div>
+            : null
+          : null
+        }
+        {entities.length ?
+          <h4 className="m-b-lg workflowCount">{entities.length == 1 ? "1 Workflow" : entities.length + " Workflows"}</h4>
+        : null}
         <div className="row">
           {(fetchLoader || searchLoader)
             ? [<div key={"1"} className="loader-overlay"></div>,<CommonLoaderSign key={"2"} imgName={"applications"}/>]
             : filterValue || entities.length ? components : <BeginNew type="Workflow" onClick={this.onActionMenuClicked.bind(this, "create")}/>
-}
+          }
         </div>
-        {(entities.length > pageSize)
-          ? <Paginate len={entities.length} splitData={splitData} pagesize={pageSize} pagePosition={this.pagePosition}/>
-          : ''
-}
+
+        <TopologyFooter selectedWorkflowArr={selectedCheckboxArr} footerAction={this.deleteAction} newProject={this.handleCreate.bind()} addtoProject={this.addtoProject.bind()}></TopologyFooter>
+
         <Modal className="u-form" ref={(ref) => this.AddTopologyModelRef = ref} data-title={topologyData ? "Update Engine" : "Add Workflow"} onKeyPress={this.handleKeyPress} data-resolve={this.handleSaveClicked} data-reject={()=>{this.setState({topologyData: null});this.AddTopologyModelRef.hide();}}>
           <AddTopology ref={(ref) => this.addTopologyRef = ref} topologyData={topologyData} namespacesArr={namespacesArr}/>
         </Modal>
         <Modal className="u-form" ref={(ref) => this.ImportTopologyModelRef = ref} data-title="Import Workflow" onKeyPress={this.handleKeyPress} data-resolve={this.handleImportSave}>
           <ImportTopology
             ref={(ref) => this.importTopologyRef = ref}
-            defaultProjectId={this.props.params.projectId}/>
+            defaultProjectId={this.projectId}/>
         </Modal>
         <Modal className="u-form" ref={(ref) => this.CloneTopologyModelRef = ref} data-title="Clone Workflow" onKeyPress={this.handleKeyPress} data-resolve={this.handleCloneSave}>
           <CloneTopology
             topologyId={this.state.cloneFromId}
             ref={(ref) => this.cloneTopologyRef = ref}
-            defaultProjectId={this.props.params.projectId}/>
+            defaultProjectId={this.projectId}/>
         </Modal>
         {/* CommonShareModal */}
         <Modal className="u-form" ref={"CommonShareModalRef"} data-title="Share Workflow"  data-resolve={this.handleShareSave.bind(this)} data-reject={this.handleShareCancel.bind(this)}>
           <CommonShareModal ref="CommonShareModal" shareObj={shareObj}/>
         </Modal>
         <a className="btn-download" ref="ExportTopology" hidden download href=""></a>
+
+        <Modal ref="addModal" className="u-form" data-title="Create new project"
+          data-resolve={this.handleCreateProjectSave.bind(this)}>
+          <AddProject ref="createProject" editData={this.state.editModeData}/>
+        </Modal>
+
+        <Modal ref="addToProjectsModal" className="u-form" data-title="Add to Project"
+         data-resolve={this.handleAddToProjectSave.bind(this)}>
+          <AddWorkflowsToProject ref="addProject"></AddWorkflowsToProject>
+        </Modal>
       </BaseContainer>
     );
   }

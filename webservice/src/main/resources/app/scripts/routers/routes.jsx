@@ -39,7 +39,7 @@ import AccessDeniedComponent  from '../components/AccessDeniedComponent';
 const onEnter = (nextState, replace, callback) => {
   var sidebarRoute = nextState.routes[1];
   if (sidebarRoute) {
-    if (sidebarRoute.name === 'My Projects' || sidebarRoute.name === 'My Workflows'
+    if (sidebarRoute.name === 'Workflows' || sidebarRoute.name === 'My Projects' || sidebarRoute.name === 'My Workflows'
       || sidebarRoute.name === 'Log Search' || sidebarRoute.name === 'Samplings'){
       state.sidebar_activeKey = 1;
       state.sidebar_toggleFlag = false;
@@ -67,8 +67,8 @@ const onEnter = (nextState, replace, callback) => {
 export default (
 
   <Route path="/" component={null} name="Home" onEnter={onEnter}>
-    <IndexRoute name="My Projects" accessMenuName={menuName.PROJECT} component={ProjectListContainer} onEnter={onEnter} />
-    <Route path="projects" name="My Projects" onEnter={onEnter}>
+    <IndexRoute name="Workflows" component={TopologyListContainer} onEnter={onEnter} />
+    <Route path="projects" accessMenuName={menuName.PROJECT} name="My Projects" onEnter={onEnter}>
       <IndexRoute name="My Projects" component={ProjectListContainer} onEnter={onEnter} />
       <Route path=":projectId/applications" name="My Workflows" onEnter={onEnter}>
         <IndexRoute name="My Workflows" component={TopologyListContainer} onEnter={onEnter} />

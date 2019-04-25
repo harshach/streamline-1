@@ -66,25 +66,28 @@ export default class VersionControl extends Component{
   constructor(props) {
     super(props);
     this.state = {
+      versionPanelCollapsed: true
     };
   }
   componentDidMount(){
-    app_state.versionPanelCollapsed = true;
   }
   handleExpandCollapse = () => {
-    app_state.versionPanelCollapsed = !app_state.versionPanelCollapsed;
+    let {versionPanelCollapsed} = this.state;
+    this.setState({versionPanelCollapsed: !versionPanelCollapsed});
   }
   getHeader = () => {
-    const {selectedVersionName, setCurrentVersion} = this.props;
-    return <button className="btn-panels" onClick={this.handleExpandCollapse}><img src="styles/img/uWorc/clock.png"/></button>;
+    let {versionPanelCollapsed} = this.state;
+    return <button
+      className="btn-bottom-panel"
+      onClick={this.handleExpandCollapse}
+    ><i className={versionPanelCollapsed ? "fa fa-chevron-up" : "fa fa-chevron-down"}></i></button>;
   }
   getBody = () => {
     const {sliderSettings} = this.state;
     const {versions, handleVersionChange, selectedVersionName, getCurrentVersionThumbnail, setCurrentVersion, lastUpdatedTime} = this.props;
 
     const verComps = _.map(versions, (v, i) => {
-      return <div key={i}>
-        <VersionThumbnail
+      return <VersionThumbnail
           key={i}
           data={v}
           onClick={handleVersionChange}
@@ -92,48 +95,43 @@ export default class VersionControl extends Component{
           getCurrentVersionThumbnail={getCurrentVersionThumbnail}
           lastUpdatedTime={lastUpdatedTime}
           isDeployedVersion={i==1}
-        />
-      </div>;
+        />;
     });
 
-    const content = (<div>
-      <div className="right-sidebar-header">
-        <div>
-          <h6 className="version-control">Version Control</h6>
-          <DropdownButton bsStyle="link" className="btn-sm"
-            title={selectedVersionName == 'CURRENT' ? 'DRAFT' : selectedVersionName} id="version-dropdown"
-            onSelect={(v) => {
-              handleVersionChange(v);
-            }} >
-            {_.map(versions, (v, i) => {
-              return <MenuItem active={selectedVersionName === v.name ? true : false}
-                eventKey={v.id} key={i} data-version-id={v.id}>{v.name == 'CURRENT' ? 'DRAFT' : v.name}
-              </MenuItem>;
-            })
-          }
-          </DropdownButton>
-        </div>
-        <div className="text-right">
-          <button className="btn btn-primary btn-sm set-version-btn" onClick={setCurrentVersion}>Set as Current</button>
-        </div>
-        <div className="text-right">
-          <button type="button" className="close" style={{marginLeft:'5px'}} onClick={this.handleExpandCollapse}><span >×</span></button>
+    const content = ([
+      <div className="bottom-panel-header" key="version-header">
+        <DropdownButton bsStyle="link" className="btn-sm"
+          title={selectedVersionName == 'CURRENT' ? 'DRAFT' : selectedVersionName} id="version-dropdown"
+          onSelect={(v) => {
+            handleVersionChange(v);
+          }} >
+          {_.map(versions, (v, i) => {
+            return <MenuItem active={selectedVersionName === v.name ? true : false}
+              eventKey={v.id} key={i} data-version-id={v.id}>{v.name == 'CURRENT' ? 'DRAFT' : v.name}
+            </MenuItem>;
+          })
+        }
+        </DropdownButton>
+        <button className="btn btn-primary btn-sm set-version-btn" onClick={setCurrentVersion}>Set as Current</button>
+      </div>,
+      <div className="bottom-panel-content" key="metrics-body">
+        <div className="version-wrapper">
+          {verComps}
         </div>
       </div>
-      <div className="right-sidebar-body">
-        {verComps}
-      </div>
-    </div>);
+    ]);
 
     return content;
   }
   render(){
+    let {versionPanelCollapsed} = this.state;
     const {selectedVersionName, currentVersionDagThumbnail} = this.props;
     return <RightSideBar
       getHeader={this.getHeader}
       getBody={this.getBody}
       selectedVersionName={selectedVersionName}
       currentVersionDagThumbnail={currentVersionDagThumbnail}
+      className={versionPanelCollapsed ? "bottom-panel version-control" : "bottom-panel version-control active"}
     />;
   }
 }

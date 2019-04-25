@@ -28,6 +28,9 @@ const MiscREST = {
     options.method = options.method || 'GET';
     options.credentials = 'same-origin';
     let url = '/api/v1/catalog/search?detail=true&namespace='+namespace;
+    if(namespace === 'topology'){
+      url = '/api/v1/catalog/search?&namespace='+namespace;
+    }
     if(queryStr){
       url += '&queryString='+queryStr;
     }

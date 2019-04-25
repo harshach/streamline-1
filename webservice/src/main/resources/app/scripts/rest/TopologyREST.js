@@ -32,11 +32,15 @@ const TopologyREST = {
         return response.json();
       });
   },
-  getAllAvailableTopologies(options) {
+  getAllAvailableTopologies(sort, options) {
     options = options || {};
     options.method = options.method || 'GET';
     options.credentials = 'same-origin';
-    return fetch(baseUrl + 'topologies', options)
+    let url = baseUrl + 'topologies';
+    if(sort){
+      url = baseUrl + 'topologies?sort=' + sort;
+    }
+    return fetch(url, options)
       .then((response) => {
         return response.json();
       });
@@ -45,7 +49,11 @@ const TopologyREST = {
     options = options || {};
     options.method = options.method || 'GET';
     options.credentials = 'same-origin';
-    return fetch(baseUrl + 'projects/'+projectId+'/topologies', options)
+    let url = baseUrl + 'projects/'+projectId+'/topologies';
+    if(sort){
+      url = baseUrl + 'projects/'+projectId+'/topologies?sort=' + sort;
+    }
+    return fetch(url, options)
       .then((response) => {
         return response.json();
       });

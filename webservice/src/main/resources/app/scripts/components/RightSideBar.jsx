@@ -27,15 +27,11 @@ export default class RightSidebar extends Component {
     super(props);
   }
   render() {
-    const {getHeader, getBody} = this.props;
+    const {getHeader, getBody, className} = this.props;
     return (
-      <aside className={`right-sidebar ${app_state.versionPanelCollapsed ? '' : 'active'}`}>
-        <div className="icon-panel">
-          {getHeader()}
-        </div>
-        <div className="sidebar-content">
-          {getBody()}
-        </div>
+      <aside className={className}>
+        {getHeader()}
+        {getBody()}
       </aside>
     );
   }

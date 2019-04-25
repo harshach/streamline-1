@@ -2043,6 +2043,7 @@ public class StreamCatalogService {
         if (task == null || !task.getTopologyId().equals(topologyId)) {
             return null;
         }
+        task.setVersionTimestamp(updateVersionTimestamp(versionId).getTimestamp());
         fillTaskStreams(task);
         return task;
     }

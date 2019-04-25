@@ -21,6 +21,7 @@ import DatetimeRangePicker from 'react-bootstrap-datetimerangepicker';
 import {DropdownButton, InputGroup, Button, ButtonGroup, ToggleButtonGroup,
   ToggleButton} from 'react-bootstrap';
 import Utils from '../utils/Utils';
+import {clockIcon} from '../utils/SVGIcons';
 
 class DateTimePickerDropdown extends Component {
 
@@ -178,6 +179,9 @@ class DateTimePickerDropdown extends Component {
     this.props.datePickerCallback(this.state.startDate, this.state.endDate);
     this.setState({showDateRangeSection: !this.state.showDateRangeSection});
   }
+  handleCancelBtnClick = () => {
+    this.setState({showDateRangeSection: !this.state.showDateRangeSection});
+  }
   handleSelectQuickRange (rangesObj, e) {
     if(e.target.nodeName == 'A' || e.target.nodeName == 'LI') {
       let currentRange = rangesObj[e.target.textContent]();
@@ -196,14 +200,13 @@ class DateTimePickerDropdown extends Component {
     let labelStart = this.state.startDate.format('YYYY-MM-DD HH:mm:ss');
     let labelEnd = this.state.endDate.format('YYYY-MM-DD HH:mm:ss');
     const datePickerTitleContent = (
-      <span><i className="fa fa-clock-o"></i> {moment.duration(startDate.diff(endDate)).humanize()}</span>
+      <span>{clockIcon} {moment.duration(startDate.diff(endDate)).humanize()}</span>
     );
     return (
       <DropdownButton
         title={datePickerTitleContent}
         id={this.props.dropdownId}
         rootCloseEvent={null}
-        pullRight
         open={this.state.showDateRangeSection}
         onToggle={this.showHideDateRangePicker}
         disabled={this.props.isDisabled}
@@ -248,7 +251,8 @@ class DateTimePickerDropdown extends Component {
                 </Button>
               </InputGroup>
             </DatetimeRangePicker>
-            <Button type="button" className="btn-success pull-right row-margin-top" onClick={this.handleApplyBtnClick}>APPLY</Button>
+            <Button type="button" className="btn-primary pull-right row-margin-top" onClick={this.handleApplyBtnClick}>APPLY</Button>
+            <Button type="button" className="u-form btn-default pull-right row-margin-top margin-right" onClick={this.handleCancelBtnClick}>CANCEL</Button>
           </div>
           <div className="quick-ranges col-sm-8">
             <div className="sub-heading">Quick Ranges</div>

@@ -62,6 +62,9 @@ public class Task {
     private TaskParams taskParams;
 
 
+    @JsonProperty("template_params")
+    public Map<String, String> templateParams;
+
     /**
      * 
      * (Required)
@@ -212,9 +215,21 @@ public class Task {
         this.taskParams = taskParams;
     }
 
+    @JsonProperty("template_params")
+    public Map<String, String> getTemplateParams() {
+        return templateParams;
+    }
+
+
+    @JsonProperty("template_params")
+    public void setTemplateParams(Map<String, String> templateParams) {
+        this.templateParams = templateParams;
+    }
+
+
     @Override
     public String toString() {
-        return new ToStringBuilder(this).append("taskId", taskId).append("retries", retries).append("retryDelay", retryDelay).append("triggerRule", triggerRule).append("executionTimeout", executionTimeout).append("pool", pool).append("dependencies", dependencies).append("connections", connections).append("taskClass", taskClass).append("taskParams", taskParams).toString();
+        return new ToStringBuilder(this).append("taskId", taskId).append("retries", retries).append("retryDelay", retryDelay).append("triggerRule", triggerRule).append("executionTimeout", executionTimeout).append("pool", pool).append("dependencies", dependencies).append("connections", connections).append("taskClass", taskClass).append("taskParams", taskParams).append("templateParams", templateParams).toString();
     }
 
     @Override
@@ -231,7 +246,7 @@ public class Task {
             return false;
         }
         Task rhs = ((Task) other);
-        return new EqualsBuilder().append(retryDelay, rhs.retryDelay).append(retries, rhs.retries).append(executionTimeout, rhs.executionTimeout).append(pool, rhs.pool).append(taskClass, rhs.taskClass).append(triggerRule, rhs.triggerRule).append(taskParams, rhs.taskParams).append(taskId, rhs.taskId).append(connections, rhs.connections).append(dependencies, rhs.dependencies).isEquals();
+        return new EqualsBuilder().append(retryDelay, rhs.retryDelay).append(retries, rhs.retries).append(executionTimeout, rhs.executionTimeout).append(pool, rhs.pool).append(taskClass, rhs.taskClass).append(triggerRule, rhs.triggerRule).append(taskParams, rhs.taskParams).append(taskId, rhs.taskId).append(connections, rhs.connections).append(dependencies, rhs.dependencies).append(templateParams, rhs.templateParams).isEquals();
     }
 
     public enum TriggerRule {

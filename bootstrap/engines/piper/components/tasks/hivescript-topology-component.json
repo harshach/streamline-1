@@ -1,0 +1,144 @@
+{
+  "type": "TASK",
+  "name": "Hivescript",
+  "subType": "HIVESCRIPT",
+  "engine": "PIPER",
+  "template": ["Blank"],
+  "builtin": true,
+  "fieldHintProviderClass": "com.hortonworks.streamline.streams.cluster.bundle.impl.PiperHiveTaskBundleHintProvider",
+  "transformationClass": "com.hortonworks.streamline.streams.layout.piper.contract.HivescriptTaskComponent",
+  "input": true,
+  "output": true,
+  "topologyComponentUISpecification": {
+    "fields": [
+      {
+        "uiName": "Piper Task Class",
+        "fieldName": "class_name",
+        "isUserInput": false,
+        "tooltip": "Piper Task Class name",
+        "isOptional": false,
+        "defaultValue": "pipelines.hyperion_auto_pipelines.hyperion.models.hive_script_contract.HiveScriptTask",
+        "type": "string"
+      },
+      {
+        "uiName": "Hive Connection ID",
+        "fieldName": "task_params.hive_cli_conn_id",
+        "tooltip": "Hive Connection",
+        "isOptional": false,
+        "type": "string"
+      },
+      {
+        "uiName": "Script Type",
+        "fieldName": "scriptType",
+        "isOptional": false,
+        "tooltip": "Inline SQL or pull from querybuilder",
+        "type": "enumobject",
+        "defaultValue": "scriptTypeSqlOption",
+        "options": [
+          {
+            "uiName": "Inline SQL",
+            "fieldName": "scriptTypeSqlOption",
+            "tooltip": "Inline SQL to be executed",
+            "isOptional": false,
+            "type": "object",
+            "fields": [
+              {
+                "uiName": "Hive Query",
+                "fieldName": "sql",
+                "tooltip": "Query to Run",
+                "defaultValue": "INSERT OVERWRITE TABLE table1 PARTITION(datestr) SELECT column1, column2 FROM table2 WHERE datestr='{{ds}}';",
+                "isOptional": false,
+                "type": "sql",
+                "height": "200"
+              }
+            ]
+          },
+          {
+            "uiName": "Query Builder Report Id",
+            "fieldName": "scriptTypeQuerybuilderReportIdOption",
+            "tooltip": "Pull query from querybuilder",
+            "isOptional": false,
+            "type": "object",
+            "fields": [
+              {
+                "uiName": "Querybuilder Report Id",
+                "fieldName": "querybuilderReportId",
+                "isOptional": false,
+                "tooltip": "Query Builder Report Id",
+                "type": "string"
+              }
+            ]
+          },
+          {
+            "uiName": "Querybuilder UUID",
+            "fieldName": "scriptTypeQuerybuilderIdOption",
+            "tooltip": "Deprecated - Querybuilder Id",
+            "isOptional": false,
+            "type": "object",
+            "fields": [
+              {
+                "uiName": "Querybuilder Report Id",
+                "fieldName": "querybuilderUuid",
+                "isOptional": false,
+                "tooltip": "Query Builder Report Id",
+                "type": "string"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "uiName": "Params",
+        "fieldName": "template_params",
+        "tooltip": "Substitution params eg. {{ds}}",
+        "isOptional": true,
+        "type": "keyvalue"
+      },
+      {
+        "uiName": "Pool",
+        "fieldName": "pool",
+        "isUserInput": true,
+        "tooltip": "Piper pool to run task in",
+        "defaultValue": "uworc_pool",
+        "isOptional": true,
+        "type": "enumstring",
+        "options": ["uworc_pool"],
+        "hint": "override"
+      },
+      {
+        "uiName": "Retries",
+        "fieldName": "retries",
+        "isUserInput": true,
+        "tooltip": "Number of Retries",
+        "isOptional": true,
+        "type": "number"
+      },
+      {
+        "uiName": "Retry Delay",
+        "fieldName": "retry_delay",
+        "isUserInput": true,
+        "tooltip": "Retry delay in seconds between retries",
+        "isOptional": true,
+        "type": "number"
+      },
+      {
+        "uiName": "Execution Timeout",
+        "fieldName": "execution_timeout",
+        "isUserInput": true,
+        "tooltip": "Execution timeout in seconds. After this time task will be failed. Must be <= 24 hours.",
+        "isOptional": true,
+        "type": "number"
+      },
+      {
+        "uiName": "Trigger Rule",
+        "fieldName": "trigger_rule",
+        "isUserInput": true,
+        "tooltip": "Trigger Rule for running task looking at task dependencies",
+        "isOptional": true,
+        "type": "enumstring",
+        "options": ["all_success", "all_failed", "all_done", "one_success", "one_failed"],
+        "defaultValue": "all_success"
+      }
+    ]
+  }
+}

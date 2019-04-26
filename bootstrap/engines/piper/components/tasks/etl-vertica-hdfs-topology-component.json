@@ -1,0 +1,207 @@
+{
+  "type": "TASK",
+  "name": "Vertica to HDFS",
+  "subType": "ETL_VERTICA_HDFS",
+  "engine": "PIPER",
+  "template": ["Blank"],
+  "builtin": true,
+  "fieldHintProviderClass": "com.hortonworks.streamline.streams.cluster.bundle.impl.PiperHiveTaskBundleHintProvider",
+  "transformationClass": "com.hortonworks.streamline.streams.layout.piper.contract.ETLTaskComponent",
+  "input": true,
+  "output": true,
+  "topologyComponentUISpecification": {
+    "fields": [
+      {
+        "uiName": "Piper Task Class",
+        "fieldName": "class_name",
+        "isUserInput": false,
+        "tooltip": "Piper Task Class name",
+        "isOptional": false,
+        "defaultValue": "pipelines.hyperion_auto_pipelines.hyperion.models.etl_contract.ETLTask",
+        "type": "string"
+      },
+      {
+        "uiName": "Source",
+        "fieldName": "sourceType",
+        "isOptional": false,
+        "tooltip": "Source ",
+        "type": "enumobject",
+        "defaultValue": "sourceTypeVerticaOption",
+        "options": [
+          {
+            "uiName": "Vertica",
+            "fieldName": "sourceTypeVerticaOption",
+            "tooltip": "Read from Vertica",
+            "isOptional": false,
+            "type": "object",
+            "fields": [
+              {
+                "uiName": "Vertica Connection ID",
+                "fieldName": "vertica.source.connection_id",
+                "tooltip": "Vertica Connection",
+                "isOptional": false,
+                "type": "string",
+                "defaultValue": "vertica_piper"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "uiName": "Script Type",
+        "fieldName": "scriptType",
+        "isOptional": false,
+        "tooltip": "Inline SQL or pull from querybuilder",
+        "type": "enumobject",
+        "defaultValue": "scriptTypeSqlOption",
+        "options": [
+          {
+            "uiName": "Inline SQL",
+            "fieldName": "scriptTypeSqlOption",
+            "tooltip": "Inline SQL to be executed",
+            "isOptional": false,
+            "type": "object",
+            "fields": [
+              {
+                "uiName": "Vertica Query",
+                "fieldName": "sql",
+                "tooltip": "Query to Run",
+                "defaultValue": "",
+                "isOptional": false,
+                "type": "sql",
+                "height": "200"
+              }
+            ]
+          },
+          {
+            "uiName": "Query Builder Report Id",
+            "fieldName": "scriptTypeQuerybuilderReportIdOption",
+            "tooltip": "Pull query from querybuilder",
+            "isOptional": false,
+            "type": "object",
+            "fields": [
+              {
+                "uiName": "Querybuilder Report Id",
+                "fieldName": "querybuilderReportId",
+                "isOptional": false,
+                "tooltip": "Query Builder Report Id",
+                "type": "string"
+              }
+            ]
+          },
+          {
+            "uiName": "Querybuilder UUID",
+            "fieldName": "scriptTypeQuerybuilderIdOption",
+            "tooltip": "Deprecated - Querybuilder Id",
+            "isOptional": false,
+            "type": "object",
+            "fields": [
+              {
+                "uiName": "Querybuilder Report Id",
+                "fieldName": "querybuilderUuid",
+                "isOptional": false,
+                "tooltip": "Query Builder Report Id",
+                "type": "string"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "uiName": "Destination",
+        "fieldName": "destinationType",
+        "isOptional": false,
+        "tooltip": "Destination",
+        "type": "enumobject",
+        "defaultValue": "destinationTypeHdfsOption",
+        "options": [
+          {
+            "uiName": "HDFS",
+            "fieldName": "destinationTypeHdfsOption",
+            "tooltip": "Write as CSV to HDFS",
+            "isOptional": false,
+            "type": "object",
+            "fields": [
+              {
+                "uiName": "Path",
+                "fieldName": "hdfs.destination.path",
+                "tooltip": "HDFS Connection",
+                "isOptional": false,
+                "type": "string"
+              },
+              {
+                "uiName": "Format",
+                "fieldName": "hdfs.destination.format",
+                "tooltip": "File format is comma separated values",
+                "isOptional": false,
+                "isUserInput": false,
+                "type": "string",
+                "defaultValue": "csv"
+              },
+              {
+                "uiName": "HDFS Connection ID",
+                "fieldName": "hdfs.destination.connection_id",
+                "tooltip": "HDFS Connection",
+                "isOptional": false,
+                "type": "string",
+                "defaultValue": "hdfs_hyperion"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "uiName": "Params",
+        "fieldName": "template_params",
+        "tooltip": "Substitution params eg. {{ds}}",
+        "isOptional": true,
+        "type": "keyvalue"
+      },
+      {
+        "uiName": "Pool",
+        "fieldName": "pool",
+        "isUserInput": true,
+        "tooltip": "Piper pool to run task in",
+        "defaultValue": "uworc_pool",
+        "isOptional": true,
+        "type": "enumstring",
+        "options": ["uworc_pool"],
+        "hint": "override"
+      },
+      {
+        "uiName": "Retries",
+        "fieldName": "retries",
+        "isUserInput": true,
+        "tooltip": "Number of Retries",
+        "isOptional": true,
+        "type": "number"
+      },
+      {
+        "uiName": "Retry Delay",
+        "fieldName": "retry_delay",
+        "isUserInput": true,
+        "tooltip": "Retry delay in seconds between retries",
+        "isOptional": true,
+        "type": "number"
+      },
+      {
+        "uiName": "Execution Timeout",
+        "fieldName": "execution_timeout",
+        "isUserInput": true,
+        "tooltip": "Execution timeout in seconds. After this time task will be failed. Must be <= 24 hours.",
+        "isOptional": true,
+        "type": "number"
+      },
+      {
+        "uiName": "Trigger Rule",
+        "fieldName": "trigger_rule",
+        "isUserInput": true,
+        "tooltip": "Trigger Rule for running task looking at task dependencies",
+        "isOptional": true,
+        "type": "enumstring",
+        "options": ["all_success", "all_failed", "all_done", "one_success", "one_failed"],
+        "defaultValue": "all_success"
+      }
+    ]
+  }
+}

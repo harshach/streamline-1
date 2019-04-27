@@ -18,6 +18,7 @@ package com.hortonworks.streamline.streams.service;
 
 import com.codahale.metrics.annotation.Timed;
 import com.google.common.base.Preconditions;
+import com.hortonworks.registries.common.Schema;
 import com.hortonworks.registries.schemaregistry.SchemaIdVersion;
 import com.hortonworks.registries.schemaregistry.SchemaMetadata;
 import com.hortonworks.registries.schemaregistry.SchemaVersion;
@@ -27,7 +28,9 @@ import com.hortonworks.registries.schemaregistry.errors.SchemaNotFoundException;
 import com.hortonworks.streamline.common.exception.service.exception.request.BadRequestException;
 import com.hortonworks.streamline.common.exception.service.exception.request.EntityNotFoundException;
 import com.hortonworks.streamline.common.util.WSUtils;
+import com.hortonworks.streamline.streams.registry.SQLProcessorInput;
 import com.hortonworks.streamline.streams.registry.SchemaRegistryClientAdapter;
+import com.hortonworks.streamline.streams.registry.SchemaServiceUtil;
 import com.hortonworks.streamline.streams.registry.StreamlineSchemaNotFoundException;
 import com.hortonworks.streamline.streams.registry.StreamlineSchemaRegistryClient;
 import org.slf4j.Logger;
@@ -211,4 +214,17 @@ public class SchemaResource {
         }
     }
 
+    @POST
+    @Path("/outputSchemaFields")
+    @Timed
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response getOutputSchemaFields(SQLProcessorInput sqlProcessorInput,
+                                    @Context SecurityContext securityContext) {
+        try {
+            Schema schema = SchemaServiceUtil.getOutputSchema(sqlProcessorInput.inputSchemas(), sqlProcessorInput.sqlStatement());
+            return WSUtils.respondEntity(schema.getFields(), OK);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
 }

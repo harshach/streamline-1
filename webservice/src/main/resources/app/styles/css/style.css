@@ -3210,7 +3210,82 @@ span.alpha-badge {
   top: 50%;
   margin-top: -7px;
 }
-
+.sidebar-user {
+	position: absolute;
+  bottom: 20px;
+}
+.user-btn-group {
+	margin: 15px;
+    border: 3px #666 solid;
+    border-radius: 50%;
+}
+.user-btn-group img {
+	border-radius: 50%;
+}
+.user-status {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    display: block;
+    height: 12px;
+    width: 12px;
+    background-color: #07A35A;
+    border: 2px #333645 solid;
+    border-radius: 50%;
+}
+.user-dropdown {
+    position: absolute;
+    width: 170px;
+    left: 85px;
+    bottom: 15px;
+    background: #fff;
+    box-shadow: 0px 4px 16px rgba(0, 0, 0, 0.24);
+    border-radius: 4px;
+}
+.user-dropdown .dropdown-head {
+    padding: 9px 16px;
+    border-bottom: 1px solid #E5E5E5;
+}
+.user-dropdown .dropdown-head h6 {
+	margin: 5px 0;
+	color: #333333;;
+}
+.user-dropdown .dropdown-head p {
+	margin: 0;
+	color: #999999;
+}
+.user-dropdown > ul {
+	padding: 0;
+	margin: 0;
+  list-style: none;
+}
+.user-dropdown > ul > li.user-note {
+	padding: 9px 16px;
+	font-size: 10px;
+	color: #B3B3B3;
+}
+.user-dropdown > ul > li > a {
+	display: block;
+	color: #333333;
+	padding: 9px 16px;
+  font-weight: 500;
+}
+.user-dropdown > ul > li > a:hover {
+  background-color: #efefef;
+}
+.user-dropdown > ul > li > a > svg {
+	color: #999999;
+	margin-right: 8px;
+  vertical-align: top;
+}
+.user-dropdown .dropdown-foot {
+  padding: 8px 16px;
+  background: #F7F7F7;
+}
+.dropdown-foot span {
+  color: #07A35A;
+  float: right;
+}
 .environment-box {
   height: 580px;
 }
@@ -5117,13 +5192,17 @@ ul.custom-pagination li.active{
   vertical-align: top;
   font-size: 12px;
 }
+.quick-ranges ul > li {
+  margin-bottom: 3px;
+}
 .quick-ranges ul > li > a {
   cursor: pointer;
   text-decoration: none;
+  padding: 2px 6px;
 }
 .quick-ranges ul > li:hover > a, .quick-ranges ul > li.active > a {
   color: #ffffff;
-  background: #3490c4;
+  background: #266ef1;
 }
 /*View Mode Component Metrics*/
 .component-metrics {
@@ -6343,4 +6422,11 @@ background: #fff
 }
 .btn-link:hover svg {
   cursor: pointer;
+}
+.info-label {
+  margin-left: 15px;
+  color: #333333;
+}
+.popover{
+  z-index: 5090;
 }

@@ -19,12 +19,17 @@ import app_state from '../app_state';
 import {observer} from 'mobx-react';
 import Modal from '../components/FSModal';
 import {hasModuleAccess} from '../utils/ACLUtils';
-import {menuName} from '../utils/Constants';
+import {menuName, rolePriorities} from '../utils/Constants';
+import MiscREST from '../rest/MiscREST';
+import SVGIcons from '../utils/SVGIcons';
 
 @observer
 export default class Sidebar extends Component {
   constructor(props) {
     super(props);
+    this.state = {
+      showUserDetails: null
+    };
   }
   componentWillMount() {
     var element = document.getElementsByTagName('body')[0];
@@ -68,10 +73,34 @@ export default class Sidebar extends Component {
       this.navigateToDashboard();
     }
   }
+  handleUserClick = () => {
+    this.setState({
+      showUserDetails: !this.state.showUserDetails
+    });
+  }
+  handleLogOut = (e) => {
+    MiscREST.userSignOut()
+      .then((r)=>{
+        app_state.unKnownUser = unknownAccessCode.loggedOut;
+      });
+  }
   render() {
+    let {showUserDetails} = this.state;
+    let displayNames = [];
+    let metadata = "", priority = 0;
+    app_state.roleInfo.forEach((role)=>{
+      let obj = rolePriorities.find((o)=>{return o.name === role.name;});
+      if(obj.priority > priority) {
+        priority = obj.priority;
+        metadata = role.metadata;
+      }
+      displayNames.push(role.displayName);
+    });
     let config = app_state.streamline_config;
-    // let registryURL = window.location.protocol + "//" + config.registry.host + ":" + config.registry.port + '/ui/';
-    let watchTowerURL = "http://watchtower.uberinternal.com";
+    let userDropdownClass = "displayNone";
+    if(showUserDetails !== null){
+      userDropdownClass = showUserDetails ? "user-dropdown animated fadeInUp" : "user-dropdown animated fadeOutDown";
+    }
     return (
       <aside className="main-sidebar">
         <section className="sidebar">
@@ -142,6 +171,33 @@ export default class Sidebar extends Component {
             }
           </ul>
         </section>
+        {!_.isEmpty(app_state.user_profile) ?
+          <section className="sidebar-user">
+            <div className="user-btn-group">
+              <a href="javascript:void(0)" onClick={this.handleUserClick}>
+                <img src="styles/img/uWorc/Avatar.png" className="img-responsive"/>
+              </a>
+              <span className="user-status"></span>
+              <div className={userDropdownClass}>
+                <div className="dropdown-head">
+                  <h6>{app_state.user_profile.name}</h6>
+                  <p>{displayNames.join(', ')}</p>
+                </div>
+                <ul>
+                  <li><a href="javascript:void(0)">{SVGIcons.bugIcon} Report Bug</a></li>
+                  <li><a href="javascript:void(0)">{SVGIcons.helpIcon} Help</a></li>
+                  <li><a href="javascript:void(0)" onClick={this.handleLogOut}>
+                    {SVGIcons.logoutIcon} Logout</a>
+                  </li>
+                  <li className="user-note">Version 1.0</li>
+                </ul>
+                <div className="dropdown-foot">Status
+                  <span><i className="fa fa-circle"></i> Online</span>
+                </div>
+            	</div>
+            </div>
+          </section>
+          : null}
         {/*<a href="javascript:void(0);" className="sidebar-toggle" onClick={this.toggleSidebar.bind(this)} data-toggle="offcanvas" role="button">
           {!app_state.sidebar_isCollapsed ? <span>Version: {config.version} </span> : null}
           <i className={app_state.sidebar_isCollapsed

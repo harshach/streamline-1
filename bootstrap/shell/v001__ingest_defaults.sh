@@ -192,9 +192,9 @@ function add_all_bundles {
     add_topology_component_bundle /streams/componentbundles/TASK ${piper_dir}/components/tasks/dummy-topology-component.json
     add_topology_component_bundle /streams/componentbundles/TASK ${piper_dir}/components/tasks/hivescript-topology-component.json
     add_topology_component_bundle /streams/componentbundles/TASK ${piper_dir}/components/tasks/etl-topology-component.json
-    add_topology_component_bundle /streams/componentbundles/TASK ${piper_dir}/components/tasks/etl-vertica-hdfs-component.json
-    add_topology_component_bundle /streams/componentbundles/TASK ${piper_dir}/components/tasks/etl-vertica-hive-component.json
-    add_topology_component_bundle /streams/componentbundles/TASK ${piper_dir}/components/tasks/etl-vertica-postgres-component.json
+    add_topology_component_bundle /streams/componentbundles/TASK ${piper_dir}/components/tasks/etl-vertica-hdfs-topology-component.json
+    add_topology_component_bundle /streams/componentbundles/TASK ${piper_dir}/components/tasks/etl-vertica-hive-topology-component.json
+    add_topology_component_bundle /streams/componentbundles/TASK ${piper_dir}/components/tasks/etl-vertica-postgres-topology-component.json
 
     # === Sink ===
     add_topology_component_bundle /streams/componentbundles/SINK ${storm_dir}/components/sinks/hdfs-sink-topology-component.json

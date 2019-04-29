@@ -67,12 +67,13 @@ export class BaseField extends Component {
         {this.props.fieldJson.tooltip}
       </Popover>
     );
-    return  <OverlayTrigger trigger={['hover']} placement="right" overlay={popoverContent}>
-              <label>{this.props.label} {this.props.validation && this.props.validation.indexOf('required') !== -1
-                ? <span className="text-danger">*</span>
-                : null}
-              </label>
-            </OverlayTrigger>;
+    return  <label>{this.props.label} {this.props.validation && this.props.validation.indexOf('required') !== -1
+              ? <span className="text-danger">*</span>
+              : null}
+              <OverlayTrigger trigger={['hover']} placement="right" overlay={popoverContent}>
+                <i className="fa fa-info-circle info-label"></i>
+              </OverlayTrigger>
+            </label>;
   }
 
   toggleModal = () => {
@@ -1045,12 +1046,13 @@ export class arrayenumstring extends BaseField {
       </Popover>
     );
     return  <span>
-              <OverlayTrigger trigger={['hover']} placement="right" overlay={popoverContent}>
-                <label>{this.props.label} {this.props.validation && this.props.validation.indexOf('required') !== -1
-                  ? <span className="text-danger">*</span>
-                  : null}
-                </label>
-              </OverlayTrigger>
+              <label>{this.props.label} {this.props.validation && this.props.validation.indexOf('required') !== -1
+                ? <span className="text-danger">*</span>
+                : null}
+                <OverlayTrigger trigger={['hover']} placement="right" overlay={popoverContent}>
+                  <i className="fa fa-info-circle info-label"></i>
+                </OverlayTrigger>
+              </label>
               <a className="pull-right" href="javascript:void(0)" onClick={this.handleSelectAll}>Select All</a>
             </span> ;
   }

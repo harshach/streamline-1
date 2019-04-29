@@ -222,6 +222,8 @@ class DateTimePickerDropdown extends Component {
               locale={this.props.locale}
               startDate={this.state.startDate}
               onApply={this.handleEvent.bind(this, 'startDate')}
+              applyClass="btn-primary"
+              cancelClass="u-form btn-default"
             >
               <InputGroup className="selected-date-range-btn">
                 <Button>
@@ -241,6 +243,8 @@ class DateTimePickerDropdown extends Component {
               startDate={this.state.endDate}
               autoUpdateInput={true}
               onApply={this.handleEvent.bind(this, 'endDate')}
+              applyClass="btn-primary"
+              cancelClass="u-form btn-default"
             >
               <InputGroup className="selected-date-range-btn">
                 <Button>

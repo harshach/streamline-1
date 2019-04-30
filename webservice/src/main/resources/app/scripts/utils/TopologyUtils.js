@@ -290,7 +290,10 @@ const spliceDeleteNodeArr = function(nodeId) {
   }
 };
 
-const deleteNode = function(topologyId, versionId, currentNode, nodes, edges, internalFlags, updateGraphMethod, metaInfo, uinamesList, setLastChange, topologyConfigMessageCB) {
+const deleteNode = function(topologyId, versionId, currentNode, nodes, edges,
+  internalFlags, updateGraphMethod, metaInfo, uinamesList, setLastChange,
+  topologyConfigMessageCB, constants
+) {
   let promiseArr = [],
     nodePromiseArr = [],
     callback = null,
@@ -411,6 +414,7 @@ const deleteNode = function(topologyId, versionId, currentNode, nodes, edges, in
       nodes.splice(nodes.indexOf(currentNode), 1);
       this.spliceLinksForNode(currentNode, edges);
       internalFlags.selectedNode = null;
+      this.removeSelectComponents(constants);
       this.spliceDeleteNodeArr(currentNode.nodeId);
       updateGraphMethod();
       if (topologyConfigMessageCB) {
@@ -520,7 +524,9 @@ const getEdges = function(allEdges, currentNode) {
   });
 };
 
-const deleteEdge = function(selectedEdge, topologyId, versionId, internalFlags, edges, nodes, updateGraphMethod, setLastChange) {
+const deleteEdge = function(selectedEdge, topologyId, versionId, internalFlags,
+  edges, nodes, updateGraphMethod, setLastChange, constants
+) {
   let targetNodeType = selectedEdge.target.parentType === 'PROCESSOR'
     ? 'processors'
     : 'sinks';
@@ -633,6 +639,7 @@ const deleteEdge = function(selectedEdge, topologyId, versionId, internalFlags, 
     }
     edges.splice(edges.indexOf(selectedEdge), 1);
     internalFlags.selectedEdge = null;
+    this.removeSelectComponents(constants);
     updateGraphMethod();
   });
 };
@@ -653,7 +660,9 @@ const selectComponents = function(rectangles, constants, selectedItems){
     }).classed(constants.sourceSelectedClass, true);
 
     selectedItems.sourceEdges.map((obj)=>{
-      d3.select('[data-name="'+obj.source.nodeId+'-'+obj.target.nodeId+'"]').classed(constants.sourceEdgeClass, true);
+      d3.select('.visible-link[data-name="'+obj.source.nodeId+'-'+obj.target.nodeId+'"]')
+        .classed(constants.sourceEdgeClass, true)
+        .moveToFront();
     });
   }
 
@@ -664,7 +673,9 @@ const selectComponents = function(rectangles, constants, selectedItems){
     }).classed(constants.targetSelectedClass, true);
 
     selectedItems.targetEdges.map((obj)=>{
-      d3.select('[data-name="'+obj.source.nodeId+'-'+obj.target.nodeId+'"]').classed(constants.targetEdgeClass, true);
+      d3.select('.visible-link[data-name="'+obj.source.nodeId+'-'+obj.target.nodeId+'"]')
+        .classed(constants.targetEdgeClass, true)
+        .moveToFront();
     });
   }
 };

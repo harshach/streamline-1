@@ -183,6 +183,20 @@ text.id {
   stroke: #1190c0;
 }
 
+.conceptG.source-selected{
+  /* border: 1px solid #1B6DE0; */
+  stroke-width: 2;
+}
+.conceptG.target-selected{
+  stroke-width: 2;
+}
+.conceptG.source-selected .node-rectangle{
+  stroke: #1B6DE0 !important;
+}
+.conceptG.target-selected .node-rectangle{
+  stroke: #1B6DE0 !important;
+}
+
 marker {
   fill: grey;
 }
@@ -214,7 +228,12 @@ path.link.selected {
   stroke-dasharray: 5, 5;
   stroke-width: 2;
 }
-
+path.link.visible-link.source-edge-selected {
+  stroke: #1B6DE0;
+}
+path.link.visible-link.target-edge-selected {
+  stroke: #1B6DE0;
+}
 rect.node-rectangle {
   /*filter: url(#dropshadow);*/
 }

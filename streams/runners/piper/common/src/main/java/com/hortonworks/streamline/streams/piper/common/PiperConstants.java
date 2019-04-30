@@ -25,6 +25,7 @@ public class PiperConstants {
     public static final String STATE_KEY_EXECUTION_STATE = "state";
     public static final String STATE_KEY_EXECUTION_TS = "execution_ts";
     public static final String STATE_KEY_EXECUTION_DATE = "execution_date";
+    public static final String STATE_KEY_NTH_EXECUTION_DATE = "nth_execution_from_latest_execution_date";
 
     public static final String PIPER_RUNTIME_STATUS_ENABLED = "enabled";
     public static final String PIPER_RUNTIME_STATUS_PAUSED = "paused";
@@ -32,6 +33,7 @@ public class PiperConstants {
     public static final String PIPER_RUNTIME_STATUS_UNKNOWN = "Unknown";
 
     public static final String PIPER_METRIC_RUNTIME_STATUS = "status";
+    public static final String PIPER_METRIC_START_EXECUTION_DATE = "startExecutionDate";
     public static final String PIPER_METRIC_LATEST_EXECUTION_DATE = "latestExecutionDate";
     public static final String PIPER_METRIC_LATEST_EXECUTION_STATUS = "latestExecutionStatus";
 

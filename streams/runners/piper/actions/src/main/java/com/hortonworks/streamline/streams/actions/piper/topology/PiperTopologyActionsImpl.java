@@ -44,6 +44,7 @@ import static com.hortonworks.streamline.streams.actions.piper.topology.ManagedP
 import static com.hortonworks.streamline.streams.actions.piper.topology.ManagedPipelineGenerator.PIPER_CONFIG_SELECTED_DATACENTERS;
 import static com.hortonworks.streamline.streams.actions.piper.topology.PiperTopologyActionsBuilder.UWORC_NAMESPACE_ID;
 import static com.hortonworks.streamline.streams.actions.piper.topology.PiperTopologyActionsBuilder.UWORC_NAMESPACE_NAME;
+import static com.hortonworks.streamline.streams.piper.common.PiperConstants.PIPER_METRIC_START_EXECUTION_DATE;
 import static com.hortonworks.streamline.streams.piper.common.PiperConstants.PIPER_OFFLINE;
 import static com.hortonworks.streamline.streams.piper.common.PiperConstants.PIPER_RESPONSE_DATA;
 import static com.hortonworks.streamline.streams.piper.common.PiperConstants.PIPER_RESPONSE_METADATA;
@@ -53,6 +54,7 @@ import static com.hortonworks.streamline.streams.piper.common.PiperConstants.PIP
 import static com.hortonworks.streamline.streams.piper.common.PiperConstants.STATE_KEY_EXECUTION_DATE;
 import static com.hortonworks.streamline.streams.piper.common.PiperConstants.PIPER_METRIC_LATEST_EXECUTION_STATUS;
 import static com.hortonworks.streamline.streams.piper.common.PiperConstants.STATE_KEY_EXECUTION_STATE;
+import static com.hortonworks.streamline.streams.piper.common.PiperConstants.STATE_KEY_NTH_EXECUTION_DATE;
 
 public class PiperTopologyActionsImpl implements TopologyActions {
 
@@ -173,6 +175,8 @@ public class PiperTopologyActionsImpl implements TopologyActions {
             Map stateResponse = this.client.getPipelineState(applicationId);
             String runtimeStatusString = PiperUtil.getRuntimeStatus(stateResponse);
             runtimeStatus.setStatus(runtimeStatusString);
+            runtimeStatus.putExtra(PIPER_METRIC_START_EXECUTION_DATE,
+                    (String)stateResponse.get(STATE_KEY_NTH_EXECUTION_DATE));
             runtimeStatus.putExtra(PIPER_METRIC_LATEST_EXECUTION_DATE,
                     (String)stateResponse.get(STATE_KEY_EXECUTION_DATE));
             runtimeStatus.putExtra(PIPER_METRIC_LATEST_EXECUTION_STATUS,

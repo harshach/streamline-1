@@ -59,7 +59,6 @@ public class PiperTopologyMetricsImpl implements TopologyMetrics {
     private static final String STATE_KEY_DURATION = "duration";
     private static final String STATE_KEY_AUTOBACKFILLING = "is_auto_backfilling";
     private static final String STATE_KEY_NEXT_EXECUTION_DATE = "next_execution_date";
-    private static final String STATE_METRIC_NTH_EXECUTION_DATE = "nth_execution_from_latest_execution_date";
     private static final String STATE_KEY_TRIGGER_TYPE = "trigger_type";
     private static final String STATE_KEY_TRIGGERED_PIPELINE_RUN_NAME = "triggered_run_name";
     private static final String STATE_KEY_EXTRAS = "extras";
@@ -106,7 +105,6 @@ public class PiperTopologyMetricsImpl implements TopologyMetrics {
 
     private static final String PIPER_METRIC_EXECUTION_STATUS = "status";
     private static final String PIPER_METRIC_EXECUTION_DATE = "executionDate";
-    private static final String PIPER_METRIC_START_EXECUTION_DATE = "startExecutionDate";
     private static final String PIPER_METRIC_CREATED_AT = "createdAt";
 
     private static final String EXTERNAL_TRIGGER = "external_trigger";
@@ -167,7 +165,6 @@ public class PiperTopologyMetricsImpl implements TopologyMetrics {
                 metrics.put(PIPER_METRIC_AUTOBACKFILLING, extras.get(STATE_KEY_AUTOBACKFILLING));
                 metrics.put(PIPER_METRIC_NEXT_EXECUTION_DATE, extras.get(STATE_KEY_NEXT_EXECUTION_DATE));
                 metrics.put(PIPER_METRIC_TRIGGERED_PIPELINE_RUN_NAME, extras.get(STATE_KEY_TRIGGERED_PIPELINE_RUN_NAME));
-                metrics.put(PIPER_METRIC_START_EXECUTION_DATE, extras.get(STATE_METRIC_NTH_EXECUTION_DATE));
             } else {
                 // FIXME we were previously returning null for these, so leaving until a contract is agreed on with UI
                 metrics.put(PIPER_METRIC_DURATION, null);

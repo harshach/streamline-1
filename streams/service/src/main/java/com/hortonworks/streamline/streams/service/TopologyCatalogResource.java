@@ -530,13 +530,15 @@ public class TopologyCatalogResource {
     }
 
     private void addAclForTopology(Long topologyID, String groups) {
-        String[] data = groups.split(",");
-        Set<String> userGroupNames = new HashSet<>(Arrays.asList(data));
-        Set<OwnerGroup> userOwnerGroups = securityCatalogService.getGroups(userGroupNames);
-        userOwnerGroups.forEach((ownerGroup) -> {
-            SecurityUtil.addAcl(authorizer, Topology.NAMESPACE, topologyID,
-                    AclEntry.SidType.GROUP, ownerGroup.getId(), EnumSet.allOf(Permission.class));
-        });
+        if (groups != null) {
+            String[] data = groups.split(",");
+            Set<String> userGroupNames = new HashSet<>(Arrays.asList(data));
+            Set<OwnerGroup> userOwnerGroups = securityCatalogService.getGroups(userGroupNames);
+            userOwnerGroups.forEach((ownerGroup) -> {
+                SecurityUtil.addAcl(authorizer, Topology.NAMESPACE, topologyID,
+                        AclEntry.SidType.GROUP, ownerGroup.getId(), EnumSet.allOf(Permission.class));
+            });
+        }
     }
 
     @DELETE

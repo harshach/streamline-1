@@ -34,6 +34,12 @@ import FSReactToastr from '../components/FSReactToastr';
 window.$ = $;
 window.jQuery = jQuery;
 
+d3.selection.prototype.moveToFront = function() {
+  return this.each(function(){
+    this.parentNode.appendChild(this);
+  });
+};
+
 const componentTarget = {
   drop(props, monitor, component) {
     if(props.avoidDagEditing){
@@ -783,9 +789,12 @@ export default class TopologyGraphComponent extends Component {
       metaInfo,
       uinamesList,
       setLastChange,
-      topologyConfigMessageCB
+      topologyConfigMessageCB,
+      constants
     } = this;
-    TopologyUtils.deleteNode(topologyId, versionId, selectedNode, nodes, edges, internalFlags, updateGraph.bind(this), metaInfo, uinamesList, setLastChange, topologyConfigMessageCB);
+    TopologyUtils.deleteNode(topologyId, versionId, selectedNode, nodes, edges,
+      internalFlags, updateGraph.bind(this), metaInfo, uinamesList, setLastChange,
+      topologyConfigMessageCB, constants);
   }
 
   deleteEdge(selectedEdge) {
@@ -796,9 +805,11 @@ export default class TopologyGraphComponent extends Component {
       edges,
       nodes,
       updateGraph,
-      setLastChange
+      setLastChange,
+      constants
     } = this;
-    TopologyUtils.deleteEdge(selectedEdge, topologyId, versionId, internalFlags, edges, nodes, updateGraph.bind(this), setLastChange);
+    TopologyUtils.deleteEdge(selectedEdge, topologyId, versionId, internalFlags,
+      edges, nodes, updateGraph.bind(this), setLastChange, constants);
     this.edgeStream.style('display', 'none');
     this.main_edgestream.style('display', 'none');
   }
@@ -818,6 +829,12 @@ export default class TopologyGraphComponent extends Component {
       cloneElem.removeAttribute('data-toggle');
       element[i].parentNode.insertBefore(cloneElem, element[i]);
     }
+    d3.selectAll('.'+this.constants.sourceEdgeClass).each(function(){
+      d3.select(this).moveToFront();
+    });
+    d3.selectAll('.'+this.constants.targetEdgeClass).each(function(){
+      d3.select(this).moveToFront();
+    });
   }
 
   pathClassName(elem){

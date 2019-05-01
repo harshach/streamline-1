@@ -29,6 +29,7 @@ import Utils from '../utils/Utils';
 import CommonLoaderSign from './CommonLoaderSign';
 import _ from 'lodash';
 import {dbIcon} from '../utils/SVGIcons';
+import '../libs/timeline/d3-timeline';
 
 export default class Metrics extends Component{
   constructor(props) {
@@ -40,6 +41,7 @@ export default class Metrics extends Component{
       selectedMetricsName: bundles[0] ? bundles[0].name : '',
       metricsPanelExpanded: false
     };
+    this.startDate = null, this.endDate = null;
   }
   componentDidMount(){}
   handleExpandCollapse = () => {
@@ -121,7 +123,49 @@ export default class Metrics extends Component{
     ><i className={metricsPanelExpanded ? "fa fa-chevron-down" : "fa fa-chevron-up"}></i></button>;
   }
   renderTimeline = () => {
-    console.log("Render Execution Timeline Here");
+    const {executionInfo, startDate, endDate,start_time, end_time,
+      time_interval, time_unit
+    } = this.props;
+    //check to update the timeline only if either of the dates have changed
+    if(this.startDate !== start_time && this.endDate !== end_time){
+      let endDte = moment(start_time).add(24, 'hours');
+      if(executionInfo.executions){
+        let timelineData = [];
+        executionInfo.executions.map((executionObj)=>{
+          let starting_time = moment(executionObj.createdAt).valueOf();
+          let obj = {
+            starting_time: starting_time,
+            ending_time: starting_time + 1250000
+          };
+          let existingObj = timelineData.find((d)=>{return d.label === executionObj.status;});
+          if(existingObj){
+            if(existingObj.times){
+              existingObj.times.push(obj);
+            } else {
+              existingObj.times = [obj];
+            }
+          } else {
+            timelineData.push({
+              label: executionObj.status,
+              times: [obj]
+            });
+          }
+        });
+        let chart = d3.timeline().labelFormat(function label(){return '';})
+                      .margin({left:70, right:30, top:30, bottom:30})
+                      .beginning(start_time)
+                      .ending(end_time)
+                      .timeInterval(time_interval)
+                      .timeUnit(time_unit);
+        if(this.timelineChart){
+          this.timelineChart.remove();
+        }
+        this.timelineChart = d3.select("#executionTimeline").append("svg").attr("width", "100%").attr("height", 80);
+        this.timelineChart.datum(timelineData).call(chart);
+        this.startDate = start_time;
+        this.endDate = end_time;
+      }
+    }
   }
   getBody = () => {
     const {lastUpdatedTime, topologyName, executionInfo,

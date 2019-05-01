@@ -84,8 +84,8 @@ class TopologyViewContainer extends TopologyEditorContainer {
     bundleArr: null,
     availableTimeSeriesDb: false,
     fetchLoader: true,
-    startDate: moment().subtract(1440, 'minutes'),
-    endDate: moment(),
+    startDate: null,
+    endDate: null,
     activeRangeLabel: null,
     viewModeData: {
       topologyMetrics: {},
@@ -144,7 +144,8 @@ class TopologyViewContainer extends TopologyEditorContainer {
   onFetchedData(){
     const {isAppRunning} = this.state;
     if(isAppRunning) {
-      this.fetchCatalogInfoAndMetrics(this.state.startDate.toDate().getTime(), this.state.endDate.toDate().getTime());
+      this.fetchCatalogInfoAndMetrics(this.statusObj.start_time, this.statusObj.end_time);
+      // this.fetchCatalogInfoAndMetrics(this.state.startDate.toDate().getTime(), this.state.endDate.toDate().getTime());
       this.fetchTopologyLevelSampling();
     }
   }
@@ -330,8 +331,8 @@ class TopologyViewContainer extends TopologyEditorContainer {
     let {viewModeData, executionInfoPageSize, executionInfoPage, startDate, endDate} = this.state;
 
     return ViewModeREST.getAllExecutions(this.topologyId, {
-      from: startDate.valueOf(),
-      to: endDate.valueOf(),
+      from: startDate ? startDate.valueOf() : "",
+      to: endDate ? endDate.valueOf() : "",
       pageSize: executionInfoPageSize,
       page: executionInfoPage,
       namespaceId: this.selectedDataCenterId
@@ -369,8 +370,8 @@ class TopologyViewContainer extends TopologyEditorContainer {
         let interpolate = m.interpolate;
 
         const queryParams = {
-          from: startDate.valueOf(),
-          to: endDate.valueOf(),
+          from: startDate ? startDate.valueOf() : "",
+          to: endDate ? endDate.valueOf() : "",
           metricQuery: metricQuery,
           namespaceId: this.selectedDataCenterId
         };
@@ -708,6 +709,10 @@ class TopologyViewContainer extends TopologyEditorContainer {
         engine={this.engine}
         template={this.template}
         runtimeAppUrl={this.runtimeAppUrl}
+        start_time={this.statusObj.start_time}
+        end_time={this.statusObj.end_time}
+        time_interval = {this.statusObj.timeInterval}
+        time_unit= {this.statusObj.units}
     />;
   }
 

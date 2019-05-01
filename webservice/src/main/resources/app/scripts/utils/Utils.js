@@ -223,7 +223,7 @@ const string = function(val = '') {
 
 const datetime = function(val) {
   if(val){
-    return {value: moment(val).format('MM/DD/YYYY HH:mm'), suffix: ''};
+    return {value: moment(val).format('YYYY-MM-DD HH:mm'), suffix: ''};
   }else{
     return {value: '', suffix: ''};
   }

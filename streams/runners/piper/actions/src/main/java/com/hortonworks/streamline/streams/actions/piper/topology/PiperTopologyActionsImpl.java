@@ -32,8 +32,12 @@ import org.slf4j.LoggerFactory;
 import javax.security.auth.Subject;
 import java.io.IOException;
 import java.nio.file.Path;
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -42,10 +46,13 @@ import java.util.Optional;
 import static com.hortonworks.streamline.streams.actions.piper.topology.ManagedPipelineGenerator.PIPER_CONFIG_DATACENTER_CHOICE_MODE;
 import static com.hortonworks.streamline.streams.actions.piper.topology.ManagedPipelineGenerator.PIPER_CONFIG_RUN_ALL_DATACENTERS;
 import static com.hortonworks.streamline.streams.actions.piper.topology.ManagedPipelineGenerator.PIPER_CONFIG_SELECTED_DATACENTERS;
+import static com.hortonworks.streamline.streams.actions.piper.topology.ManagedPipelineGenerator.PIPER_EXECUTION_DATE_FORMAT;
 import static com.hortonworks.streamline.streams.actions.piper.topology.PiperTopologyActionsBuilder.UWORC_NAMESPACE_ID;
 import static com.hortonworks.streamline.streams.actions.piper.topology.PiperTopologyActionsBuilder.UWORC_NAMESPACE_NAME;
 import static com.hortonworks.streamline.streams.piper.common.PiperConstants.PIPER_METRIC_START_EXECUTION_DATE;
 import static com.hortonworks.streamline.streams.piper.common.PiperConstants.PIPER_OFFLINE;
+import static com.hortonworks.streamline.streams.piper.common.PiperConstants.PIPER_PIPELINE_EXECUTION_INTERVAL_UNIT;
+import static com.hortonworks.streamline.streams.piper.common.PiperConstants.PIPER_PIPELINE_EXECUTION_INTERVAL_VALUE;
 import static com.hortonworks.streamline.streams.piper.common.PiperConstants.PIPER_RESPONSE_DATA;
 import static com.hortonworks.streamline.streams.piper.common.PiperConstants.PIPER_RESPONSE_METADATA;
 import static com.hortonworks.streamline.streams.piper.common.PiperConstants.PIPER_ROOT_URL_KEY;
@@ -54,12 +61,15 @@ import static com.hortonworks.streamline.streams.piper.common.PiperConstants.PIP
 import static com.hortonworks.streamline.streams.piper.common.PiperConstants.STATE_KEY_EXECUTION_DATE;
 import static com.hortonworks.streamline.streams.piper.common.PiperConstants.PIPER_METRIC_LATEST_EXECUTION_STATUS;
 import static com.hortonworks.streamline.streams.piper.common.PiperConstants.STATE_KEY_EXECUTION_STATE;
+import static com.hortonworks.streamline.streams.piper.common.PiperConstants.STATE_KEY_EXTRAS;
 import static com.hortonworks.streamline.streams.piper.common.PiperConstants.STATE_KEY_NTH_EXECUTION_DATE;
+import static com.hortonworks.streamline.streams.piper.common.PiperConstants.STATE_KEY_NUMBER_OF_EXECUTIONS;
 
 public class PiperTopologyActionsImpl implements TopologyActions {
 
     private static final Logger LOG = LoggerFactory.getLogger(PiperTopologyActionsImpl.class);
     private static final String PIPER_RESPONSE_APPLICATION_ID = "pipeline_id";
+    private static final long MILLISECONDS = 1000;
     private EnvironmentService environmentService;
     private TopologyActionsService actionsService;
     private Long namespaceId;
@@ -172,15 +182,38 @@ public class PiperTopologyActionsImpl implements TopologyActions {
         StatusImpl runtimeStatus = new StatusImpl();
 
         try {
-            Map stateResponse = this.client.getPipelineState(applicationId);
+            Map stateResponse = this.client.getDetailedPipelineState(applicationId);
             String runtimeStatusString = PiperUtil.getRuntimeStatus(stateResponse);
             runtimeStatus.setStatus(runtimeStatusString);
-            runtimeStatus.putExtra(PIPER_METRIC_START_EXECUTION_DATE,
-                    (String)stateResponse.get(STATE_KEY_NTH_EXECUTION_DATE));
             runtimeStatus.putExtra(PIPER_METRIC_LATEST_EXECUTION_DATE,
                     (String)stateResponse.get(STATE_KEY_EXECUTION_DATE));
             runtimeStatus.putExtra(PIPER_METRIC_LATEST_EXECUTION_STATUS,
                     (String)stateResponse.get(STATE_KEY_EXECUTION_STATE));
+
+            Map<String, Object> extras = (Map<String, Object>) stateResponse.get(STATE_KEY_EXTRAS);
+            if (extras != null) {
+                runtimeStatus.putExtra(PIPER_METRIC_START_EXECUTION_DATE,
+                        (String)extras.get(STATE_KEY_NTH_EXECUTION_DATE));
+                int totalExecutions = (int) extras.get(STATE_KEY_NUMBER_OF_EXECUTIONS);
+                if (totalExecutions > 0 ) {
+                    DateFormat df = new SimpleDateFormat(PIPER_EXECUTION_DATE_FORMAT);
+                    try {
+                        Date endDate = df.parse(stateResponse.get(STATE_KEY_EXECUTION_DATE).toString());
+                        Date startDate   = df.parse(extras.get(STATE_KEY_NTH_EXECUTION_DATE).toString());
+                        long delta = (endDate.getTime() - startDate.getTime()) / totalExecutions;
+                        Map<String, String> values = getInterVal(delta / MILLISECONDS);
+                        runtimeStatus.putExtra(PIPER_PIPELINE_EXECUTION_INTERVAL_VALUE, values.get(PIPER_PIPELINE_EXECUTION_INTERVAL_VALUE));
+                        runtimeStatus.putExtra(PIPER_PIPELINE_EXECUTION_INTERVAL_UNIT, values.get(PIPER_PIPELINE_EXECUTION_INTERVAL_UNIT));
+                    } catch (ParseException e) {
+                        runtimeStatus.setException(e);
+                    }
+                }
+
+            } else {
+                // FIXME we were previously returning null for these, so leaving until a contract is agreed on with UI
+                runtimeStatus.putExtra(PIPER_METRIC_START_EXECUTION_DATE,null);
+            }
+
         } catch (RuntimeException e){
             runtimeStatus.setStatus(PIPER_OFFLINE);
             runtimeStatus.setException(e);
@@ -192,6 +225,27 @@ public class PiperTopologyActionsImpl implements TopologyActions {
         runtimeStatus.setRuntimeAppUrl(getRuntimeAppUrl(applicationId));
 
         return runtimeStatus;
+    }
+
+    private Map<String, String> getInterVal(long delta) {
+        Map<String, String> interval = new HashMap<>();
+        if (delta/(60 * 60 * 24 * 7) > 0) {
+            interval.put(PIPER_PIPELINE_EXECUTION_INTERVAL_VALUE, Long.toString(delta/(60 * 60 * 24 * 7)));
+            interval.put(PIPER_PIPELINE_EXECUTION_INTERVAL_UNIT, "Week");
+        } else if (delta/(60 * 60 * 24) > 0) {
+            interval.put(PIPER_PIPELINE_EXECUTION_INTERVAL_VALUE, Long.toString(delta/(60 * 60 * 24)));
+            interval.put(PIPER_PIPELINE_EXECUTION_INTERVAL_UNIT, "Day");
+        } else if (delta/(60 * 60) > 0) {
+            interval.put(PIPER_PIPELINE_EXECUTION_INTERVAL_VALUE, Long.toString(delta/(60 * 60)));
+            interval.put(PIPER_PIPELINE_EXECUTION_INTERVAL_UNIT, "Hour");
+        } else if (delta/(60) > 0) {
+            interval.put(PIPER_PIPELINE_EXECUTION_INTERVAL_VALUE, Long.toString(delta/60));
+            interval.put(PIPER_PIPELINE_EXECUTION_INTERVAL_UNIT, "Minute");
+        } else if (delta > 0) {
+            interval.put(PIPER_PIPELINE_EXECUTION_INTERVAL_VALUE, Long.toString(delta));
+            interval.put(PIPER_PIPELINE_EXECUTION_INTERVAL_UNIT, "Second");
+        }
+        return interval;
     }
 
     @Override

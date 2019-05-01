@@ -23,9 +23,11 @@ public class PiperConstants {
     public static final String STATE_KEY_ACTIVE = "active";
     public static final String STATE_KEY_PAUSED = "paused";
     public static final String STATE_KEY_EXECUTION_STATE = "state";
+    public static final String STATE_KEY_EXTRAS = "extras";
     public static final String STATE_KEY_EXECUTION_TS = "execution_ts";
     public static final String STATE_KEY_EXECUTION_DATE = "execution_date";
     public static final String STATE_KEY_NTH_EXECUTION_DATE = "nth_execution_from_latest_execution_date";
+    public static final String STATE_KEY_NUMBER_OF_EXECUTIONS = "number_of_executions_from_latest_to_nth";
 
     public static final String PIPER_RUNTIME_STATUS_ENABLED = "enabled";
     public static final String PIPER_RUNTIME_STATUS_PAUSED = "paused";
@@ -36,6 +38,8 @@ public class PiperConstants {
     public static final String PIPER_METRIC_START_EXECUTION_DATE = "startExecutionDate";
     public static final String PIPER_METRIC_LATEST_EXECUTION_DATE = "latestExecutionDate";
     public static final String PIPER_METRIC_LATEST_EXECUTION_STATUS = "latestExecutionStatus";
+    public static final String PIPER_PIPELINE_EXECUTION_INTERVAL_VALUE = "executionInterval";
+    public static final String PIPER_PIPELINE_EXECUTION_INTERVAL_UNIT  = "executionIntervalUnit";
 
     public static final String PIPER_OFFLINE = "Piper Offline";
 

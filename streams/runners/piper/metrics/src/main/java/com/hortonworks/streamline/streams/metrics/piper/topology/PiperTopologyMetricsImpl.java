@@ -43,8 +43,7 @@ import static com.hortonworks.streamline.streams.piper.common.PiperConstants.PIP
 import static com.hortonworks.streamline.streams.piper.common.PiperConstants.RESPONSE_TOTAL_RESULTS;
 import static com.hortonworks.streamline.streams.piper.common.PiperConstants.RESPONSE_PAGE_SIZE;
 import static com.hortonworks.streamline.streams.piper.common.PiperConstants.RESPONSE_PAGE;
-
-
+import static com.hortonworks.streamline.streams.piper.common.PiperConstants.STATE_KEY_EXTRAS;
 
 public class PiperTopologyMetricsImpl implements TopologyMetrics {
 	private static final Logger LOG = LoggerFactory.getLogger(PiperTopologyMetricsImpl.class);
@@ -61,7 +60,6 @@ public class PiperTopologyMetricsImpl implements TopologyMetrics {
     private static final String STATE_KEY_NEXT_EXECUTION_DATE = "next_execution_date";
     private static final String STATE_KEY_TRIGGER_TYPE = "trigger_type";
     private static final String STATE_KEY_TRIGGERED_PIPELINE_RUN_NAME = "triggered_run_name";
-    private static final String STATE_KEY_EXTRAS = "extras";
 
     private static final String TASK_GRAPH_KEY_GRAPH= "graph";
     private static final String TASK_GRAPH_KEY_NODES = "nodes";

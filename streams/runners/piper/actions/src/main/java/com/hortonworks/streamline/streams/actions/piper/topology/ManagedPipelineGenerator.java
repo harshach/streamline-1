@@ -82,6 +82,7 @@ public class ManagedPipelineGenerator extends TopologyDagVisitor {
 
     private static final String UI_DATE_FORMAT = "yyyy-MM-dd HH:mm:ss";
     private static final String PIPER_DATE_FORMAT = "yyyy-MM-dd'T'HH:mm:ss'Z'";
+    public static final String PIPER_EXECUTION_DATE_FORMAT = "yyyy-MM-dd'T'HH:mm";
 
     private static final long MIN_SCHEDULE_INTERVAL = 120;
 

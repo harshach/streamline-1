@@ -460,10 +460,10 @@ export class sql extends BaseField {
     Form.setState(Form.state);
     this.validate();
     if(fieldJson.onChange){
-      if(!this.onChangeDebounce){
-        this.onChangeDebounce = _.debounce(this.onChange , 1000, { 'maxWait': 1000 });
-      }
-      this.onChangeDebounce();
+      clearTimeout(this.sqlTimer);
+      this.sqlTimer = setTimeout(()=>{
+        this.onChange();
+      }, 1000);
     }
   }
   onChange(){

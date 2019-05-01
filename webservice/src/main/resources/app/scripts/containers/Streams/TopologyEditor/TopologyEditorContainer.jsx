@@ -62,6 +62,7 @@ import {
   syncNodeDataAndEventLogData,
   fetchSingleEventLogData
 } from '../../../utils/TestModeUtils/TestModeUtils';
+import moment from 'moment';
 
 @observer
 export class TopologyEditorContainer extends Component {
@@ -184,6 +185,10 @@ export class TopologyEditorContainer extends Component {
         TopologyREST.getTopologyActionStatus(this.topologyId, versionId)
       ];
       Promise.all(promises).then((responses)=>{
+        // responses[1].entities[0].start_time = 1555943794000;
+        // responses[1].entities[0].end_time = 1556174194000;
+        // responses[1].entities[0].units = 'hours';
+        // responses[1].entities[0].timeInterval = 1;
         let data = {
           topology: responses[0],
           namespaces: this.syncNamespaceObj(responses[1].entities)
@@ -199,6 +204,7 @@ export class TopologyEditorContainer extends Component {
         this.namespaceName = _.keys(data.namespaces)[0];
         this.namespaceId = data.namespaces[this.namespaceName].namespaceId;
         this.lastUpdatedTime = new Date(data.topology.timestamp);
+        this.statusObj = data.namespaces[this.namespaceName];
 
         this.topologyName = data.topology.name;
         this.topologyConfig = (data.topology.config && data.topology.config.properties) ? data.topology.config.properties : {};

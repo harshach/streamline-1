@@ -397,6 +397,19 @@ const TopologyREST = {
         return response.json();
       });
   },
+  getSqlOutputSchema(options){
+    options = options || {};
+    options.method = options.method || 'POST';
+    options.headers = options.headers || {
+      'Content-Type': 'application/json',
+      'Accept': 'application/json'
+    };
+    options.credentials = 'same-origin';
+    return fetch('/api/v1/schemas/outputSchemaFields', options)
+      .then((response) => {
+        return response.json();
+      });
+  },
   getAllVersions(id, options) {
     options = options || {};
     options.method = options.method || 'GET';

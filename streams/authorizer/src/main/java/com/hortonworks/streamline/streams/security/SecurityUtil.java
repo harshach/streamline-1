@@ -238,10 +238,12 @@ public final class SecurityUtil {
     }
 
     public static Set<String> getAllUserGroups(HttpSession httpSession) {
-        Set<String> groups = (HashSet<String>) httpSession.getAttribute(StreamlineOpenIdAuthorizationRequestFilter.USER_GROUPS);
-        if (groups != null) {
-            return groups;
+        Set<String> result = new HashSet<>();
+        try {
+            result = (HashSet<String>) httpSession.getAttribute(StreamlineOpenIdAuthorizationRequestFilter.USER_GROUPS);
+        } catch (Exception ex) {
+            LOG.debug("HttpSession does not have User' Groups ");
         }
-        return Collections.emptySet();
+        return result;
     }
 }

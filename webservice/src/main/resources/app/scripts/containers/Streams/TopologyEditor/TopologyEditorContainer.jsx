@@ -726,6 +726,7 @@ export class TopologyEditorContainer extends Component {
           const index = _.findIndex(this.tempGraphNode,(t) => { return t.nodeId === this.node.nodeId;});
           if(index !== -1){
             this.tempGraphNode[index].reconfigure = false;
+            this.tempGraphNode[index].error = false;
           }
         }
         let i = this.graphData.uinamesList.indexOf(this.node.uiname);
@@ -1163,8 +1164,11 @@ export class TopologyEditorContainer extends Component {
     if(this.graphData.nodes.length > 0){
       let allowDeploy = true;
       this.graphData.nodes.map((node)=>{
-        if(allowDeploy){
-          allowDeploy = node.isConfigured;
+        if(node.isConfigured){
+          node.error = false;
+        } else {
+          node.error = true;
+          allowDeploy = false;
         }
       });
       if(allowDeploy){
@@ -1177,6 +1181,7 @@ export class TopologyEditorContainer extends Component {
         }
       } else {
         FSReactToastr.warning(<strong>One or more components are not configured. Please configure before deploying.</strong>);
+        this.triggerGraphUpdate();
       }
     } else {
       FSReactToastr.info(<strong>No components found. Please add & configure components before deploying.</strong>);

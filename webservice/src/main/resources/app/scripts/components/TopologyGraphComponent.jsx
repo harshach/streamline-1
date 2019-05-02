@@ -958,6 +958,9 @@ export default class TopologyGraphComponent extends Component {
       if(d.reconfigure){
         classArr.push('reconfig-node');
       }
+      if(d.error){
+        classArr.push('error-node');
+      }
 
       return classArr.join(' ');
     }).attr("filter", function(d) {
@@ -1074,7 +1077,12 @@ export default class TopologyGraphComponent extends Component {
     })
     .attr("class", function(d) {
       let classStr = "node-rectangle "+ TopologyUtils.getNodeRectClass(d,'uniqRect');
-      classStr += d.reconfigure ?  ' reconfig-node ' : '' ;
+      if(d.reconfigure){
+        classStr += ' reconfig-node ';
+      }
+      if(d.error){
+        classStr += ' error-node ';
+      }
       return classStr;
     }).attr("filter", function(d) {
       if (!d.isConfigured) {

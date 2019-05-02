@@ -42,7 +42,7 @@
         "tooltip": "Name of the schema to which messages in the given `Source Dir` adhere to.",
         "type": "string",
         "defaultValue": "",
-        "hint": "schema"
+        "hint": "schema,override"
       },
       {
         "uiName": "Schema Branch",

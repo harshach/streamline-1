@@ -40,7 +40,7 @@
         "isOptional": false,
         "tooltip": "The Event Hubs entity path",
         "type": "string",
-        "hint": "schema"
+        "hint": "schema,override"
       },
       {
         "uiName": "Schema Branch",

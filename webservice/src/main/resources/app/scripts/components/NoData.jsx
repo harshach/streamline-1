@@ -204,7 +204,7 @@ export class BeginNew extends Component{
     return <div className="u-form text-center">
       <div className="empty-data-box">
         <div>
-          <img src="styles/img/uWorc/nodata.png" />
+          <img src="styles/img/uWorc/nodata.png" width="76" />
         </div>
         <h4 className="headline">You have not created any {typeToLower} yet.</h4>
         <p className="info">Start here to create your first {typeToLower}. For additional support and instructions, use our #uworc-jumpstarter page.</p>

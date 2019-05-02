@@ -126,9 +126,11 @@ export default class Metrics extends Component{
     const {executionInfo, startDate, endDate,start_time, end_time,
       time_interval, time_unit
     } = this.props;
+    let begining = startDate ? startDate.valueOf() : start_time;
+    let ending = endDate ? endDate.valueOf() : end_time;
     //check to update the timeline only if either of the dates have changed
-    if(this.startDate !== start_time && this.endDate !== end_time){
-      let endDte = moment(start_time).add(24, 'hours');
+    if(this.begining !== begining && this.ending !== ending){
+      // let endDte = moment(begining).add(24, 'hours');
       if(executionInfo.executions){
         let timelineData = [];
         executionInfo.executions.map((executionObj)=>{
@@ -153,8 +155,8 @@ export default class Metrics extends Component{
         });
         let chart = d3.timeline().labelFormat(function label(){return '';})
                       .margin({left:70, right:30, top:30, bottom:30})
-                      .beginning(start_time)
-                      .ending(end_time)
+                      .beginning(begining)
+                      .ending(ending)
                       .timeInterval(time_interval)
                       .timeUnit(time_unit);
         if(this.timelineChart){
@@ -162,8 +164,8 @@ export default class Metrics extends Component{
         }
         this.timelineChart = d3.select("#executionTimeline").append("svg").attr("width", "100%").attr("height", 80);
         this.timelineChart.datum(timelineData).call(chart);
-        this.startDate = start_time;
-        this.endDate = end_time;
+        this.begining = begining;
+        this.ending = ending;
       }
     }
   }

@@ -709,10 +709,10 @@ class TopologyViewContainer extends TopologyEditorContainer {
         engine={this.engine}
         template={this.template}
         runtimeAppUrl={this.runtimeAppUrl}
-        start_time={this.statusObj.start_time}
-        end_time={this.statusObj.end_time}
-        time_interval = {this.statusObj.timeInterval}
-        time_unit= {this.statusObj.units}
+        start_time={new Date(this.statusObj.extra.startExecutionDate).getTime()}
+        end_time={new Date(this.statusObj.extra.latestExecutionDate).getTime()}
+        time_interval = {this.statusObj.extra.timeInterval}
+        time_unit= {this.statusObj.extra.units}
     />;
   }
 

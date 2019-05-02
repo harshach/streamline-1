@@ -83,9 +83,6 @@ import _ from 'lodash';
 
     var multiformat = function(date) {
       let d = date.getHours();
-      if(d%2 !== 0 ){
-        return '';
-      }
       return (d === 0 ? tickFormat.format2 : tickFormat.format)(date);
     };
 

@@ -185,10 +185,10 @@ export class TopologyEditorContainer extends Component {
         TopologyREST.getTopologyActionStatus(this.topologyId, versionId)
       ];
       Promise.all(promises).then((responses)=>{
-        // responses[1].entities[0].start_time = 1555943794000;
-        // responses[1].entities[0].end_time = 1556174194000;
-        // responses[1].entities[0].units = 'hours';
-        // responses[1].entities[0].timeInterval = 1;
+        // responses[1].entities[0].extra.startExecutionDate = "2019-04-29T14:35";
+        // responses[1].entities[0].extra.latestExecutionDate = "2019-05-01T14:35:00";
+        // responses[1].entities[0].extra.units = 'hours';
+        // responses[1].entities[0].extra.timeInterval = 3;
         let data = {
           topology: responses[0],
           namespaces: this.syncNamespaceObj(responses[1].entities)

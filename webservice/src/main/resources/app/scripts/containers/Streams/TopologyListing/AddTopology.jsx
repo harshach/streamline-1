@@ -374,9 +374,11 @@ class AddTopology extends Component {
               </FormGroup>
               <div className="row templates-container">{filteredTemplates.length ?
                 _.map(filteredTemplates, (t) => {
-                  return <div className={`col-md-6 template-box ${templateId == t.id ? 'selected-template' : ''}`} onClick={() => this.handleOnChangeTemplate(t)} key={t.name}>
-                    <span className="name">{t.name}</span>
-                    <span className="description">{t.description}</span>
+                  return <div className={`col-md-6`} onClick={() => this.handleOnChangeTemplate(t)} key={t.name}>
+                    <div className={`template-box ${templateId == t.id ? 'selected-template' : ''}`}>
+                      <h4 className="name">{t.name}</h4>
+                      <p className="description">{t.description}</p>
+                    </div>
                   </div>;
                 })
                 :

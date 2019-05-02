@@ -403,12 +403,12 @@ svg>foreignObject>p {
 }
 
 .reconfig-node{
-  stroke : rgba(255,165,0,1);
+  stroke : #ED6F0E;
   stroke-width :2px;
 }
 
 .error-node{
-  stroke : red;
+  stroke : #E54937;
   stroke-width :2px;
 }
 /* .axis{

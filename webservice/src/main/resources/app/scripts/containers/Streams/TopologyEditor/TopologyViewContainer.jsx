@@ -144,7 +144,9 @@ class TopologyViewContainer extends TopologyEditorContainer {
   onFetchedData(){
     const {isAppRunning} = this.state;
     if(isAppRunning) {
-      this.fetchCatalogInfoAndMetrics(this.statusObj.start_time, this.statusObj.end_time);
+      let startTime = new Date(this.statusObj.extra.startExecutionDate).getTime();
+      let endTime = new Date(this.statusObj.extra.latestExecutionDate).getTime();
+      this.fetchCatalogInfoAndMetrics(startTime, endTime);
       // this.fetchCatalogInfoAndMetrics(this.state.startDate.toDate().getTime(), this.state.endDate.toDate().getTime());
       this.fetchTopologyLevelSampling();
     }
@@ -314,25 +316,13 @@ class TopologyViewContainer extends TopologyEditorContainer {
       });
     }
   }
-  getPrevPageExecutions = () => {
-    const {executionInfoPageSize} = this.state;
-    this.setState({executionInfoPageSize: executionInfoPageSize+1}, () => {
-      this.fetchExecutions();
-    });
-  }
-  getNextPageExecutions = () => {
-    const {executionInfoPageSize} = this.state;
-    this.setState({executionInfoPageSize: executionInfoPageSize-1}, () => {
-      this.fetchExecutions();
-    });
-  }
 
-  fetchExecutions = () => {
+  fetchExecutions = (fromTime, toTime) => {
     let {viewModeData, executionInfoPageSize, executionInfoPage, startDate, endDate} = this.state;
 
     return ViewModeREST.getAllExecutions(this.topologyId, {
-      from: startDate ? startDate.valueOf() : "",
-      to: endDate ? endDate.valueOf() : "",
+      from: startDate ? startDate.valueOf() : fromTime,
+      to: endDate ? endDate.valueOf() : toTime,
       pageSize: executionInfoPageSize,
       page: executionInfoPage,
       namespaceId: this.selectedDataCenterId
@@ -353,7 +343,7 @@ class TopologyViewContainer extends TopologyEditorContainer {
     });
   }
 
-  fetchTimeSeriesMetrics = () => {
+  fetchTimeSeriesMetrics = (fromTime, toTime) => {
     this.timeseriesData = this.timeseriesData || [];
 
     let {viewModeData, startDate, endDate, topologyNamespaces} = this.state;
@@ -370,8 +360,8 @@ class TopologyViewContainer extends TopologyEditorContainer {
         let interpolate = m.interpolate;
 
         const queryParams = {
-          from: startDate ? startDate.valueOf() : "",
-          to: endDate ? endDate.valueOf() : "",
+          from: startDate ? startDate.valueOf() : fromTime,
+          to: endDate ? endDate.valueOf() : toTime,
           metricQuery: metricQuery,
           namespaceId: this.selectedDataCenterId
         };
@@ -417,12 +407,12 @@ class TopologyViewContainer extends TopologyEditorContainer {
     let promiseArr = [];
 
     if(this.engine.type == 'batch'){
-      const req = this.fetchExecutions();
+      const req = this.fetchExecutions(fromTime, toTime);
       promiseArr.push(req);
-      const timeseriesMetricReqs = this.fetchTimeSeriesMetrics();
+      const timeseriesMetricReqs = this.fetchTimeSeriesMetrics(fromTime, toTime);
       promiseArr.push.apply(promiseArr, [...timeseriesMetricReqs]);
     }else if(this.engine.type == 'stream'){
-      const timeseriesMetricReqs = this.fetchTimeSeriesMetrics();
+      const timeseriesMetricReqs = this.fetchTimeSeriesMetrics(fromTime, toTime);
       promiseArr.push.apply(promiseArr, [...timeseriesMetricReqs]);
     }else {
       let q_params = {
@@ -711,8 +701,8 @@ class TopologyViewContainer extends TopologyEditorContainer {
         runtimeAppUrl={this.runtimeAppUrl}
         start_time={new Date(this.statusObj.extra.startExecutionDate).getTime()}
         end_time={new Date(this.statusObj.extra.latestExecutionDate).getTime()}
-        time_interval = {this.statusObj.extra.timeInterval}
-        time_unit= {this.statusObj.extra.units}
+        time_interval = {this.statusObj.extra.executionInterval}
+        time_unit= {this.statusObj.extra.executionIntervalUnit}
     />;
   }
 

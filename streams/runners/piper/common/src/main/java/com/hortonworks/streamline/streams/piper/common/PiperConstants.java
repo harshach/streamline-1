@@ -46,6 +46,8 @@ public class PiperConstants {
 
     public static final String X_UBER_ORIGIN = "X-Uber-Origin";
     public static final String X_UBER_SOURCE = "X-Uber-Source";
+    public static final String HEADER_UPKI_TOKEN = "Rpc-Header-Utoken-Caller";
     public static final String UWORC_UBER_SERVICE_NAME = "uWorc";
+
 
 }

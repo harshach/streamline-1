@@ -290,7 +290,6 @@ import _ from 'lodash';
       var xAxis = d3.svg.axis()
         .scale(xScale)
         .orient(orient)
-        .tickFormat(multiformat)
         .tickSize(tickFormat.tickSize);
 
       if (tickFormat.tickValues != null) {
@@ -300,7 +299,7 @@ import _ from 'lodash';
       }
 
       var dataPos = function(d) {
-        if(d < (gParentSize.width -1706) || d > (gParentSize.width - 40)){
+        if(d < 58 || d > (gParentSize.width - 40)){
           return -100;
         }else {
           return d;

@@ -127,10 +127,15 @@ export default class Metrics extends Component{
       time_interval, time_unit
     } = this.props;
     let begining = startDate ? startDate.valueOf() : start_time;
-    let ending = endDate ? endDate.valueOf() : end_time;
+    let timeUnit = time_unit.toLowerCase();
+    //checking to add s character at the end of minute/second/hour string
+    if(timeUnit[timeUnit.length] !== 's'){
+      timeUnit += 's';
+    }
+    //to always have 24 ticks in execution metrics and then scrolling works (to resolve overlapping issue)
+    let ending = moment(moment(begining).toDate()).add(time_interval * 24, timeUnit);
     //check to update the timeline only if either of the dates have changed
     if(this.begining !== begining && this.ending !== ending){
-      // let endDte = moment(begining).add(24, 'hours');
       if(executionInfo.executions){
         let timelineData = [];
         executionInfo.executions.map((executionObj)=>{
@@ -158,7 +163,7 @@ export default class Metrics extends Component{
                       .beginning(begining)
                       .ending(ending)
                       .timeInterval(time_interval)
-                      .timeUnit(time_unit);
+                      .timeUnit(timeUnit);
         if(this.timelineChart){
           this.timelineChart.remove();
         }

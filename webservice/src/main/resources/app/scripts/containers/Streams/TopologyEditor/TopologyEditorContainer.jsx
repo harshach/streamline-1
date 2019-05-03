@@ -139,7 +139,11 @@ export class TopologyEditorContainer extends Component {
     let status = 'unknown';
     let namespaceObj = namespacesObj[this.namespaceName];
     if(namespaceObj.status){
-      status = namespaceObj.status.toLowerCase();
+      if(typeof namespaceObj.status === "string"){
+        status = namespaceObj.status.toLowerCase();
+      } else if(namespaceObj.status.status){
+        status = namespaceObj.status.status.toLowerCase();
+      }
     }
     this.runtimeAppId = namespaceObj.runtimeAppId;
     this.runtimeAppUrl = namespaceObj.runtimeAppUrl;
@@ -187,8 +191,8 @@ export class TopologyEditorContainer extends Component {
       Promise.all(promises).then((responses)=>{
         // responses[1].entities[0].extra.startExecutionDate = "2019-04-29T14:35";
         // responses[1].entities[0].extra.latestExecutionDate = "2019-05-01T14:35:00";
-        // responses[1].entities[0].extra.units = 'hours';
-        // responses[1].entities[0].extra.timeInterval = 3;
+        // responses[1].entities[0].extra.executionIntervalUnit = 'hours';
+        // responses[1].entities[0].extra.executionInterval = 3;
         let data = {
           topology: responses[0],
           namespaces: this.syncNamespaceObj(responses[1].entities)

@@ -131,23 +131,12 @@ class  ZoomPanelComponent extends Component {
           : null}
         </div>
         <div className="pull-right">
-          <DropdownButton className="btn-mode"
-            pullRight
-            title={modeTitle} id="mode-dropdown"
-            onSelect={(key) => {
-              if(key === 'view'){
-                this.onViewClick();
-              } else {
-                this.onEditClick();
-              }
-            }} >
-            <MenuItem active={mode === 'view' ? true : false}
-              eventKey={'view'}> Monitor
-            </MenuItem>
-            <MenuItem active={mode === 'edit' ? true : false}
-              eventKey={'edit'}> Edit
-            </MenuItem>
-          </DropdownButton>
+          <button className={`btn-panels no-margin ${mode == 'view' ? 'active' : ''}`} onClick={this.onViewClick}>
+              <img src="styles/img/uWorc/view.png" />&ensp; Monitor
+          </button>
+          <button className={`btn-panels no-margin ${mode == 'edit' ? 'active' : ''}`} onClick={this.onEditClick}>
+            <img src="styles/img/uWorc/edit.png" />&ensp; Edit
+          </button>
         </div>
       </div>
     );

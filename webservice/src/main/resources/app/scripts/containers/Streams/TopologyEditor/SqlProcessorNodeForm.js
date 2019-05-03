@@ -58,9 +58,9 @@ export default class SqlProcessorNodeForm extends Component {
       } else {
         //Gather all "FUNCTION" functions only
         this.udfList = ProcessorUtils.populateFieldsArr(udfResult.entities , "FUNCTION");
-        if(this.context.ParentForm.state.inputStreamOptions.length){
-          this.getDataFromParentFormContext();
-        }
+        // if(this.context.ParentForm.state.inputStreamOptions.length){
+        //   this.getDataFromParentFormContext();
+        // }
       }
     });
   }
@@ -152,6 +152,7 @@ export default class SqlProcessorNodeForm extends Component {
     });
 
     TopologyREST.getSqlOutputSchema({body: JSON.stringify(data)}).then((response)=>{
+      // response = [{"name":"driverId","type":"LONG","optional":false},{"name":"truckId","type":"LONG","optional":false},{"name":"eventTime","type":"STRING","optional":false},{"name":"eventType","type":"STRING","optional":false},{"name":"latitude","type":"DOUBLE","optional":false},{"name":"longitude","type":"DOUBLE","optional":false},{"name":"eventKey","type":"STRING","optional":false},{"name":"correlationId","type":"STRING","optional":false},{"name":"driverName","type":"STRING","optional":false},{"name":"routeId","type":"LONG","optional":false},{"name":"routeName","type":"STRING","optional":false},{"name":"eventDate","type":"STRING","optional":false},{"name":"miles","type":"DOUBLE","optional":false}];
       if(response.responseMessage !== undefined){
         error = response.responseMessage;
         const form = this.refs.Form;
@@ -159,10 +160,11 @@ export default class SqlProcessorNodeForm extends Component {
         Errors.sql = error;
         form.setState({Errors});
         this.setState({sqlError: error});
+      } else {
+        this.streamData.fields = response;
+        this.context.ParentForm.setState({outputStreamObj: this.streamData});
       }
     });
-    this.streamData.fields = [];
-    this.context.ParentForm.setState({outputStreamObj: this.streamData});
   }
 
   render() {

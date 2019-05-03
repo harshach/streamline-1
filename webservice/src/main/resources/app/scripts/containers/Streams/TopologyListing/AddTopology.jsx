@@ -54,7 +54,6 @@ class AddTopology extends Component {
       templateOptions: [],
       filterStr:'',
       namespacesArr: props.namespacesArr,
-      ownergroups: props.topologyData ? props.topologyData.topology.name : '',
       validInputGroup: true
     };
     this.fetchData();
@@ -118,7 +117,7 @@ class AddTopology extends Component {
     return validDataFlag;
   }
   validate() {
-    const {topologyName, namespaceId, engineId, templateId, ownergroups} = this.state;
+    const {topologyName, namespaceId, engineId, templateId} = this.state;
     let validDataFlag = true;
     if (!this.validateName()) {
       validDataFlag = false;
@@ -132,9 +131,6 @@ class AddTopology extends Component {
     } else if(templateId === ''){
       validDataFlag = false;
       this.setState({validTemplate: false});
-    } else if(ownergroups === ''){
-      validDataFlag = false;
-      this.setState({validInputGroup: false});
     } else {
       validDataFlag = true;
       this.setState({validInput: true, validSelect: true, validEngine: true, validTemplate: true, validInputGroup: true});
@@ -146,7 +142,7 @@ class AddTopology extends Component {
     if (!this.validate()) {
       return;
     }
-    const {topologyName, namespaceId, engineId, templateId, ownergroups} = this.state;
+    const {topologyName, namespaceId, engineId, templateId} = this.state;
     const {topologyData} = this.props;
     let configData = this.refs.Form.state.FormData;
     configData['topology.namespaceIds'] = JSON.stringify([namespaceId]);
@@ -158,8 +154,7 @@ class AddTopology extends Component {
       templateId: templateId,
       config: {
         properties: configData
-      },
-      ownergroups: ownergroups
+      }
     };
     if(topologyData) {
       data.projectId = projectId;
@@ -178,14 +173,6 @@ class AddTopology extends Component {
   handleOnChange = (e) => {
     this.setState({topologyName: e.target.value.trim()});
     this.validateName();
-  }
-  handleOnGroupChange = (e) => {
-    let value = e.target.value.trim();
-    if(value === ''){
-      this.setState({ownergroups: value, validInputGroup: false});
-    } else {
-      this.setState({ownergroups: value, validInputGroup: true});
-    }
   }
   handleOnChangeEnvironment = (obj) => {
     if (obj) {
@@ -280,7 +267,6 @@ class AddTopology extends Component {
       validTemplate,
       description,
       filterStr,
-      ownergroups,
       validInputGroup
     } = this.state;
     const formData = {};
@@ -310,16 +296,6 @@ class AddTopology extends Component {
               className={"form-control"} onChange={this.handleDescriptionChange}
               placeholder="Description" maxLength="1000"
             />
-          </div>
-        </div>
-        <div className="form-group">
-          <label data-stest="nameLabel">Owner Groups
-            <span className="text-danger">*</span>
-          </label>
-          <div>
-            <input type="text" name="ownergroups" defaultValue={ownergroups} placeholder="Owner Groups" required="true" className={validInputGroup
-              ? "form-control"
-              : "form-control invalidInput"} onKeyUp={this.handleOnGroupChange} disabled={!!this.props.topologyData} />
           </div>
         </div>
         <hr />

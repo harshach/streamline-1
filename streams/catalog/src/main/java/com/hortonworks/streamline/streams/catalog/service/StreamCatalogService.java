@@ -290,7 +290,7 @@ public class StreamCatalogService {
     public EngineTemplateMetricsBundle getEngineTemplateMetricsBundle(Long templateId) {
         Template template = getTemplate(templateId);
         List<QueryParam> queryParams = new ArrayList<>();
-        queryParams.add(new QueryParam(EngineTemplateMetricsBundle.TEMPLATE, template.getName()));
+        queryParams.add(new QueryParam(EngineTemplateMetricsBundle.ID, template.getId().toString()));
         Collection<EngineTemplateMetricsBundle> bundles = listEngineTemplateMetricsBundles(queryParams);
         if (bundles.size() >= 1) {
             return bundles.iterator().next();

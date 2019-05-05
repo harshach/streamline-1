@@ -603,12 +603,16 @@ export default class TopologyGraphComponent extends Component {
       linkShuffleOptions,
       metaInfo,
       getEdgeConfigModal,
-      setLastChange
+      setLastChange,
+      selectedItems
     } = this;
+    const {componentsBundle, engine} = this.props;
+
+    const component = TopologyUtils.findComponentBundleById(componentsBundle, d.topologyComponentBundleId);
     return TopologyUtils.MouseUpAction(topologyId, versionId, d3node, d, metaInfo, internalFlags,
       constants, dragLine, paths, nodes, edges, linkShuffleOptions, this.updateGraph.bind(this),
       'circle', getModalScope, setModalContent, rectangles, getEdgeConfigModal, setLastChange,
-      selectedItems
+      component, engine, selectedItems
     );
   }
 

@@ -461,6 +461,7 @@ svg>foreignObject>p {
 .timelineSeries_failed {
   fill: #E54937 !important;
 }
+.timelineSeries_success,
 .timelineSeries_done {
   fill: #07A35A !important;
 }

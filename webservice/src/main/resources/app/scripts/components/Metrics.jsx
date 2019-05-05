@@ -139,7 +139,7 @@ export default class Metrics extends Component{
       if(executionInfo.executions){
         let timelineData = [];
         executionInfo.executions.map((executionObj)=>{
-          let dateMomentObj = moment(executionObj.createdAt);
+          let dateMomentObj = moment(executionObj.executionDate);
           let currentOffset = new Date().getTimezoneOffset();
           //time manipulation as per local browser time offset
           dateMomentObj.add(-(currentOffset), 'minutes');

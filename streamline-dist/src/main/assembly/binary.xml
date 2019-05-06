@@ -33,6 +33,8 @@
 	    <excludes>
 	      <exclude>com.hortonworks.streamline:storage-tool</exclude>
 	      <exclude>org.mariadb.jdbc:mariadb-java-client</exclude>
+	      <!-- excluding calcite here because flink 1.4 forked classes from calcite (e.g. SqlGroupFunction)-->
+	      <exclude>org.apache.calcite:calcite-core</exclude>
 	    </excludes>
         </dependencySet>
         <dependencySet>

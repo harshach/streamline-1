@@ -17,7 +17,7 @@
         "isOptional": false,
         "tooltip": "A Port for REST API",
         "type": "enumstring",
-        "options": ["4310", "14310", "17861", "16133", "18432", "24117"]
+        "options": ["4310", "17861", "18432", "24117", "16366", "17635"]
       },
       {
         "uiName": "Datacenter",
@@ -25,7 +25,7 @@
         "isOptional": false,
         "tooltip": "Datacenter - used for mapping between uWorc namespace and Piper configuration",
         "type": "enumstring",
-        "options": ["dca1", "sjc1", "phx2"]
+        "options": ["dca1", "phx2"]
       },
       {
         "uiName": "Environment",
@@ -33,7 +33,7 @@
         "isOptional": false,
         "tooltip": "Environment - maps to config/{env}.yaml, used when fetching M3 metrics",
         "type": "enumstring",
-        "options": ["production", "dca1", "phx2", "staging", "staging-dca1", "sandbox"]
+        "options": ["dca1", "phx2", "staging-dca1", "staging-phx2", "sandbox"]
       },
       {
         "uiName": "Piper Url",
@@ -42,11 +42,10 @@
         "tooltip": "Used to link to Piper from uWorc",
         "type": "enumstring",
         "options": [
-          "https://piper-sjc1.uberinternal.com",
           "https://piper-dca1.uberinternal.com",
           "https://piper-phx2.uberinternal.com",
-          "https://piper-staging.uberinternal.com",
           "https://piper-staging-dca1.uberinternal.com",
+          "https://piper-staging-phx2.uberinternal.com",
           "https://piper-sandbox.uberinternal.com",
           "http://localhost:4310"
         ]

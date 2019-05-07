@@ -212,6 +212,9 @@ public class PiperRestAPIClient {
         UToken uToken = null;
         try {
             uToken = upkiTokenService.createSingleHop("piper");
+            LOG.info("uToken " + uToken);
+            LOG.info("uToken subejct "+ uToken.getSubject());
+            LOG.info("uToken expiry " + uToken.getExpiresAt());
         } catch (Exception e) {
             LOG.error("Failed to create a utoken", e);
         }

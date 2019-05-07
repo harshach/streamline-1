@@ -266,12 +266,9 @@ a.dropdown-toggle~ul.dropdown-menu {
 .main-header .logo {
   display: block;
   float: left;
-  height: 60px;
-  font-size: 20px;
-  line-height: 60px;
   text-align: center;
   width: 253px;
-  padding: 0 15px;
+  padding: 10px 15px;
   font-weight: 300;
   overflow: hidden;
   background-color: #303c52;
@@ -1465,10 +1462,13 @@ label {
   background: #E54937;
 }
 .execution-box.running{
-  background: #1B6DE0;
+  background: #276EF1;
 }
 .execution-box.queued{
-  background: #F19248;
+  background: #ED6FOE;
+}
+.execution-box.not-running{
+  background: #B3B3B3;
 }
 .execution-page-btn{
   padding: 5px 5px;
@@ -2040,7 +2040,7 @@ label {
 .editor-header{
   background: #FFFFFF;
   border-bottom: 1px solid #E5E5E5;
-  padding: 13px 9px 13px 40px;
+  padding: 12px 9px 12px 40px;
   margin-top: -9px;
   transition: all .5s ease;
   position: relative;
@@ -2265,6 +2265,7 @@ label {
     font-weight: 500;
     color: #ccc;
     padding: 0 15px;
+    margin-right: 20px;
 }
 .headContentText a.header-link.active {
   color: #000;
@@ -2519,7 +2520,7 @@ ul.project-engines li.no-workflow .badge{
 }
 .workflow-info {
   display: inline-block;
-  padding: 9px 20px;
+  padding: 0 20px;
 }
 .workflow-info h6 {
   font-size: 11px;
@@ -2909,7 +2910,7 @@ rect.extent {
   min-height: 100%;
   width: 253px;
   z-index: 810;
-  background-color: #333645;
+  background-color: #333;
   -webkit-transition: -webkit-transform .3s ease-in-out, width .3s ease-in-out;
   -moz-transition: -moz-transform .3s ease-in-out, width .3s ease-in-out;
   -o-transition: -o-transform .3s ease-in-out, width .3s ease-in-out;
@@ -5436,7 +5437,7 @@ div.actions-list > div > ul > li > span.logsearchLink{
 }
 
 .CodeMirror-hints {
-  z-index: 1060;
+  z-index: 6060;
 }
 .CodeMirror{
   height: auto;
@@ -5627,7 +5628,7 @@ h3.empty-project {
   top: 50%;
   left: 50%;
   margin-left: -200px;
-  margin-top: -125px;
+  margin-top: -128px;
 }
 .empty-data-box .headline{
   font-size: 20px;
@@ -5850,24 +5851,23 @@ h3.empty-project {
 .template-box{
   cursor: pointer;
   border-radius: 2px;
-  border: 1px solid #E5E5E5;
-  width: calc(50% - 10px);
-  margin: 0 10px 10px 0;
-  padding: 10px 20px 15px;
+  border: 1px solid #000000;
+  box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
+  padding: 20px;
+  margin-bottom: 10px;
 }
 .template-box.selected-template{
-  background-color: #f0f7fe;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, .08);
+  border-color: #1B6DE0
 }
 .template-box .name{
   color: #000000;
-  font-size: 12px;
-  line-height: 24px;
-  display: block;
+  margin: 0 0 12px;
+  font-size: 20px;
+  line-height: 28px;
 }
 .template-box .description{
-  color: #999999;
-  font-size: 12px;
+  color: #666666;
+  font-size: 14px;
   line-height: 20px;
   display: block;
   margin-top: 5px;
@@ -5918,13 +5918,14 @@ aside.right-sidebar.active {
   background-color: #FFFFFF;
   border: 1px #E5E5E5 solid;
   border-radius: 2px;
-  padding: 5px 8px;
+  padding: 7px 14px;
   color: #1B6DE0;
   font-weight: 500;
+  box-shadow: 0px 2px 2px rgba(0, 0, 0, 0.25);
 }
 .btn-panels img{
   /* filter: url(#grayscale); */
-  width: 16px;
+  width: 14px;
 }
 .btn-panels.active,
 .right-sidebar.active .icon-panel .btn-panels {

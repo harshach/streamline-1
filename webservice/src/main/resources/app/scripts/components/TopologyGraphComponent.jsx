@@ -34,6 +34,12 @@ import FSReactToastr from '../components/FSReactToastr';
 window.$ = $;
 window.jQuery = jQuery;
 
+d3.selection.prototype.moveToFront = function() {
+  return this.each(function(){
+    this.parentNode.appendChild(this);
+  });
+};
+
 const componentTarget = {
   drop(props, monitor, component) {
     if(props.avoidDagEditing){
@@ -79,6 +85,12 @@ export default class TopologyGraphComponent extends Component {
     this.testRunActivated = props.testRunActivated;
     this.hideEventLog = props.hideEventLog;
     this.componentLevelActionObj={};
+    this.selectedItems = {
+      sourceNodes: [],
+      targetNodes: [],
+      sourceEdges: [],
+      targetEdges: []
+    };
   }
 
   componentWillReceiveProps(nextProps,previousProps){
@@ -146,6 +158,10 @@ export default class TopologyGraphComponent extends Component {
 
   constants = {
     selectedClass: "selected",
+    sourceSelectedClass: "source-selected",
+    targetSelectedClass: "target-selected",
+    sourceEdgeClass: "source-edge-selected",
+    targetEdgeClass: "target-edge-selected",
     connectClass: "connect-node",
     rectangleGClass: "conceptG",
     graphClass: "graph",
@@ -473,8 +489,8 @@ export default class TopologyGraphComponent extends Component {
 
   // mouseup on node in view mode
   rectangleMouseUpViewMode(d3node, d) {
-    let {rectangles, internalFlags, constants} = this;
-    TopologyUtils.rectangleMouseUpActionViewMode(d3node, d, internalFlags, constants, rectangles, 'rectangle');
+    let {rectangles, internalFlags, constants, selectedItems, edges} = this;
+    TopologyUtils.rectangleMouseUpActionViewMode(d3node, d, internalFlags, constants, rectangles, 'rectangle', selectedItems, edges);
     if(internalFlags.selectedNode) {
       this.props.compSelectCallback(d.nodeId, d);
     } else {
@@ -541,14 +557,18 @@ export default class TopologyGraphComponent extends Component {
       linkShuffleOptions,
       metaInfo,
       getEdgeConfigModal,
-      setLastChange
+      setLastChange,
+      selectedItems
     } = this;
 
     const {componentsBundle, engine} = this.props;
 
     const component = TopologyUtils.findComponentBundleById(componentsBundle, d.topologyComponentBundleId);
 
-    return TopologyUtils.MouseUpAction(topologyId, versionId, d3node, d, metaInfo, internalFlags, constants, dragLine, paths, nodes, edges, linkShuffleOptions, this.updateGraph.bind(this), 'rectangle', getModalScope, setModalContent, rectangles, getEdgeConfigModal, setLastChange, component, engine);
+    return TopologyUtils.MouseUpAction(topologyId, versionId, d3node, d, metaInfo, internalFlags,
+      constants, dragLine, paths, nodes, edges, linkShuffleOptions, this.updateGraph.bind(this),
+      'rectangle', getModalScope, setModalContent, rectangles, getEdgeConfigModal, setLastChange,
+      component, engine, selectedItems);
   }
 
   // keydown on selected node
@@ -583,9 +603,17 @@ export default class TopologyGraphComponent extends Component {
       linkShuffleOptions,
       metaInfo,
       getEdgeConfigModal,
-      setLastChange
+      setLastChange,
+      selectedItems
     } = this;
-    return TopologyUtils.MouseUpAction(topologyId, versionId, d3node, d, metaInfo, internalFlags, constants, dragLine, paths, nodes, edges, linkShuffleOptions, this.updateGraph.bind(this), 'circle', getModalScope, setModalContent, rectangles, getEdgeConfigModal, setLastChange);
+    const {componentsBundle, engine} = this.props;
+
+    const component = TopologyUtils.findComponentBundleById(componentsBundle, d.topologyComponentBundleId);
+    return TopologyUtils.MouseUpAction(topologyId, versionId, d3node, d, metaInfo, internalFlags,
+      constants, dragLine, paths, nodes, edges, linkShuffleOptions, this.updateGraph.bind(this),
+      'circle', getModalScope, setModalContent, rectangles, getEdgeConfigModal, setLastChange,
+      component, engine, selectedItems
+    );
   }
 
   // mousedown on main svg
@@ -765,9 +793,12 @@ export default class TopologyGraphComponent extends Component {
       metaInfo,
       uinamesList,
       setLastChange,
-      topologyConfigMessageCB
+      topologyConfigMessageCB,
+      constants
     } = this;
-    TopologyUtils.deleteNode(topologyId, versionId, selectedNode, nodes, edges, internalFlags, updateGraph.bind(this), metaInfo, uinamesList, setLastChange, topologyConfigMessageCB);
+    TopologyUtils.deleteNode(topologyId, versionId, selectedNode, nodes, edges,
+      internalFlags, updateGraph.bind(this), metaInfo, uinamesList, setLastChange,
+      topologyConfigMessageCB, constants);
   }
 
   deleteEdge(selectedEdge) {
@@ -778,9 +809,11 @@ export default class TopologyGraphComponent extends Component {
       edges,
       nodes,
       updateGraph,
-      setLastChange
+      setLastChange,
+      constants
     } = this;
-    TopologyUtils.deleteEdge(selectedEdge, topologyId, versionId, internalFlags, edges, nodes, updateGraph.bind(this), setLastChange);
+    TopologyUtils.deleteEdge(selectedEdge, topologyId, versionId, internalFlags,
+      edges, nodes, updateGraph.bind(this), setLastChange, constants);
     this.edgeStream.style('display', 'none');
     this.main_edgestream.style('display', 'none');
   }
@@ -795,11 +828,31 @@ export default class TopologyGraphComponent extends Component {
       let cloneElem = element[i].cloneNode();
       cloneElem.style['marker-end'] = 'url(#end-arrow)';
       cloneElem.setAttribute('stroke-width', '2.3');
-      cloneElem.setAttribute('class', 'link visible-link');
+      cloneElem.setAttribute('class', this.pathClassName(cloneElem));
       cloneElem.removeAttribute('stroke-opacity');
       cloneElem.removeAttribute('data-toggle');
       element[i].parentNode.insertBefore(cloneElem, element[i]);
     }
+    d3.selectAll('.'+this.constants.sourceEdgeClass).each(function(){
+      d3.select(this).moveToFront();
+    });
+    d3.selectAll('.'+this.constants.targetEdgeClass).each(function(){
+      d3.select(this).moveToFront();
+    });
+  }
+
+  pathClassName(elem){
+    let className = 'link visible-link';
+    let sourceTargetId = elem.dataset.name.split('-');
+    let selectedNodeId = this.internalFlags.selectedNode ? this.internalFlags.selectedNode.nodeId : null;
+    if(selectedNodeId == sourceTargetId[1]){
+      //check in source edges
+      className += ' '+this.constants.sourceEdgeClass;
+    } else if(selectedNodeId == sourceTargetId[0]){
+      //check in target edges
+      className += ' '+this.constants.targetEdgeClass;
+    }
+    return className;
   }
 
   getBoundingBoxCenter(selection) {
@@ -908,6 +961,9 @@ export default class TopologyGraphComponent extends Component {
       const classArr = ["node-rectangle", TopologyUtils.getNodeRectClass(d,'uniqRect')];
       if(d.reconfigure){
         classArr.push('reconfig-node');
+      }
+      if(d.error){
+        classArr.push('error-node');
       }
 
       return classArr.join(' ');
@@ -1025,7 +1081,12 @@ export default class TopologyGraphComponent extends Component {
     })
     .attr("class", function(d) {
       let classStr = "node-rectangle "+ TopologyUtils.getNodeRectClass(d,'uniqRect');
-      classStr += d.reconfigure ?  ' reconfig-node ' : '' ;
+      if(d.reconfigure){
+        classStr += ' reconfig-node ';
+      }
+      if(d.error){
+        classStr += ' error-node ';
+      }
       return classStr;
     }).attr("filter", function(d) {
       if (!d.isConfigured) {

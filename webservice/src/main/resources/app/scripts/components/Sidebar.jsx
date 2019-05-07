@@ -22,9 +22,10 @@ import {hasModuleAccess} from '../utils/ACLUtils';
 import {menuName, rolePriorities} from '../utils/Constants';
 import MiscREST from '../rest/MiscREST';
 import SVGIcons from '../utils/SVGIcons';
+import onClickOutside from "react-onclickoutside";
 
 @observer
-export default class Sidebar extends Component {
+class Sidebar extends Component {
   constructor(props) {
     super(props);
     this.state = {
@@ -71,6 +72,13 @@ export default class Sidebar extends Component {
     if (flag) {
       this.refs.leaveEditable.hide();
       this.navigateToDashboard();
+    }
+  }
+  handleClickOutside = () => {
+    if(this.state.showUserDetails){
+      this.setState({
+        showUserDetails: false
+      });
     }
   }
   handleUserClick = () => {
@@ -211,3 +219,4 @@ export default class Sidebar extends Component {
     );
   }
 }
+export default onClickOutside(Sidebar);

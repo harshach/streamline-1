@@ -62,6 +62,7 @@ import {
   syncNodeDataAndEventLogData,
   fetchSingleEventLogData
 } from '../../../utils/TestModeUtils/TestModeUtils';
+import moment from 'moment';
 
 @observer
 export class TopologyEditorContainer extends Component {
@@ -138,7 +139,11 @@ export class TopologyEditorContainer extends Component {
     let status = 'unknown';
     let namespaceObj = namespacesObj[this.namespaceName];
     if(namespaceObj.status){
-      status = namespaceObj.status.toLowerCase();
+      if(typeof namespaceObj.status === "string"){
+        status = namespaceObj.status.toLowerCase();
+      } else if(namespaceObj.status.status){
+        status = namespaceObj.status.status.toLowerCase();
+      }
     }
     this.runtimeAppId = namespaceObj.runtimeAppId;
     this.runtimeAppUrl = namespaceObj.runtimeAppUrl;
@@ -184,6 +189,10 @@ export class TopologyEditorContainer extends Component {
         TopologyREST.getTopologyActionStatus(this.topologyId, versionId)
       ];
       Promise.all(promises).then((responses)=>{
+        // responses[1].entities[0].extra.startExecutionDate = "2019-04-29T14:35";
+        // responses[1].entities[0].extra.latestExecutionDate = "2019-05-01T14:35:00";
+        // responses[1].entities[0].extra.executionIntervalUnit = 'hours';
+        // responses[1].entities[0].extra.executionInterval = 3;
         let data = {
           topology: responses[0],
           namespaces: this.syncNamespaceObj(responses[1].entities)
@@ -199,6 +208,7 @@ export class TopologyEditorContainer extends Component {
         this.namespaceName = _.keys(data.namespaces)[0];
         this.namespaceId = data.namespaces[this.namespaceName].namespaceId;
         this.lastUpdatedTime = new Date(data.topology.timestamp);
+        this.statusObj = data.namespaces[this.namespaceName];
 
         this.topologyName = data.topology.name;
         this.topologyConfig = (data.topology.config && data.topology.config.properties) ? data.topology.config.properties : {};
@@ -720,6 +730,7 @@ export class TopologyEditorContainer extends Component {
           const index = _.findIndex(this.tempGraphNode,(t) => { return t.nodeId === this.node.nodeId;});
           if(index !== -1){
             this.tempGraphNode[index].reconfigure = false;
+            this.tempGraphNode[index].error = false;
           }
         }
         let i = this.graphData.uinamesList.indexOf(this.node.uiname);
@@ -1157,8 +1168,11 @@ export class TopologyEditorContainer extends Component {
     if(this.graphData.nodes.length > 0){
       let allowDeploy = true;
       this.graphData.nodes.map((node)=>{
-        if(allowDeploy){
-          allowDeploy = node.isConfigured;
+        if(node.isConfigured){
+          node.error = false;
+        } else {
+          node.error = true;
+          allowDeploy = false;
         }
       });
       if(allowDeploy){
@@ -1171,6 +1185,7 @@ export class TopologyEditorContainer extends Component {
         }
       } else {
         FSReactToastr.warning(<strong>One or more components are not configured. Please configure before deploying.</strong>);
+        this.triggerGraphUpdate();
       }
     } else {
       FSReactToastr.info(<strong>No components found. Please add & configure components before deploying.</strong>);

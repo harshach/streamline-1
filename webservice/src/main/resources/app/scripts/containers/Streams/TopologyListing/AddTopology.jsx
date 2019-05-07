@@ -53,7 +53,8 @@ class AddTopology extends Component {
       streamOptions: [],
       templateOptions: [],
       filterStr:'',
-      namespacesArr: props.namespacesArr
+      namespacesArr: props.namespacesArr,
+      validInputGroup: true
     };
     this.fetchData();
   }
@@ -132,7 +133,7 @@ class AddTopology extends Component {
       this.setState({validTemplate: false});
     } else {
       validDataFlag = true;
-      this.setState({validInput: true, validSelect: true, validEngine: true, validTemplate: true});
+      this.setState({validInput: true, validSelect: true, validEngine: true, validTemplate: true, validInputGroup: true});
     }
     return validDataFlag;
   }
@@ -265,7 +266,8 @@ class AddTopology extends Component {
       templateOptions,
       validTemplate,
       description,
-      filterStr
+      filterStr,
+      validInputGroup
     } = this.state;
     const formData = {};
     let fields = formField ? Utils.genFields(formField.fields || [], [], formData) : null;
@@ -348,9 +350,11 @@ class AddTopology extends Component {
               </FormGroup>
               <div className="row templates-container">{filteredTemplates.length ?
                 _.map(filteredTemplates, (t) => {
-                  return <div className={`col-md-6 template-box ${templateId == t.id ? 'selected-template' : ''}`} onClick={() => this.handleOnChangeTemplate(t)} key={t.name}>
-                    <span className="name">{t.name}</span>
-                    <span className="description">{t.description}</span>
+                  return <div className={`col-md-6`} onClick={() => this.handleOnChangeTemplate(t)} key={t.name}>
+                    <div className={`template-box ${templateId == t.id ? 'selected-template' : ''}`}>
+                      <h4 className="name">{t.name}</h4>
+                      <p className="description">{t.description}</p>
+                    </div>
                   </div>;
                 })
                 :

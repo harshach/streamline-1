@@ -29,6 +29,7 @@ import Utils from '../utils/Utils';
 import CommonLoaderSign from './CommonLoaderSign';
 import _ from 'lodash';
 import {dbIcon} from '../utils/SVGIcons';
+import '../libs/timeline/d3-timeline';
 
 export default class Metrics extends Component{
   constructor(props) {
@@ -40,6 +41,7 @@ export default class Metrics extends Component{
       selectedMetricsName: bundles[0] ? bundles[0].name : '',
       metricsPanelExpanded: false
     };
+    this.startDate = null, this.endDate = null;
   }
   componentDidMount(){}
   handleExpandCollapse = () => {
@@ -120,8 +122,79 @@ export default class Metrics extends Component{
       onClick={this.handleExpandCollapse}
     ><i className={metricsPanelExpanded ? "fa fa-chevron-down" : "fa fa-chevron-up"}></i></button>;
   }
+  findBeginingEndingTime(startDate, start_time, firstDataObj, time_unit, time_interval){
+    let begining, ending, momentObj;
+    let timeUnit = time_unit.toLowerCase();
+    if(firstDataObj){
+      momentObj = moment(firstDataObj.executionDate);
+    } else {
+      momentObj = startDate ? startDate : moment(start_time);
+    }
+    let currentOffset = new Date().getTimezoneOffset();
+    //time manipulation as per local browser time offset
+    momentObj.add(-(currentOffset), 'minutes');
+    //to show timeline chart from right
+    momentObj.subtract(time_interval * 15, timeUnit);
+    begining = momentObj.valueOf();
+    //checking to add s character at the end of minute/second/hour string
+    if(timeUnit[timeUnit.length] !== 's'){
+      timeUnit += 's';
+    }
+    //to always have 24 ticks in execution metrics and then scrolling works (to resolve overlapping issue)
+    ending = moment(moment(begining).toDate()).add(time_interval * 24, timeUnit);
+    return {
+      begining, ending, timeUnit
+    };
+  }
   renderTimeline = () => {
-    console.log("Render Execution Timeline Here");
+    const {executionInfo, startDate, endDate,start_time, end_time,
+      time_interval, time_unit
+    } = this.props;
+    if(executionInfo.executions){
+      let data = Utils.sortArray(executionInfo.executions, "executionDate", true);
+      let timeObj = this.findBeginingEndingTime(startDate, start_time, data[0], time_unit, time_interval);
+      //check to update the timeline only if either of the dates have changed
+      if(this.begining !== timeObj.begining || this.ending !== timeObj.ending){
+        let timelineData = [];
+        data.map((executionObj)=>{
+          let dateMomentObj = moment(executionObj.executionDate);
+          let currentOffset = new Date().getTimezoneOffset();
+          //time manipulation as per local browser time offset
+          dateMomentObj.add(-(currentOffset), 'minutes');
+          let starting_time = dateMomentObj.valueOf();
+          let obj = {
+            starting_time: starting_time,
+            ending_time: starting_time + 1250000
+          };
+          let existingObj = timelineData.find((d)=>{return d.label === executionObj.status;});
+          if(existingObj){
+            if(existingObj.times){
+              existingObj.times.push(obj);
+            } else {
+              existingObj.times = [obj];
+            }
+          } else {
+            timelineData.push({
+              label: executionObj.status,
+              times: [obj]
+            });
+          }
+        });
+        let chart = d3.timeline().labelFormat(function label(){return '';})
+                      .margin({left:70, right:30, top:30, bottom:30})
+                      .beginning(timeObj.begining)
+                      .ending(timeObj.ending)
+                      .timeInterval(time_interval)
+                      .timeUnit(timeObj.timeUnit);
+        if(this.timelineChart){
+          this.timelineChart.remove();
+        }
+        this.timelineChart = d3.select("#executionTimeline").append("svg").attr("width", "100%").attr("height", 80);
+        this.timelineChart.datum(timelineData).call(chart);
+        this.begining = timeObj.begining;
+        this.ending = timeObj.ending;
+      }
+    }
   }
   getBody = () => {
     const {lastUpdatedTime, topologyName, executionInfo,

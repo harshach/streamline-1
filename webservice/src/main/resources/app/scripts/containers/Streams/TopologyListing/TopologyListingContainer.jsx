@@ -211,6 +211,7 @@ class WorkflowListingTable extends Component {
     case 'not-running':
       return 'not-running';
       break;
+    case 'success':
     case 'enabled':
     case 'active':
       return 'done';

@@ -122,11 +122,11 @@ export default class Metrics extends Component{
       onClick={this.handleExpandCollapse}
     ><i className={metricsPanelExpanded ? "fa fa-chevron-down" : "fa fa-chevron-up"}></i></button>;
   }
-  findBeginingEndingTime(startDate, start_time, firstDataObj, time_unit, time_interval){
+  findBeginingEndingTime(startDate, start_time, lastDataObj, time_unit, time_interval){
     let begining, ending, momentObj;
     let timeUnit = time_unit.toLowerCase();
-    if(firstDataObj){
-      momentObj = moment(firstDataObj.executionDate);
+    if(lastDataObj){
+      momentObj = moment(lastDataObj.executionDate);
     } else {
       momentObj = startDate ? startDate : moment(start_time);
     }
@@ -134,14 +134,14 @@ export default class Metrics extends Component{
     //time manipulation as per local browser time offset
     momentObj.add(-(currentOffset), 'minutes');
     //to show timeline chart from right
-    momentObj.subtract(time_interval * 15, timeUnit);
+    momentObj.subtract(time_interval * 18, timeUnit);
     begining = momentObj.valueOf();
     //checking to add s character at the end of minute/second/hour string
     if(timeUnit[timeUnit.length] !== 's'){
       timeUnit += 's';
     }
     //to always have 24 ticks in execution metrics and then scrolling works (to resolve overlapping issue)
-    ending = moment(moment(begining).toDate()).add(time_interval * 24, timeUnit);
+    ending = moment(moment(begining).toDate()).add(time_interval * 24, timeUnit).valueOf();
     return {
       begining, ending, timeUnit
     };
@@ -152,7 +152,7 @@ export default class Metrics extends Component{
     } = this.props;
     if(executionInfo.executions){
       let data = Utils.sortArray(executionInfo.executions, "executionDate", true);
-      let timeObj = this.findBeginingEndingTime(startDate, start_time, data[0], time_unit, time_interval);
+      let timeObj = this.findBeginingEndingTime(startDate, start_time, data[data.length - 1], time_unit, time_interval);
       //check to update the timeline only if either of the dates have changed
       if(this.begining !== timeObj.begining || this.ending !== timeObj.ending){
         let timelineData = [];

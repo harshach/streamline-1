@@ -112,7 +112,7 @@ export default class VersionControl extends Component{
           })
         }
         </DropdownButton>
-        <button className="btn btn-primary btn-sm set-version-btn" onClick={setCurrentVersion}>Set as Current</button>
+        <button className="btn btn-primary btn-sm set-version-btn" onClick={setCurrentVersion}>Set as Draft</button>
       </div>,
       <div className="bottom-panel-content" key="metrics-body">
         <div className="version-wrapper">

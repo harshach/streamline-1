@@ -197,10 +197,10 @@ class DateTimePickerDropdown extends Component {
 
   render() {
     let {startDate, endDate, ranges, rangesInHoursMins, rangesInDaysToYears, rangesPrevious,activeDate} = this.state;
-    let labelStart = this.state.startDate.format('YYYY-MM-DD HH:mm:ss');
-    let labelEnd = this.state.endDate.format('YYYY-MM-DD HH:mm:ss');
+    let labelStart = startDate ? startDate.format('YYYY-MM-DD HH:mm:ss') : "";
+    let labelEnd = endDate ? endDate.format('YYYY-MM-DD HH:mm:ss') : "";
     const datePickerTitleContent = (
-      <span>{clockIcon} {moment.duration(startDate.diff(endDate)).humanize()}</span>
+      <span>{clockIcon} {startDate ? moment.duration(startDate.diff(endDate)).humanize() : ""}</span>
     );
     return (
       <DropdownButton

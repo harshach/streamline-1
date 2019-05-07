@@ -132,7 +132,7 @@ class WorkflowListingTable extends Component {
             workflowObj.statusArr.map((statusObj)=>{
               datacenterArr.push({
                 clusterName: statusObj.namespaceName,
-                status: statusObj.status,
+                status: statusObj.extra.latestExecutionStatus || 'not-running',
                 runtimeAppId: statusObj.runtimeAppId
               });
             });
@@ -208,8 +208,10 @@ class WorkflowListingTable extends Component {
     switch(status.status.toLowerCase()){
     case 'not deployed':
     case 'unknown':
-      return 'unknown';
+    case 'not-running':
+      return 'not-running';
       break;
+    case 'success':
     case 'enabled':
     case 'active':
       return 'done';

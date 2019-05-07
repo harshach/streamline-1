@@ -233,9 +233,7 @@ export default class SqlProcessorNodeForm extends Component {
       Errors.sql = error;
       form.setState({Errors});
       this.setState({sqlError: error});
-
     });
-
   }
 
   render() {
@@ -255,9 +253,9 @@ export default class SqlProcessorNodeForm extends Component {
       const allFields = [];
       const tableNames = [];
       _.each(inputStreamOptions, (stream) => {
-        const streamIdWOId = stream.streamId.split('_');
-        streamIdWOId.splice(streamIdWOId.length-1, 1);
-        const topicNameFromStreamId = streamIdWOId.join('_');
+        // const streamIdWOId = stream.streamId.split('_');
+        // streamIdWOId.splice(streamIdWOId.length-1, 1);
+        const topicNameFromStreamId = stream.streamId;
         const formatedTableName = 'hdrone.'+topicNameFromStreamId.replace(/-/g, '_');
         this.tableMapping[formatedTableName.toLowerCase()] = topicNameFromStreamId;
         tableNames.push({

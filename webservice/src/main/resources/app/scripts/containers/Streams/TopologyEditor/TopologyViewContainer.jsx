@@ -84,8 +84,8 @@ class TopologyViewContainer extends TopologyEditorContainer {
     bundleArr: null,
     availableTimeSeriesDb: false,
     fetchLoader: true,
-    startDate: moment().subtract(1440, 'minutes'),
-    endDate: moment(),
+    startDate: null,
+    endDate: null,
     activeRangeLabel: null,
     viewModeData: {
       topologyMetrics: {},
@@ -144,7 +144,16 @@ class TopologyViewContainer extends TopologyEditorContainer {
   onFetchedData(){
     const {isAppRunning} = this.state;
     if(isAppRunning) {
-      this.fetchCatalogInfoAndMetrics(this.state.startDate.toDate().getTime(), this.state.endDate.toDate().getTime());
+      let currentOffset = new Date().getTimezoneOffset();
+      let startTimeObj = moment(this.statusObj.extra.startExecutionDate);
+      startTimeObj.add(-(currentOffset), 'minutes');
+      let endTimeObj = moment(this.statusObj.extra.latestExecutionDate);
+      endTimeObj.add(-(currentOffset), 'minutes');
+      let startTime = startTimeObj.valueOf();
+      let endTime = endTimeObj.valueOf();
+
+      this.fetchCatalogInfoAndMetrics(startTime, endTime);
+      // this.fetchCatalogInfoAndMetrics(this.state.startDate.toDate().getTime(), this.state.endDate.toDate().getTime());
       this.fetchTopologyLevelSampling();
     }
   }
@@ -313,25 +322,13 @@ class TopologyViewContainer extends TopologyEditorContainer {
       });
     }
   }
-  getPrevPageExecutions = () => {
-    const {executionInfoPageSize} = this.state;
-    this.setState({executionInfoPageSize: executionInfoPageSize+1}, () => {
-      this.fetchExecutions();
-    });
-  }
-  getNextPageExecutions = () => {
-    const {executionInfoPageSize} = this.state;
-    this.setState({executionInfoPageSize: executionInfoPageSize-1}, () => {
-      this.fetchExecutions();
-    });
-  }
 
-  fetchExecutions = () => {
+  fetchExecutions = (fromTime, toTime) => {
     let {viewModeData, executionInfoPageSize, executionInfoPage, startDate, endDate} = this.state;
 
     return ViewModeREST.getAllExecutions(this.topologyId, {
-      from: startDate.valueOf(),
-      to: endDate.valueOf(),
+      from: startDate ? startDate.valueOf() : fromTime,
+      to: endDate ? endDate.valueOf() : toTime,
       pageSize: executionInfoPageSize,
       page: executionInfoPage,
       namespaceId: this.selectedDataCenterId
@@ -352,7 +349,7 @@ class TopologyViewContainer extends TopologyEditorContainer {
     });
   }
 
-  fetchTimeSeriesMetrics = () => {
+  fetchTimeSeriesMetrics = (fromTime, toTime) => {
     this.timeseriesData = this.timeseriesData || [];
 
     let {viewModeData, startDate, endDate, topologyNamespaces} = this.state;
@@ -369,8 +366,8 @@ class TopologyViewContainer extends TopologyEditorContainer {
         let interpolate = m.interpolate;
 
         const queryParams = {
-          from: startDate.valueOf(),
-          to: endDate.valueOf(),
+          from: startDate ? startDate.valueOf() : fromTime,
+          to: endDate ? endDate.valueOf() : toTime,
           metricQuery: metricQuery,
           namespaceId: this.selectedDataCenterId
         };
@@ -416,12 +413,12 @@ class TopologyViewContainer extends TopologyEditorContainer {
     let promiseArr = [];
 
     if(this.engine.type == 'batch'){
-      const req = this.fetchExecutions();
+      const req = this.fetchExecutions(fromTime, toTime);
       promiseArr.push(req);
-      const timeseriesMetricReqs = this.fetchTimeSeriesMetrics();
+      const timeseriesMetricReqs = this.fetchTimeSeriesMetrics(fromTime, toTime);
       promiseArr.push.apply(promiseArr, [...timeseriesMetricReqs]);
     }else if(this.engine.type == 'stream'){
-      const timeseriesMetricReqs = this.fetchTimeSeriesMetrics();
+      const timeseriesMetricReqs = this.fetchTimeSeriesMetrics(fromTime, toTime);
       promiseArr.push.apply(promiseArr, [...timeseriesMetricReqs]);
     }else {
       let q_params = {
@@ -708,6 +705,10 @@ class TopologyViewContainer extends TopologyEditorContainer {
         engine={this.engine}
         template={this.template}
         runtimeAppUrl={this.runtimeAppUrl}
+        start_time={new Date(this.statusObj.extra.startExecutionDate).getTime()}
+        end_time={new Date(this.statusObj.extra.latestExecutionDate).getTime()}
+        time_interval = {this.statusObj.extra.executionInterval}
+        time_unit= {this.statusObj.extra.executionIntervalUnit}
     />;
   }
 

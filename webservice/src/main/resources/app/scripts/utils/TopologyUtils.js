@@ -290,7 +290,10 @@ const spliceDeleteNodeArr = function(nodeId) {
   }
 };
 
-const deleteNode = function(topologyId, versionId, currentNode, nodes, edges, internalFlags, updateGraphMethod, metaInfo, uinamesList, setLastChange, topologyConfigMessageCB) {
+const deleteNode = function(topologyId, versionId, currentNode, nodes, edges,
+  internalFlags, updateGraphMethod, metaInfo, uinamesList, setLastChange,
+  topologyConfigMessageCB, constants
+) {
   let promiseArr = [],
     nodePromiseArr = [],
     callback = null,
@@ -411,6 +414,7 @@ const deleteNode = function(topologyId, versionId, currentNode, nodes, edges, in
       nodes.splice(nodes.indexOf(currentNode), 1);
       this.spliceLinksForNode(currentNode, edges);
       internalFlags.selectedNode = null;
+      this.removeSelectComponents(constants);
       this.spliceDeleteNodeArr(currentNode.nodeId);
       updateGraphMethod();
       if (topologyConfigMessageCB) {
@@ -520,7 +524,9 @@ const getEdges = function(allEdges, currentNode) {
   });
 };
 
-const deleteEdge = function(selectedEdge, topologyId, versionId, internalFlags, edges, nodes, updateGraphMethod, setLastChange) {
+const deleteEdge = function(selectedEdge, topologyId, versionId, internalFlags,
+  edges, nodes, updateGraphMethod, setLastChange, constants
+) {
   let targetNodeType = selectedEdge.target.parentType === 'PROCESSOR'
     ? 'processors'
     : 'sinks';
@@ -633,6 +639,7 @@ const deleteEdge = function(selectedEdge, topologyId, versionId, internalFlags, 
     }
     edges.splice(edges.indexOf(selectedEdge), 1);
     internalFlags.selectedEdge = null;
+    this.removeSelectComponents(constants);
     updateGraphMethod();
   });
 };
@@ -645,11 +652,55 @@ const spliceLinksForNode = function(node, edges) {
   });
 };
 
-const replaceSelectNode = function(d3Node, nodeData, constants, internalFlags, rectangles) {
+const selectComponents = function(rectangles, constants, selectedItems){
+  if(selectedItems.sourceNodes.length){
+    // add source selected class
+    rectangles.filter(function(cd) {
+      return selectedItems.sourceNodes.indexOf(cd.nodeId) !== -1;
+    }).classed(constants.sourceSelectedClass, true);
+
+    selectedItems.sourceEdges.map((obj)=>{
+      d3.select('.visible-link[data-name="'+obj.source.nodeId+'-'+obj.target.nodeId+'"]')
+        .classed(constants.sourceEdgeClass, true)
+        .moveToFront();
+    });
+  }
+
+  if(selectedItems.targetNodes.length){
+    // add target selected class
+    rectangles.filter(function(cd) {
+      return selectedItems.targetNodes.indexOf(cd.nodeId) !== -1;
+    }).classed(constants.targetSelectedClass, true);
+
+    selectedItems.targetEdges.map((obj)=>{
+      d3.select('.visible-link[data-name="'+obj.source.nodeId+'-'+obj.target.nodeId+'"]')
+        .classed(constants.targetEdgeClass, true)
+        .moveToFront();
+    });
+  }
+};
+
+const removeSelectComponents = function(constants){
+  d3.selectAll('.'+constants.sourceSelectedClass).each(function(d){
+    d3.select(this).classed(constants.sourceSelectedClass, false);
+  });
+  d3.selectAll('.'+constants.targetSelectedClass).each(function(d){
+    d3.select(this).classed(constants.targetSelectedClass, false);
+  });
+  d3.selectAll('.'+constants.sourceEdgeClass).each(function(d){
+    d3.select(this).classed(constants.sourceEdgeClass, false);
+  });
+  d3.selectAll('.'+constants.targetEdgeClass).each(function(d){
+    d3.select(this).classed(constants.targetEdgeClass, false);
+  });
+};
+
+const replaceSelectNode = function(d3Node, nodeData, constants, internalFlags, rectangles, selectedItems) {
   d3Node.classed(constants.selectedClass, true);
   if (internalFlags.selectedNode) {
     this.removeSelectFromNode(rectangles, constants, internalFlags);
   }
+  this.selectComponents(rectangles, constants, selectedItems);
   internalFlags.selectedNode = nodeData;
 };
 
@@ -657,6 +708,7 @@ const removeSelectFromNode = function(rectangles, constants, internalFlags) {
   rectangles.filter(function(cd) {
     return cd.nodeId === internalFlags.selectedNode.nodeId;
   }).classed(constants.selectedClass, false);
+  this.removeSelectComponents(constants);
   internalFlags.selectedNode = null;
 };
 
@@ -807,15 +859,39 @@ const getConfigContainer = function(node, configData, editMode, topologyId, vers
   }
 };
 
-const MouseUpAction = function(topologyId, versionId, d3node, d, metaInfo, internalFlags, constants, dragLine, paths, allNodes, edges, linkShuffleOptions, updateGraphMethod, elementType, getModalScope, setModalContent, rectangles, getEdgeConfigModal, setLastChange, component, engine) {
+const getConnectedComponents = function(edges, d, selectedItems){
+  selectedItems.sourceNodes = [];
+  var sourceEdges = edges.filter((e) => {
+    if(e.target.nodeId === d.nodeId){
+      selectedItems.sourceNodes.push(e.source.nodeId);
+      return true;
+    }
+  });
+
+  selectedItems.sourceEdges = sourceEdges;
+
+  selectedItems.targetNodes = [];
+  var targetEdges = edges.filter((e) => {
+    if(e.source.nodeId === d.nodeId){
+      selectedItems.targetNodes.push(e.target.nodeId);
+      return true;
+    }
+  });
+
+  selectedItems.targetEdges = targetEdges;
+};
+
+const MouseUpAction = function(topologyId, versionId, d3node, d, metaInfo, internalFlags,
+  constants, dragLine, paths, allNodes, edges, linkShuffleOptions, updateGraphMethod,
+  elementType, getModalScope, setModalContent, rectangles, getEdgeConfigModal, setLastChange,
+  component, engine, selectedItems
+) {
   // reset the internalFlags
   internalFlags.shiftNodeDrag = false;
   d3node.classed(constants.connectClass, false);
 
   var mouseDownNode = internalFlags.mouseDownNode;
-  var hasSource = edges.filter((e) => {
-    return e.target.nodeId === d.nodeId;
-  });
+  this.getConnectedComponents(edges, d, selectedItems);
 
   //cannot connect from unconfigured node
   if (!internalFlags.addEdgeFromNode) {
@@ -828,7 +904,7 @@ const MouseUpAction = function(topologyId, versionId, d3node, d, metaInfo, inter
 
   if (mouseDownNode && mouseDownNode !== d) {
     // we're in a different node: create new edge for mousedown edge and add to graph
-    if (hasSource.length && d.currentType.toLowerCase() === 'branch') {
+    if (selectedItems.sourceEdges.length && d.currentType.toLowerCase() === 'branch') {
       dragLine.classed("hidden", true);
       FSReactToastr.warning(
         <strong>Edge cannot be connected to Branch.</strong>
@@ -846,10 +922,7 @@ const MouseUpAction = function(topologyId, versionId, d3node, d, metaInfo, inter
       } else {
         // clicked, not dragged
         if (d3.event && d3.event.type === 'dblclick') {
-          let hasSource = edges.filter((e) => {
-            return e.target.nodeId === d.nodeId;
-          });
-          if (!component.input || hasSource.length || !engine.schemaAware) {
+          if (!component.input || selectedItems.sourceEdges.length || !engine.schemaAware) {
             this.showNodeModal(getModalScope, setModalContent, d, updateGraphMethod, allNodes, edges, linkShuffleOptions);
           } else {
             FSReactToastr.warning(
@@ -864,7 +937,7 @@ const MouseUpAction = function(topologyId, versionId, d3node, d, metaInfo, inter
           var prevNode = internalFlags.selectedNode;
 
           if (!prevNode || prevNode.nodeId !== d.nodeId) {
-            this.replaceSelectNode(d3node, d, constants, internalFlags, rectangles);
+            this.replaceSelectNode(d3node, d, constants, internalFlags, rectangles, selectedItems);
           } else {
             this.removeSelectFromNode(rectangles, constants, internalFlags);
           }
@@ -878,7 +951,7 @@ const MouseUpAction = function(topologyId, versionId, d3node, d, metaInfo, inter
       var prevNode = internalFlags.selectedNode;
 
       if (!prevNode || prevNode.nodeId !== d.nodeId) {
-        this.replaceSelectNode(d3node, d, constants, internalFlags, rectangles);
+        this.replaceSelectNode(d3node, d, constants, internalFlags, rectangles, selectedItems);
       } else {
         this.removeSelectFromNode(rectangles, constants, internalFlags);
       }
@@ -889,8 +962,9 @@ const MouseUpAction = function(topologyId, versionId, d3node, d, metaInfo, inter
   return;
 };
 
-const rectangleMouseUpActionViewMode = function(d3node, d, internalFlags, constants, rectangles, elementType) {
+const rectangleMouseUpActionViewMode = function(d3node, d, internalFlags, constants, rectangles, elementType, selectedItems, edges) {
   internalFlags.shiftNodeDrag = false;
+  this.getConnectedComponents(edges, d, selectedItems);
   d3node.classed(constants.connectClass, false);
   var mouseDownNode = internalFlags.mouseDownNode;
   if (mouseDownNode && mouseDownNode === d) {
@@ -905,12 +979,15 @@ const rectangleMouseUpActionViewMode = function(d3node, d, internalFlags, consta
             d3node.classed(constants.selectedClass, true);
             internalFlags.selectedNode = d;
           } else {
+            selectedItems.sourceNodes = [];
+            selectedItems.targetNodes = [];
             this.removeSelectFromNode(rectangles, constants, internalFlags);
           }
         }
       }
     }
   }
+  this.selectComponents(rectangles, constants, selectedItems);
 };
 
 const KeyDownAction = function(d, internalFlags, allNodes, edges, linkShuffleOptions, updateGraphMethod, getModalScope, setModalContent, rectangles, constants) {
@@ -1216,5 +1293,8 @@ export default {
   getNodeStreams,
   updateGraphEdges,
   spliceDeleteNodeArr,
-  findComponentBundleById
+  findComponentBundleById,
+  getConnectedComponents,
+  selectComponents,
+  removeSelectComponents
 };

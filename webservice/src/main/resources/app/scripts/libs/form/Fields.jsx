@@ -460,10 +460,10 @@ export class sql extends BaseField {
     Form.setState(Form.state);
     this.validate();
     if(fieldJson.onChange){
-      if(!this.onChangeDebounce){
-        this.onChangeDebounce = _.debounce(this.onChange , 1000, { 'maxWait': 1000 });
-      }
-      this.onChangeDebounce();
+      clearTimeout(this.sqlTimer);
+      this.sqlTimer = setTimeout(()=>{
+        this.onChange();
+      }, 1000);
     }
   }
   onChange(){
@@ -953,9 +953,6 @@ export class creatableField extends BaseField {
   handleChange = (val) => {
     this.props.data[this.props.value] = val.value;
     const {Form} = this.context;
-    const nodeType = this.props.data.nodeType !== undefined
-      ? this.props.data.nodeType
-      : '';
     Form.setState(Form.state, () => {
       if (this.validate() && (this.props.fieldJson.hint !== undefined && this.props.fieldJson.hint.toLowerCase().indexOf("schema") !== -1)) {
         this.getSchema(this.props.data[this.props.value]);

@@ -31,9 +31,7 @@ export default class Header extends Component {
     return (
       <header className="main-header">
         <Link to="/" className="logo">
-          <span className="logo-mini">
-            <img src="/styles/img/uWorc/logo.svg" data-stest="logo-collapsed" width="40"/>
-          </span>
+          <img src="/styles/img/uWorc/logo.svg" data-stest="logo-collapsed" width="40"/>
         </Link>
         <nav className="navbar navbar-default navbar-static-top">
           <div>

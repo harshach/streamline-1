@@ -126,6 +126,7 @@ public class PiperRestAPIClient {
             UToken uToken = generateUToken();
             if (uToken != null) {
                 headers.put(HEADER_UPKI_TOKEN, uToken.toString());
+                LOG.info("uToken subject "+ uToken.getSubject());
             }
 
             return Subject.doAs(subject, new PrivilegedAction<String>() {
@@ -154,6 +155,7 @@ public class PiperRestAPIClient {
             UToken uToken = generateUToken();
             if (uToken != null) {
                 headers.put(HEADER_UPKI_TOKEN, uToken.toString());
+                LOG.info("uToken subject "+ uToken.getSubject());
             }
 
 
@@ -185,6 +187,7 @@ public class PiperRestAPIClient {
             UToken uToken = generateUToken();
             if (uToken != null) {
                 headers.put(HEADER_UPKI_TOKEN, uToken.toString());
+                LOG.info("uToken subject "+ uToken.getSubject());
             }
 
             return Subject.doAs(subject, new PrivilegedAction<Map>() {
@@ -212,6 +215,7 @@ public class PiperRestAPIClient {
         UToken uToken = null;
         try {
             uToken = upkiTokenService.createSingleHop("piper");
+            LOG.info("uToken " + uToken);
         } catch (Exception e) {
             LOG.error("Failed to create a utoken", e);
         }

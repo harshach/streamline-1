@@ -28,6 +28,14 @@
         "hint": "datacenter-showCurrent"
       },
       {
+        "uiName": "Owner",
+        "fieldName": "topology.owner",
+        "isOptional": false,
+        "tooltip": "Owner of pipeline",
+        "type": "string",
+        "hint": "user"
+      },
+      {
         "uiName": "Yarn Container Count",
         "fieldName": "topology.yarn.containerCount",
         "isOptional": true,

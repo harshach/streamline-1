@@ -65,6 +65,11 @@ public class Topology implements Storable {
     private Long versionId;
 
     /**
+     * Unique version name identifying a topology.
+     */
+    private String versionName;
+
+    /**
      * Project this topology belongs to
      */
     @SearchableField
@@ -246,6 +251,14 @@ public class Topology implements Storable {
 
     public void setVersionId(Long versionId) {
         this.versionId = versionId;
+    }
+
+    public String getVersionName() {
+        return versionName;
+    }
+
+    public void setVersionName(String versionName) {
+        this.versionName = versionName;
     }
 
     public Long getProjectId() { return projectId; }

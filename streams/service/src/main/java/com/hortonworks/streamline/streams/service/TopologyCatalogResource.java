@@ -839,7 +839,7 @@ public class TopologyCatalogResource {
         if (projectId == null) {
             topologies = catalogService.listTopologies();
         } else {
-            topologies = catalogService.listTopologies(projectId);
+            topologies = catalogService.listTopologiesWithVersionName(projectId);
         }
         if (adminUser) {
             LOG.debug("Returning all topologies since user has role: {}", Roles.ROLE_ADMIN);

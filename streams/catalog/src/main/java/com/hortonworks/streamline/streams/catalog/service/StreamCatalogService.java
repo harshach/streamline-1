@@ -186,6 +186,9 @@ public class StreamCatalogService {
                                                                               UDF3.class, UDF4.class, UDF5.class, UDF6.class, UDF7.class);
     public static final long PLACEHOLDER_ID = -1L;
     private static final String CLONE_SUFFIX = "-clone";
+    private static final String VERSION_SUFFIX = "V";
+    private static final String DEFAULT_VERSION_NAME = "Draft";
+    public static final long OFFSET_LAST_DEPLOYED_VERSION = 1L;
 
     private final StorageManager dao;
     private final FileStorage fileStorage;
@@ -477,7 +480,32 @@ public class StreamCatalogService {
         return topologies;
     }
 
+    public Collection<Topology> listTopologiesWithVersionName(Long projectId) {
+        List<Topology> topologies = new ArrayList<>();
+        for (TopologyVersion version: listCurrentTopologyVersionInfos()) {
+            Collection<TopologyRuntimeIdMap> topologyRuntimeIdMapList = getTopologyRuntimeIdMap(version.getTopologyId());
+            boolean deployed = topologyRuntimeIdMapList.size() > 0 ? true : false;
+            topologies.addAll(listTopologiesWithVersionName(version, projectId, deployed));
+        }
+        return topologies;
+    }
 
+    private Collection<Topology> listTopologiesWithVersionName(TopologyVersion version, Long projectId, boolean deployed) {
+        List<QueryParam> queryParams = new ArrayList<>();
+        queryParams.add(new QueryParam(Topology.VERSIONID, version.getId().toString()));
+        queryParams.add(new QueryParam(Topology.PROJECTID, projectId.toString()));
+        Collection<Topology> topologies = this.dao.find(TOPOLOGY_NAMESPACE, queryParams);
+        Long versionTimestamp = getVersionTimestamp(version.getId());
+        topologies.forEach(x -> {
+                                    x.setVersionTimestamp(versionTimestamp);
+                                    if (deployed) {
+                                        x.setVersionName(VERSION_SUFFIX + (version.getId() - OFFSET_LAST_DEPLOYED_VERSION));
+                                    } else {
+                                        x.setVersionName(DEFAULT_VERSION_NAME);
+                                    }
+                                });
+        return topologies;
+    }
 
     private Collection<Topology> listTopologies(Long versionId, Long projectId) {
         List<QueryParam> queryParams = new ArrayList<>();
@@ -497,7 +525,6 @@ public class StreamCatalogService {
         }
         return topologies;
     }
-
 
     public Collection<Topology> listTopologies(List<QueryParam> queryParams) {
         Collection<Topology> topologies = this.dao.find(TOPOLOGY_NAMESPACE, queryParams);

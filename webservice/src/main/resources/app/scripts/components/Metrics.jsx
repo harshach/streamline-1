@@ -122,23 +122,39 @@ export default class Metrics extends Component{
       onClick={this.handleExpandCollapse}
     ><i className={metricsPanelExpanded ? "fa fa-chevron-down" : "fa fa-chevron-up"}></i></button>;
   }
-  renderTimeline = () => {
-    const {executionInfo, startDate, endDate,start_time, end_time,
-      time_interval, time_unit
-    } = this.props;
-    let begining = startDate ? startDate.valueOf() : start_time;
+  findBeginingEndingTime(startDate, start_time, firstDataObj, time_unit, time_interval){
+    let begining, ending, momentObj;
+    if(firstDataObj){
+      momentObj = moment(firstDataObj.executionDate);
+    } else {
+      momentObj = startDate ? startDate : moment(start_time);
+    }
+    let currentOffset = new Date().getTimezoneOffset();
+    //time manipulation as per local browser time offset
+    momentObj.add(-(currentOffset), 'minutes');
+    begining = momentObj.valueOf();
     let timeUnit = time_unit.toLowerCase();
     //checking to add s character at the end of minute/second/hour string
     if(timeUnit[timeUnit.length] !== 's'){
       timeUnit += 's';
     }
     //to always have 24 ticks in execution metrics and then scrolling works (to resolve overlapping issue)
-    let ending = moment(moment(begining).toDate()).add(time_interval * 24, timeUnit);
-    //check to update the timeline only if either of the dates have changed
-    if(this.begining !== begining && this.ending !== ending){
-      if(executionInfo.executions){
+    ending = moment(moment(begining).toDate()).add(time_interval * 24, timeUnit);
+    return {
+      begining, ending, timeUnit
+    };
+  }
+  renderTimeline = () => {
+    const {executionInfo, startDate, endDate,start_time, end_time,
+      time_interval, time_unit
+    } = this.props;
+    if(executionInfo.executions){
+      let data = Utils.sortArray(executionInfo.executions, "executionDate", true);
+      let timeObj = this.findBeginingEndingTime(startDate, start_time, data[0], time_unit, time_interval);
+      //check to update the timeline only if either of the dates have changed
+      if(this.begining !== timeObj.begining || this.ending !== timeObj.ending){
         let timelineData = [];
-        executionInfo.executions.map((executionObj)=>{
+        data.map((executionObj)=>{
           let dateMomentObj = moment(executionObj.executionDate);
           let currentOffset = new Date().getTimezoneOffset();
           //time manipulation as per local browser time offset
@@ -164,17 +180,17 @@ export default class Metrics extends Component{
         });
         let chart = d3.timeline().labelFormat(function label(){return '';})
                       .margin({left:70, right:30, top:30, bottom:30})
-                      .beginning(begining)
-                      .ending(ending)
+                      .beginning(timeObj.begining)
+                      .ending(timeObj.ending)
                       .timeInterval(time_interval)
-                      .timeUnit(timeUnit);
+                      .timeUnit(timeObj.timeUnit);
         if(this.timelineChart){
           this.timelineChart.remove();
         }
         this.timelineChart = d3.select("#executionTimeline").append("svg").attr("width", "100%").attr("height", 80);
         this.timelineChart.datum(timelineData).call(chart);
-        this.begining = begining;
-        this.ending = ending;
+        this.begining = timeObj.begining;
+        this.ending = timeObj.ending;
       }
     }
   }

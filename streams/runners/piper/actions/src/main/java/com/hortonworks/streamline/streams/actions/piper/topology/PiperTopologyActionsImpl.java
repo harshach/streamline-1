@@ -70,6 +70,7 @@ public class PiperTopologyActionsImpl implements TopologyActions {
     private static final Logger LOG = LoggerFactory.getLogger(PiperTopologyActionsImpl.class);
     private static final String PIPER_RESPONSE_APPLICATION_ID = "pipeline_id";
     private static final long MILLISECONDS = 1000;
+    private static final long ONE_DAY_IN_SECONDS = 86400;
     private EnvironmentService environmentService;
     private TopologyActionsService actionsService;
     private Long namespaceId;
@@ -185,21 +186,38 @@ public class PiperTopologyActionsImpl implements TopologyActions {
             Map stateResponse = this.client.getDetailedPipelineState(applicationId);
             String runtimeStatusString = PiperUtil.getRuntimeStatus(stateResponse);
             runtimeStatus.setStatus(runtimeStatusString);
-            runtimeStatus.putExtra(PIPER_METRIC_LATEST_EXECUTION_DATE,
-                    (String)stateResponse.get(STATE_KEY_EXECUTION_DATE));
-            runtimeStatus.putExtra(PIPER_METRIC_LATEST_EXECUTION_STATUS,
-                    (String)stateResponse.get(STATE_KEY_EXECUTION_STATE));
+            // Setting default values for Start and End Date
+            Date currentDate = new Date();
+            SimpleDateFormat dateFormat = new SimpleDateFormat(PIPER_EXECUTION_DATE_FORMAT);
+            runtimeStatus.putExtra(PIPER_METRIC_LATEST_EXECUTION_DATE, dateFormat.format(currentDate));
+            Date date = new Date(currentDate.getTime() - (ONE_DAY_IN_SECONDS * MILLISECONDS));
+            runtimeStatus.putExtra(PIPER_METRIC_START_EXECUTION_DATE, dateFormat.format(date));
+
+            if (stateResponse.keySet().contains(STATE_KEY_EXECUTION_DATE) &&
+                    stateResponse.get(STATE_KEY_EXECUTION_DATE) != null &&
+                    !((String)stateResponse.get(STATE_KEY_EXECUTION_DATE)).isEmpty()) {
+                runtimeStatus.putExtra(PIPER_METRIC_LATEST_EXECUTION_DATE,
+                        (String)stateResponse.get(STATE_KEY_EXECUTION_DATE));
+            }
+
+           runtimeStatus.putExtra(PIPER_METRIC_LATEST_EXECUTION_STATUS,
+                        (String)stateResponse.get(STATE_KEY_EXECUTION_STATE));
 
             Map<String, Object> extras = (Map<String, Object>) stateResponse.get(STATE_KEY_EXTRAS);
+            int totalExecutions = 0;
             if (extras != null) {
-                runtimeStatus.putExtra(PIPER_METRIC_START_EXECUTION_DATE,
-                        (String)extras.get(STATE_KEY_NTH_EXECUTION_DATE));
-                int totalExecutions = (int) extras.get(STATE_KEY_NUMBER_OF_EXECUTIONS);
+                if (extras.keySet().contains(STATE_KEY_NTH_EXECUTION_DATE)) {
+                    runtimeStatus.putExtra(PIPER_METRIC_START_EXECUTION_DATE,
+                            (String)extras.get(STATE_KEY_NTH_EXECUTION_DATE));
+                }
+                if (extras.keySet().contains(STATE_KEY_NUMBER_OF_EXECUTIONS)) {
+                    totalExecutions = (int) extras.get(STATE_KEY_NUMBER_OF_EXECUTIONS);
+                }
                 if (totalExecutions > 0 ) {
                     DateFormat df = new SimpleDateFormat(PIPER_EXECUTION_DATE_FORMAT);
                     try {
-                        Date endDate = df.parse(stateResponse.get(STATE_KEY_EXECUTION_DATE).toString());
-                        Date startDate   = df.parse(extras.get(STATE_KEY_NTH_EXECUTION_DATE).toString());
+                        Date endDate    = df.parse(stateResponse.get(STATE_KEY_EXECUTION_DATE).toString());
+                        Date startDate  = df.parse(extras.get(STATE_KEY_NTH_EXECUTION_DATE).toString());
                         long delta = (endDate.getTime() - startDate.getTime()) / totalExecutions;
                         Map<String, String> values = getInterVal(delta / MILLISECONDS);
                         runtimeStatus.putExtra(PIPER_PIPELINE_EXECUTION_INTERVAL_VALUE, values.get(PIPER_PIPELINE_EXECUTION_INTERVAL_VALUE));
@@ -208,10 +226,6 @@ public class PiperTopologyActionsImpl implements TopologyActions {
                         runtimeStatus.setException(e);
                     }
                 }
-
-            } else {
-                // FIXME we were previously returning null for these, so leaving until a contract is agreed on with UI
-                runtimeStatus.putExtra(PIPER_METRIC_START_EXECUTION_DATE,null);
             }
 
         } catch (RuntimeException e){

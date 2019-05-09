@@ -18,6 +18,7 @@ package com.hortonworks.streamline.streams.service;
 
 import com.codahale.metrics.annotation.Timed;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.hortonworks.streamline.common.Config;
 import com.hortonworks.streamline.common.exception.service.exception.request.BadRequestException;
 import com.hortonworks.streamline.common.exception.service.exception.request.EntityNotFoundException;
 import com.hortonworks.streamline.common.util.WSUtils;
@@ -34,6 +35,7 @@ import com.hortonworks.streamline.streams.security.catalog.OwnerGroup;
 import com.hortonworks.streamline.streams.security.catalog.User;
 import com.hortonworks.streamline.streams.security.service.SecurityCatalogService;
 import com.hortonworks.streamline.streams.security.catalog.AclEntry;
+
 import io.dropwizard.jersey.sessions.Session;
 import org.apache.commons.lang3.StringUtils;
 import org.glassfish.jersey.media.multipart.FormDataParam;
@@ -62,6 +64,7 @@ import java.net.URI;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
 
+import static com.hortonworks.streamline.streams.actions.piper.topology.ManagedPipelineGenerator.PIPER_TOPOLOGY_CONFIG_OWNER;
 import static com.hortonworks.streamline.streams.catalog.Topology.NAMESPACE;
 import static com.hortonworks.streamline.streams.catalog.TopologyVersion.VERSION_PREFIX;
 import static com.hortonworks.streamline.streams.security.Permission.DELETE;
@@ -812,9 +815,13 @@ public class TopologyCatalogResource {
         TopologyData topologyData = new ObjectMapper().readValue(inputStream, TopologyData.class);
         if (topologyName != null && !topologyName.isEmpty()) {
             topologyData.setTopologyName(topologyName);
+            updateOwner(topologyData, securityContext);
         }
         Topology importedTopology = catalogService.importTopology(namespaceId, projectId, topologyData);
         return WSUtils.respondEntity(importedTopology, OK);
+    }
+    private void updateOwner(TopologyData topologyData, SecurityContext securityContext) {
+        topologyData.getConfig().put(PIPER_TOPOLOGY_CONFIG_OWNER, securityCatalogService.getCurrentUserName(securityContext));
     }
 
     @GET

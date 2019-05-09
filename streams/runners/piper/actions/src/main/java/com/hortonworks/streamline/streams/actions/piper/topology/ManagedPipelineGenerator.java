@@ -33,7 +33,7 @@ import java.util.Map;
  */
 public class ManagedPipelineGenerator extends TopologyDagVisitor {
 
-    private static final String PIPER_TOPOLOGY_CONFIG_OWNER = "topology.owner";
+    public  static final String PIPER_TOPOLOGY_CONFIG_OWNER = "topology.owner";
     private static final String PIPER_TOPOLOGY_CONFIG_OWNER_LDAP_GROUPS = "topology.ownerLDAPGroups";
     private static final String PIPER_TOPOLOGY_CONFIG_DESCRIPTION = "topology.description";
     private static final String PIPER_TOPOLOGY_CONFIG_EMAIL = "topology.email";

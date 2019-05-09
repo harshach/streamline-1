@@ -208,6 +208,7 @@ public class ManagedPipelineGenerator extends TopologyDagVisitor {
             if (secureProps.containsKey(PIPER_TOPOLOGY_CONFIG_PROXY_USER)) {
                 pipeline.setProxyUser((String)secureProps.get(PIPER_TOPOLOGY_CONFIG_PROXY_USER));
             }
+            pipeline.setAutoEnable(true);
         } else if (datacenterProp.containsKey(PIPER_TOPOLOGY_CONFIG_NON_SECURE_OPTION)) {
             pipeline.setSecure(false);
             pipeline.setAutoEnable(true);

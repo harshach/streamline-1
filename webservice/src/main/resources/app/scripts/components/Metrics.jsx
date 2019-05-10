@@ -126,7 +126,7 @@ export default class Metrics extends Component{
     let begining, ending, momentObj;
     let timeUnit = time_unit.toLowerCase();
     //checking to add s character at the end of minute/second/hour string
-    if(timeUnit[timeUnit.length] !== 's'){
+    if(timeUnit[timeUnit.length - 1] !== 's'){
       timeUnit += 's';
     }
     if(lastDataObj){

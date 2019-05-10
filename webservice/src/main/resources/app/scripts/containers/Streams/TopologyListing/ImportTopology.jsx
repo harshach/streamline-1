@@ -44,7 +44,7 @@ class ImportTopology extends Component {
       showRequired: true,
       nameError : true,
       projects: [],
-      projectId: props.defaultProjectId
+      projectId: props.defaultProjectId ? props.defaultProjectId : -1
     };
     this.fetchData();
   }
@@ -88,9 +88,6 @@ class ImportTopology extends Component {
   }
 
   handleSave = () => {
-    if (!this.validate()) {
-      return;
-    }
     const {jsonFile, namespaceId, projectId} = this.state;
     const topologyName = this.refs.topologyName.value.trim();
     let formData = new FormData();
@@ -118,7 +115,7 @@ class ImportTopology extends Component {
     }
   }
   handleOnChangeProject = (obj) => {
-    this.setState({projectId: obj.id});
+    this.setState({projectId: obj ? obj.id : -1});
   }
   topologyNameChange = (e) => {
     this.setState({nameError : Utils.noSpecialCharString(e.target.value)});
@@ -127,7 +124,9 @@ class ImportTopology extends Component {
   render() {
     const {validInput, validSelect, showRequired, namespaceId, namespaceOptions,nameError,
       projectId, projects} = this.state;
-
+    const proj = projects.filter(proj => {
+      return proj.id != -1;
+    });
     return (
       <div className="modal-form config-modal-form">
         <div className="form-group">
@@ -161,16 +160,15 @@ class ImportTopology extends Component {
         </div>
         <div className="form-group">
           <label>Project
-            <span className="text-danger">*</span>
           </label>
           <div>
             <Select
               value={projectId}
-              options={projects}
+              options={proj}
               onChange={this.handleOnChangeProject}
               placeholder="Select Project"
               required={true}
-              clearable={false}
+              clearable={true}
               labelKey="name"
               valueKey="id"/>
           </div>

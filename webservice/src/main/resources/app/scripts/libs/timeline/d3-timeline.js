@@ -49,7 +49,7 @@ import _ from 'lodash';
       timeInterval = 0, timeUnit = '',
       tickFormat = { format: d3.time.format("%H:00"), format2: d3.time.format('%d/%m %H:00'),
         tickTime: d3.time.hours,
-        tickInterval: 1,
+        tickInterval: 5,
         tickSize: 6,
         tickValues: null
       },

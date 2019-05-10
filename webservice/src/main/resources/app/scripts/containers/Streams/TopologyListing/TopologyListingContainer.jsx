@@ -652,7 +652,7 @@ class TopologyListingContainer extends Component {
             <strong>Workflow imported successfully</strong>
           );
           this.context.router.push(
-            (Utils.isFromSharedProjects() ? 'shared-projects/' : 'projects/')+projectId+'/applications/' + topology.id + '/edit'
+            (Utils.isFromSharedProjects() ? 'shared-projects/' : 'projects/')+topology.projectId+'/applications/' + topology.id + '/edit'
           );
         }
       });

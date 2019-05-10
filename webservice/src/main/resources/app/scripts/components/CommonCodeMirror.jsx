@@ -67,6 +67,7 @@ export default class CommonCodeMirror extends Component{
         indentWithTabs: true,
         smartIndent: true,
         lineNumbers: true,
+        lineWrapping: true,
         matchBrackets : true,
         extraKeys : {"'@'": "autocomplete"}
       },

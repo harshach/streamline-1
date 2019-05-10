@@ -245,13 +245,13 @@ export default class TopologyGraphComponent extends Component {
       thisGraph.internalFlags.justDragged = true;
       thisGraph.dragMove.call(thisGraph, args);
     }).on("dragend", function(node) {
-      if (thisGraph.editMode || thisGraph.testRunActivated) {
+      if (thisGraph.testRunActivated) {
         let {topologyId, versionId, versionsArr, metaInfo} = thisGraph;
         if (versionId) {
           let versionName = versionsArr.find((o) => {
             return o.id == versionId;
           }).name;
-          if (versionName.toLowerCase() == 'current') {
+          if (versionName.toLowerCase() == 'current' && thisGraph.editMode) {
             TopologyUtils.updateMetaInfo(topologyId, versionId, node, metaInfo);
           }
         }
@@ -1471,7 +1471,12 @@ export default class TopologyGraphComponent extends Component {
           .attr("width", thisGraph.constants.rectangleWidth)
           .attr("height", 100)
           .attr('x', function(d){return 0;})
-          .attr('y', function(d){return 52;});
+          .attr('y', function(d){return 52;})
+          .on('mousedown', function(d) {
+            thisGraph.rectangleMouseDown.call(thisGraph, parentNode, data[0]);
+          }).on('mouseup', function(d) {
+            thisGraph.rectangleMouseUp.call(thisGraph, parentNode, data[0]);
+          }).call(thisGraph.drag);
         // ReactDOM render method
         render(<TopologyComponentMetrics topologyId={thisGraph.topologyId} compData={data[0]} viewModeData={thisGraph.props.viewModeData} startDate={thisGraph.props.startDate} endDate={thisGraph.props.endDate} template={thisGraph.props.template}/>, compMetrics.node());
       });

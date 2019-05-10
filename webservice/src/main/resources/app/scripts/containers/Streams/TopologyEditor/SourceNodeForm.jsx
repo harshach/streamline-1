@@ -149,7 +149,8 @@ export default class SourceNodeForm extends Component {
 
   fetchFields = (clusterList) => {
     let obj = this.props.configData.topologyComponentUISpecification.fields;
-    if(clusterList && clusterList.length > 0){
+    let flag = this.props.configData.cluster;
+    if(clusterList && clusterList.length > 0 && flag){
       const clusterFlag = obj.findIndex(x => {
         return x.fieldName === 'clusters';
       });

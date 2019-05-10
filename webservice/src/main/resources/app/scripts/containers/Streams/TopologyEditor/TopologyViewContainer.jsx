@@ -102,7 +102,7 @@ class TopologyViewContainer extends TopologyEditorContainer {
       logTopologyLevel : 'None',
       durationTopologyLevel :  0
     },
-    executionInfoPageSize: 30,
+    executionInfoPageSize: 300,
     executionInfoPage: 0,
     executionInfo: {},
     selectedExecutionComponentsStatus: []
@@ -707,8 +707,8 @@ class TopologyViewContainer extends TopologyEditorContainer {
         runtimeAppUrl={this.runtimeAppUrl}
         start_time={new Date(this.statusObj.extra.startExecutionDate).getTime()}
         end_time={new Date(this.statusObj.extra.latestExecutionDate).getTime()}
-        time_interval = {this.statusObj.extra.executionInterval}
-        time_unit= {this.statusObj.extra.executionIntervalUnit}
+        time_interval = {this.statusObj.extra.executionInterval || "5"}
+        time_unit= {this.statusObj.extra.executionIntervalUnit || "Minute"}
     />;
   }
 

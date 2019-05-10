@@ -125,6 +125,10 @@ export default class Metrics extends Component{
   findBeginingEndingTime(startDate, start_time, lastDataObj, time_unit, time_interval){
     let begining, ending, momentObj;
     let timeUnit = time_unit.toLowerCase();
+    //checking to add s character at the end of minute/second/hour string
+    if(timeUnit[timeUnit.length - 1] !== 's'){
+      timeUnit += 's';
+    }
     if(lastDataObj){
       momentObj = moment(lastDataObj.executionDate);
     } else {
@@ -136,10 +140,6 @@ export default class Metrics extends Component{
     //to show timeline chart from right
     momentObj.subtract(time_interval * 18, timeUnit);
     begining = momentObj.valueOf();
-    //checking to add s character at the end of minute/second/hour string
-    if(timeUnit[timeUnit.length] !== 's'){
-      timeUnit += 's';
-    }
     //to always have 24 ticks in execution metrics and then scrolling works (to resolve overlapping issue)
     ending = moment(moment(begining).toDate()).add(time_interval * 24, timeUnit).valueOf();
     return {

@@ -986,6 +986,9 @@ const rectangleMouseUpActionViewMode = function(d3node, d, internalFlags, consta
         }
       }
     }
+  } else {
+    selectedItems.sourceNodes = [];
+    selectedItems.targetNodes = [];
   }
   this.selectComponents(rectangles, constants, selectedItems);
 };

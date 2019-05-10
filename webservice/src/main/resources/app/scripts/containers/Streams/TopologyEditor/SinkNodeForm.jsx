@@ -205,10 +205,11 @@ export default class SinkNodeForm extends Component {
 
   fetchFields = () => {
     let obj = this.props.configData.topologyComponentUISpecification.fields;
+    let flag = this.props.configData.cluster;
     const clusterFlag = obj.findIndex(x => {
       return x.fieldName === 'clusters';
     });
-    if (clusterFlag === -1) {
+    if (clusterFlag === -1 && flag) {
       obj.unshift(Utils.clusterField());
     }
     return obj;

@@ -105,6 +105,7 @@ class TopologyViewContainer extends TopologyEditorContainer {
     executionInfoPageSize: 300,
     executionInfoPage: 0,
     executionInfo: {},
+    selectedExecution: {},
     selectedExecutionComponentsStatus: []
   };
 
@@ -288,6 +289,9 @@ class TopologyViewContainer extends TopologyEditorContainer {
   onSelectExecution = (ex, viewModeData) => {
     if(ex){
       const {executionInfo} = this.state;
+      if(!viewModeData){
+        viewModeData = this.state.viewModeData;
+      }
       ex.loading = true;
       ViewModeREST.getComponentExecutions(this.topologyId, ex.executionDate, this.selectedDataCenterId).then((res) => {
         const selectedExecutionComponentsStatus = res.components || [];
@@ -318,7 +322,7 @@ class TopologyViewContainer extends TopologyEditorContainer {
             metrics: ex
           }
         };
-        this.syncComponentData(viewModeData, {selectedExecutionComponentsStatus: selectedExecutionComponentsStatus});
+        this.syncComponentData(viewModeData, {selectedExecutionComponentsStatus: selectedExecutionComponentsStatus, selectedExecution: ex});
       });
     }
   }
@@ -334,8 +338,10 @@ class TopologyViewContainer extends TopologyEditorContainer {
       namespaceId: this.selectedDataCenterId
     }).then((res) => {
       this.state.executionInfo = res;
+      let executions = Utils.sortArray(res.executions, "executionDate", true);
+      this.state.executionInfo.executions = executions;
 
-      const latestExecution = res.executions[0];
+      const latestExecution = executions.length > 0 ? executions[executions.length - 1] : null;
 
       viewModeData.topologyMetrics = {
         overviewMetrics: {
@@ -679,7 +685,7 @@ class TopologyViewContainer extends TopologyEditorContainer {
   }
 
   getRightSideBar = () => {
-    const {topologyName, executionInfo, topologyNamespaces} = this.state;
+    const {topologyName, executionInfo, selectedExecution, topologyNamespaces} = this.state;
     let namespacesArr = [];
     _.keys(topologyNamespaces).map((name)=>{
       namespacesArr.push({
@@ -692,6 +698,7 @@ class TopologyViewContainer extends TopologyEditorContainer {
         executionInfo={executionInfo}
         lastUpdatedTime={this.lastUpdatedTime}
         topologyName={topologyName}
+        onSelectExecution={this.onSelectExecution}
         getPrevPageExecutions={this.getPrevPageExecutions}
         getNextPageExecutions={this.getNextPageExecutions}
         compSelectCallback={this.compSelectCallback}

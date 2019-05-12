@@ -221,9 +221,18 @@ const string = function(val = '') {
   return {value: val.toString(), suffix: ''};
 };
 
-const datetime = function(val) {
+const dateTimeLabel = function(val) {
   if(val){
     return {value: moment(val).format('YYYY-MM-DD HH:mm'), suffix: ''};
+  }else{
+    return {value: '', suffix: ''};
+  }
+};
+
+const datetime = function(val) {
+  if(val){
+    let currentOffset = new Date().getTimezoneOffset();
+    return {value: moment(val).add(-(currentOffset), 'minutes').format('YYYY-MM-DD HH:mm'), suffix: ''};
   }else{
     return {value: '', suffix: ''};
   }
@@ -1043,6 +1052,7 @@ export default {
   getTimeDiffInMinutes,
   abbreviateNumber,
   string,
+  dateTimeLabel,
   datetime,
   boolean,
   number,

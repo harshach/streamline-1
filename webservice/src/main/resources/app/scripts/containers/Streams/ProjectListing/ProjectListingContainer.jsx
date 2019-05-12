@@ -110,7 +110,7 @@ class ProjectCard extends Component {
               >{data.name}</Link>
             </h6>
             <span className="display-block project-description">{data.description}</span>
-            <span className="display-block project-timestamp">Last modified on {Utils.datetime(data.timestamp).value}</span>
+            <span className="display-block project-timestamp">Last modified on {Utils.dateTimeLabel(data.timestamp).value}</span>
           </div>
         </div>
       </div>

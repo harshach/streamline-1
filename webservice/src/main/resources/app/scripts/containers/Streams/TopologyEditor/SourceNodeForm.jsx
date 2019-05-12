@@ -112,17 +112,19 @@ export default class SourceNodeForm extends Component {
       }
       if(this.nodeData.outputStreams.length > 0){
         let clusterId = this.nodeData.config.properties.cluster;
-        TopologyREST.getSourceComponentClusters(sourceParams, clusterId).then((response)=>{
-          let clusterObj = stateObj.clusterArr.find((c)=>{return c.id == clusterId;});
-          if(response && clusterObj){
-            clusterObj.config.topic = response[clusterId].hints.topic;
-            if(stateExecuted){
-              this.setState({clusterArr: stateObj.clusterArr},()=>{
-                this.updateClusterFields(stateObj.formData.clusters);
-              });
+        if(clusterId){
+          TopologyREST.getSourceComponentClusters(sourceParams, clusterId).then((response)=>{
+            let clusterObj = stateObj.clusterArr.find((c)=>{return c.id == clusterId;});
+            if(response && clusterObj){
+              clusterObj.config.topic = response[clusterId].hints.topic;
+              if(stateExecuted){
+                this.setState({clusterArr: stateObj.clusterArr},()=>{
+                  this.updateClusterFields(stateObj.formData.clusters);
+                });
+              }
             }
-          }
-        });
+          });
+        }
       }
 
       stateObj.configJSON = this.fetchFields(stateObj.clusterArr);
@@ -148,17 +150,7 @@ export default class SourceNodeForm extends Component {
   }
 
   fetchFields = (clusterList) => {
-    let obj = this.props.configData.topologyComponentUISpecification.fields;
-    let flag = this.props.configData.cluster;
-    if(clusterList && clusterList.length > 0 && flag){
-      const clusterFlag = obj.findIndex(x => {
-        return x.fieldName === 'clusters';
-      });
-      if (clusterFlag === -1) {
-        obj.unshift(Utils.clusterField());
-      }
-    }
-    return obj;
+    return this.props.configData.topologyComponentUISpecification.fields;
   }
 
   pushClusterFields = (opt, uiSpecification) => {

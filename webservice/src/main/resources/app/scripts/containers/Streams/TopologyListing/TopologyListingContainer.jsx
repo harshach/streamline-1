@@ -165,7 +165,7 @@ class WorkflowListingTable extends Component {
                   { workflowObj.showShareIcon ?
                     <button
                       type="button"
-                      className="btn btn-link btn-xs" onClick={this.onActionClick.bind(this, "share/" + workflowObj.id)}
+                      className="btn btn-link btn-xs" onClick={this.onActionClick.bind(this, "share/" + workflowObj.id, workflowObj.id, workflowObj.projectId)}
                       disabled={!workflowObj.rights_share}
                     >
                       {SVGIcons.actionShareIcon}

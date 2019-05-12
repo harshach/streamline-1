@@ -13,6 +13,14 @@
   "topologyComponentUISpecification": {
     "fields": [
       {
+        "uiName": "Cluster Name",
+        "fieldName": "clusters",
+        "isOptional": false,
+        "tooltip": "Cluster name to read data from",
+        "type": "CustomEnumstring",
+        "options": []
+      },
+      {
         "uiName": "Fire And Forget?",
         "fieldName": "fireAndForget",
         "isOptional": true,

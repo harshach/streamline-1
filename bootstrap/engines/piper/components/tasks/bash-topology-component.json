@@ -25,7 +25,7 @@
         "fieldName": "task_params.bash_command",
         "tooltip": "Shell command to execute.",
         "isOptional": false,
-        "type": "sql",
+        "type": "shell",
         "height": "200"
       },
       {

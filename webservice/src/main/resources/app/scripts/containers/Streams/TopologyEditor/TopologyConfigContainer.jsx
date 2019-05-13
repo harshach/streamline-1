@@ -19,6 +19,7 @@ import {Link} from 'react-router';
 import TopologyREST from '../../../rest/TopologyREST';
 import ClusterREST from '../../../rest/ClusterREST';
 import EnvironmentREST from '../../../rest/EnvironmentREST';
+import MiscREST from '../../../rest/MiscREST';
 import Utils from '../../../utils/Utils';
 import Form from '../../../libs/form';
 import FSReactToastr from '../../../components/FSReactToastr';
@@ -56,10 +57,17 @@ export default class TopologyConfigContainer extends Component {
     let promiseArr = [
       TopologyREST.getTopologyWithoutMetrics(topologyId, versionId),
       ClusterREST.getAllCluster(),
-      EnvironmentREST.getAllNamespaceFromService(uiConfigFields.engine.toLowerCase())
+      EnvironmentREST.getAllNamespaceFromService(uiConfigFields.engine.toLowerCase()),
+      MiscREST.getUserGroup()
     ];
     Promise.all(promiseArr).then(result => {
       const formField = JSON.parse(JSON.stringify(uiConfigFields.topologyComponentUISpecification));
+
+      let ldapGroupObj = formField.fields.find((o)=>{return o.fieldName === 'topology.ownerLDAPGroups';});
+      if(ldapGroupObj){
+        ldapGroupObj.type = "enumstring";
+        ldapGroupObj.options = result[3] || [];
+      }
 
       const config = result[0].config && result[0].config.properties ? result[0].config.properties : {};
       const {f_Data,adv_Field}= this.fetchAdvanedField(formField, config);

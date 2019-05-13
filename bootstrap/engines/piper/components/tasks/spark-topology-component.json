@@ -36,7 +36,7 @@
       },
       {
        "uiName": "YARN Queue name",
-        "fieldName": "tasks_params.spark_opts.queue",
+        "fieldName": "task_params.spark_opts.queue",
         "tooltip": "The name of the YARN queue to which the application is submitted",
         "isOptional": false,
         "type": "string"

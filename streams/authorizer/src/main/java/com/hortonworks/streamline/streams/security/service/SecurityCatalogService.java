@@ -17,12 +17,16 @@ package com.hortonworks.streamline.streams.security.service;
 
 import com.google.common.collect.Sets;
 import com.hortonworks.streamline.common.QueryParam;
+import com.hortonworks.streamline.common.exception.service.exception.request.EntityNotFoundException;
 import com.hortonworks.streamline.common.util.Utils;
 import com.hortonworks.streamline.storage.Parent;
 import com.hortonworks.streamline.storage.StorableKey;
 import com.hortonworks.streamline.storage.StorageManager;
 import com.hortonworks.streamline.storage.util.StorageUtils;
+import com.hortonworks.streamline.streams.security.AuthenticationContext;
 import com.hortonworks.streamline.streams.security.Permission;
+import com.hortonworks.streamline.streams.security.Roles;
+import com.hortonworks.streamline.streams.security.SecurityUtil;
 import com.hortonworks.streamline.streams.security.catalog.AclEntry;
 import com.hortonworks.streamline.streams.security.catalog.OwnerGroup;
 import com.hortonworks.streamline.streams.security.catalog.Role;
@@ -33,6 +37,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.security.Principal;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.EnumSet;
@@ -48,6 +53,8 @@ import java.util.stream.Collectors;
 import static com.hortonworks.streamline.streams.security.catalog.AclEntry.SidType.ROLE;
 import static com.hortonworks.streamline.streams.security.catalog.AclEntry.SidType.USER;
 import com.hortonworks.streamline.storage.Storable;
+
+import javax.ws.rs.core.SecurityContext;
 
 public class SecurityCatalogService {
     private static final Logger LOG = LoggerFactory.getLogger(SecurityCatalogService.class);
@@ -564,5 +571,18 @@ public class SecurityCatalogService {
         ownerGroup.setId(id);
         ownerGroup = this.dao.get(new StorableKey(OwnerGroup.NAMESPACE, ownerGroup.getPrimaryKey()));
         return ownerGroup;
+    }
+
+    public String getCurrentUserName(SecurityContext securityContext) {
+        Principal principal = securityContext.getUserPrincipal();
+        if (principal == null) {
+            throw EntityNotFoundException.byMessage("No principal in security context");
+        }
+        String userName = SecurityUtil.getUserName(principal.getName());
+        if (userName == null || userName.isEmpty()) {
+            throw EntityNotFoundException.byMessage("Empty user name for principal " + principal);
+        }
+
+        return userName;
     }
 }

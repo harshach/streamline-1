@@ -15,6 +15,14 @@
     ],
     "fields": [
       {
+        "uiName": "Owner",
+        "fieldName": "topology.owner",
+        "isOptional": false,
+        "tooltip": "Owner of pipeline",
+        "type": "string",
+        "hint": "user"
+      },
+      {
         "uiName": "Datacenter to run on?",
         "fieldName": "deploymentSettings.namespaceIds",
         "isOptional": false,

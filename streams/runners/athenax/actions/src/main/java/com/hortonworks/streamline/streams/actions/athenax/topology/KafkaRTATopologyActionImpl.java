@@ -63,12 +63,10 @@ public class KafkaRTATopologyActionImpl implements TopologyActions {
         rtaRestAPIClient.createTable(JsonClientUtil.convertRequestToJson(rtaCreateTableRequest));
 
         String tableName = rtaCreateTableRequest.name();
-        if (rtaRestAPIClient.getTableDeployStatus(tableName).isEmpty()) {
-            RTADeployTableRequest rtaDeployTableRequest = RTAUtils.extractRTADeployTableRequest(kafkaSource);
-            rtaRestAPIClient.deployTable(rtaDeployTableRequest, tableName);
-            for (Long region: deployment.getRegions()) {
-                deployedRuntimeIds.add(new DeployedRuntimeId(region, tableName));
-            }
+        RTADeployTableRequest rtaDeployTableRequest = RTAUtils.extractRTADeployTableRequest(kafkaSource);
+        rtaRestAPIClient.deployTable(rtaDeployTableRequest, tableName);
+        for (Long region: deployment.getRegions()) {
+            deployedRuntimeIds.add(new DeployedRuntimeId(region, tableName));
         }
         return deployedRuntimeIds;
     }

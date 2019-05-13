@@ -33,7 +33,7 @@ import java.util.Map;
  */
 public class ManagedPipelineGenerator extends TopologyDagVisitor {
 
-    private static final String PIPER_TOPOLOGY_CONFIG_OWNER = "topology.owner";
+    public  static final String PIPER_TOPOLOGY_CONFIG_OWNER = "topology.owner";
     private static final String PIPER_TOPOLOGY_CONFIG_OWNER_LDAP_GROUPS = "topology.ownerLDAPGroups";
     private static final String PIPER_TOPOLOGY_CONFIG_DESCRIPTION = "topology.description";
     private static final String PIPER_TOPOLOGY_CONFIG_EMAIL = "topology.email";
@@ -208,6 +208,7 @@ public class ManagedPipelineGenerator extends TopologyDagVisitor {
             if (secureProps.containsKey(PIPER_TOPOLOGY_CONFIG_PROXY_USER)) {
                 pipeline.setProxyUser((String)secureProps.get(PIPER_TOPOLOGY_CONFIG_PROXY_USER));
             }
+            pipeline.setAutoEnable(true);
         } else if (datacenterProp.containsKey(PIPER_TOPOLOGY_CONFIG_NON_SECURE_OPTION)) {
             pipeline.setSecure(false);
             pipeline.setAutoEnable(true);

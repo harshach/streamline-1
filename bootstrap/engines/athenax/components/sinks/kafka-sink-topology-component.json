@@ -43,7 +43,7 @@
         "tooltip": "Kafka topic to write data to",
         "type": "enumstring",
         "options": [],
-        "hint": "schema"
+        "hint": "schema,override"
       },
       {
         "uiName": "Bootstrap Servers",

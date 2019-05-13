@@ -539,8 +539,10 @@ public class SecurityCatalogService {
 
     public void addMissingGroupsFromUser(Set<String> userGroups) {
         Set<String> groupsInDB = getExistingGroupNames();
-        userGroups.removeAll(groupsInDB);
-        userGroups.forEach((g) -> addGroup(g));
+        if (userGroups != null) {
+            userGroups.removeAll(groupsInDB);
+            userGroups.forEach((g) -> addGroup(g));
+        }
     }
 
     public Set<String> getExistingGroupNames() {
@@ -554,14 +556,14 @@ public class SecurityCatalogService {
     public Set<OwnerGroup> getGroups(Set<String> userGroups) {
         Collection<OwnerGroup> ownerGroupList = this.dao.list(OwnerGroup.NAMESPACE);
         if (ownerGroupList != null) {
-            return ownerGroupList.stream().filter(ownerGroup -> userGroups.contains(ownerGroup.getName())).collect(Collectors.toSet());
+            return ownerGroupList.stream().filter(ownerGroup -> userGroups.contains(ownerGroup.getName().trim())).collect(Collectors.toSet());
         }
         return Collections.emptySet();
     }
 
     public OwnerGroup addGroup(String name) {
         OwnerGroup ownerGroup = new OwnerGroup();
-        ownerGroup.setName(name);
+        ownerGroup.setName(name.trim());
         this.dao.add(ownerGroup);
         return ownerGroup;
     }

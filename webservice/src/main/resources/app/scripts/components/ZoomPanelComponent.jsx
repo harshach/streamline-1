@@ -113,7 +113,7 @@ class  ZoomPanelComponent extends Component {
           : null}
           <div className="workflow-info">
             <h6>Workflow Last Updated</h6>
-            <h5>{Utils.datetime(lastUpdatedTime).value}</h5>
+            <h5>{Utils.dateTimeLabel(lastUpdatedTime).value}</h5>
           </div>
           {mode === 'edit' ?
           <div className="workflow-info">

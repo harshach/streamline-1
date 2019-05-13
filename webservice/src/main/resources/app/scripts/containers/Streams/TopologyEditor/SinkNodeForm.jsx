@@ -153,8 +153,9 @@ export default class SinkNodeForm extends Component {
           }
         });
       }
+      stateObj.uiSpecification = this.fetchFields();
       if (stateObj.clusterArr && stateObj.clusterArr.length > 0) {
-        stateObj.uiSpecification = this.pushClusterFields(tempArr);
+        stateObj.uiSpecification = this.pushClusterFields(tempArr, stateObj.uiSpecification);
       }
       stateObj.formData = this.nodeData.config.properties;
       stateObj.description = this.nodeData.description;
@@ -204,19 +205,10 @@ export default class SinkNodeForm extends Component {
   }
 
   fetchFields = () => {
-    let obj = this.props.configData.topologyComponentUISpecification.fields;
-    let flag = this.props.configData.cluster;
-    const clusterFlag = obj.findIndex(x => {
-      return x.fieldName === 'clusters';
-    });
-    if (clusterFlag === -1 && flag) {
-      obj.unshift(Utils.clusterField());
-    }
-    return obj;
+    return this.props.configData.topologyComponentUISpecification.fields;
   }
 
-  pushClusterFields = (opt) => {
-    const uiSpecification = this.fetchFields();
+  pushClusterFields = (opt, uiSpecification) => {
     const obj = uiSpecification.map(x => {
       if (x.fieldName === 'clusters') {
         x.options = opt;

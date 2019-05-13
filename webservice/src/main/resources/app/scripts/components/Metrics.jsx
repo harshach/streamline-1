@@ -148,7 +148,7 @@ export default class Metrics extends Component{
   }
   renderTimeline = () => {
     const {executionInfo, startDate, endDate,start_time, end_time,
-      time_interval, time_unit
+      time_interval, time_unit, onSelectExecution
     } = this.props;
     if(executionInfo.executions){
       let data = Utils.sortArray(executionInfo.executions, "executionDate", true);
@@ -156,9 +156,9 @@ export default class Metrics extends Component{
       //check to update the timeline only if either of the dates have changed
       if(this.begining !== timeObj.begining || this.ending !== timeObj.ending){
         let timelineData = [];
+        let currentOffset = new Date().getTimezoneOffset();
         data.map((executionObj)=>{
           let dateMomentObj = moment(executionObj.executionDate);
-          let currentOffset = new Date().getTimezoneOffset();
           //time manipulation as per local browser time offset
           dateMomentObj.add(-(currentOffset), 'minutes');
           let starting_time = dateMomentObj.valueOf();
@@ -185,7 +185,13 @@ export default class Metrics extends Component{
                       .beginning(timeObj.begining)
                       .ending(timeObj.ending)
                       .timeInterval(time_interval)
-                      .timeUnit(timeObj.timeUnit);
+                      .timeUnit(timeObj.timeUnit)
+                      .click((d, i, datum)=>{
+                        let o = data.find((executionObj)=>{
+                          return moment(executionObj.executionDate).add(-(currentOffset), 'minutes').valueOf() == d.starting_time;
+                        });
+                        onSelectExecution(o);
+                      });
         if(this.timelineChart){
           this.timelineChart.remove();
         }

@@ -58,9 +58,9 @@ export default class SqlProcessorNodeForm extends Component {
       } else {
         //Gather all "FUNCTION" functions only
         this.udfList = ProcessorUtils.populateFieldsArr(udfResult.entities , "FUNCTION");
-        if(this.context.ParentForm.state.inputStreamOptions.length){
-          this.getDataFromParentFormContext();
-        }
+        // if(this.context.ParentForm.state.inputStreamOptions.length){
+        //   this.getDataFromParentFormContext();
+        // }
       }
     });
   }
@@ -127,113 +127,45 @@ export default class SqlProcessorNodeForm extends Component {
   }
 
   onSqlChange = (valStr) => {
+    let error = "";
     if(!valStr.trim()){
       return;
     }
+    let data = {
+      "inputSchemas": {},
+      "sqlStatement": valStr
+    };
     const parent = this.context.ParentForm;
-    let oldStreamObj = JSON.parse(JSON.stringify(parent.state.outputStreamObj));
-    const {fetchLoader, processorNode, inputStreamOptions} = parent.state;
-    const outputStreamsFields = [];
-    this.streamData.fields = outputStreamsFields;
+    const {inputStreamOptions} = parent.state;
 
-    const regex = /\(([^)]+)\)/g;
-    const sqlStr = valStr.replace(regex, '()');
-
-    let error = '';
-    SqliteParser(sqlStr, (err, parsed) => {
-      if(err){
-        if(err.message.search('WHERE Clause') !== -1){
-          this.streamData = oldStreamObj;
+    //Preparing data format as desired by backend
+    inputStreamOptions.map((streamObj)=>{
+      let str = "{{";
+      streamObj.fields.map((fieldObj, index)=>{
+        if(index){
+          str += "},{";
         }
-        error = err.message;
-      }else{
-        _.each(parsed.statement, (statement) => {
-          if(!statement.from){
-            return;
-          }
-          const tableNameFromSql = statement.from.name;
-          const tableName = this.tableMapping[tableNameFromSql];
-          const inputstream = _.find(inputStreamOptions, (stream) => {
-            if(tableName){
-              const regex = new RegExp(tableName);
-              const streamIdWOId = stream.streamId.split('_');
-              streamIdWOId.splice(streamIdWOId.length-1, 1);
-              // return streamIdWOId.join('_').toLowerCase() == tableName.toLowerCase();
-              return tableName.toLowerCase().match(streamIdWOId.join('_').toLowerCase());
-            }
-          });
-          if(!inputstream){
-            error = `Invalid Table "${tableName}"`;
-            // return;
-          }else{
-            _.each(statement.result, (res) => {
-              let namePath;
-              res.name = res.name || '';
-              if(_.isObject(res.name)){
-                namePath = res.name.name.split('.');
-              }else{
-                namePath = res.name.split('.');
-              }
-              const name = namePath[namePath.length-1];
-              if(res.name == '*'){
-                _.each(inputstream.fields, (inp) => {
-                  outputStreamsFields.push({
-                    name: inp.name,
-                    type: inp.type
-                  });
-                });
-              }
-              else if(res.type == 'function'){
-                let type = 'STRING';
-                const udf = _.find(this.udfList, (f) => {
-                  return f.name == name.toUpperCase();
-                });
-                if(udf){
-                  type = udf.returnType;
-                  outputStreamsFields.push({
-                    name: res.alias || name,
-                    type: type
-                  });
-                }else{
-                  error = `Function "${name}" Not found`;
-                }
-              }else{
-                let type = 'STRING';
-                if(name === ''){
-                  if(res.variant == 'decimal'){
-                    type = 'DOUBLE';
-                  }
-                  outputStreamsFields.push({
-                    name: res.alias,
-                    type: type
-                  });
-                } else {
-                  let field;
-                  field = _.find(inputstream.fields, (inp) => {
-                    return inp.name.toLowerCase() == name;
-                  });
-                  if(field){
-                    type = field.type;
-                    outputStreamsFields.push({
-                      name: res.alias || field.name,
-                      type: type
-                    });
-                  }else{
-                    error = `Field "${name}" Not found`;
-                  }
-                }
-              }
-            });
-          }
-        });
-      }
-      this.context.ParentForm.setState({outputStreamObj: this.streamData});
-      const form = this.refs.Form;
-      const Errors = form.state.Errors;
-      Errors.sql = error;
-      form.setState({Errors});
-      this.setState({sqlError: error});
+        str += "name='"+fieldObj.name+"', type="+fieldObj.type;
+      });
+      str += "}}";
+      data.inputSchemas[streamObj.streamId] = str;
     });
+
+    TopologyREST.getSqlOutputSchema({body: JSON.stringify(data)}).then((response)=>{
+      if(response.responseMessage !== undefined){
+        error = response.responseMessage;
+        const form = this.refs.Form;
+        const Errors = form.state.Errors;
+        Errors.sql = error;
+        form.setState({Errors});
+        this.setState({sqlError: error});
+      } else {
+        this.streamData.fields = response;
+        this.context.ParentForm.setState({outputStreamObj: this.streamData});
+      }
+    });
+    this.streamData.fields = [];
+    this.context.ParentForm.setState({outputStreamObj: this.streamData});
   }
 
   render() {

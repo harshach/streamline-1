@@ -35,6 +35,22 @@ class App extends Component {
     };
     this.fetchData();
   }
+  verifyCookie(){
+    let cookie = document.cookie;
+    if(cookie.search("uworc_cookie") === -1){
+      MiscREST.postUserGroup().then((response)=>{
+        if(response.responseMessage !== undefined){
+          FSReactToastr.error(<CommonNotification flag="error" content={response.responseMessage}/>, '', toastOpt);
+        } else {
+          var date = new Date();
+          let days = 14;
+          date.setTime(date.getTime() + (14 * 1000));
+          var expires = "; expires="+date.toGMTString();
+          document.cookie = "uworc_cookie=usergroups"+expires+"; path=/";
+        }
+      });
+    }
+  }
   fetchData(){
     let promiseArr = [
       MiscREST.getAllConfigs(),
@@ -98,6 +114,7 @@ class App extends Component {
             }).catch((err) => {
               this.errorHandler(err);
             });
+            this.verifyCookie();
           } else {
             this.setState({showLoading: false});
           }

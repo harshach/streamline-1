@@ -14,6 +14,9 @@
 
 import fetch from 'isomorphic-fetch';
 import Utils from '../utils/Utils';
+import {
+  baseUrl
+} from '../utils/Constants';
 
 const MiscREST = {
   getAllConfigs(options) {
@@ -59,6 +62,22 @@ const MiscREST = {
       .then((response) => {
         return response.json();
       });
+  },
+  postUserGroup(options){
+    options = options || {};
+    options.method = options.method || 'POST';
+    options.credentials = 'same-origin';
+    return fetch(baseUrl+'userGroups', options)
+      .then((response) => {
+        return response.json();
+      });
+  },
+  getUserGroup(options){
+    options = options || {};
+    options.method = options.method || 'GET';
+    options.credentials = 'same-origin';
+    return fetch(baseUrl+'userGroups', options)
+      .then(Utils.checkStatus);
   }
 };
 

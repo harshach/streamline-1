@@ -29,7 +29,8 @@
         "tooltip": "On which datacenter to run workflow upon",
         "type": "enumstring",
         "options": [],
-        "hint": "datacenter-showCurrent"
+        "hint": "datacenter-showCurrent",
+        "isUserInput": false
       }
     ]
   }

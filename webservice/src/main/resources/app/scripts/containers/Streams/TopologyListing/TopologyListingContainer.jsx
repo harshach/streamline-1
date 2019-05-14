@@ -156,7 +156,7 @@ class WorkflowListingTable extends Component {
               <Td column="datacenterstatus">
                 {!workflowObj.statusArr ? <span>Loading Data</span> : this.dataCenterStatus(datacenterArr) }
               </Td>
-              <Td column="version">{<span>Version 1.0 {/*<h6>Scheduling on mm/dd/yy</h6>*/}</span>}</Td>
+              <Td column="version">{<span>{workflowObj.versionName} {/*<h6>Scheduling on mm/dd/yy</h6>*/}</span>}</Td>
               <Td column="owner">{<span>{workflowObj.config.properties['topology.owner'] || '---'} <h6>Last Modified on : {Utils.dateTimeLabel(workflowObj.timestamp).value}</h6></span>}</Td>
               <Td column="actions">
                 <span>
@@ -738,7 +738,9 @@ class TopologyListingContainer extends Component {
         </span>
       );
     } else {
-      return [<Link to="/" className="header-link active">Workflows</Link>,<Link to="/projects" className="header-link">Projects</Link>];
+      return [<Link to="/" className="header-link active" key="header.1">Workflows</Link>,
+        <Link to="/projects" className="header-link" key="header.2">Projects</Link>
+      ];
     }
   }
 

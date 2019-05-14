@@ -150,16 +150,8 @@
         "isOptional": true,
         "tooltip": "Deploy on Secure Cluster",
         "type": "enumobject",
-        "defaultValue": "topology.secureFalseOption",
+        "defaultValue": "topology.secureTrueOption",
         "options": [
-          {
-            "uiName": "Non Secure",
-            "fieldName": "topology.secureFalseOption",
-            "tooltip": "Do not deploy on secure cluster",
-            "isOptional": false,
-            "type": "object",
-            "fields": []
-          },
           {
             "uiName": "Secure",
             "fieldName": "topology.secureTrueOption",

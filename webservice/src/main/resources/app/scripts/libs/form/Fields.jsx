@@ -1037,6 +1037,10 @@ export class arrayenumstring extends BaseField {
     return isValid;
   }
   getLabel(){
+    let disabledField = this.context.Form.props.readOnly;
+    if (this.props.fieldJson.isUserInput !== undefined) {
+      disabledField = disabledField || !this.props.fieldJson.isUserInput;
+    }
     const popoverContent = (
       <Popover id="popover-trigger-hover-focus">
         {this.props.fieldJson.tooltip}
@@ -1050,7 +1054,7 @@ export class arrayenumstring extends BaseField {
                   <i className="fa fa-info-circle info-label"></i>
                 </OverlayTrigger>
               </label>
-              <a className="pull-right" href="javascript:void(0)" onClick={this.handleSelectAll}>Select All</a>
+              {disabledField ? null : <a className="pull-right" href="javascript:void(0)" onClick={this.handleSelectAll}>Select All</a>}
             </span> ;
   }
   renderFieldOption(node) {

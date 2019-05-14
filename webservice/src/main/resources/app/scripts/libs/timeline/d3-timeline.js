@@ -591,18 +591,18 @@ import _ from 'lodash';
           .style("stroke-width", lineFormat.width);
       }
       //add left button
-      gParent.select('g').append("image").attr("xlink:href", function(d) {
-        return "styles/img/Chevron-Left.svg";
-      }).attr("x", 25).attr("y", 50).on("click" , function(d){
-        return moveLeft();
-      });
+      // gParent.select('g').append("image").attr("xlink:href", function(d) {
+      //   return "styles/img/Chevron-Left.svg";
+      // }).attr("x", 25).attr("y", 50).on("click" , function(d){
+      //   return moveLeft();
+      // });
 
     //add right button
-      gParent.select('g').append("image").attr("xlink:href", function(d) {
-        return "styles/img/Chevron-Right.svg";
-      }).attr("x", width-25).attr("y", 50).on("click", function(d){
-        return moveRight();
-      });
+      // gParent.select('g').append("image").attr("xlink:href", function(d) {
+      //   return "styles/img/Chevron-Right.svg";
+      // }).attr("x", width-25).attr("y", 50).on("click", function(d){
+      //   return moveRight();
+      // });
     }
 
     // SETTINGS

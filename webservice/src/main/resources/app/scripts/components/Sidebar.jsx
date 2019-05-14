@@ -135,6 +135,14 @@ class Sidebar extends Component {
               </li>
               : null
             }
+            <li className={app_state.sidebar_activeKey === 2
+              ? 'active'
+              : ''} onClick={this.handleClick.bind(this, 2)}>
+              <a href="http://watchtower.uberinternal.com" target="_blank">
+                <img src="/styles/img/uWorc/sr.svg"/>
+                <span>Watch Tower</span>
+              </a>
+            </li>
             {hasModuleAccess(menuName.CONFIGURATION) ?
               <li className={app_state.sidebar_activeKey === 3
                 ? 'treeview active'
@@ -192,10 +200,11 @@ class Sidebar extends Component {
                   <p>{displayNames.join(', ')}</p>
                 </div>
                 <ul>
-                  <li><a href="javascript:void(0)">{SVGIcons.bugIcon} Report Bug</a></li>
-                  <li><a href="javascript:void(0)">{SVGIcons.helpIcon} Help</a></li>
-                  <li><a href="javascript:void(0)" onClick={this.handleLogOut}>
-                    {SVGIcons.logoutIcon} Logout</a>
+                  <li>
+                    <a href="http://t.uber.com/uworc-issue" target="_blank">{SVGIcons.bugIcon} Report Bug</a>
+                  </li>
+                  <li>
+                    <a href="https://eng.uberinternal.com/display/DATAWORKFLOW/Get+started" target="_blank">{SVGIcons.helpIcon} Help</a>
                   </li>
                   <li className="user-note">Version 1.0</li>
                 </ul>

@@ -186,9 +186,7 @@ public class StreamCatalogService {
                                                                               UDF3.class, UDF4.class, UDF5.class, UDF6.class, UDF7.class);
     public static final long PLACEHOLDER_ID = -1L;
     private static final String CLONE_SUFFIX = "-clone";
-    private static final String VERSION_SUFFIX = "V";
     private static final String DEFAULT_VERSION_NAME = "Draft";
-    public static final long OFFSET_LAST_DEPLOYED_VERSION = 1L;
 
     private final StorageManager dao;
     private final FileStorage fileStorage;
@@ -499,7 +497,10 @@ public class StreamCatalogService {
         topologies.forEach(x -> {
                                     x.setVersionTimestamp(versionTimestamp);
                                     if (deployed) {
-                                        x.setVersionName(VERSION_SUFFIX + (version.getId() - OFFSET_LAST_DEPLOYED_VERSION));
+                                        Optional<TopologyVersion> latest = getLatestVersionInfo(version.getTopologyId());
+                                        if (latest.isPresent()) {
+                                            x.setVersionName(latest.get().getName());
+                                        }
                                     } else {
                                         x.setVersionName(DEFAULT_VERSION_NAME);
                                     }

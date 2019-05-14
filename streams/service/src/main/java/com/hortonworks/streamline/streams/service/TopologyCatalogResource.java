@@ -790,6 +790,10 @@ public class TopologyCatalogResource {
         Topology originalTopology = catalogService.getTopology(topologyId);
         if (originalTopology != null) {
             Topology clonedTopology = catalogService.cloneTopology(namespaceId, projectId, originalTopology);
+            SecurityUtil.addAcl(authorizer, securityContext, Topology.NAMESPACE, clonedTopology.getId(),
+                    EnumSet.allOf(Permission.class));
+            // Add OwnerGroup level ACL
+            addAclForTopology(clonedTopology.getId(), originalTopology.getOwnergroups());
             return WSUtils.respondEntity(clonedTopology, OK);
         }
 
@@ -818,6 +822,10 @@ public class TopologyCatalogResource {
             updateOwner(topologyData, securityContext);
         }
         Topology importedTopology = catalogService.importTopology(namespaceId, projectId, topologyData);
+        SecurityUtil.addAcl(authorizer, securityContext, Topology.NAMESPACE, importedTopology.getId(),
+                EnumSet.allOf(Permission.class));
+        // Add OwnerGroup level ACL
+        addAclForTopology(importedTopology.getId(), importedTopology.getOwnergroups());
         return WSUtils.respondEntity(importedTopology, OK);
     }
     private void updateOwner(TopologyData topologyData, SecurityContext securityContext) {

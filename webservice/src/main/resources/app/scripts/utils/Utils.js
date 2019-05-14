@@ -218,7 +218,7 @@ const abbreviateNumber = function(value) {
 };
 
 const string = function(val = '') {
-  return {value: val.toString(), suffix: ''};
+  return {value: val ? val.toString() : '', suffix: ''};
 };
 
 const dateTimeLabel = function(val) {

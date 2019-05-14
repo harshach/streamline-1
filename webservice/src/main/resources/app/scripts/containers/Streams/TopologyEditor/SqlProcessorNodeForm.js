@@ -148,7 +148,8 @@ export default class SqlProcessorNodeForm extends Component {
         str += "name='"+fieldObj.name+"', type="+fieldObj.type;
       });
       str += "}}";
-      data.inputSchemas[streamObj.streamId] = str;
+      let topicName = this.getTopicName(streamObj.streamId);
+      data.inputSchemas[topicName] = str;
     });
 
     TopologyREST.getSqlOutputSchema({body: JSON.stringify(data)}).then((response)=>{
@@ -168,6 +169,12 @@ export default class SqlProcessorNodeForm extends Component {
     this.context.ParentForm.setState({outputStreamObj: this.streamData});
   }
 
+  getTopicName(streamId){
+    const streamIdWOId = streamId.split('_');
+    streamIdWOId.splice(streamIdWOId.length-1, 1);
+    return streamIdWOId.join('_');
+  }
+
   render() {
     const {securityType, hasSecurity, activeTabKey, formErrors} = this.state;
     const parent = this.context.ParentForm;
@@ -185,9 +192,7 @@ export default class SqlProcessorNodeForm extends Component {
       const allFields = [];
       const tableNames = [];
       _.each(inputStreamOptions, (stream) => {
-        // const streamIdWOId = stream.streamId.split('_');
-        // streamIdWOId.splice(streamIdWOId.length-1, 1);
-        const topicNameFromStreamId = stream.streamId;
+        const topicNameFromStreamId = this.getTopicName(stream.streamId);
         const formatedTableName = 'hdrone.'+topicNameFromStreamId.replace(/-/g, '_');
         this.tableMapping[formatedTableName.toLowerCase()] = topicNameFromStreamId;
         tableNames.push({

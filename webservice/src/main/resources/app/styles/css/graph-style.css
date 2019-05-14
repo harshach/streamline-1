@@ -471,6 +471,10 @@ svg>foreignObject>p {
 .timelineSeries_queued {
   fill: #ED6F0E !important;
 }
+.tempRect.selected {
+  stroke-width: 1px;
+  stroke: #276EF1;
+}
 .zoom {
   cursor: move;
 }

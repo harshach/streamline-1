@@ -153,17 +153,18 @@ export default class SqlProcessorNodeForm extends Component {
     });
 
     TopologyREST.getSqlOutputSchema({body: JSON.stringify(data)}).then((response)=>{
+      const form = this.refs.Form;
+      const Errors = form.state.Errors;
+      Errors.sql = '';
       if(response.responseMessage !== undefined){
         error = response.responseMessage;
-        const form = this.refs.Form;
-        const Errors = form.state.Errors;
         Errors.sql = error;
-        form.setState({Errors});
-        this.setState({sqlError: error});
       } else {
         this.streamData.fields = response;
         this.context.ParentForm.setState({outputStreamObj: this.streamData});
       }
+      form.setState({Errors});
+      this.setState({sqlError: error});
     });
     this.streamData.fields = [];
     this.context.ParentForm.setState({outputStreamObj: this.streamData});

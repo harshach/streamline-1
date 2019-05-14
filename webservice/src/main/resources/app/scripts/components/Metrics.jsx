@@ -191,6 +191,8 @@ export default class Metrics extends Component{
                           return moment(executionObj.executionDate).add(-(currentOffset), 'minutes').valueOf() == d.starting_time;
                         });
                         onSelectExecution(o);
+                        d3.select(".tempRect.selected").classed("selected", false);
+                        d3.select(d3.event.currentTarget).classed("selected", true);
                       });
         if(this.timelineChart){
           this.timelineChart.remove();

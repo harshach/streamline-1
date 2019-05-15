@@ -132,7 +132,7 @@ class WorkflowListingTable extends Component {
             workflowObj.statusArr.map((statusObj)=>{
               datacenterArr.push({
                 clusterName: statusObj.namespaceName,
-                status: statusObj.extra.latestExecutionStatus || 'not-running',
+                status: (engine.type === "stream" ? statusObj.status : (statusObj.extra.latestExecutionStatus || 'not-running')),
                 runtimeAppId: statusObj.runtimeAppId
               });
             });
@@ -770,7 +770,7 @@ class TopologyListingContainer extends Component {
       if(event.target.checked){
         isHeaderCheckbox =true;
         workflowObj.isSelected = true;
-        arr.push(workflowObj.id);
+        arr.push({"WorkflowID": workflowObj.id});
       } else{
         isHeaderCheckbox = false;
         workflowObj.isSelected = false;
@@ -851,6 +851,8 @@ class TopologyListingContainer extends Component {
         workflowObj.projectId = projectId;
         delete workflowObj.isSelected;
         delete workflowObj.statusArr;
+        delete workflowObj.rights_share;
+        delete workflowObj.showShareIcon;
         promiseArr.push(TopologyREST.putTopology(workflowObj.id, workflowObj.versionId, {body: JSON.stringify(workflowObj)}) );
       }
     });

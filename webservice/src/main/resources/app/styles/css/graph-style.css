@@ -479,5 +479,6 @@ svg>foreignObject>p {
   cursor: move;
 }
 .no-data-label {
-  margin: 10px;
+  margin: 0px;
+  padding: 10px;
 }

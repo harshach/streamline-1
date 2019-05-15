@@ -159,26 +159,7 @@ class TopologyViewContainer extends TopologyEditorContainer {
           this.fetchCatalogInfoAndMetrics(this.state.startDate, this.state.endDate);
         });
       }
-      // this.fetchCatalogInfoAndMetrics(this.state.startDate.toDate().getTime(), this.state.endDate.toDate().getTime());
-      // this.fetchTopologyLevelSampling();
     }
-  }
-
-  fetchTopologyLevelSampling(){
-    return;
-    const {viewModeData} = this.state;
-    //if(this.engine.type != 'stream'){
-    //  return;
-    //}
-    ViewModeREST.getTopologySamplingStatus(this.topologyId).then((result)=>{
-      if(result.responseMessage !== undefined){
-        FSReactToastr.error(
-          <CommonNotification flag="error" content={result.responseMessage}/>, '', toastOpt);
-      } else {
-        viewModeData.sampleTopologyLevel = result.enabled ? Number(result.pct) : 0;
-        this.setState({viewModeData});
-      }
-    });
   }
 
   handleTopologyLevelDetails = (type,value) => {

@@ -26,7 +26,8 @@ class AddWorkflowsToProject extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      entities : [],SelectedProjectId: 1,
+      entities : [],
+      SelectedProjectId: "",
       fetchLoader : true
     };
     this.fetchData();

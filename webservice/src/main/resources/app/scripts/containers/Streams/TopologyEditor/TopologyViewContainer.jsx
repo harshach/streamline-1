@@ -145,17 +145,22 @@ class TopologyViewContainer extends TopologyEditorContainer {
   onFetchedData(){
     const {isAppRunning} = this.state;
     if(isAppRunning) {
-      let currentOffset = new Date().getTimezoneOffset();
-      let startTimeObj = moment(this.statusObj.extra.startExecutionDate);
-      startTimeObj.add(-(currentOffset), 'minutes');
-      let endTimeObj = moment(this.statusObj.extra.latestExecutionDate);
-      endTimeObj.add(-(currentOffset), 'minutes');
-      let startTime = startTimeObj.valueOf();
-      let endTime = endTimeObj.valueOf();
-
-      this.fetchCatalogInfoAndMetrics(startTime, endTime);
+      if(this.engine.type === 'batch'){
+        let currentOffset = new Date().getTimezoneOffset();
+        let startTimeObj = moment(this.statusObj.extra.startExecutionDate);
+        startTimeObj.add(-(currentOffset), 'minutes');
+        let endTimeObj = moment(this.statusObj.extra.latestExecutionDate);
+        endTimeObj.add(-(currentOffset), 'minutes');
+        let startTime = startTimeObj.valueOf();
+        let endTime = endTimeObj.valueOf();
+        this.fetchCatalogInfoAndMetrics(startTime, endTime);
+      } else {
+        this.setState({startDate: moment().subtract(6, 'hours'), endDate: moment()},()=>{
+          this.fetchCatalogInfoAndMetrics(this.state.startDate, this.state.endDate);
+        });
+      }
       // this.fetchCatalogInfoAndMetrics(this.state.startDate.toDate().getTime(), this.state.endDate.toDate().getTime());
-      this.fetchTopologyLevelSampling();
+      // this.fetchTopologyLevelSampling();
     }
   }
 

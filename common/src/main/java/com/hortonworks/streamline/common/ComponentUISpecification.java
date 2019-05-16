@@ -350,7 +350,7 @@ public class ComponentUISpecification {
             if (fields != null) {
                 logAndThrowException(String.format(NOT_APPLICABLE_PROPERTY, FIELDS, fieldName, type));
             }
-            if (type.equals(UIFieldType.ENUMSTRING) || type.equals(UIFieldType.ARRAYENUMSTRING)) {
+            if (type.equals(UIFieldType.ENUMSTRING) || type.equals(UIFieldType.ARRAYENUMSTRING) || type.equals(UIFieldType.CUSTOMENUMSTRING)) {
                 // options are mandatory for enum types
                 if (options != null) {
                     for (Object option : options) {

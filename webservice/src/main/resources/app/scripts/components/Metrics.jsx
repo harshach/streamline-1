@@ -132,7 +132,7 @@ export default class Metrics extends Component{
     if(lastDataObj){
       momentObj = moment(lastDataObj.executionDate);
     } else {
-      momentObj = startDate ? startDate : moment(start_time);
+      momentObj = startDate ? moment(startDate.valueOf()) : moment(start_time);
     }
     let currentOffset = new Date().getTimezoneOffset();
     //time manipulation as per local browser time offset

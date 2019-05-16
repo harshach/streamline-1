@@ -59,6 +59,7 @@ import _ from 'lodash';
       beginning = 0,
       labelMargin = 0,
       ending = 0,
+      updatedBegining = beginning, updatedEnding = ending,
       margin = {left: 30, right:30, top: 30, bottom:30},
       stacked = false,
       rotateTicks = false,
@@ -78,13 +79,9 @@ import _ from 'lodash';
       showAxisHeaderBackground = false,
       showAxisNav = false,
       showAxisCalendarYear = false,
-      axisBgColor = "white", initialDrag = 0,offset = 0,
-      chartData = {};
+      axisBgColor = "white", initialDrag = 0,offset = 0,initialScaleDrag=0,
+      chartData = {}, clickConstant = 100000, moveConstant = 5000;
 
-    var multiformat = function(date) {
-      let d = date.getHours();
-      return (d === 0 ? tickFormat.format2 : tickFormat.format)(date);
-    };
 
     var wrap = function(text) {
       text.each(function(){
@@ -284,7 +281,7 @@ import _ from 'lodash';
 
       // draw the axis
       var xScale = d3.time.scale()
-        .domain([beginning, ending])
+        .domain([updatedBegining, updatedEnding])
         .range([margin.left, width - margin.right]);
 
       var xAxis = d3.svg.axis()
@@ -306,70 +303,54 @@ import _ from 'lodash';
         }
       };
       var move = function() {
-        // var x = Math.min(10, Math.max(gParentSize.width - width, d3.event.translate[0]));
-        // zoom.translate([x, 0]);
-        // g.attr("transform", "translate(" + x + ",0)");
-        // scroll(x*scaleFactor, xScale);
-        gParent.select('.axis').call(xAxis).selectAll(".tick text").call(wrap);
-
         let translate = d3.event.translate[0];
         if(offset){
           translate = translate - offset;
           offset += translate;
         }
 
-        gParent.selectAll('.tempRect').forEach((elems)=>{
-          elems.forEach((obj)=>{
-            d3.select(obj).attr("x", (d)=>{
-              if(offset){
-                d.a = d.a + translate;
-              } else {
-                d.a = d.position+translate;
-              }
-              return dataPos(d.a);
-            });
-          });
-        });
+        var diff = d3.event.translate[0] - initialScaleDrag;
+        if(diff == 0){
+          return;
+        }else{
+          updatedBegining -= (moveConstant)*diff;
+          updatedEnding -= (moveConstant)*diff;
+        }
+        moveOp();
         initialDrag = d3.event.translate[0];
+        initialScaleDrag = d3.event.translate[0];
       };
 
-      var moveLeft = function(){
-        // gParent.select('.axis').call(xAxis).selectAll(".tick text").call(wrap);
+      var moveLeft = function(beginning, ending){
+        updatedBegining = beginning + clickConstant;
+        updatedEnding = ending + clickConstant;
+        moveOp();
+      };
+
+      var moveRight = function(beginning,ending){
+        updatedBegining = beginning - clickConstant;
+        updatedEnding = ending - clickConstant;
+        moveOp();
+      };
+
+      var moveOp = function(){
+        xScale.domain([updatedBegining, updatedEnding]);
+        gParent.select('.axis').call(xAxis).selectAll(".tick text").call(wrap);
+
         gParent.selectAll('.tempRect').forEach((elems)=>{
           if(initialDrag){
             offset = JSON.parse(JSON.stringify(initialDrag));
           }
           elems.forEach((obj)=>{
             d3.select(obj).attr("x", (d)=>{
-              if(!d.a){
-                d.a = d.position;
-              }
-              d.a = d.a - 50;
-              return dataPos(d.a);
+              d.position = getXPos(d);
+              return dataPos(d.position);
             });
           });
         });
         initialDrag = 0;
       };
 
-      var moveRight = function(){
-        // gParent.select('.axis').call(xAxis).selectAll(".tick text").call(wrap);
-        gParent.selectAll('.tempRect').forEach((elems)=>{
-          if(initialDrag){
-            offset = JSON.parse(JSON.stringify(offset));
-          }
-          elems.forEach((obj)=>{
-            d3.select(obj).attr("x", (d)=>{
-              if(!d.a){
-                d.a = d.position;
-              }
-              d.a = d.a + 50;
-              return dataPos(d.a);
-            });
-          });
-        });
-        initialDrag = 0;
-      };
       var zoom = d3.behavior.zoom().x(xScale).scaleExtent([1,1]).on("zoom", move);
 
       if(self.tooltip){
@@ -535,7 +516,7 @@ import _ from 'lodash';
       }
 
       function getXPos(d, i) {
-        return (margin.left + (d.starting_time - beginning) * scaleFactor) - 12;
+        return (margin.left + (d.starting_time - updatedBegining) * scaleFactor) - 12;
       }
 
       function getXTextPos(d, i) {
@@ -591,18 +572,18 @@ import _ from 'lodash';
           .style("stroke-width", lineFormat.width);
       }
       //add left button
-      // gParent.select('g').append("image").attr("xlink:href", function(d) {
-      //   return "styles/img/Chevron-Left.svg";
-      // }).attr("x", 25).attr("y", 50).on("click" , function(d){
-      //   return moveLeft();
-      // });
+      gParent.select('g').append("image").attr("xlink:href", function(d) {
+        return "styles/img/Chevron-Left.svg";
+      }).attr("x", 25).attr("y", 50).on("click" , function(d){
+        return moveLeft(updatedBegining, updatedEnding);
+      });
 
     //add right button
-      // gParent.select('g').append("image").attr("xlink:href", function(d) {
-      //   return "styles/img/Chevron-Right.svg";
-      // }).attr("x", width-25).attr("y", 50).on("click", function(d){
-      //   return moveRight();
-      // });
+      gParent.select('g').append("image").attr("xlink:href", function(d) {
+        return "styles/img/Chevron-Right.svg";
+      }).attr("x", width-25).attr("y", 50).on("click", function(d){
+        return moveRight(updatedBegining, updatedEnding);
+      });
     }
 
     // SETTINGS
@@ -712,12 +693,14 @@ import _ from 'lodash';
     timeline.beginning = function (b) {
       if (!arguments.length){ return beginning;}
       beginning = b;
+      updatedBegining = b;
       return timeline;
     };
 
     timeline.ending = function (e) {
       if (!arguments.length){ return ending;}
       ending = e;
+      updatedEnding = e;
       return timeline;
     };
 

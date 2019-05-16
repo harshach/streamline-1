@@ -485,8 +485,19 @@ class TopologyListingContainer extends Component {
   }
 
   cloneTopologyAction = (id) => {
+    let engineName = '';
+    let workflowObj = this.state.entities.find((workflow)=>{
+      return workflow.id == id;
+    });
+    if(workflowObj){
+      let engine = app_state.engines.find((e)=>{
+        return e.id === workflowObj.engineId;
+      });
+      engineName = engine ? engine.name.toLowerCase() : '';
+    }
     this.setState({
-      cloneFromId: id
+      cloneFromId: id,
+      engineName: engineName
     }, () => {
       this.CloneTopologyModelRef.show();
     });
@@ -965,7 +976,8 @@ class TopologyListingContainer extends Component {
           <CloneTopology
             topologyId={this.state.cloneFromId}
             ref={(ref) => this.cloneTopologyRef = ref}
-            defaultProjectId={this.projectId}/>
+            defaultProjectId={this.projectId}
+            engineName={this.state.engineName}/>
         </Modal>
         {/* CommonShareModal */}
         <Modal className="u-form" ref={"CommonShareModalRef"} data-title="Share Workflow"  data-resolve={this.handleShareSave.bind(this)} data-reject={this.handleShareCancel.bind(this)}>

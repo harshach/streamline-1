@@ -47,9 +47,13 @@ class CloneTopology extends Component {
   }
 
   fetchData = () => {
+    const {engineName} = this.props;
     let promiseArr = [EnvironmentREST.getAllNameSpaces()];
     promiseArr.push(ProjectREST.getMyProjects().then((res) => {
-      const projects = res.entities;
+      const projects = res.entities.filter((project)=>{
+        return project.id != -1;
+      });
+
       this.setState({projects: projects});
       return projects;
     }));
@@ -61,7 +65,12 @@ class CloneTopology extends Component {
         const resultSet = result[0].entities;
         let namespaces = [];
         resultSet.map((e) => {
-          namespaces.push(e.namespace);
+          let namespaceObj = e.mappings.find((o)=>{
+            return o.serviceName.toLowerCase() === engineName.toLowerCase();
+          });
+          if(namespaceObj){
+            namespaces.push(e.namespace);
+          }
         });
         this.setState({namespaceOptions: namespaces});
       }
@@ -98,7 +107,7 @@ class CloneTopology extends Component {
   }
 
   handleOnChangeProject = (obj) => {
-    this.setState({projectId: obj.id});
+    this.setState({projectId: obj ? obj.id : -1});
   }
 
   render() {
@@ -118,7 +127,6 @@ class CloneTopology extends Component {
         </div>
         <div className="form-group">
           <label>Project
-            <span className="text-danger">*</span>
           </label>
           <div>
             <Select
@@ -127,7 +135,7 @@ class CloneTopology extends Component {
               onChange={this.handleOnChangeProject}
               placeholder="Select Project"
               required={true}
-              clearable={false}
+              clearable={true}
               labelKey="name"
               valueKey="id"/>
           </div>

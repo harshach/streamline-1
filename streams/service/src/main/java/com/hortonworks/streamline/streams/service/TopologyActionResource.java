@@ -76,7 +76,7 @@ public class TopologyActionResource {
                                     @Session HttpSession httpSession) throws Exception {
         Set<String> userGroups = getAllUserGroups(httpSession);
         SecurityUtil.checkRoleOrPermissions(authorizer, securityContext, Roles.ROLE_TOPOLOGY_SUPER_ADMIN,
-                userGroups, NAMESPACE, topologyId, READ, EXECUTE);
+                userGroups, NAMESPACE, topologyId, READ);
         Topology result = catalogService.getTopology(topologyId);
         if (result != null) {
             String asUser = WSUtils.getUserFromSecurityContext(securityContext);

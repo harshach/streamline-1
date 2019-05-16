@@ -31,6 +31,7 @@ import Form from '../../../libs/form';
 import BaseContainer from '../../BaseContainer';
 import NoData from '../../../components/NoData';
 import CommonNotification from '../../../utils/CommonNotification';
+import app_state from '../../../app_state';
 
 class ImportTopology extends Component {
   constructor(props) {
@@ -61,7 +62,7 @@ class ImportTopology extends Component {
         FSReactToastr.error(
           <CommonNotification flag="error" content={result[0].responseMessage}/>, '', toastOpt);
       } else {
-        const resultSet = result[0].entities;
+        const resultSet = this.namespacesArr = result[0].entities;
         let namespaces = [];
         resultSet.map((e) => {
           namespaces.push(e.namespace);
@@ -100,12 +101,41 @@ class ImportTopology extends Component {
 
     return TopologyREST.importTopology({body: formData});
   }
-  handleOnFileChange = (e) => {
-    if (!e.target.files.length || (e.target.files.length && e.target.files[0].name.indexOf('.json') < 0)) {
+  handleOnFileChange = (event) => {
+    if (!event.target.files.length ||
+        (event.target.files.length && event.target.files[0].name.indexOf('.json') < 0)
+      ){
       this.setState({validInput: false, jsonFile: null});
     } else {
-      this.setState({validInput: true, jsonFile: e.target.files[0]});
+      this.parseFile(event);
+      this.setState({validInput: true, jsonFile: event.target.files[0]});
     }
+  }
+  parseFile(event){
+    let self = this;
+    let reader = new FileReader();
+    reader.onload = function(event){
+      let jsonObj = JSON.parse(event.target.result);
+      let engineId = jsonObj.engineId;
+      self.syncNamespaces(engineId);
+    };
+    reader.readAsText(event.target.files[0]);
+  }
+  syncNamespaces(engineId){
+    let engine = app_state.engines.find((e)=>{
+      return e.id === engineId;
+    });
+    let engineName = engine ? engine.name.toLowerCase() : '';
+    let namespaces = [];
+    this.namespacesArr.map((e) => {
+      let namespaceObj = e.mappings.find((o)=>{
+        return o.serviceName.toLowerCase() === engineName.toLowerCase();
+      });
+      if(namespaceObj){
+        namespaces.push(e.namespace);
+      }
+    });
+    this.setState({namespaceOptions: namespaces, namespaceId: ''});
   }
   handleOnChangeEnvironment = (obj) => {
     if (obj) {

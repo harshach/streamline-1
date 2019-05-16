@@ -62,11 +62,9 @@ const defineMarkers = function(svg) {
 
 const isValidConnection = function(sourceNode, targetNode) {
   let validConnection = true;
-  //       if((sourceNode.currentType.toLowerCase() !== 'split' && targetNode.currentType.toLowerCase() === 'stage') ||
-  //               (sourceNode.currentType.toLowerCase() === 'stage' && targetNode.currentType.toLowerCase() !== 'join')
-  //         ){
-  //               validConnection = false;
-  // }
+  if(sourceNode.parentType.toLowerCase() === 'processor' && targetNode.parentType.toLowerCase() === 'source'){
+    validConnection = false;
+  }
   return validConnection;
 };
 
@@ -259,8 +257,11 @@ const createEdge = function(mouseDownNode, d, paths, edges, internalFlags, callb
       });
     }
   } else {
+    drawLine.classed("hidden", true);
     FSReactToastr.error(
-      <CommonNotification flag="error" content={mouseDownNode.currentType + " cannot be connected to " + d.currentType}/>, '', toastOpt);
+      <CommonNotification flag="error" content={mouseDownNode.currentType + " "
+        + mouseDownNode.parentType.toLowerCase() + " cannot be connected to "
+        + d.currentType + " " + d.parentType.toLowerCase()}/>, '', toastOpt);
   }
 };
 

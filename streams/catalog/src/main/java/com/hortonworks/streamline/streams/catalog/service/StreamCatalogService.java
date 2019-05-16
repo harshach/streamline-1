@@ -900,10 +900,11 @@ public class StreamCatalogService {
         List<QueryParam> queryParams = new ArrayList<>();
         queryParams.add(new QueryParam(TopologyComponentBundle.SUB_TYPE, subType));
         queryParams.add(new QueryParam(TopologyComponentBundle.ENGINE, engine.getName()));
-        queryParams.add(new QueryParam(TopologyComponentBundle.TEMPLATE, template.getName()));
         Collection<TopologyComponentBundle> bundles = listTopologyComponentBundlesForTypeWithFilter(type, queryParams);
-        if (bundles.size() >= 1) {
-            return bundles.iterator().next();
+        for (TopologyComponentBundle topologyComponentBundle : bundles) {
+            if (Arrays.stream(topologyComponentBundle.getTemplate()).anyMatch(template.getName()::equals)) {
+                return topologyComponentBundle;
+            }
         }
         return null;
     }

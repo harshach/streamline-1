@@ -82,6 +82,7 @@ public class KafkaRTATopologyActionImpl implements TopologyActions {
             runtimeStatus = AthenaxConstants.ATHENAX_RUNTIME_STATUS_ENABLED;
         }
         status.setStatus(runtimeStatus);
+        status.setRuntimeAppId(applicationId);
         status.setNamespaceId(namespaceId);
         status.setNamespaceName(namespaceName);
         return status;

@@ -92,7 +92,8 @@ public class Source {
 
         VERTICA("vertica"),
         HIVE("hive"),
-        POSTGRES("postgres");
+        POSTGRES("postgres"),
+        HIVESCRIPT("hivescript");
 
         private final String value;
         private final static Map<String, Source.SourceType> CONSTANTS = new HashMap<String, Source.SourceType>();

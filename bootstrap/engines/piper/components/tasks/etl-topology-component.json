@@ -70,7 +70,7 @@
             "fields": [
               {
                 "uiName": "Postgres Connection ID",
-                "fieldName": "postgres.source.connection_d",
+                "fieldName": "postgres.source.connection_id",
                 "tooltip": "Postgres Connection",
                 "isOptional": false,
                 "type": "string",

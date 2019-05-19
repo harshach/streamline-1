@@ -14,7 +14,7 @@ public class HivescriptTaskComponent extends AbstractPiperContractTaskComponent 
     @Override
     public Source generateSource() {
         Source source = new Source();
-        source.setType(Source.SourceType.HIVE);
+        source.setType(Source.SourceType.HIVESCRIPT);
         setScriptType(source);
         source.setConnectionId((String)config.get(TASK_PARAMS_HIVE_CLI_CONN_ID));
         return source;

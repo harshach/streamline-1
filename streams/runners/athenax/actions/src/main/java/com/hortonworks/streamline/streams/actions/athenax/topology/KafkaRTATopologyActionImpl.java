@@ -9,6 +9,7 @@ import com.hortonworks.streamline.streams.actions.topology.service.TopologyActio
 import com.hortonworks.streamline.streams.catalog.Topology;
 import com.hortonworks.streamline.streams.catalog.TopologyDeployment;
 import com.hortonworks.streamline.streams.catalog.TopologyTestRunHistory;
+import com.hortonworks.streamline.streams.cluster.catalog.Namespace;
 import com.hortonworks.streamline.streams.cluster.service.EnvironmentService;
 import com.hortonworks.streamline.streams.common.athenax.AthenaxConstants;
 import com.hortonworks.streamline.streams.layout.component.TopologyDag;
@@ -36,6 +37,7 @@ import static com.hortonworks.streamline.streams.actions.athenax.topology.KafkaR
 
 public class KafkaRTATopologyActionImpl implements TopologyActions {
 
+    private EnvironmentService environmentService;
     private RTARestAPIClient rtaRestAPIClient;
     private Long namespaceId;
     private String namespaceName;
@@ -49,6 +51,7 @@ public class KafkaRTATopologyActionImpl implements TopologyActions {
 
         namespaceId = (Long) conf.get(UWORC_NAMESPACE_ID);
         namespaceName = (String) conf.get(UWORC_NAMESPACE_NAME);
+        this.environmentService = environmentService;
     }
 
     @Override
@@ -60,6 +63,13 @@ public class KafkaRTATopologyActionImpl implements TopologyActions {
         RTASink rtaSink = requestGenerator.getRtaSink();
         KafkaSource kafkaSource = requestGenerator.getKafkaSource();
         RTACreateTableRequest rtaCreateTableRequest = RTAUtils.extractRTACreateTableRequest(rtaSink, kafkaSource, asUser);
+        StringBuilder namespaces = new StringBuilder();
+        for (Long region: deployment.getRegions()) {
+            Namespace nameSpace = environmentService.getNamespace(region);
+            namespaces.append(nameSpace.getName());
+        }
+        rtaRestAPIClient.addToRequestHeader(rtaRestAPIClient.RPC_ROUTING_ZONE, namespaces.toString());
+
         rtaRestAPIClient.createTable(JsonClientUtil.convertRequestToJson(rtaCreateTableRequest));
 
         String tableName = rtaCreateTableRequest.name();

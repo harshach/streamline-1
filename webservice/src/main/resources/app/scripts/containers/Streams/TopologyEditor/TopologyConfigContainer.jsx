@@ -63,6 +63,10 @@ export default class TopologyConfigContainer extends Component {
     Promise.all(promiseArr).then(result => {
       const formField = JSON.parse(JSON.stringify(uiConfigFields.topologyComponentUISpecification));
 
+      formField.fields[5].type="customdatetimerangepicker";
+      // delete result[0].config.properties["topology.startDate"];
+      delete formField.fields.splice(6,1);
+
       let ldapGroupObj = formField.fields.find((o)=>{return o.fieldName === 'topology.ownerLDAPGroups';});
       if(ldapGroupObj){
         ldapGroupObj.type = "enumstring";
@@ -230,6 +234,8 @@ export default class TopologyConfigContainer extends Component {
         f_Data[key] = config[key];
       } else if(key === "topology.namespaceIds"){
         f_Data['deploymentSettings.namespaceIds'] = JSON.parse(config[key]);
+      } else if(key === "topology.endDate"){
+        f_Data[key] = config[key];
       } else {
         adv_Field.push({fieldName : key , fieldValue : config[key] instanceof Array ? JSON.stringify(config[key]) : config[key]});
       }

@@ -34,6 +34,7 @@ import Utils from '../../utils/Utils';
 import TopologyREST from '../../rest/TopologyREST';
 import ProcessorUtils from '../../utils/ProcessorUtils';
 import DatetimeRangePicker from 'react-bootstrap-datetimerangepicker';
+import DateTimeRangePicker from '../../components/DateTimeRangePicker';
 import moment from 'moment';
 import Cron from '../cron';
 import app_state from '../../app_state';
@@ -449,6 +450,98 @@ export class datetime extends date {
       timePicker24Hour:true,
       timePickerSeconds: true
     };
+  }
+}
+
+export class customdatetimerangepicker extends BaseField{
+  handleChangeOnStart = (obj) => {
+    const {Form} = this.context;
+    let startDate = obj.date ? obj.date : '';
+    let startTime = obj.time ? obj.time : '';
+    let value = startDate.replace(/\//g, '-') + ' ' + startTime;
+    this.props.data[this.props.value] = value;
+    Form.setState(Form.state);
+  }
+
+  handleChangeOnEnd = (obj) => {
+    const {Form} = this.context;
+    let endDate = obj.date ? obj.date : '';
+    let endTime = obj.time ? obj.time : '';
+    let value = endDate.replace(/\//g, '-') + ' ' + endTime;
+    this.props.data['topology.endDate'] = value;
+    Form.setState(Form.state);
+  }
+
+  validate() {
+    let isValid = super.validate(this.props.data[this.props.value]);
+    if(isValid){
+      let endValue = this.props.data['topology.endDate'];
+      isValid = !validation['datetime'](endValue, this.context.Form, this);
+    }
+    if(!isValid){
+      this.datePickerRef.scrollIntoViewIfNeeded();
+    }
+    return isValid;
+  }
+
+  getStartDate = () => {
+    const form_value = this.props.data[this.props.value] || '';
+
+    let dateRange = form_value.split(' ');
+
+    let value = {
+      date: dateRange[0],
+      time: dateRange[1]
+    };
+
+    return (<DateTimeRangePicker value={value} placeholder="Start Date" callBack={this.handleChangeOnStart}/>);
+  }
+
+  getEndDate = () => {
+    const form_value = this.props.data['topology.endDate'] || '';
+
+    let dateRange = form_value.split(' ');
+
+    let value = {
+      date: dateRange[0],
+      time: dateRange[1]
+    };
+
+    return (<DateTimeRangePicker value={value} placeholder="End Date" callBack={this.handleChangeOnEnd}/>);
+  }
+
+  render() {
+    const {className} = this.props;
+    const labelHint = this.props.fieldJson.hint || null;
+    const popoverContent = (
+      <Popover id="popover-trigger-hover-focus">
+        {this.props.fieldJson.tooltip}
+      </Popover>
+    );
+    return (
+      <FormGroup className={"row "+className} >
+        <div className="col-sm-5" ref={(ref) => this.datePickerRef = ref}>
+          <label>{this.props.label} {this.props.validation && this.props.validation.indexOf('required') !== -1
+            ? <span className="text-danger">*</span>
+            : null}
+            <OverlayTrigger trigger={['hover']} placement="right" overlay={popoverContent}>
+              <i className="fa fa-info-circle info-label"></i>
+            </OverlayTrigger>
+          </label>
+            {this.getStartDate()}
+        </div>
+        <div className="col-sm-1 text-center">
+          <i className="fa fa-arrow-right date-arrow"></i>
+        </div>
+        <div className="col-sm-5">
+          <label>End Date</label>
+          {this.getEndDate()}
+        </div>
+        <div className="col-sm-12">
+          <p className="text-danger">{this.context.Form.state.Errors[this.props.valuePath]}</p>
+        </div>
+      </FormGroup>
+    );
   }
 }
 

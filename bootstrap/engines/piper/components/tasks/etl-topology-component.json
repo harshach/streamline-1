@@ -197,8 +197,8 @@
                         "fieldName": "hive.destination.table_schema",
                         "tooltip": "Partition columns",
                         "isOptional": false,
-                        "type": "sql",
-                        "height": "100"
+                        "type": "array.string",
+                        "defaultValue": null,
                       }
                     ]
                   }
@@ -258,12 +258,12 @@
                     "type": "object",
                     "fields": [
                       {
-                        "uiName": "Partition Columns",
+                        "uiName": "Primary Keys",
                         "fieldName": "postgres.destination.table_schema",
-                        "tooltip": "Partition columns",
+                        "tooltip": "Primary keys",
                         "isOptional": false,
-                        "type": "sql",
-                        "height": "100"
+                        "type": "array.string",
+                        "defaultValue": null
                       }
                     ]
                   }

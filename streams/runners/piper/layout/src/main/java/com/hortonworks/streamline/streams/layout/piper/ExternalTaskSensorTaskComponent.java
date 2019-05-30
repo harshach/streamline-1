@@ -36,7 +36,7 @@ public class ExternalTaskSensorTaskComponent extends GenericPiperTaskComponent {
 
     private void setSensorDelta(Task task) {
         int delta = 0;
-        if (config.containsKey(DELTA_MINUTES)) {
+        if (config.containsKey(DELTA_MINUTES) && config.get(DELTA_MINUTES) != null) {
             delta += (Integer)config.get(DELTA_MINUTES);
         }
 

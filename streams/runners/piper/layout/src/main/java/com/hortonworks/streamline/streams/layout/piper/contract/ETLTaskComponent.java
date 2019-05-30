@@ -4,6 +4,7 @@ import com.hortonworks.streamline.streams.piper.common.pipeline.contract.Destina
 import com.hortonworks.streamline.streams.piper.common.pipeline.contract.Source;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class ETLTaskComponent extends AbstractPiperContractTaskComponent {
@@ -34,6 +35,7 @@ public class ETLTaskComponent extends AbstractPiperContractTaskComponent {
     private static final String SCP_DESTINATION_CONNECTION_ID = "scp.destination.connection_id";
     private static final String SCP_DESTINATION_PATH = "scp.destination.path";
     private static final String MERGE = "merge";
+    private static final String DESTINATION_PRIMARY_KEYS = "primary_keys";
 
     @Override
     public Source generateSource() {
@@ -104,7 +106,9 @@ public class ETLTaskComponent extends AbstractPiperContractTaskComponent {
         Map<String, Object> modeProp = (Map<String, Object>) params.getOrDefault(keyPrefix + ".mode", new HashMap());
         Map<String, Object> mode = (Map<String, Object>) modeProp.get(keyPrefix + ".modeMergeOption");
         if (mode != null) {
-            String tableSchema = (String) mode.get(keyPrefix + ".table_schema");
+            List primaryKeys = (List) mode.get(keyPrefix + ".table_schema");
+            Map<String, List> tableSchema = new HashMap();
+            tableSchema.put(DESTINATION_PRIMARY_KEYS, primaryKeys);
             destination.setMode(MERGE);
             destination.setTableSchema(tableSchema);
         }

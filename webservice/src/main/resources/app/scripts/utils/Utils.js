@@ -44,12 +44,16 @@ const sortArray = function(sortingArr, keyName, ascendingFlag) {
 };
 
 const numberToMilliseconds = function(number, type) {
-  if (type === 'Seconds') {
-    return number * 1000;
-  } else if (type === 'Minutes') {
-    return number * 60000;
-  } else if (type === 'Hours') {
-    return number * 3600000;
+  let millisecond = 1000;
+  type = type.toLowerCase();
+  if (type === 'seconds') {
+    return number * millisecond;
+  } else if (type === 'minutes') {
+    return number * (millisecond * 60);
+  } else if (type === 'hours') {
+    return number * (millisecond * 60 * 60);
+  } else if (type === 'days'){
+    return number * (millisecond * 60 * 60 * 24);
   }
 };
 

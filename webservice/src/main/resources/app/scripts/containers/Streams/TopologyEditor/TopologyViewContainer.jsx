@@ -334,10 +334,12 @@ class TopologyViewContainer extends TopologyEditorContainer {
 
   fetchExecutions = (fromTime, toTime) => {
     let {viewModeData, executionInfoPageSize, executionInfoPage, startDate, endDate} = this.state;
+    this.fromTimeInMS = startDate ? startDate.valueOf() : fromTime;
+    this.toTimeInMS = endDate ? endDate.valueOf() : toTime;
 
     return ViewModeREST.getAllExecutions(this.topologyId, {
-      from: startDate ? startDate.valueOf() : fromTime,
-      to: endDate ? endDate.valueOf() : toTime,
+      from: this.fromTimeInMS,
+      to: this.toTimeInMS,
       pageSize: executionInfoPageSize,
       page: executionInfoPage,
       namespaceId: this.selectedDataCenterId
@@ -721,6 +723,10 @@ class TopologyViewContainer extends TopologyEditorContainer {
         end_time={new Date(this.statusObj.extra.latestExecutionDate).getTime()}
         time_interval = {this.statusObj.extra.executionInterval || "5"}
         time_unit= {this.statusObj.extra.executionIntervalUnit || "Minute"}
+        topologyId={this.topologyId}
+        namespaceId={this.selectedDataCenterId}
+        fromTimeInMS={this.fromTimeInMS}
+        toTimeInMS={this.toTimeInMS}
     />;
   }
 

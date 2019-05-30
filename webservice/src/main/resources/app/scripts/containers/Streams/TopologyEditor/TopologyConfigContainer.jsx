@@ -63,9 +63,9 @@ export default class TopologyConfigContainer extends Component {
     Promise.all(promiseArr).then(result => {
       const formField = JSON.parse(JSON.stringify(uiConfigFields.topologyComponentUISpecification));
 
-      formField.fields[5].type="customdatetimerangepicker";
+      // formField.fields[5].type="customdatetimerangepicker";
       // delete result[0].config.properties["topology.startDate"];
-      delete formField.fields.splice(6,1);
+      // delete formField.fields.splice(6,1);
 
       let ldapGroupObj = formField.fields.find((o)=>{return o.fieldName === 'topology.ownerLDAPGroups';});
       if(ldapGroupObj){

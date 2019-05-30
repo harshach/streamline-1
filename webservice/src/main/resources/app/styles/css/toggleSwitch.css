@@ -1,0 +1,107 @@
+/* DEFAULT COLOR VARIABLES */
+/* DEFAULT SIZING VARIABLES */
+/* DEFAULT CLASS VARIABLE */
+/* STYLES */
+.switch.switch--default > .switch-toggle {
+  height: 32px;
+  width: 52px;
+  cursor: pointer !important;
+  user-select: none !important;
+  position: relative !important;
+  display: inline-block; }
+.switch.switch--default > .switch-toggle.switch-toggle--on::before, .switch.switch--default > .switch-toggle.switch-toggle--on::after, .switch.switch--default > .switch-toggle.switch-toggle--off::before, .switch.switch--default > .switch-toggle.switch-toggle--off::after {
+  content: '';
+  left: 0;
+  position: absolute !important; }
+.switch.switch--default > .switch-toggle.switch-toggle--on::before, .switch.switch--default > .switch-toggle.switch-toggle--off::before {
+  height: inherit;
+  width: inherit;
+  border-radius: 16px;
+  will-change: background;
+  transition: background .4s .3s ease-out; }
+.switch.switch--default > .switch-toggle.switch-toggle--on::after, .switch.switch--default > .switch-toggle.switch-toggle--off::after {
+  top: 2px;
+  height: 28px;
+  width: 28px;
+  border-radius: 14px;
+  background: #ffffff !important;
+  will-change: transform;
+  transition: transform .4s ease-out; }
+.switch.switch--default > .switch-toggle.switch-toggle--on::before {
+  background: #62c28e !important; }
+.switch.switch--default > .switch-toggle.switch-toggle--on::after {
+  transform: translateX(22px); }
+.switch.switch--default > .switch-toggle.switch-toggle--off::before {
+  background: #cccccc !important; }
+.switch.switch--default > .switch-toggle.switch-toggle--off::after {
+  transform: translateX(2px); }
+.switch.switch--graphite-small > .switch-toggle {
+  height: 20px;
+  width: 32.5px;
+  cursor: pointer !important;
+  user-select: none !important;
+  position: relative !important;
+  display: inline-block; }
+.switch.switch--graphite-small > .switch-toggle.switch-toggle--on::before, .switch.switch--graphite-small > .switch-toggle.switch-toggle--on::after, .switch.switch--graphite-small > .switch-toggle.switch-toggle--off::before, .switch.switch--graphite-small > .switch-toggle.switch-toggle--off::after {
+  content: '';
+  left: 0;
+  position: absolute !important; }
+.switch.switch--graphite-small > .switch-toggle.switch-toggle--on::before, .switch.switch--graphite-small > .switch-toggle.switch-toggle--off::before {
+  height: inherit;
+  width: inherit;
+  border-radius: 10px;
+  will-change: background;
+  transition: background .4s .3s ease-out; }
+.switch.switch--graphite-small > .switch-toggle.switch-toggle--on::after, .switch.switch--graphite-small > .switch-toggle.switch-toggle--off::after {
+  top: 2px;
+  height: 16px;
+  width: 16px;
+  border-radius: 8px;
+  background: #ffffff !important;
+  will-change: transform;
+  transition: transform .4s ease-out; }
+.switch.switch--graphite-small > .switch-toggle.switch-toggle--on::before {
+  background: gray !important; }
+.switch.switch--graphite-small > .switch-toggle.switch-toggle--on::after {
+  transform: translateX(14.5px); }
+.switch.switch--graphite-small > .switch-toggle.switch-toggle--off::before {
+  background: #cccccc !important; }
+.switch.switch--graphite-small > .switch-toggle.switch-toggle--off::after {
+  transform: translateX(2px); }
+.toggle-group{
+  margin-left: 4px;
+  display: block;
+}
+.toggle-group .switch {
+  display: inline-block;
+  margin-right: 14px;
+}
+.toggle-group .switch.switch--graphite-small > .switch-toggle {
+  height: 12px;
+  width: 38px;
+}
+.toggle-group .switch.switch--graphite-small > .switch-toggle.switch-toggle--on::before, 
+.toggle-group .switch.switch--graphite-small > .switch-toggle.switch-toggle--off::before {
+  border-radius: 4px;
+}
+.toggle-group .switch.switch--graphite-small > .switch-toggle.switch-toggle--on::before {
+  background: #1B6DE0 !important;
+}
+.toggle-group .switch.switch--graphite-small > .switch-toggle.switch-toggle--on::after, 
+.toggle-group .switch.switch--graphite-small > .switch-toggle.switch-toggle--off::after {
+  font-family: FontAwesome;
+  content: "\f068";
+  text-align: center;
+  color: #ccc;
+  top: -4px;
+  width: 20px;
+  height: 20px;
+  border-radius: 4px;
+  box-shadow: 0px 1px 4px rgba(0, 0, 0, 0.16);
+}
+.toggle-group .switch.switch--graphite-small > .switch-toggle.switch-toggle--off::after {
+  transform: translateX(0px) rotate(90deg);
+}
+.toggle-group .switch.switch--graphite-small > .switch-toggle.switch-toggle--on::after {
+    transform: translateX(20px) rotate(90deg);
+}

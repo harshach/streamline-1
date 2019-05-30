@@ -34,10 +34,12 @@ import Utils from '../../utils/Utils';
 import TopologyREST from '../../rest/TopologyREST';
 import ProcessorUtils from '../../utils/ProcessorUtils';
 import DatetimeRangePicker from 'react-bootstrap-datetimerangepicker';
-import DateTimeRangePicker from '../../components/DateTimeRangePicker';
+import DateTimeFormatter from '../../components/DateTimeFormatter';
 import moment from 'moment';
 import Cron from '../cron';
 import app_state from '../../app_state';
+import Switch from "../../components/ToggleSwitch.js";
+import SVGIcons from '../../utils/SVGIcons';
 
 import CodeMirror from 'codemirror';
 import CommonCodeMirror from '../../components/CommonCodeMirror';
@@ -486,28 +488,22 @@ export class customdatetimerangepicker extends BaseField{
 
   getStartDate = () => {
     const form_value = this.props.data[this.props.value] || '';
-
     let dateRange = form_value.split(' ');
-
     let value = {
       date: dateRange[0],
       time: dateRange[1]
     };
-
-    return (<DateTimeRangePicker value={value} placeholder="Start Date" callBack={this.handleChangeOnStart}/>);
+    return (<DateTimeFormatter value={value} placeholder="Start Date" callBack={this.handleChangeOnStart}/>);
   }
 
   getEndDate = () => {
     const form_value = this.props.data['topology.endDate'] || '';
-
     let dateRange = form_value.split(' ');
-
     let value = {
       date: dateRange[0],
       time: dateRange[1]
     };
-
-    return (<DateTimeRangePicker value={value} placeholder="End Date" callBack={this.handleChangeOnEnd}/>);
+    return (<DateTimeFormatter value={value} placeholder="End Date" callBack={this.handleChangeOnEnd}/>);
   }
 
   render() {
@@ -519,28 +515,28 @@ export class customdatetimerangepicker extends BaseField{
       </Popover>
     );
     return (
-      <FormGroup className={"row "+className} >
-        <div className="col-sm-5" ref={(ref) => this.datePickerRef = ref}>
-          <label>{this.props.label} {this.props.validation && this.props.validation.indexOf('required') !== -1
-            ? <span className="text-danger">*</span>
-            : null}
-            <OverlayTrigger trigger={['hover']} placement="right" overlay={popoverContent}>
-              <i className="fa fa-info-circle info-label"></i>
-            </OverlayTrigger>
-          </label>
-            {this.getStartDate()}
-        </div>
-        <div className="col-sm-1 text-center">
-          <i className="fa fa-arrow-right date-arrow"></i>
-        </div>
-        <div className="col-sm-5">
-          <label>End Date</label>
-          {this.getEndDate()}
-        </div>
-        <div className="col-sm-12">
-          <p className="text-danger">{this.context.Form.state.Errors[this.props.valuePath]}</p>
-        </div>
-      </FormGroup>
+      <div>
+        <FormGroup className={"row "+className} >
+          <div className="col-sm-5" ref={(ref) => this.datePickerRef = ref}>
+            <label>{this.props.label} {this.props.validation && this.props.validation.indexOf('required') !== -1
+              ? <span className="text-danger">*</span>
+              : null}
+              <OverlayTrigger trigger={['hover']} placement="right" overlay={popoverContent}>
+                <i className="fa fa-info-circle info-label"></i>
+              </OverlayTrigger>
+            </label>
+              {this.getStartDate()}
+          </div>
+          <div className="col-sm-1 text-center datetime-arrow">
+            <div className="date-arrow"><a className="date-arrow">{SVGIcons.rightArrowIcon}</a></div>
+          </div>
+          <div className="col-sm-5">
+            <label>End Date</label>
+            {this.getEndDate()}
+          </div>
+        </FormGroup>
+        <p className="text-danger">{this.context.Form.state.Errors[this.props.valuePath]}</p>
+      </div>
     );
   }
 }
@@ -853,10 +849,9 @@ export class number extends BaseField {
 }
 
 export class boolean extends BaseField {
-  handleChange = () => {
-    const checked = this.refs.input.checked;
+  handleChange = (evt) => {
     const {Form} = this.context;
-    this.props.data[this.props.value] = checked;
+    this.props.data[this.props.value] = evt.SWITCH_STATE.enabled;
     Form.setState(Form.state);
     this.validate();
   }
@@ -881,18 +876,14 @@ export class boolean extends BaseField {
       ? null
       : <FormGroup className={"fg-checkbox "+className}>
           <OverlayTrigger trigger={['hover']} placement="right" overlay={popoverContent}>
-            <label>
-              <input name={this.props.value} type="checkbox" ref="input" checked={this.props.data[this.props.value]} disabled={disabledField} {...this.props.attrs} onChange={this.handleChange} style={{
-                marginRight: '10px'
-              }} className={this.context.Form.state.Errors[this.props.valuePath]
-                ? "invalidInput"
-                : ""}/>
-              {this.props.label}
+            <label>{this.props.label}
               {this.props.validation && this.props.validation.indexOf('required') !== -1
                 ? <span className="text-danger">*</span>
-                : null}
-            </label>
+                : null}</label>  
           </OverlayTrigger>
+          <label className="toggle-group">
+            <Switch theme="graphite-small" ref="input" className="d-flex" enabled={this.props.data[this.props.value]} onClick={this.handleChange} />
+          </label>
       </FormGroup>);
   }
 }

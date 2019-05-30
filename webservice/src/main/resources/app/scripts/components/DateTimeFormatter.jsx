@@ -22,7 +22,7 @@ import Cleave from 'cleave.js/dist/cleave-react';
 
 const Picker = DatePicker.default;
 
-class DateTimeRangePicker extends Component {
+class DateTimeFormatter extends Component {
   constructor(props){
     super(props);
     this.state = {
@@ -73,4 +73,4 @@ class DateTimeRangePicker extends Component {
   }
 }
 
-export default DateTimeRangePicker;
+export default DateTimeFormatter;

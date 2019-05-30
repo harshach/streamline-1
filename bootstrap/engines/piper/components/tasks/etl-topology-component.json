@@ -198,7 +198,7 @@
                         "tooltip": "Partition columns",
                         "isOptional": false,
                         "type": "array.string",
-                        "defaultValue": null,
+                        "defaultValue": null
                       }
                     ]
                   }

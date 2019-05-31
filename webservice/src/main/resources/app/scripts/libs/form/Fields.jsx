@@ -455,7 +455,7 @@ export class datetime extends date {
   }
 }
 
-export class customdatetimerangepicker extends BaseField{
+export class datetimerange extends BaseField{
   handleChangeOnStart = (obj) => {
     const {Form} = this.context;
     let startDate = obj.date ? obj.date : '';

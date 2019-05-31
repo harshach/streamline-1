@@ -17,7 +17,6 @@ import isString from 'lodash/isString';
 import React, { Component } from 'react';
 import isBoolean from 'lodash/isBoolean';
 import isFunction from 'lodash/isFunction';
-import './../../styles/css/toggleSwitch.css';
 
 class ToggleSwitch extends Component {
 

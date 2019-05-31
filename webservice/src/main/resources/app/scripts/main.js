@@ -32,6 +32,8 @@ import 'codemirror/addon/hint/show-hint.css';
 import '../styles/css/customScroll.css';
 import '../styles/css/paper-bootstrap-wizard.css';
 import '../styles/css/stepzilla.css';
+import "../styles/css/datepicker.css";
+import '../styles/css/toggleSwitch.css';
 import '../styles/css/style.css';
 import '../styles/css/graph-style.css';
 

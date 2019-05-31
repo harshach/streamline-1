@@ -13,14 +13,7 @@
 **/
 
 import React, {Component} from 'react';
-import moment from 'moment';
-import { default as DatePicker} from 'react-datepicker';
-import "react-datepicker/dist/react-datepicker.css";
-import "../../styles/css/datepicker.css";
-import 'bootstrap/dist/css/bootstrap.min.css';
 import Cleave from 'cleave.js/dist/cleave-react';
-
-const Picker = DatePicker.default;
 
 class DateTimeFormatter extends Component {
   constructor(props){
@@ -43,15 +36,6 @@ class DateTimeFormatter extends Component {
   render(){
     return(
       <div className="row datepicker-contriner">
-        {/*<Picker
-          ref={(ref) => this.customDatePicker = ref}
-          selected={this.state.date}
-          onChange={this.handleChangeOnDate}
-          placeholderText={this.props.placeholder}
-          dateFormat="MM / DD / YY"
-          popperPlacement="bottom-start"
-          className="form-control">
-        </Picker>*/}
         <div>
           <Cleave
             className="form-control"

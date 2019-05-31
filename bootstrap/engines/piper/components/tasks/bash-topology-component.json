@@ -29,13 +29,6 @@
         "height": "200"
       },
       {
-        "uiName": "Environment",
-        "fieldName": "task_params.env",
-        "tooltip": "Environment variables",
-        "isOptional": true,
-        "type": "string"
-      },
-      {
         "uiName": "Pool",
         "fieldName": "pool",
         "isUserInput": true,

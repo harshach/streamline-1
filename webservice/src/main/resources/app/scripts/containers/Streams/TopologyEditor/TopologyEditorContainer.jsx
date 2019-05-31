@@ -21,7 +21,6 @@ import {Link, withRouter} from 'react-router';
 import TopologyREST from '../../../rest/TopologyREST';
 import EnvironmentREST from '../../../rest/EnvironmentREST';
 import {OverlayTrigger, Tooltip, Popover, Accordion, Panel} from 'react-bootstrap';
-import Switch from 'react-bootstrap-switch';
 import TopologyConfig from './TopologyConfigContainer';
 import EdgeConfig from './EdgeConfigContainer';
 import FSReactToastr from '../../../components/FSReactToastr';

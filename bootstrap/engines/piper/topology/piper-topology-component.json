@@ -135,7 +135,7 @@
         "fieldName": "topology.startDate",
         "isOptional": false,
         "tooltip": "Start Date of Pipeline",
-        "type": "customdatetimerangepicker"
+        "type": "datetimerange"
       },
       {
         "uiName": "Secure",

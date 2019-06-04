@@ -144,16 +144,15 @@ class TopologyViewContainer extends TopologyEditorContainer {
 
   onFetchedData(){
     const {isAppRunning} = this.state;
+    let time_interval = this.statusObj.extra.executionInterval;
+    let time_unit = this.statusObj.extra.executionIntervalUnit;
     if(isAppRunning) {
       if(this.engine.type === 'batch'){
         let currentOffset = new Date().getTimezoneOffset();
-        let startTimeObj = moment(new Date(this.statusObj.extra.latestExecutionDate).getTime());
-        startTimeObj.add(-(currentOffset), 'minutes');
-        startTimeObj.subtract(this.statusObj.extra.executionInterval * 21, this.statusObj.extra.executionIntervalUnit);
-        // let endTimeObj = moment(new Date(this.statusObj.extra.latestExecutionDate).getTime());
-        // endTimeObj.add(-(currentOffset), 'minutes');
-        let startTime = startTimeObj.valueOf();
-        let endTime = moment(moment(startTime).toDate()).add(this.statusObj.extra.executionInterval * 24, this.statusObj.extra.executionIntervalUnit).valueOf();
+        let startTimeObj = moment(this.statusObj.extra.latestExecutionDate);
+        let timeObj = Utils.findBeginingEndingTime(null, null, startTimeObj, null, time_unit, time_interval, currentOffset);
+        let startTime = timeObj.begining;
+        let endTime = timeObj.ending;
         this.fetchCatalogInfoAndMetrics(startTime, endTime);
       } else {
         this.setState({startDate: moment().subtract(6, 'hours'), endDate: moment()},()=>{

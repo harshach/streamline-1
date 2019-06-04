@@ -588,19 +588,18 @@ import Utils from '../../utils/Utils';
       //add left button
       var leftImg =gParent.select('g').append("image").attr("xlink:href", function(d) {
         return "styles/img/Chevron-Left.svg";
-      }).attr("x", 25).attr("y", 50);
+      }).attr("x", 25).attr("y", 50)
+        .on("click" , function(d){
+          if(self.stopLeftClick){
+            leftImg.style("cursor", "not-allowed").style("opacity", 0.2);
+          }else {
+            return moveLeft(updatedBegining, updatedEnding);
+          }
+        });
 
       var leftButton = function(){
         if(self.stopLeftClick){
           leftImg.style("cursor", "not-allowed").style("opacity", 0.2);
-        }else {
-          leftImg.on("click" , function(d){
-            if(self.stopLeftClick){
-              leftImg.style("cursor", "not-allowed").style("opacity", 0.2);
-            }else {
-              return moveLeft(updatedBegining, updatedEnding);
-            }
-          });
         }
       };
       leftButton();
@@ -608,21 +607,21 @@ import Utils from '../../utils/Utils';
     //add right button
       var rightImg = gParent.select('g').append("image").attr("xlink:href", function(d) {
         return "styles/img/Chevron-Right.svg";
-      }).attr("x", width-25).attr("y", 50);
+      }).attr("x", width-25).attr("y", 50)
+        .on("click", function(d){
+          if(self.stopRightClick){
+            rightImg.style("cursor", "not-allowed").style("opacity", 0.2);
+          } else {
+            return (moveRight(updatedBegining, updatedEnding), rightClickAPICall(updatedBegining,updatedEnding,d));
+          }
+        });
 
       var rightButton = function(){    
         if(self.stopRightClick){
           rightImg.style("cursor", "not-allowed").style("opacity", 0.2);
-        } else {
+        }else {
           rightImg.style("cursor", "grab").style("opacity", 1);
-          rightImg.on("click", function(d){
-            if(self.stopRightClick){
-              rightImg.style("cursor", "not-allowed").style("opacity", 0.2);
-            } else {
-              return (moveRight(updatedBegining, updatedEnding), rightClickAPICall(updatedBegining,updatedEnding,d));
-            }
-          });
-        };
+        }
       };
       rightButton();
     }

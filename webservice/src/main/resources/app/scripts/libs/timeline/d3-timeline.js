@@ -332,9 +332,13 @@ import Utils from '../../utils/Utils';
       };
 
       var moveLeft = function(beginning, ending){
+        //multiply by 4 to move that many executions on single click
+        clickConstant = Utils.numberToMilliseconds(timeInterval, timeUnit) * 4;
+        
         updatedBegining = beginning + clickConstant;
         updatedEnding = ending + clickConstant;
         moveOp();
+        leftButton();
         rightButton();
       };
 
@@ -582,17 +586,17 @@ import Utils from '../../utils/Utils';
           .style("stroke-width", lineFormat.width);
       }
       //add left button
-      var leftButton = function(){
-        var leftImg =gParent.select('g').append("image").attr("xlink:href", function(d) {
-          return "styles/img/Chevron-Left.svg";
-        }).attr("x", 25).attr("y", 50);
+      var leftImg =gParent.select('g').append("image").attr("xlink:href", function(d) {
+        return "styles/img/Chevron-Left.svg";
+      }).attr("x", 25).attr("y", 50);
 
+      var leftButton = function(){
         if(self.stopLeftClick){
-          leftImg.style("cursor", "not-allowed");
+          leftImg.style("cursor", "not-allowed").style("opacity", 0.2);
         }else {
           leftImg.on("click" , function(d){
             if(self.stopLeftClick){
-              leftImg.style("cursor", "not-allowed");
+              leftImg.style("cursor", "not-allowed").style("opacity", 0.2);
             }else {
               return moveLeft(updatedBegining, updatedEnding);
             }
@@ -602,17 +606,18 @@ import Utils from '../../utils/Utils';
       leftButton();
 
     //add right button
-      var rightButton = function(){
-        var rightImg = gParent.select('g').append("image").attr("xlink:href", function(d) {
-          return "styles/img/Chevron-Right.svg";
-        }).attr("x", width-25).attr("y", 50);
+      var rightImg = gParent.select('g').append("image").attr("xlink:href", function(d) {
+        return "styles/img/Chevron-Right.svg";
+      }).attr("x", width-25).attr("y", 50);
 
+      var rightButton = function(){    
         if(self.stopRightClick){
-          rightImg.style("cursor", "not-allowed");
+          rightImg.style("cursor", "not-allowed").style("opacity", 0.2);
         } else {
+          rightImg.style("cursor", "grab").style("opacity", 1);
           rightImg.on("click", function(d){
             if(self.stopRightClick){
-              rightImg.style("cursor", "not-allowed");
+              rightImg.style("cursor", "not-allowed").style("opacity", 0.2);
             } else {
               return (moveRight(updatedBegining, updatedEnding), rightClickAPICall(updatedBegining,updatedEnding,d));
             }

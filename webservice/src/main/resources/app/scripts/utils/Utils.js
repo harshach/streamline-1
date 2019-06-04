@@ -283,6 +283,30 @@ const getTimeDiffInMinutes = function(end, start) {
   return  moment.duration(end.diff(start, 'minutes')).asMinutes();
 };
 
+const findBeginingEndingTime = function(startDate, start_time, end_time, lastDataObj, time_unit, time_interval, currentOffset){
+  let begining, ending, momentObj;
+  let timeUnit = time_unit.toLowerCase();
+  //checking to add s character at the end of minute/second/hour string
+  if(timeUnit[timeUnit.length - 1] !== 's'){
+    timeUnit += 's';
+  }
+  if(lastDataObj){
+    momentObj = moment(end_time);
+  } else {
+    momentObj = startDate ? moment(startDate.valueOf()) : moment(end_time);
+  }
+  //time manipulation as per local browser time offset
+  momentObj.add(-(currentOffset), 'minutes');
+  //to show timeline chart from right
+  momentObj.subtract(time_interval * 21, timeUnit);
+  begining = momentObj.valueOf();
+  //to always have 24 ticks in execution metrics and then scrolling works (to resolve overlapping issue)
+  ending = moment(moment(begining).toDate()).add(time_interval * 24, timeUnit).valueOf();
+  return {
+    begining, ending, timeUnit
+  };
+};
+
 const inputFieldsData = function(inputFields,nodeType, noNestedFields) {
   let options = [];
   const streams = new Streams(inputFields,nodeType);
@@ -1054,6 +1078,7 @@ export default {
   validateReconfigFlag,
   noSpecialCharString,
   getTimeDiffInMinutes,
+  findBeginingEndingTime,
   abbreviateNumber,
   string,
   dateTimeLabel,

@@ -123,29 +123,6 @@ export default class Metrics extends Component{
       onClick={this.handleExpandCollapse}
     ><i className={metricsPanelExpanded ? "fa fa-chevron-down" : "fa fa-chevron-up"}></i></button>;
   }
-  findBeginingEndingTime(startDate, start_time, lastDataObj, time_unit, time_interval, currentOffset){
-    let begining, ending, momentObj;
-    let timeUnit = time_unit.toLowerCase();
-    //checking to add s character at the end of minute/second/hour string
-    if(timeUnit[timeUnit.length - 1] !== 's'){
-      timeUnit += 's';
-    }
-    if(lastDataObj){
-      momentObj = moment(lastDataObj.executionDate);
-    } else {
-      momentObj = startDate ? moment(startDate.valueOf()) : moment(start_time);
-    }
-    //time manipulation as per local browser time offset
-    momentObj.add(-(currentOffset), 'minutes');
-    //to show timeline chart from right
-    momentObj.subtract(time_interval * 21, timeUnit);
-    begining = momentObj.valueOf();
-    //to always have 24 ticks in execution metrics and then scrolling works (to resolve overlapping issue)
-    ending = moment(moment(begining).toDate()).add(time_interval * 24, timeUnit).valueOf();
-    return {
-      begining, ending, timeUnit
-    };
-  }
   renderTimeline = () => {
     const {executionInfo, startDate, endDate,start_time, end_time,
       time_interval, time_unit, onSelectExecution
@@ -154,7 +131,7 @@ export default class Metrics extends Component{
       this.totalExecutions = executionInfo.totalResults;
       let currentOffset = new Date().getTimezoneOffset();
       let data = Utils.sortArray(executionInfo.executions, "executionDate", true);
-      let timeObj = this.findBeginingEndingTime(startDate, start_time, data[data.length - 1], time_unit, time_interval, currentOffset);
+      let timeObj = Utils.findBeginingEndingTime(startDate, start_time, end_time, data[data.length - 1], time_unit, time_interval, currentOffset);
       //check to update the timeline only if either of the dates have changed
       if(this.begining !== timeObj.begining || this.ending !== timeObj.ending){
         let timelineData = [];
@@ -214,6 +191,7 @@ export default class Metrics extends Component{
         //call API to get older executions only when the timeline is showing last 5 executions
         if(begining < this.executionTime && this.totalExecutions !== data.length){
           this.getOlderExecutions(begining, ending, interval, unit, timelineData, data, currentOffset);
+          this.props.handleClickCallback(begining,ending);
         }
       });
     if(this.timelineChart){

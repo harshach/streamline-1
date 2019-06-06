@@ -95,34 +95,7 @@ class WorkflowListingTable extends Component {
     this.context.router.push((Utils.isFromSharedProjects() ? 'shared-projects/' : 'projects/')+projectId+'/applications/' + Wid + '/view');
   }
 
-  downloadCSV = () => {
-    let csvString = "Name|Type|Data Center Status|Version|Owner|Last Modified";
-    const {data} = this.props;
-    data.map((workflowObj)=>{
-      let engine = Utils.getEngineById(workflowObj.engineId);
-      let statusArr = workflowObj.statusArr.map(status => status.namespaceName);
-      csvString += String.fromCharCode(13) + workflowObj.name + '|' + engine.displayName + '|' 
-                  + statusArr.join(',')
-                  + '|' + (workflowObj.config.properties['topology.owner'] || '---') + '|' + Utils.dateTimeLabel(workflowObj.timestamp).value;
-    });
-
-    var blob = new Blob([csvString], { type: 'text/csv;charset=utf-8;' });
-    if (navigator.msSaveBlob) { // IE 10+
-      navigator.msSaveBlob(blob, filename);
-    } else {
-      var link = document.createElement("a");
-      if (link.download !== undefined) { // feature detection
-        // Browsers that support HTML5 download attribute
-        var url = URL.createObjectURL(blob);
-        link.setAttribute("href", url);
-        link.setAttribute("download", "abc.csv");
-        link.style.visibility = 'hidden';
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-      }
-    }
-  }
+  
 
   getTable(){
     const {data,allACL} = this.props;
@@ -219,7 +192,6 @@ class WorkflowListingTable extends Component {
           );
         })}
       </Table>
-      <button onClick={this.downloadCSV.bind(this)}>Download CSV</button>
     </div>);
   }
 
@@ -938,6 +910,35 @@ class TopologyListingContainer extends Component {
     });
   }
 
+  downloadCSV = () => {
+    let csvString = "Name|Type|Data Center Status|Version|Owner|Last Modified";
+    const {entities} = this.state;
+    entities.map((workflowObj)=>{
+      let engine = Utils.getEngineById(workflowObj.engineId);
+      let statusArr = workflowObj.statusArr.map(status => status.namespaceName);
+      csvString += String.fromCharCode(13) + workflowObj.name + '|' + engine.displayName + '|' 
+                  + statusArr.join(',') + '|' + (workflowObj.versionName ? workflowObj.versionName : '')
+                  + '|' + (workflowObj.config.properties['topology.owner'] || '---') + '|' + Utils.dateTimeLabel(workflowObj.timestamp).value;
+    });
+
+    var blob = new Blob([csvString], { type: 'text/csv;charset=utf-8;' });
+    if (navigator.msSaveBlob) { // IE 10+
+      navigator.msSaveBlob(blob, filename);
+    } else {
+      var link = document.createElement("a");
+      if (link.download !== undefined) { // feature detection
+        // Browsers that support HTML5 download attribute
+        var url = URL.createObjectURL(blob);
+        link.setAttribute("href", url);
+        link.setAttribute("download", "abc.csv");
+        link.style.visibility = 'hidden';
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+      }
+    }
+  }
+
   render() {
     const {
       entities,
@@ -1000,6 +1001,7 @@ class TopologyListingContainer extends Component {
                         </InputGroup>
                       </FormGroup>
                     </div>
+                    <div className="add-btn text-center"><button className="actionDropdown text-medium btn btn-default" onClick={this.downloadCSV.bind(this)}><i className="fa fa-download"></i> &ensp;  Download</button></div>  
                     {hasEditCapability(accessCapabilities.APPLICATION) && (entities.length || filterValue) ?
                       <div className="add-btn text-center">
                         <DropdownButton title={btnIcon} id="actionDropdown" className="actionDropdown success text-medium" noCaret>

@@ -2295,7 +2295,7 @@ span.version {
 
 .search-container{
   float: left;
-  width: calc(100% - 181px);
+  width: calc(100% - 340px);
 }
 .add-btn{
   float: right;
@@ -2303,6 +2303,7 @@ span.version {
   width: 166px;
   height: 40px;
   background: #276EF1;
+  margin-left: 3px;
 }
 .add-btn a{
   color: #fff;

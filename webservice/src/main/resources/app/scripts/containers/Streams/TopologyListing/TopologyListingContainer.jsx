@@ -424,7 +424,7 @@ class TopologyListingContainer extends Component {
     } else {
       TopologyREST.getAllAvailableTopologies(sortKey, null, (pageIndex -1 ) * pageSize, pageSize)
         .then((result) => {
-          this.updateTopologyListWithPageChange(result); 
+          this.updateTopologyListWithPageChange(result);
         });
     }
   }

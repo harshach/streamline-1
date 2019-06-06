@@ -44,7 +44,7 @@ import BaseContainer from '../../BaseContainer';
 import NoData, {BeginNew} from '../../../components/NoData';
 import CommonNotification from '../../../utils/CommonNotification';
 import {toastOpt, accessCapabilities} from '../../../utils/Constants';
-import Paginate from '../../../components/Paginate';
+import Paginate from 'react-js-pagination';
 import Modal from '../../../components/FSModal';
 import AddProject from '../ProjectListing/AddProject';
 import AddWorkflowsToProject from '../ProjectListing/AddWorkflowsToProject';
@@ -56,6 +56,7 @@ import app_state from '../../../app_state';
 import {observer} from 'mobx-react';
 import {hasEditCapability, hasViewCapability,findSingleAclObj,handleSecurePermission} from '../../../utils/ACLUtils';
 import CommonShareModal from '../../../components/CommonShareModal';
+import TablePagination from '../../../components/TablePagination';
 
 @observer
 class WorkflowListingTable extends Component {
@@ -112,9 +113,6 @@ class WorkflowListingTable extends Component {
     return (<div className="table u-form">
       <Table
         className="table no-margin table-workflow"
-        currentPage={0}
-        itemsPerPage={data.length > 20 ? 20 : 0}
-        pageButtonLimit={5}
       >
         <Thead>
           <Th column="checkbox"><input type= "checkbox" checked={this.props.headerCheckbox} onChange={this.props.toggleHeaderCheckbox}></input></Th>
@@ -307,8 +305,8 @@ class TopologyListingContainer extends Component {
       },
       refIdArr: [],
       fetchLoader: true,
-      pageIndex: 0,
-      pageSize: 9,
+      pageIndex: 1,
+      pageSize: 10,
       cloneFromId: null,
       topologyData: null,
       checkEnvironment: false,
@@ -380,7 +378,9 @@ class TopologyListingContainer extends Component {
 
       stateObj.fetchLoader = false;
       stateObj.entities = resultEntities;
-      stateObj.pageIndex = 0;
+      stateObj.pageIndex = 1;
+      stateObj.entitiesCount = 12; // Remove this when count available from API
+
       stateObj.checkEnvironment = environmentFlag;
       stateObj.sourceCheck = sourceFlag ;
       stateObj.searchLoader = false;
@@ -401,6 +401,34 @@ class TopologyListingContainer extends Component {
 
       this.setState(stateObj);
     });
+  }
+
+  pageIndexChanged = (index) => {
+    const {pageIndex} = this.state;
+    if(pageIndex != index){
+      this.setState({pageIndex: index}, this.fetchProjects);
+    }
+  }
+
+  fetchProjects = () => {
+    const {pageIndex, pageSize} = this.state;
+    const sortKey = this.state.sorted.key;
+    const projectId = this.projectId;
+    if(projectId){
+      TopologyREST.getAllTopologyWithoutConfig(projectId, sortKey, null, (pageIndex - 1) * pageSize, pageSize )
+        .then((result) => {
+          let resultEntities = Utils.sortArray(result.entities.slice(), 'timestamp', false);
+          this.syncDatacenterStatus(resultEntities);
+          this.setState({entities: resultEntities});
+        });
+    } else {
+      TopologyREST.getAllAvailableTopologies(sortKey, null, (pageIndex -1 ) * pageSize, pageSize)
+        .then((result) => {
+          let resultEntities = Utils.sortArray(result.entities.slice(), 'timestamp', false);
+          this.syncDatacenterStatus(resultEntities);
+          this.setState({entities: resultEntities});
+        });
+    }
   }
 
   onFilterChange = (e) => {
@@ -890,6 +918,7 @@ class TopologyListingContainer extends Component {
       slideInput,
       pageSize,
       pageIndex,
+      entitiesCount,
       checkEnvironment,
       sourceCheck,
       refIdArr,
@@ -910,11 +939,21 @@ class TopologyListingContainer extends Component {
 
     const components = (splitData.length === 0)
     ? <NoData imgName={"default"} searchVal={filterValue} userRoles={app_state.user_profile}/>
-    : <WorkflowListingTable data ={entities} toggleHeaderCheckbox={this.toggleHeaderCheckbox}
-        handleCheckbox={this.handleCheckbox} projectId={this.projectId}
-        topologyAction={this.actionHandler} refIdArr={refIdArr} allACL={allACL}
-        headerCheckbox={isHeaderCheckbox}
-      />;
+    : <div> 
+        <WorkflowListingTable data ={entities} toggleHeaderCheckbox={this.toggleHeaderCheckbox}
+          handleCheckbox={this.handleCheckbox} projectId={this.projectId}
+          topologyAction={this.actionHandler} refIdArr={refIdArr} allACL={allACL}
+          headerCheckbox={isHeaderCheckbox}
+        /> 
+          <div className="text-center">
+            <Paginate onChange={this.pageIndexChanged.bind(this)} 
+                      activePage={pageIndex} 
+                      itemsCountPerPage={pageSize}
+                      totalItemsCount={entitiesCount}
+                      pageRangeDisplayed={5}>
+            </Paginate>
+          </div>
+      </div>;
 
     return (
       <BaseContainer ref="BaseContainer" routes={this.props.routes} headerContent={this.getHeaderContent()}>

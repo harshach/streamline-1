@@ -35,20 +35,20 @@
         "defaultValue": 20
       },
       {
-        "uiName": "Support Pre-defined Queries?",
+        "uiName": "Are the queries made from application/dashboard?",
         "fieldName": "supportPredefinedQueries",
         "isOptional": false,
-        "tooltip": "A flag to indicate if the RTA table supports pre-defined queries",
+        "tooltip": "A flag to indicate if the RTA table is queried from application/dashboard",
         "type": "boolean",
         "defaultValue": true
       },
       {
-        "uiName": "Support Adhoc Queries?",
+        "uiName": "Are the queries made for explorative purpose (QueryBuilder)?",
         "fieldName": "supportAdhocQueries",
         "isOptional": false,
-        "tooltip": "A flag to indicate if the RTA table supports adhoc queries",
+        "tooltip": "A flag to indicate if the RTA table is queried for explorative purpose (eg. from QueryBuilder)",
         "type": "boolean",
-        "defaultValue": true
+        "defaultValue": false
       },
       {
         "uiName": "Table Fields",

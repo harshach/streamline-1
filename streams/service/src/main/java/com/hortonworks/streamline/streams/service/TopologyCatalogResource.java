@@ -18,7 +18,6 @@ package com.hortonworks.streamline.streams.service;
 
 import com.codahale.metrics.annotation.Timed;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.hortonworks.streamline.common.Config;
 import com.hortonworks.streamline.common.exception.service.exception.request.BadRequestException;
 import com.hortonworks.streamline.common.exception.service.exception.request.EntityNotFoundException;
 import com.hortonworks.streamline.common.util.WSUtils;
@@ -72,7 +71,6 @@ import static com.hortonworks.streamline.streams.security.Permission.DELETE;
 import static com.hortonworks.streamline.streams.security.Permission.EXECUTE;
 import static com.hortonworks.streamline.streams.security.Permission.READ;
 import static com.hortonworks.streamline.streams.security.Permission.WRITE;
-import static java.util.stream.Collectors.toList;
 import static javax.ws.rs.core.Response.Status.CREATED;
 import static javax.ws.rs.core.Response.Status.OK;
 
@@ -87,6 +85,9 @@ public class TopologyCatalogResource {
     private final StreamCatalogService catalogService;
     private final TopologyActionsService actionsService;
     private final SecurityCatalogService securityCatalogService;
+
+    private final static int OFFSET = 0;
+    private final static int LIMIT  = 0;
 
 
     public TopologyCatalogResource(StreamlineAuthorizer authorizer,
@@ -389,12 +390,13 @@ public class TopologyCatalogResource {
     @Timed
     public Response listTopologiesByProjectId (@javax.ws.rs.QueryParam("projectId") Long projectId,
                                                @Context SecurityContext securityContext,
+                                               @javax.ws.rs.QueryParam("withcount") Boolean withCount,
                                                @DefaultValue("0")   @javax.ws.rs.QueryParam("offset") Long offset,
                                                @DefaultValue("10")  @javax.ws.rs.QueryParam("limit") Long limit) {
         if (projectId == null || projectId == StreamCatalogService.PLACEHOLDER_ID) {
-            return listTopologies(securityContext, StreamCatalogService.PLACEHOLDER_ID, offset, limit);
+            return listTopologies(securityContext, StreamCatalogService.PLACEHOLDER_ID, offset, limit, withCount);
         } else {
-            return listTopologies(securityContext, projectId, offset, limit);
+            return listTopologies(securityContext, projectId, offset, limit, withCount);
         }
     }
 
@@ -873,19 +875,36 @@ public class TopologyCatalogResource {
         return response;
     }
 
-    private Response listTopologies (SecurityContext securityContext, Long projectId, long offset, long limit) {
+    private Response listTopologies (SecurityContext securityContext, Long projectId, long offset, long limit, boolean withCount) {
         boolean topologyUser = SecurityUtil.hasRole(authorizer, securityContext, Roles.ROLE_TOPOLOGY_USER);
         Collection<Topology> topologies;
+        Collection<Topology>  topologiesWithCount = Collections.EMPTY_LIST;
         if (projectId == null) {
             topologies = catalogService.listTopologies(offset, limit);
+            if (withCount) {
+                topologiesWithCount = catalogService.listTopologies(OFFSET, LIMIT);
+            }
         } else {
             topologies = catalogService.listTopologies(projectId, offset, limit);
+            if (withCount) {
+                topologiesWithCount = catalogService.listTopologies(projectId, OFFSET, LIMIT);
+            }
         }
 
         if (topologyUser) {
             LOG.debug("Returning all topologies since user has role: {}", Roles.ROLE_TOPOLOGY_USER);
         } else {
             topologies = SecurityUtil.filter(authorizer, securityContext, NAMESPACE, topologies, READ);
+            if (withCount) {
+                topologiesWithCount = SecurityUtil.filter(authorizer, securityContext, NAMESPACE, topologiesWithCount, READ);
+            }
+        }
+
+        if (withCount) {
+            TopologiesWithCountDto topologiesWithCountDto = new TopologiesWithCountDto();
+            topologiesWithCountDto.setTotalRecords(topologiesWithCount.size());
+            topologiesWithCountDto.setTopologies(topologies);
+            return WSUtils.respondEntity(topologiesWithCountDto, OK);
         }
 
         Response response;

@@ -63,7 +63,11 @@ public class SqlSelectQuery extends AbstractSelectQuery {
         if (columns != null) {
             sql += " WHERE " + join(getColumnNames(columns, "%s = ?"), " AND ");
         }
-        sql += " LIMIT " + limit + " OFFSET " + offset;
+        if (limit > 0) {
+            sql += " LIMIT " + limit + " OFFSET " + offset;
+        } else {
+            sql += " OFFSET " + offset;
+        }
         LOG.debug(sql);
         return sql;
     }

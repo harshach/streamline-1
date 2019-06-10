@@ -20,6 +20,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.hortonworks.registries.common.Schema;
 import com.hortonworks.streamline.storage.PrimaryKey;
 import com.hortonworks.streamline.storage.annotation.SchemaIgnore;
+import com.hortonworks.streamline.storage.annotation.SearchableField;
 import com.hortonworks.streamline.storage.annotation.StorableEntity;
 import com.hortonworks.streamline.storage.catalog.AbstractStorable;
 
@@ -39,6 +40,8 @@ public class User extends AbstractStorable {
     public static final String EMAIL = "email";
 
     private Long id;
+
+    @SearchableField
     private String name;
     private String email;
     // any metadata that needs to be associated with the role

@@ -6,6 +6,7 @@ import com.hortonworks.streamline.common.util.WSUtils;
 import com.hortonworks.streamline.storage.Storable;
 import com.hortonworks.streamline.storage.util.StorageUtils;
 import com.hortonworks.streamline.streams.actions.topology.service.TopologyActionsService;
+import com.hortonworks.streamline.streams.catalog.Engine;
 import com.hortonworks.streamline.streams.cluster.catalog.Cluster;
 import com.hortonworks.streamline.streams.cluster.catalog.Namespace;
 import com.hortonworks.streamline.streams.catalog.Topology;
@@ -15,6 +16,7 @@ import com.hortonworks.streamline.streams.cluster.service.EnvironmentService;
 import com.hortonworks.streamline.streams.metrics.topology.service.TopologyMetricsService;
 import com.hortonworks.streamline.streams.security.SecurityUtil;
 import com.hortonworks.streamline.streams.security.StreamlineAuthorizer;
+import com.hortonworks.streamline.streams.security.service.SecurityCatalogService;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -47,22 +49,38 @@ public class SearchCatalogResource {
     private final EnvironmentService environmentService;
     private final TopologyActionsService actionsService;
     private final TopologyMetricsService metricsService;
+    private final SecurityCatalogService securityCatalogService;
+    private final String OWNER = "owner";
 
     public SearchCatalogResource(StreamlineAuthorizer authorizer,
                                  StreamCatalogService catalogService,
                                  EnvironmentService environmentService,
                                  TopologyActionsService actionsService,
-                                 TopologyMetricsService metricsService) {
+                                 TopologyMetricsService metricsService,
+                                 SecurityCatalogService securityCatalogService) {
         this.authorizer = authorizer;
         this.catalogService = catalogService;
         this.environmentService = environmentService;
         this.actionsService = actionsService;
         this.metricsService = metricsService;
+        this.securityCatalogService = securityCatalogService;
     }
 
     // used internally to execute the different list commands in a seamless way
     private Supplier<Collection<Storable>> listCommand(String namespace) {
-        switch (namespace) {
+        switch (namespace.toLowerCase()) {
+            case Engine.NAMESPACE:
+                return () -> {
+                    Collection<Storable> res = new ArrayList<>();
+                    res.addAll(catalogService.listEngines());
+                    return res;
+                };
+            case OWNER:
+                return () -> {
+                    Collection<Storable> res = new ArrayList<>();
+                    res.addAll(securityCatalogService.listUsers());
+                    return res;
+                };
             case Topology.NAMESPACE:
                 return () -> {
                     Collection<Storable> res = new ArrayList<>();

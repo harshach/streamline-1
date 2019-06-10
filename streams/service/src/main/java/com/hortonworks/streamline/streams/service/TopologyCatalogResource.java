@@ -17,10 +17,13 @@
 package com.hortonworks.streamline.streams.service;
 
 import com.codahale.metrics.annotation.Timed;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.hortonworks.streamline.common.Config;
 import com.hortonworks.streamline.common.exception.service.exception.request.BadRequestException;
 import com.hortonworks.streamline.common.exception.service.exception.request.EntityNotFoundException;
 import com.hortonworks.streamline.common.util.WSUtils;
+import com.hortonworks.streamline.streams.actions.TopologyActions;
 import com.hortonworks.streamline.streams.actions.topology.service.TopologyActionsService;
 import com.hortonworks.streamline.streams.catalog.*;
 import com.hortonworks.streamline.streams.catalog.service.StreamCatalogService;
@@ -59,6 +62,7 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.SecurityContext;
 import javax.ws.rs.core.UriInfo;
 import java.io.ByteArrayInputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
 import java.nio.charset.StandardCharsets;
@@ -832,8 +836,34 @@ public class TopologyCatalogResource {
         addAclForTopology(importedTopology.getId(), importedTopology.getOwnergroups());
         return WSUtils.respondEntity(importedTopology, OK);
     }
+
     private void updateOwner(TopologyData topologyData, SecurityContext securityContext) {
         topologyData.getConfig().put(PIPER_TOPOLOGY_CONFIG_OWNER, securityCatalogService.getCurrentUserName(securityContext));
+    }
+
+    @POST
+    @Consumes(MediaType.MULTIPART_FORM_DATA)
+    @Path("/topologies/actions/importPiperContract")
+    @Timed
+    public Response importPiperContract(@FormDataParam("file") final InputStream inputStream,
+                                        @javax.ws.rs.QueryParam("testMode") boolean testMode,
+                                        @Context SecurityContext securityContext) throws Exception {
+
+        PiperContractImporter pci = new PiperContractImporter();
+        return pci.importTopology(inputStream, testMode, securityContext);
+    }
+
+    @DELETE
+    @Path("/topologies/importedPiperContract/{topologyId}")
+    @Timed
+    public Response removePiperContractTopology(@PathParam("topologyId") Long topologyId,
+                                                @javax.ws.rs.QueryParam("onlyCurrent") boolean onlyCurrent,
+                                                @javax.ws.rs.QueryParam("force") boolean force,
+                                                @Context SecurityContext securityContext,
+                                                @Session HttpSession httpSession) {
+
+        PiperContractImporter pci = new PiperContractImporter();
+        return pci.removeTopology(topologyId, onlyCurrent, force, securityContext, httpSession);
     }
 
     @GET
@@ -916,4 +946,196 @@ public class TopologyCatalogResource {
         return response;
     }
 
+    /*
+        Temporary helper class for Piper Contract Migration.  This should be removed post migration (~August 2019)
+     */
+    public class PiperContractImporter {
+
+        // Import Piper Contract, set runtime id map so that Topology is linked with already running Managed Pipeline.  Add
+        // owner ldap groups as necessary and set ACLs.
+        public Response importTopology(InputStream inputStream, Boolean testMode, SecurityContext securityContext) throws Exception {
+
+            LOG.debug("** PiperContractImporter.importTopology ********************************************");
+
+            SecurityUtil.checkRole(authorizer, securityContext, Roles.ROLE_TOPOLOGY_ADMIN);
+
+            TopologyData topologyData = new ObjectMapper().readValue(inputStream, TopologyData.class);
+
+            Config pipelineConfig = topologyData.getConfig();
+
+            if (pipelineConfig == null) {
+                throw new IllegalArgumentException("Missing config");
+            }
+
+            String topologyName = topologyData.getTopologyName();
+
+            if (topologyName == null) {
+                throw new IllegalArgumentException("Missing topologyName");
+            }
+
+            String namespaceIdStr = pipelineConfig.get("topology.namespaceIds");
+
+            if (StringUtils.isEmpty(namespaceIdStr)) {
+                throw new IllegalArgumentException("Missing config.topology.namespaceIds");
+            }
+
+            List<Long> namespaceIds = namespaceIdsToList(namespaceIdStr);
+            Long namespaceId = namespaceIds.get(0);
+
+            if (namespaceId == null) {
+                throw new IllegalArgumentException("Need at least one namepspace id");
+            }
+
+            // Type in config is String
+            Long projectId = pipelineConfig.getLong("topology.projectId");
+
+            Topology importedTopology = catalogService.importTopology(namespaceId, projectId, topologyData);
+
+            // Add permisions for owner to acl table
+            SecurityUtil.addAcl(authorizer, securityContext, Topology.NAMESPACE, importedTopology.getId(),
+                    EnumSet.allOf(Permission.class));
+
+
+            String groups = pipelineConfig.get("topology.ownerLDAPGroups");
+            if (StringUtils.isNotEmpty(groups)) {
+                Set<String> groupSet = new HashSet<>(Arrays.asList(groups.split(",")));
+                securityCatalogService.addMissingGroupsFromUser(groupSet);
+                addAclForTopology(importedTopology.getId(), groups);
+            }
+
+            // Add OwnerGroup level ACL
+            // FIXME from original import method, it doesn't work leaving for now
+            addAclForTopology(importedTopology.getId(), importedTopology.getOwnergroups());
+
+            String runtimeId = pipelineConfig.get("topology.runtimeId");
+            if (StringUtils.isNotEmpty(runtimeId) && !testMode) {
+
+                List<TopologyActions.DeployedRuntimeId> deployedRuntimeIds = new ArrayList<>();
+
+                for (Long deployedNamespaceId: namespaceIds) {
+                    deployedRuntimeIds.add(new TopologyActions.DeployedRuntimeId(deployedNamespaceId, runtimeId));
+                }
+
+                // Link the topology to an the already running contract.
+                // Note:  deleting the topology through UI after linking will delete a live Piper Contract
+                actionsService.updateRuntimeApplicationId(importedTopology, deployedRuntimeIds);
+
+                // Set the import state to TOPOLOGY_STATE_DEPLOYED, metrics should be live at this point
+                setImportState(importedTopology);
+
+                // deploy topology (this is effectively a re-deploy) to confirm working
+                actionsService.deployTopology(importedTopology, null);
+
+                // generate a new version to be consistent with UI which always creates a draft after deploy
+                save(importedTopology);
+            }
+
+            return WSUtils.respondEntity(importedTopology, OK);
+        }
+
+
+        // Remove an imported Piper Contract.  We don't want to delete the MP on Piper, so this method removes
+        // the topology and the runtime app id.
+        public Response removeTopology(Long topologyId, boolean onlyCurrent, boolean force, SecurityContext securityContext,
+                                       HttpSession httpSession) {
+
+            Set<String> userGroups = SecurityUtil.getAllUserGroups(httpSession);
+            SecurityUtil.checkRoleOrPermissions(authorizer, securityContext, Roles.ROLE_TOPOLOGY_SUPER_ADMIN, userGroups,
+                    NAMESPACE, topologyId, DELETE);
+
+            Topology result = catalogService.getTopology(topologyId);
+            if (result == null) {
+                throw EntityNotFoundException.byId(topologyId.toString());
+            }
+
+            // We don't want to delete the MP on Piper, so don't call killTopology
+
+            /*
+            Collection<TopologyRuntimeIdMap> topologyRuntimeIdMapList = actionsService.getRuntimeTopologyId(result);
+            if (!force && !result.getNamespaceId().equals(EnvironmentService.TEST_ENVIRONMENT_ID)
+                    && !topologyRuntimeIdMapList.isEmpty()) {
+                String asUser = WSUtils.getUserFromSecurityContext(securityContext);
+                actionsService.killTopology(result, asUser);
+            }
+            */
+
+            catalogService.removeTopologyRuntimeIdMap(topologyId);
+            Response response;
+            if (onlyCurrent) {
+                response = removeCurrentTopologyVersion(topologyId);
+            } else {
+                response = removeAllTopologyVersions(topologyId);
+            }
+            SecurityUtil.removeAcl(authorizer, securityContext, NAMESPACE, topologyId);
+            return response;
+
+        }
+
+        private List<Long> namespaceIdsToList(String namespaceIdStr) {
+            LOG.debug("** importTopology ********************************************");
+            List<Long> regions = null;
+            if (!StringUtils.isEmpty(namespaceIdStr)) {
+                try {
+                    ObjectMapper mapper = new ObjectMapper();
+                    regions = mapper.readValue(namespaceIdStr, new TypeReference<List<Long>>() {
+                    });
+                } catch(IOException e) {
+                    throw new IllegalArgumentException("Failed to parse topology deployment settings for");
+                }
+            }
+            return regions;
+
+        }
+
+        private void setImportState(Topology topology) {
+            LOG.debug("** setImportState ********************************************");
+            com.hortonworks.streamline.streams.catalog.topology.state.TopologyState catalogState =
+                    new com.hortonworks.streamline.streams.catalog.topology.state.TopologyState();
+
+            catalogState.setName("TOPOLOGY_STATE_DEPLOYED");
+            catalogState.setTopologyId(topology.getId());
+            catalogState.setDescription("Migrated");
+            LOG.debug("Topology id: {}, state: {}", topology.getId(), catalogState);
+            actionsService.getCatalogService().addOrUpdateTopologyState(topology.getId(), catalogState);
+        }
+
+        private void save(Topology topology) {
+            LOG.debug("** save ********************************************");
+            Optional<TopologyVersion> currentVersion = Optional.empty();
+            Long topologyId = topology.getId();
+            // Copied from save endpoint, delete after contract migration
+            try {
+                currentVersion = catalogService.getCurrentTopologyVersionInfo(topologyId);
+                if (!currentVersion.isPresent()) {
+                    throw new IllegalArgumentException("Current version is not available for topology id: " + topologyId);
+                }
+                TopologyVersion versionInfo = new TopologyVersion();
+                // update the current version with the new version info.
+                versionInfo.setTopologyId(topologyId);
+                Optional<TopologyVersion> latest = catalogService.getLatestVersionInfo(topologyId);
+                int suffix;
+                if (latest.isPresent()) {
+                    suffix = latest.get().getVersionNumber() + 1;
+                } else {
+                    suffix = 1;
+                }
+                versionInfo.setName(VERSION_PREFIX + suffix);
+                if (versionInfo.getDescription() == null) {
+                    versionInfo.setDescription("");
+                }
+                if (versionInfo.getDagThumbnail() == null) {
+                    versionInfo.setDagThumbnail("");
+                }
+                TopologyVersion savedVersion = catalogService.addOrUpdateTopologyVersionInfo(
+                        currentVersion.get().getId(), versionInfo);
+                catalogService.cloneTopologyVersion(topologyId, savedVersion.getId());
+            } catch (Exception ex) {
+                // restore the current version
+                if (currentVersion.isPresent()) {
+                    catalogService.addOrUpdateTopologyVersionInfo(currentVersion.get().getId(), currentVersion.get());
+                }
+                throw ex;
+            }
+        }
+    }
 }

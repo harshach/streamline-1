@@ -83,6 +83,7 @@ public class ManagedPipelineGenerator extends TopologyDagVisitor {
     private static final String UI_DATE_FORMAT = "yyyy-MM-dd HH:mm:ss";
     private static final String PIPER_DATE_FORMAT = "yyyy-MM-dd'T'HH:mm:ss'Z'";
     public static final String PIPER_EXECUTION_DATE_FORMAT = "yyyy-MM-dd'T'HH:mm";
+    private static final String MANAGED_PIPELINE_JSON_VERSION = "1.0";
 
     private static final long MIN_SCHEDULE_INTERVAL = 120;
 
@@ -126,6 +127,7 @@ public class ManagedPipelineGenerator extends TopologyDagVisitor {
     public Pipeline generatePipeline() {
         Config topologyConfig = this.topology.getConfig();
         Pipeline pipeline = new Pipeline();
+        pipeline.setJsonVersion(MANAGED_PIPELINE_JSON_VERSION);
         configurePipelineSettings(topologyConfig, pipeline);
         configureTasks(pipeline);
         return pipeline;

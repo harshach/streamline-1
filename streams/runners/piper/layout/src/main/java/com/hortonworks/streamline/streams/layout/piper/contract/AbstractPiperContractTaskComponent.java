@@ -38,9 +38,11 @@ public abstract class AbstractPiperContractTaskComponent extends GenericPiperTas
         setTaskClass(task);
         TaskParams taskParams = new TaskParams();
         Source source = generateSource();
-        Destination destination = generateDestination();
         taskParams.setParams(SOURCE_TASK_PARAM, source);
-        taskParams.setParams(DESTINATION_TASK_PARAM, destination);
+        Destination destination = generateDestination();
+        if (destination != null) {
+            taskParams.setParams(DESTINATION_TASK_PARAM, destination);
+        }
         task.setTaskParams(taskParams);
         setTemplateParams(task);
         return task;

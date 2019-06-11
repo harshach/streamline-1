@@ -13,6 +13,7 @@
 **/
 
 import _ from 'lodash';
+import moment from 'moment';
 
 let ValidationRules = {
   required: (value, form, component) => {
@@ -44,6 +45,17 @@ let ValidationRules = {
         pattern.test(value) ? result : result = "Invalid Email";
         return result;
       }
+    }
+  },
+  datetime: (value, form, component) => {
+    if(!value.trim()){
+      return '';
+    } else {
+      if( typeof value === "string"){
+        let date = new moment(value, "mm-dd-yy hh:mm:ss");
+        return date.isValid() ? '' : 'Date or time is not in proper format';
+      }
+      return '';
     }
   }
 };

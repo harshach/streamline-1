@@ -26,22 +26,28 @@ public class RTARestAPIClient implements DataSchemaServiceClient {
     private static final String RTA_TABLE_PATH = "tables/";
     private static final String RTA_TABLE_DEFINITION_PATH = "tables/definitions/";
     private static final String RTA_TABLE_DEPLOY_PATH = "tables/%s/deployments/";
+    public static final String RPC_ROUTING_ZONE = "Rpc-Routing-Zone";
 
     private final String apiRootUrl;
     private final Subject subject;
     private final Client client;
+    private final String muttleyName;
 
-    private final Map<String, String> rtaHeaders;
+    private Map<String, String> rtaHeaders;
 
     public RTARestAPIClient(String apiRootUrl, String muttleyName, Subject subject) {
         this.apiRootUrl = apiRootUrl;
         this.client = ClientBuilder.newClient(new ClientConfig());
         this.subject = subject;
+        this.muttleyName = muttleyName;
 
-        Map<String, String> headersMap = new HashMap<>();
-        headersMap.put(RPC_CALLER, "uworc");
-        headersMap.put(RPC_SERVICE, muttleyName);
-        rtaHeaders = Collections.unmodifiableMap(headersMap);
+        rtaHeaders = new HashMap<>();
+        rtaHeaders.put(RPC_CALLER, "uworc");
+        rtaHeaders.put(RPC_SERVICE, muttleyName);
+    }
+
+    public void addToRequestHeader(String key, String value) {
+        rtaHeaders.put(key, value);
     }
 
     @Override

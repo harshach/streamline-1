@@ -25,7 +25,6 @@ import '../styles/css/bootstrap.css';
 import 'animate.css/animate.css';
 import 'bootstrap-daterangepicker/daterangepicker.css';
 import 'react-select/dist/react-select.css';
-import 'react-bootstrap-switch/dist/css/bootstrap3/react-bootstrap-switch.min.css';
 import '../styles/css/toastr.min.css';
 import 'codemirror/lib/codemirror.css';
 import 'codemirror/addon/lint/lint.css';
@@ -33,6 +32,8 @@ import 'codemirror/addon/hint/show-hint.css';
 import '../styles/css/customScroll.css';
 import '../styles/css/paper-bootstrap-wizard.css';
 import '../styles/css/stepzilla.css';
+import "../styles/css/datepicker.css";
+import '../styles/css/toggleSwitch.css';
 import '../styles/css/style.css';
 import '../styles/css/graph-style.css';
 

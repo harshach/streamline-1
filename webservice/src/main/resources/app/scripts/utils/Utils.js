@@ -391,6 +391,9 @@ const genFields = function(fieldsJSON, _fieldName = [], FormData = {}, inputFiel
       if (d.hint !== undefined && d.hint.toLowerCase().indexOf("email") !== -1) {
         validators.push('email');
       }
+      if(d.type == "customdatetimerangepicker"){
+        validators.push('datetime');
+      }
       fields.push(
         <Comp label={d.uiName} _ref={d.fieldName} value={d.fieldName/*_name.join('.')*/} valuePath={_name.join('.')} key={_name.join('.')} validation={validators} fieldAttr={{
           options: options

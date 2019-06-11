@@ -16,6 +16,7 @@ import React, {Component} from 'react';
 import d3 from 'd3';
 import d3Tip from 'd3-tip';
 import _ from 'lodash';
+import Utils from '../../utils/Utils';
 
 (function () {
   d3.timeline = function() {
@@ -80,8 +81,11 @@ import _ from 'lodash';
       showAxisNav = false,
       showAxisCalendarYear = false,
       axisBgColor = "white", initialDrag = 0,offset = 0,initialScaleDrag=0,
-      chartData = {}, clickConstant = 100000, moveConstant = 5000;
+      chartData = {}, clickConstant = 0, moveConstant = 5000,
+      rightClickAPICall = function(){};
 
+    self.stopLeftClick = true;
+    self.stopRightClick = true;
 
     var wrap = function(text) {
       text.each(function(){
@@ -296,41 +300,56 @@ import _ from 'lodash';
       }
 
       var dataPos = function(d) {
-        if(d < 58 || d > (gParentSize.width - 40)){
+        if(d < 58){
+          self.stopRightClick = false;
           return -100;
-        }else {
+        } else if(d > (gParentSize.width - 45)){
+          self.stopLeftClick = false;
+          return -100;
+        } else {
           return d;
         }
       };
       var move = function() {
-        let translate = d3.event.translate[0];
-        if(offset){
-          translate = translate - offset;
-          offset += translate;
-        }
+        if(!self.stopLeftClick && !self.stopRightClick){
+          let translate = d3.event.translate[0];
+          if(offset){
+            translate = translate - offset;
+            offset += translate;
+          }
 
-        var diff = d3.event.translate[0] - initialScaleDrag;
-        if(diff == 0){
-          return;
-        }else{
-          updatedBegining -= (moveConstant)*diff;
-          updatedEnding -= (moveConstant)*diff;
+          var diff = d3.event.translate[0] - initialScaleDrag;
+          if(diff == 0){
+            return;
+          }else{
+            updatedBegining -= (moveConstant)*diff;
+            updatedEnding -= (moveConstant)*diff;
+          }
+          moveOp();
+          initialDrag = d3.event.translate[0];
+          initialScaleDrag = d3.event.translate[0];
         }
-        moveOp();
-        initialDrag = d3.event.translate[0];
-        initialScaleDrag = d3.event.translate[0];
       };
 
       var moveLeft = function(beginning, ending){
+        //multiply by 4 to move that many executions on single click
+        clickConstant = Utils.numberToMilliseconds(timeInterval, timeUnit) * 4;
+
         updatedBegining = beginning + clickConstant;
         updatedEnding = ending + clickConstant;
         moveOp();
+        leftButton();
+        rightButton();
       };
 
       var moveRight = function(beginning,ending){
+        //multiply by 4 to move that many executions on single click
+        clickConstant = Utils.numberToMilliseconds(timeInterval, timeUnit) * 4;
+
         updatedBegining = beginning - clickConstant;
         updatedEnding = ending - clickConstant;
         moveOp();
+        leftButton();
       };
 
       var moveOp = function(){
@@ -341,6 +360,8 @@ import _ from 'lodash';
           if(initialDrag){
             offset = JSON.parse(JSON.stringify(initialDrag));
           }
+          self.stopLeftClick = true;
+          self.stopRightClick = true;
           elems.forEach((obj)=>{
             d3.select(obj).attr("x", (d)=>{
               d.position = getXPos(d);
@@ -359,6 +380,8 @@ import _ from 'lodash';
       self.tooltip = d3.select("body").append("div").attr("class", "timeline-tooltip")
                       .style("display", 'none');
 
+      self.stopLeftClick = true;
+      self.stopRightClick = true;
       // draw the chart
       g.each(function(d, i) {
         chartData = d;
@@ -428,15 +451,6 @@ import _ from 'lodash';
               return d.id ? d.id : "timelineItem_"+index+"_"+i;
             })
           ;
-
-          // g.selectAll("svg").data(data).enter()
-          //   .append("text")
-          //   .attr("x", getXTextPos)
-          //   .attr("y", getStackTextPosition)
-          //   .text(function(d) {
-          //     return d.label;
-          //   })
-          // ;
 
           if (rowSeparatorsColor) {
             var lineYAxis = ( itemHeight + itemMargin / 2 + margin.top + (itemHeight + itemMargin) * yAxisMapping[index]);
@@ -572,18 +586,44 @@ import _ from 'lodash';
           .style("stroke-width", lineFormat.width);
       }
       //add left button
-      gParent.select('g').append("image").attr("xlink:href", function(d) {
+      var leftImg =gParent.select('g').append("image").attr("xlink:href", function(d) {
         return "styles/img/Chevron-Left.svg";
-      }).attr("x", 25).attr("y", 50).on("click" , function(d){
-        return moveLeft(updatedBegining, updatedEnding);
-      });
+      }).attr("x", 25).attr("y", 50)
+        .on("click" , function(d){
+          if(self.stopLeftClick){
+            leftImg.style("cursor", "not-allowed").style("opacity", 0.2);
+          }else {
+            return moveLeft(updatedBegining, updatedEnding);
+          }
+        });
+
+      var leftButton = function(){
+        if(self.stopLeftClick){
+          leftImg.style("cursor", "not-allowed").style("opacity", 0.2);
+        }
+      };
+      leftButton();
 
     //add right button
-      gParent.select('g').append("image").attr("xlink:href", function(d) {
+      var rightImg = gParent.select('g').append("image").attr("xlink:href", function(d) {
         return "styles/img/Chevron-Right.svg";
-      }).attr("x", width-25).attr("y", 50).on("click", function(d){
-        return moveRight(updatedBegining, updatedEnding);
-      });
+      }).attr("x", width-25).attr("y", 50)
+        .on("click", function(d){
+          if(self.stopRightClick){
+            rightImg.style("cursor", "not-allowed").style("opacity", 0.2);
+          } else {
+            return (moveRight(updatedBegining, updatedEnding), rightClickAPICall(updatedBegining,updatedEnding,d));
+          }
+        });
+
+      var rightButton = function(){
+        if(self.stopRightClick){
+          rightImg.style("cursor", "not-allowed").style("opacity", 0.2);
+        }else {
+          rightImg.style("cursor", "grab").style("opacity", 1);
+        }
+      };
+      rightButton();
     }
 
     // SETTINGS
@@ -821,6 +861,12 @@ import _ from 'lodash';
       navigateLeft = navigateBackwards;
       navigateRight = navigateForwards;
       showAxisNav = !showAxisNav;
+      return timeline;
+    };
+
+    timeline.rightClick = function (x){
+      if (!arguments.length){ return rightClickAPICall;}
+      rightClickAPICall = x;
       return timeline;
     };
 

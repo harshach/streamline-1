@@ -32,26 +32,30 @@ const TopologyREST = {
         return response.json();
       });
   },
-  getAllAvailableTopologies(sort, options) {
+  getAllAvailableTopologies(sort, options, offset, limit) {
     options = options || {};
     options.method = options.method || 'GET';
     options.credentials = 'same-origin';
-    let url = baseUrl + 'topologies';
+    offset = offset || 0;
+    limit = limit || 10;
+    let url = baseUrl + 'topologies?offset=' + offset + '&limit=' + limit + '&withcount=true';
     if(sort){
-      url = baseUrl + 'topologies?sort=' + sort;
+      url = baseUrl + 'topologies?sort=' + sort + '&offset=' + offset + '&limit=' + limit + '&withcount=true';
     }
     return fetch(url, options)
       .then((response) => {
         return response.json();
       });
   },
-  getAllTopologyWithoutConfig(projectId, sort, options) {
+  getAllTopologyWithoutConfig(projectId, sort, options, offset, limit) {
     options = options || {};
     options.method = options.method || 'GET';
     options.credentials = 'same-origin';
-    let url = baseUrl + 'projects/'+projectId+'/topologies';
+    offset = offset || 0;
+    limit = limit || 10;
+    let url = baseUrl + 'projects/'+projectId+'/topologies?offset=' + offset + '&limit=' + limit + '&withcount=true';
     if(sort){
-      url = baseUrl + 'projects/'+projectId+'/topologies?sort=' + sort;
+      url = baseUrl + 'projects/'+projectId+'/topologies?sort=' + sort + '&offset=' + offset + '&limit=' + limit + '&withcount=true';
     }
     return fetch(url, options)
       .then((response) => {

@@ -379,7 +379,7 @@ class TopologyListingContainer extends Component {
       }
 
       stateObj.fetchLoader = false;
-      stateObj.entities = results[2].topologies;
+      stateObj.entities = resultEntities;
       stateObj.pageIndex = 1;
       stateObj.entitiesCount = recordsCount;
 
@@ -419,20 +419,21 @@ class TopologyListingContainer extends Component {
     if(projectId){
       TopologyREST.getAllTopologyWithoutConfig(projectId, sortKey, null, (pageIndex - 1) * pageSize, pageSize )
         .then((result) => {
-          let records = result.totalRecords ? result.topologies : result.entities;
-          let resultEntities = Utils.sortArray(records.slice(), 'timestamp', false);
-          this.syncDatacenterStatus(resultEntities);
-          this.setState({entities: resultEntities});
+          this.updateTopologyListWithPageChange(result);
         });
     } else {
       TopologyREST.getAllAvailableTopologies(sortKey, null, (pageIndex -1 ) * pageSize, pageSize)
         .then((result) => {
-          let records = result.totalRecords ? result.topologies : result.entities;
-          let resultEntities = Utils.sortArray(records.slice(), 'timestamp', false);
-          this.syncDatacenterStatus(resultEntities);
-          this.setState({entities: resultEntities});
+          this.updateTopologyListWithPageChange(result); 
         });
     }
+  }
+
+  updateTopologyListWithPageChange = (result) => {
+    let records = result.totalRecords ? result.topologies : result.entities;
+    let resultEntities = Utils.sortArray(records.slice(), 'timestamp', false);
+    this.syncDatacenterStatus(resultEntities);
+    this.setState({entities: resultEntities});
   }
 
   onFilterChange = (e) => {
@@ -1010,7 +1011,7 @@ class TopologyListingContainer extends Component {
                         </InputGroup>
                       </FormGroup>
                     </div>
-                    <div className="add-btn text-center"><button className="actionDropdown text-medium btn btn-default" onClick={this.downloadCSV.bind(this)}><i className="fa fa-download"></i> &ensp;  Download</button></div>  
+                    {/* <div className="add-btn text-center"><button className="actionDropdown text-medium btn btn-default" onClick={this.downloadCSV.bind(this)}><i className="fa fa-download"></i> &ensp;  Download</button></div>   */}
                     {hasEditCapability(accessCapabilities.APPLICATION) && (entities.length || filterValue) ?
                       <div className="add-btn text-center">
                         <DropdownButton title={btnIcon} id="actionDropdown" className="actionDropdown success text-medium" noCaret>

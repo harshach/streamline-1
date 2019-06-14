@@ -44,7 +44,7 @@ import BaseContainer from '../../BaseContainer';
 import NoData, {BeginNew} from '../../../components/NoData';
 import CommonNotification from '../../../utils/CommonNotification';
 import {toastOpt, accessCapabilities} from '../../../utils/Constants';
-import Paginate from '../../../components/Paginate';
+import Paginate from 'react-js-pagination';
 import Modal from '../../../components/FSModal';
 import AddProject from '../ProjectListing/AddProject';
 import AddWorkflowsToProject from '../ProjectListing/AddWorkflowsToProject';
@@ -95,6 +95,8 @@ class WorkflowListingTable extends Component {
     this.context.router.push((Utils.isFromSharedProjects() ? 'shared-projects/' : 'projects/')+projectId+'/applications/' + Wid + '/view');
   }
 
+  
+
   getTable(){
     const {data,allACL} = this.props;
     const userInfo = app_state.user_profile !== undefined ? app_state.user_profile.admin :false;
@@ -112,9 +114,6 @@ class WorkflowListingTable extends Component {
     return (<div className="table u-form">
       <Table
         className="table no-margin table-workflow"
-        currentPage={0}
-        itemsPerPage={data.length > 20 ? 20 : 0}
-        pageButtonLimit={5}
       >
         <Thead>
           <Th column="checkbox"><input type= "checkbox" checked={this.props.headerCheckbox} onChange={this.props.toggleHeaderCheckbox}></input></Th>
@@ -307,8 +306,8 @@ class TopologyListingContainer extends Component {
       },
       refIdArr: [],
       fetchLoader: true,
-      pageIndex: 0,
-      pageSize: 9,
+      pageIndex: 1,
+      pageSize: 10,
       cloneFromId: null,
       topologyData: null,
       checkEnvironment: false,
@@ -320,7 +319,6 @@ class TopologyListingContainer extends Component {
       isHeaderCheckbox : false , editModeData : {}
     };
     this.projectId = props.params.projectId;
-
     this.fetchData();
   }
 
@@ -368,7 +366,9 @@ class TopologyListingContainer extends Component {
       sourceLen = results[1].entities.length;
 
       // All topology results[2]
-      let resultEntities = Utils.sortArray(results[2].entities.slice(), 'timestamp', false);
+      let records = results[2].totalRecords ? results[2].topologies : results[2].entities;
+      let recordsCount = results[2].totalRecords ? results[2].totalRecords : results[2].entities.length;
+      let resultEntities = Utils.sortArray(records.slice(), 'timestamp', false);
       this.syncDatacenterStatus(resultEntities);
       if (sourceLen !== 0) {
         if (resultEntities.length === 0 && environmentLen > 1) {
@@ -380,7 +380,9 @@ class TopologyListingContainer extends Component {
 
       stateObj.fetchLoader = false;
       stateObj.entities = resultEntities;
-      stateObj.pageIndex = 0;
+      stateObj.pageIndex = 1;
+      stateObj.entitiesCount = recordsCount;
+
       stateObj.checkEnvironment = environmentFlag;
       stateObj.sourceCheck = sourceFlag ;
       stateObj.searchLoader = false;
@@ -401,6 +403,37 @@ class TopologyListingContainer extends Component {
 
       this.setState(stateObj);
     });
+  }
+
+  pageIndexChanged = (index) => {
+    const {pageIndex} = this.state;
+    if(pageIndex != index){
+      this.setState({pageIndex: index}, this.fetchProjects);
+    }
+  }
+
+  fetchProjects = () => {
+    const {pageIndex, pageSize} = this.state;
+    const sortKey = this.state.sorted.key;
+    const projectId = this.projectId;
+    if(projectId){
+      TopologyREST.getAllTopologyWithoutConfig(projectId, sortKey, null, (pageIndex - 1) * pageSize, pageSize )
+        .then((result) => {
+          this.updateTopologyListWithPageChange(result);
+        });
+    } else {
+      TopologyREST.getAllAvailableTopologies(sortKey, null, (pageIndex -1 ) * pageSize, pageSize)
+        .then((result) => {
+          this.updateTopologyListWithPageChange(result); 
+        });
+    }
+  }
+
+  updateTopologyListWithPageChange = (result) => {
+    let records = result.totalRecords ? result.topologies : result.entities;
+    let resultEntities = Utils.sortArray(records.slice(), 'timestamp', false);
+    this.syncDatacenterStatus(resultEntities);
+    this.setState({entities: resultEntities});
   }
 
   onFilterChange = (e) => {
@@ -882,6 +915,35 @@ class TopologyListingContainer extends Component {
     });
   }
 
+  downloadCSV = () => {
+    let csvString = "Name|Type|Data Center Status|Version|Owner|Last Modified";
+    const {entities} = this.state;
+    entities.map((workflowObj)=>{
+      let engine = Utils.getEngineById(workflowObj.engineId);
+      let statusArr = workflowObj.statusArr.map(status => status.namespaceName);
+      csvString += String.fromCharCode(13) + workflowObj.name + '|' + engine.displayName + '|' 
+                  + statusArr.join(',') + '|' + (workflowObj.versionName ? workflowObj.versionName : '')
+                  + '|' + (workflowObj.config.properties['topology.owner'] || '---') + '|' + Utils.dateTimeLabel(workflowObj.timestamp).value;
+    });
+
+    var blob = new Blob([csvString], { type: 'text/csv;charset=utf-8;' });
+    if (navigator.msSaveBlob) { // IE 10+
+      navigator.msSaveBlob(blob, filename);
+    } else {
+      var link = document.createElement("a");
+      if (link.download !== undefined) { // feature detection
+        // Browsers that support HTML5 download attribute
+        var url = URL.createObjectURL(blob);
+        link.setAttribute("href", url);
+        link.setAttribute("download", "abc.csv");
+        link.style.visibility = 'hidden';
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+      }
+    }
+  }
+
   render() {
     const {
       entities,
@@ -890,6 +952,7 @@ class TopologyListingContainer extends Component {
       slideInput,
       pageSize,
       pageIndex,
+      entitiesCount,
       checkEnvironment,
       sourceCheck,
       refIdArr,
@@ -910,11 +973,26 @@ class TopologyListingContainer extends Component {
 
     const components = (splitData.length === 0)
     ? <NoData imgName={"default"} searchVal={filterValue} userRoles={app_state.user_profile}/>
-    : <WorkflowListingTable data ={entities} toggleHeaderCheckbox={this.toggleHeaderCheckbox}
-        handleCheckbox={this.handleCheckbox} projectId={this.projectId}
-        topologyAction={this.actionHandler} refIdArr={refIdArr} allACL={allACL}
-        headerCheckbox={isHeaderCheckbox}
-      />;
+    : entitiesCount <= pageSize ? <WorkflowListingTable data ={entities} toggleHeaderCheckbox={this.toggleHeaderCheckbox}
+    handleCheckbox={this.handleCheckbox} projectId={this.projectId}
+    topologyAction={this.actionHandler} refIdArr={refIdArr} allACL={allACL}
+    headerCheckbox={isHeaderCheckbox}
+  /> : <div> 
+        <WorkflowListingTable data ={entities} toggleHeaderCheckbox={this.toggleHeaderCheckbox}
+          handleCheckbox={this.handleCheckbox} projectId={this.projectId}
+          topologyAction={this.actionHandler} refIdArr={refIdArr} allACL={allACL}
+          headerCheckbox={isHeaderCheckbox}
+        /> 
+          <div className="text-center">
+            <Paginate onChange={this.pageIndexChanged.bind(this)} 
+                      activePage={pageIndex} 
+                      itemsCountPerPage={pageSize}
+                      totalItemsCount={entitiesCount}
+                      pageRangeDisplayed={5}
+                      hideNavigation={true}>
+            </Paginate>
+          </div>
+      </div>;
 
     return (
       <BaseContainer ref="BaseContainer" routes={this.props.routes} headerContent={this.getHeaderContent()}>
@@ -933,6 +1011,7 @@ class TopologyListingContainer extends Component {
                         </InputGroup>
                       </FormGroup>
                     </div>
+                    {/* <div className="add-btn text-center"><button className="actionDropdown text-medium btn btn-default" onClick={this.downloadCSV.bind(this)}><i className="fa fa-download"></i> &ensp;  Download</button></div>   */}
                     {hasEditCapability(accessCapabilities.APPLICATION) && (entities.length || filterValue) ?
                       <div className="add-btn text-center">
                         <DropdownButton title={btnIcon} id="actionDropdown" className="actionDropdown success text-medium" noCaret>
@@ -952,13 +1031,13 @@ class TopologyListingContainer extends Component {
             : null
           : null
         }
-        {entities.length ?
-          <h4 className="m-b-lg workflowCount">{entities.length == 1 ? "1 Workflow" : entities.length + " Workflows"}</h4>
+        {entitiesCount ?
+          <h4 className="m-b-lg workflowCount">{entitiesCount == 1 ? "1 Workflow" : entitiesCount + " Workflows"}</h4>
         : null}
         <div className="row">
           {(fetchLoader || searchLoader)
             ? [<div key={"1"} className="loader-overlay"></div>,<CommonLoaderSign key={"2"} imgName={"applications"}/>]
-            : filterValue || entities.length ? components : <BeginNew type="Workflow" onClick={this.onActionMenuClicked.bind(this, "create")}/>
+            : filterValue || entitiesCount ? components : <BeginNew type="Workflow" onClick={this.onActionMenuClicked.bind(this, "create")}/>
           }
         </div>
 

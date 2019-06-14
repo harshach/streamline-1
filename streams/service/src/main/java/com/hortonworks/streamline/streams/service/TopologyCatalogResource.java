@@ -394,7 +394,7 @@ public class TopologyCatalogResource {
     @Timed
     public Response listTopologiesByProjectId (@javax.ws.rs.QueryParam("projectId") Long projectId,
                                                @Context SecurityContext securityContext,
-                                               @javax.ws.rs.QueryParam("withcount") Boolean withCount,
+                                               @DefaultValue("false") @javax.ws.rs.QueryParam("withcount") Boolean withCount,
                                                @DefaultValue("0")   @javax.ws.rs.QueryParam("offset") Long offset,
                                                @DefaultValue("10")  @javax.ws.rs.QueryParam("limit") Long limit) {
         if (projectId == null || projectId == StreamCatalogService.PLACEHOLDER_ID) {

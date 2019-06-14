@@ -38,9 +38,9 @@ const TopologyREST = {
     options.credentials = 'same-origin';
     offset = offset || 0;
     limit = limit || 10;
-    let url = baseUrl + 'topologies?offset=' + offset + '&limit=' + limit;
+    let url = baseUrl + 'topologies?offset=' + offset + '&limit=' + limit + '&withcount=true';
     if(sort){
-      url = baseUrl + 'topologies?sort=' + sort + '&offset=' + offset + '&limit=' + limit;
+      url = baseUrl + 'topologies?sort=' + sort + '&offset=' + offset + '&limit=' + limit + '&withcount=true';
     }
     return fetch(url, options)
       .then((response) => {
@@ -53,9 +53,9 @@ const TopologyREST = {
     options.credentials = 'same-origin';
     offset = offset || 0;
     limit = limit || 10;
-    let url = baseUrl + 'projects/'+projectId+'/topologies?offset=' + offset + '&limit=' + limit;
+    let url = baseUrl + 'projects/'+projectId+'/topologies?offset=' + offset + '&limit=' + limit + '&withcount=true';
     if(sort){
-      url = baseUrl + 'projects/'+projectId+'/topologies?sort=' + sort + '&offset=' + offset + '&limit=' + limit;
+      url = baseUrl + 'projects/'+projectId+'/topologies?sort=' + sort + '&offset=' + offset + '&limit=' + limit + '&withcount=true';
     }
     return fetch(url, options)
       .then((response) => {

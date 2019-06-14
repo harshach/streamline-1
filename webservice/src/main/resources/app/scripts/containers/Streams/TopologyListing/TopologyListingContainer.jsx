@@ -366,7 +366,9 @@ class TopologyListingContainer extends Component {
       sourceLen = results[1].entities.length;
 
       // All topology results[2]
-      let resultEntities = Utils.sortArray(results[2].entities.slice(), 'timestamp', false);
+      let records = results[2].totalRecords ? results[2].topologies : results[2].entities;
+      let recordsCount = results[2].totalRecords ? results[2].totalRecords : results[2].entities.length;
+      let resultEntities = Utils.sortArray(records.slice(), 'timestamp', false);
       this.syncDatacenterStatus(resultEntities);
       if (sourceLen !== 0) {
         if (resultEntities.length === 0 && environmentLen > 1) {
@@ -377,9 +379,9 @@ class TopologyListingContainer extends Component {
       }
 
       stateObj.fetchLoader = false;
-      stateObj.entities = resultEntities;
+      stateObj.entities = results[2].topologies;
       stateObj.pageIndex = 1;
-      stateObj.entitiesCount = 12; // Remove this when count available from API
+      stateObj.entitiesCount = recordsCount;
 
       stateObj.checkEnvironment = environmentFlag;
       stateObj.sourceCheck = sourceFlag ;
@@ -417,14 +419,16 @@ class TopologyListingContainer extends Component {
     if(projectId){
       TopologyREST.getAllTopologyWithoutConfig(projectId, sortKey, null, (pageIndex - 1) * pageSize, pageSize )
         .then((result) => {
-          let resultEntities = Utils.sortArray(result.entities.slice(), 'timestamp', false);
+          let records = result.totalRecords ? result.topologies : result.entities;
+          let resultEntities = Utils.sortArray(records.slice(), 'timestamp', false);
           this.syncDatacenterStatus(resultEntities);
           this.setState({entities: resultEntities});
         });
     } else {
       TopologyREST.getAllAvailableTopologies(sortKey, null, (pageIndex -1 ) * pageSize, pageSize)
         .then((result) => {
-          let resultEntities = Utils.sortArray(result.entities.slice(), 'timestamp', false);
+          let records = result.totalRecords ? result.topologies : result.entities;
+          let resultEntities = Utils.sortArray(records.slice(), 'timestamp', false);
           this.syncDatacenterStatus(resultEntities);
           this.setState({entities: resultEntities});
         });
@@ -968,7 +972,11 @@ class TopologyListingContainer extends Component {
 
     const components = (splitData.length === 0)
     ? <NoData imgName={"default"} searchVal={filterValue} userRoles={app_state.user_profile}/>
-    : <div> 
+    : entitiesCount <= pageSize ? <WorkflowListingTable data ={entities} toggleHeaderCheckbox={this.toggleHeaderCheckbox}
+    handleCheckbox={this.handleCheckbox} projectId={this.projectId}
+    topologyAction={this.actionHandler} refIdArr={refIdArr} allACL={allACL}
+    headerCheckbox={isHeaderCheckbox}
+  /> : <div> 
         <WorkflowListingTable data ={entities} toggleHeaderCheckbox={this.toggleHeaderCheckbox}
           handleCheckbox={this.handleCheckbox} projectId={this.projectId}
           topologyAction={this.actionHandler} refIdArr={refIdArr} allACL={allACL}
@@ -979,7 +987,8 @@ class TopologyListingContainer extends Component {
                       activePage={pageIndex} 
                       itemsCountPerPage={pageSize}
                       totalItemsCount={entitiesCount}
-                      pageRangeDisplayed={5}>
+                      pageRangeDisplayed={5}
+                      hideNavigation={true}>
             </Paginate>
           </div>
       </div>;
@@ -1021,13 +1030,13 @@ class TopologyListingContainer extends Component {
             : null
           : null
         }
-        {entities.length ?
-          <h4 className="m-b-lg workflowCount">{entities.length == 1 ? "1 Workflow" : entities.length + " Workflows"}</h4>
+        {entitiesCount ?
+          <h4 className="m-b-lg workflowCount">{entitiesCount == 1 ? "1 Workflow" : entitiesCount + " Workflows"}</h4>
         : null}
         <div className="row">
           {(fetchLoader || searchLoader)
             ? [<div key={"1"} className="loader-overlay"></div>,<CommonLoaderSign key={"2"} imgName={"applications"}/>]
-            : filterValue || entities.length ? components : <BeginNew type="Workflow" onClick={this.onActionMenuClicked.bind(this, "create")}/>
+            : filterValue || entitiesCount ? components : <BeginNew type="Workflow" onClick={this.onActionMenuClicked.bind(this, "create")}/>
           }
         </div>
 

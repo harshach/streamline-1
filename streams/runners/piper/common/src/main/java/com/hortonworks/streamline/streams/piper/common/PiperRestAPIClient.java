@@ -2,7 +2,10 @@ package com.hortonworks.streamline.streams.piper.common;
 
 import com.hortonworks.streamline.common.JsonClientUtil;
 import com.hortonworks.streamline.common.exception.WrappedWebApplicationException;
+import com.uber.engsec.upkiclient.UPKIClient;
+import com.uber.engsec.upkiclient.UPKIClientFactory;
 import com.uber.engsec.upkiclient.UPKITokenService;
+import com.uber.engsec.upkiclient.config.SpiffeConfig;
 import com.uber.engsec.upkiclient.utoken.UToken;
 import com.uber.engsec.upkiclient.utoken.UTokenException;
 import org.glassfish.jersey.client.ClientConfig;
@@ -36,10 +39,7 @@ public class PiperRestAPIClient {
     private final Subject subject;
     private final Client client;
     private UPKITokenService upkiTokenService;
-    private final String upkiType = "SPIFFE";
     private final String upkiSpiffeEndPoint = "/var/cache/udocker_mnt/worf.sock";
-    private final String upkiTypeConf = "upki.type";
-    private final String upkiEndPointConf = "spiffe.endpoint.socket";
 
 
 
@@ -51,12 +51,11 @@ public class PiperRestAPIClient {
         this.client = client;
         this.apiRootUrl = apiRootUrl;
         this.subject = subject;
-        this.upkiTokenService = new UPKITokenService();
-        Map<String, Object> config = new HashMap<>();
-        config.put(upkiTypeConf, upkiType);
-        config.put(upkiEndPointConf, upkiSpiffeEndPoint);
         try {
-            this.upkiTokenService.configure(config);
+            SpiffeConfig.SpiffeConfigBuilder builder = new SpiffeConfig.SpiffeConfigBuilder().
+                    withSpiffeEndpointSocket(upkiSpiffeEndPoint);
+            UPKIClient upkiClient = UPKIClientFactory.getUPKIClient(builder);
+            this.upkiTokenService = new UPKITokenService(upkiClient);
         } catch (Exception e ) {
             LOG.error("Failed to configure upkiTokenService ",e);
         }
@@ -212,7 +211,7 @@ public class PiperRestAPIClient {
         UToken uToken = null;
         try {
             uToken = upkiTokenService.createSingleHop("piper");
-        } catch (Exception e) {
+        } catch (UTokenException e) {
             LOG.error("Failed to create a utoken", e);
         }
         return uToken;

@@ -150,26 +150,26 @@
         <commons-lang3.version>3.4</commons-lang3.version>
         <commons.version>2.5</commons.version>
         <curator.version>2.11.0</curator.version>
-        <dropwizard.version>1.0.5</dropwizard.version>
+        <dropwizard.version>1.2.8</dropwizard.version>
         <firebase-client.version>1.0.7</firebase-client.version>
         <flink.version>1.4.0.uber.007</flink.version>
         <flink.scala.version>2.11</flink.scala.version>
         <groovy.version>2.4.5</groovy.version>
-        <guava.version>18.0</guava.version>
+        <guava.version>23.5-jre</guava.version>
         <hadoop.version>2.7.1</hadoop.version>
         <hbase.version>1.1.2</hbase.version>
         <HikariCP-java6.version>2.2.5</HikariCP-java6.version>
         <hive.version>2.1.0</hive.version>
-        <jackson.version>2.7.3</jackson.version>
+        <jackson.version>2.9.6</jackson.version>
         <javax.mail.version>1.5.3</javax.mail.version>
-        <jersey.version>2.22.1</jersey.version>
+        <jersey.version>2.25.1</jersey.version>
         <kryo.version>2.21</kryo.version>
         <mariadb-java-client.version>1.5.5</mariadb-java-client.version>
         <postgresql.version>9.4.1212</postgresql.version>
         <phoenix.version>4.7.0-HBase-1.0</phoenix.version>
         <redis.lettuce.version>3.4.2.Final</redis.lettuce.version>
         <scala.version>2.11.8</scala.version>
-        <schema-registry.version>0.5.2</schema-registry.version>
+        <schema-registry.version>0.7.0</schema-registry.version>
         <slf4j.version>1.7.12</slf4j.version>
         <storm.version>1.2.2</storm.version>
         <woodstox-core-asl.version>4.4.1</woodstox-core-asl.version>
@@ -184,12 +184,12 @@
         <tchannel.version>0.6.1</tchannel.version>
         <unsclient.version>1.0.0</unsclient.version>
         <json.version>20180813</json.version>
-
+        <snakeyaml.version>1.24</snakeyaml.version>
         <!-- Runtime Scope Dependencies -->
-        <logback.version>1.1.7</logback.version>
+        <logback.version>1.2.3</logback.version>
 
         <!-- Test Scope Dependencies -->
-        <h2.version>1.4.188</h2.version>
+        <h2.version>1.4.196</h2.version>
         <hamcrest.version>1.3</hamcrest.version>
         <jmockit.version>1.19</jmockit.version>
         <junit.version>4.11</junit.version>
@@ -276,6 +276,11 @@
                 <version>${jackson.version}</version>
             </dependency>
             <dependency>
+              <groupId>org.yaml</groupId>
+              <artifactId>snakeyaml</artifactId>
+              <version>${snakeyaml.version}</version>
+            </dependency>
+            <dependency>
                 <groupId>com.firebase</groupId>
                 <artifactId>firebase-client</artifactId>
                 <version>${firebase-client.version}</version>
@@ -312,6 +317,12 @@
                 <groupId>com.hortonworks.registries</groupId>
                 <artifactId>schema-registry-serdes</artifactId>
                 <version>${schema-registry.version}</version>
+                <exclusions>
+                  <exclusion>
+                    <groupId>com.fasterxml.jackson.jaxrs</groupId>
+                    <artifactId>jackson-jaxrs-json-provider</artifactId>
+                  </exclusion>
+                </exclusions>
             </dependency>
             <dependency>
                 <groupId>com.hortonworks.registries</groupId>
@@ -323,6 +334,19 @@
                         <groupId>javax.mail</groupId>
                         <artifactId>mailapi</artifactId>
                     </exclusion>
+                    <exclusion>
+                      <groupId>org.apache.hadoop</groupId>
+                      <artifactId>hadoop-client</artifactId>
+                    </exclusion>
+                    <exclusion>
+                      <groupId>com.fasterxml.jackson.jaxrs</groupId>
+                      <artifactId>jackson-jaxrs-json-provider</artifactId>
+                    </exclusion>
+                    <exclusion>
+                      <groupId>com.fasterxml.jackson.core</groupId>
+                      <artifactId>jackson-databind</artifactId>
+                    </exclusion>
+
                     <!--gpl license-->
                     <exclusion>
                         <groupId>org.mozilla</groupId>
@@ -344,6 +368,12 @@
                 <groupId>com.uber</groupId>
                 <artifactId>heatpipe4j</artifactId>
                 <version>${heatpipe4j.version}</version>
+                <exclusions>
+                  <exclusion>
+                    <groupId>com.amazonaws</groupId>
+                    <artifactId>aws-java-sdk</artifactId>
+                  </exclusion>
+                </exclusions>
             </dependency>
             <dependency>
                 <groupId>com.uber.infra.uns</groupId>
@@ -402,6 +432,42 @@
                     <exclusion>
                         <groupId>com.google.guava</groupId>
                         <artifactId>guava</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>com.google.guava</groupId>
+                        <artifactId>guava</artifactId>
+                    </exclusion>
+                    <exclusion>
+                      <groupId>com.fasterxml.jackson.core</groupId>
+                      <artifactId>jackson-annotations</artifactId>
+                    </exclusion>
+                    <exclusion>
+                      <groupId>com.fasterxml.jackson.core</groupId>
+                      <artifactId>jackson-core</artifactId>
+                    </exclusion>
+                    <exclusion>
+                      <groupId>com.fasterxml.jackson.core</groupId>
+                      <artifactId>jackson-databind</artifactId>
+                    </exclusion>
+                    <exclusion>
+                      <groupId>com.fasterxml.jackson.dataformat</groupId>
+                      <artifactId>jackson-dataformat-properties</artifactId>
+                    </exclusion>
+                    <exclusion>
+                      <groupId>com.fasterxml.jackson.dataformat</groupId>
+                      <artifactId>jackson-dataformat-protobuf</artifactId>
+                    </exclusion>
+                    <exclusion>
+                      <groupId>com.fasterxml.jackson.dataformat</groupId>
+                      <artifactId>jackson-dataformat-xml</artifactId>
+                    </exclusion>
+                    <exclusion>
+                      <groupId>com.fasterxml.jackson.dataformat</groupId>
+                      <artifactId>jackson-dataformat-yaml</artifactId>
+                    </exclusion>
+                    <exclusion>
+                      <groupId>com.fasterxml.jackson.jaxrs</groupId>
+                      <artifactId>jackson-jaxrs-base</artifactId>
                     </exclusion>
                 </exclusions>
             </dependency>
@@ -693,6 +759,16 @@
                 <groupId>org.glassfish.jersey.media</groupId>
                 <artifactId>jersey-media-multipart</artifactId>
                 <version>${jersey.version}</version>
+                <exclusions>
+                  <exclusion>
+                    <groupId>com.fasterxml.jackson.core</groupId>
+                    <artifactId>jackson-core</artifactId>
+                  </exclusion>
+                  <exclusion>
+                    <groupId>com.fasterxml.jackson.core</groupId>
+                    <artifactId>jackson-databind</artifactId>
+                  </exclusion>
+                </exclusions>
             </dependency>
             <dependency>
                 <groupId>org.scala-lang</groupId>
@@ -724,7 +800,6 @@
                 <artifactId>jool</artifactId>
                 <version>${jool.version}</version>
             </dependency>
-
             <!-- Project Artifact Dependencies -->
             <dependency>
                 <groupId>com.hortonworks.registries</groupId>
@@ -1030,6 +1105,7 @@
                 <artifactId>webservice</artifactId>
                 <version>${project.version}</version>
             </dependency>
+
             <!-- END Project Artifact Dependencies -->
 
             <!-- Runtime Scope Dependencies -->
@@ -1141,6 +1217,16 @@
             </snapshots>
             <id>uber</id>
             <url>http://artifactory.uber.internal:4587/artifactory/repo/</url>
+        </repository>
+        <repository>
+            <releases>
+                <enabled>true</enabled>
+            </releases>
+            <snapshots>
+                <enabled>true</enabled>
+            </snapshots>
+            <id>uber-local</id>
+            <url>http://artifactory.uber.internal:4587/artifactory/libs-snapshot-local/</url>
         </repository>
     </repositories>
 

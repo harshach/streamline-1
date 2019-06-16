@@ -41,23 +41,70 @@
             <artifactId>storm-druid</artifactId>
             <version>${storm.version}</version>
             <scope>provided</scope>
+            <exclusions>
+              <exclusion>
+                <groupId>com.fasterxml.jackson.datatype</groupId>
+                <artifactId>jackson-datatype-joda</artifactId>
+              </exclusion>
+              <exclusion>
+                <groupId>com.fasterxml.jackson.dataformat</groupId>
+                <artifactId>jackson-dataformat-smile</artifactId>
+              </exclusion>
+              <exclusion>
+                <groupId>com.fasterxml.jackson.core</groupId>
+                <artifactId>jackson-databind</artifactId>
+              </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>org.apache.storm</groupId>
             <artifactId>storm-opentsdb</artifactId>
             <version>${storm.version}</version>
             <scope>provided</scope>
+            <exclusions>
+              <exclusion>
+                <groupId>com.fasterxml.jackson.core</groupId>
+                <artifactId>jackson-databind</artifactId>
+              </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>io.druid</groupId>
             <artifactId>druid-server</artifactId>
             <version>0.9.1</version>
             <scope>provided</scope>
+            <exclusions>
+              <exclusion>
+                <groupId>com.fasterxml.jackson.datatype</groupId>
+                <artifactId>jackson-datatype-guava</artifactId>
+              </exclusion>
+              <exclusion>
+                <groupId>io.druid</groupId>
+                <artifactId>druid-aws-common</artifactId>
+              </exclusion>
+              <exclusion>
+                <groupId>com.fasterxml.jackson.jaxrs</groupId>
+                <artifactId>jackson-jaxrs-json-provider</artifactId>
+              </exclusion>
+              <exclusion>
+                <groupId>com.fasterxml.jackson.jaxrs</groupId>
+                <artifactId>jackson-jaxrs-smile-provider</artifactId>
+              </exclusion>
+              <exclusion>
+                <groupId>com.fasterxml.jackson.core</groupId>
+                <artifactId>jackson-databind</artifactId>
+              </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
              <groupId>org.scala-lang</groupId>
              <artifactId>scala-library</artifactId>
              <version>${scala.version}</version>
+        </dependency>
+        <dependency>
+          <groupId>org.yaml</groupId>
+          <artifactId>snakeyaml</artifactId>
+          <version>${snakeyaml.version}</version>
         </dependency>
         <dependency>
             <groupId>commons-io</groupId>

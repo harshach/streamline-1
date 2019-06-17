@@ -19,6 +19,7 @@ package com.hortonworks.streamline.storage.impl.jdbc.provider.sql.query;
 
 import com.google.common.collect.Lists;
 import com.hortonworks.registries.common.Schema;
+import com.hortonworks.streamline.common.QueryParam;
 import com.hortonworks.streamline.storage.OrderByField;
 import com.hortonworks.streamline.storage.PrimaryKey;
 import com.hortonworks.streamline.storage.StorableKey;
@@ -42,6 +43,7 @@ public abstract class AbstractSelectQuery extends AbstractStorableKeyQuery {
 
     protected List<OrderByField> orderByFields;
     public static final int NO_MAX_ROWS = 0;
+    public static final int NO_OFFSET   = 0;
 
     public long offset = 0;
     public long limit = 0;
@@ -81,6 +83,16 @@ public abstract class AbstractSelectQuery extends AbstractStorableKeyQuery {
         this.limit = limit;
     }
 
+    public AbstractSelectQuery(StorableKey storableKey, List<QueryParam> queryParams, List<OrderByField> orderByFields, String joinTableName, String primaryTableKey, String joinTableKey, long offset, long limit) {
+        super(storableKey, queryParams);
+        this.orderByFields = orderByFields;
+        this.joinTableName = joinTableName;
+        this.primaryTableKey = primaryTableKey;
+        this.joinTableKey =  joinTableKey;
+        this.offset =  offset;
+        this.limit = limit;
+    }
+
     public AbstractSelectQuery(SearchQuery searchQuery, Schema schema) {
         super(searchQuery.getNameSpace());
         this.searchQuery = searchQuery;
@@ -88,7 +100,7 @@ public abstract class AbstractSelectQuery extends AbstractStorableKeyQuery {
     }
 
     protected abstract String getParameterizedSql();
-    protected abstract String getParameterizedSqlWithLimit();
+    protected abstract String getParameterizedJoinSql();
     protected abstract String orderBySql();
 
     @Override
@@ -97,10 +109,10 @@ public abstract class AbstractSelectQuery extends AbstractStorableKeyQuery {
             return buildSqlWithSearchQuery(searchQuery, schema);
         } else {
             String sql = "";
-            if (limit == NO_MAX_ROWS) {
+            if (this.joinTableName == null || this.joinTableName.isEmpty()) {
                 sql = getParameterizedSql();
             } else {
-                sql = getParameterizedSqlWithLimit();
+                sql = getParameterizedJoinSql();
             }
             String orderBy = orderBySql();
             if (!StringUtils.isEmpty(orderBy)) {

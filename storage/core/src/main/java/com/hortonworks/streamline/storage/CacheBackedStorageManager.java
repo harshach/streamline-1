@@ -150,4 +150,16 @@ public class CacheBackedStorageManager implements StorageManager {
     public StorageManager getStorageManager() {
         return dao;
     }
+
+    @Override
+    public <T extends Storable> Collection<T> find(String namespace,
+                                                   List<QueryParam> queryParams,
+                                                   List<OrderByField> orderByFields,
+                                                   String joinTableName,
+                                                   String primaryTableKey,
+                                                   String joinTableKey,
+                                                   long offset,
+                                                   long limit) throws StorageException {
+        throw new UnsupportedOperationException("Not implemented.");
+    }
 }

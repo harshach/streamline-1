@@ -20,6 +20,7 @@ import static com.hortonworks.streamline.common.ComponentTypes.NOTIFICATION;
 import static com.hortonworks.streamline.common.util.WSUtils.CURRENT_VERSION;
 import static com.hortonworks.streamline.common.util.WSUtils.buildEdgesFromQueryParam;
 import static com.hortonworks.streamline.common.util.WSUtils.buildEdgesToQueryParam;
+import static com.hortonworks.streamline.common.util.WSUtils.currentVersionAndProjectQueryParam;
 import static com.hortonworks.streamline.common.util.WSUtils.currentVersionQueryParam;
 import static com.hortonworks.streamline.streams.catalog.TopologyEdge.StreamGrouping;
 import static com.hortonworks.streamline.streams.catalog.TopologyEditorMetadata.TopologyUIData;
@@ -187,6 +188,7 @@ public class StreamCatalogService {
     public static final long PLACEHOLDER_ID = -1L;
     private static final String CLONE_SUFFIX = "-clone";
     private static final String DEFAULT_VERSION_NAME = "Draft";
+    private static final String PROJECTID = "projectId";
 
     private final StorageManager dao;
     private final FileStorage fileStorage;
@@ -375,6 +377,23 @@ public class StreamCatalogService {
         return dao.find(TOPOLOGY_VERSIONINFO_NAMESPACE, queryParams, Collections.emptyList(), offset, limit);
     }
 
+    public Collection<TopologyVersion> listCurrentTopologyVersionInfos(long projectId,
+                                                                String joinTableName,
+                                                                String primaryTableKey,
+                                                                String joinTableKey,
+                                                                long offset,
+                                                                long limit) {
+        return listTopologyVersionInfos(currentVersionAndProjectQueryParam(projectId), joinTableName, primaryTableKey, joinTableKey, offset, limit);
+    }
+
+    public Collection<TopologyVersion> listTopologyVersionInfos(List<QueryParam> queryParams,
+                                                                String joinTableName,
+                                                                String primaryTableKey,
+                                                                String joinTableKey,
+                                                                long offset,
+                                                                long limit) {
+        return dao.find(TOPOLOGY_VERSIONINFO_NAMESPACE, queryParams, Collections.emptyList(), joinTableName, primaryTableKey, joinTableKey, offset, limit);
+    }
 
     public Optional<TopologyVersion> getCurrentTopologyVersionInfo(Long topologyId) {
         Collection<TopologyVersion> versions = listTopologyVersionInfos(
@@ -486,9 +505,10 @@ public class StreamCatalogService {
         return topologies;
     }
 
-    public Collection<Topology> listTopologiesWithVersionName(Long projectId) {
+    public Collection<Topology> listTopologiesWithVersionName(Long projectId, long offset, long limit) {
         List<Topology> topologies = new ArrayList<>();
-        for (TopologyVersion version: listCurrentTopologyVersionInfos()) {
+        Collection<TopologyVersion> listCurrentTopologyVersions = listCurrentTopologyVersionInfos(projectId,"topology", "topology.versionId", "topology_version.id", offset, limit);
+        for (TopologyVersion version: listCurrentTopologyVersions) {
             Collection<TopologyRuntimeIdMap> topologyRuntimeIdMapList = getTopologyRuntimeIdMap(version.getTopologyId());
             boolean deployed = topologyRuntimeIdMapList.size() > 0 ? true : false;
             topologies.addAll(listTopologiesWithVersionName(version, projectId, deployed));
@@ -515,16 +535,6 @@ public class StreamCatalogService {
                                 });
         return topologies;
     }
-
-    public Collection<Topology> listTopologies(Long projectId, long offset, long limit) {
-        List<Topology> topologies = new ArrayList<>();
-        for (TopologyVersion version: listCurrentTopologyVersionInfos(offset, limit)) {
-            topologies.addAll(listTopologies(version.getId(), projectId));
-        }
-        return topologies;
-    }
-
-
 
     private Collection<Topology> listTopologies(Long versionId, Long projectId) {
         List<QueryParam> queryParams = new ArrayList<>();

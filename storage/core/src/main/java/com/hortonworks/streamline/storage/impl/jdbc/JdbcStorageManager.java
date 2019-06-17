@@ -176,6 +176,37 @@ public class JdbcStorageManager implements TransactionManager, StorageManager {
     }
 
     @Override
+    public <T extends Storable> Collection<T> find(String namespace,
+                                                   List<QueryParam> queryParams,
+                                                   List<OrderByField> orderByFields,
+                                                   String joinTableName,
+                                                   String primaryTableKey,
+                                                   String joinTableKey,
+                                                   long offset,
+                                                   long limit) throws StorageException {
+
+        log.debug("Searching for entries in table [{}] that match queryParams [{}] and order by [{}]", namespace, queryParams, orderByFields);
+
+        if (queryParams == null || queryParams.isEmpty()) {
+            return list(namespace, orderByFields);
+        }
+
+        Collection<T> entries = Collections.emptyList();
+        try {
+            StorableKey storableKey = buildStorableKeyWithParamsOnly(namespace, queryParams);
+            if (storableKey != null) {
+                entries = queryExecutor.select(storableKey, queryParams, orderByFields, joinTableName, primaryTableKey, joinTableKey, offset, limit);
+            }
+        } catch (Exception e) {
+            throw new StorageException(e);
+        }
+
+        log.debug("Querying table = [{}]\n\t filter = [{}]\n\t returned [{}]", namespace, queryParams, entries);
+
+        return entries;
+    }
+
+    @Override
     public <T extends Storable> Collection<T> search(SearchQuery searchQuery) {
         return queryExecutor.select(searchQuery);
     }
@@ -234,7 +265,7 @@ public class JdbcStorageManager implements TransactionManager, StorageManager {
         try {
             CaseAgnosticStringSet columnNames = queryExecutor.getColumnNames(namespace);
             for (QueryParam qp : queryParams) {
-                if (!columnNames.contains(qp.getName())) {
+                if (!columnNames.contains(qp.getName()) && !columnNames.contains(qp.getNameWithoutNamespace())) {
                     log.warn("Query parameter [{}] does not exist for namespace [{}]. Query parameter ignored.", qp.getName(), namespace);
                 } else {
                     final String val = qp.getValue();
@@ -242,6 +273,34 @@ public class JdbcStorageManager implements TransactionManager, StorageManager {
                     fieldsToVal.put(new Schema.Field(qp.getName(), typeOfVal),
                             typeOfVal.getJavaType().getConstructor(String.class).newInstance(val)); // instantiates object of the appropriate type
                 }
+            }
+
+            // it is empty when none of the query parameters specified matches a column in the DB
+            if (!fieldsToVal.isEmpty()) {
+                final PrimaryKey primaryKey = new PrimaryKey(fieldsToVal);
+                storableKey = new StorableKey(namespace, primaryKey);
+            }
+
+            log.debug("Building StorableKey from QueryParam: \n\tnamespace = [{}]\n\t queryParams = [{}]\n\t StorableKey = [{}]",
+                    namespace, queryParams, storableKey);
+        } catch (Exception e) {
+            log.debug("Exception occurred when attempting to generate StorableKey from QueryParam", e);
+            throw new IllegalQueryParameterException(e);
+        }
+
+        return storableKey;
+    }
+
+    private StorableKey buildStorableKeyWithParamsOnly(String namespace, List<QueryParam> queryParams) throws Exception {
+        final Map<Schema.Field, Object> fieldsToVal = new HashMap<>();
+        StorableKey storableKey = null;
+
+        try {
+            for (QueryParam qp : queryParams) {
+                final String val = qp.getValue();
+                final Schema.Type typeOfVal = Schema.Type.getTypeOfVal(val);
+                fieldsToVal.put(new Schema.Field(qp.getName(), typeOfVal),
+                        typeOfVal.getJavaType().getConstructor(String.class).newInstance(val)); // instantiates object of the appropriate type
             }
 
             // it is empty when none of the query parameters specified matches a column in the DB

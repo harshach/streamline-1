@@ -34,6 +34,14 @@ public class QueryParam {
         return name;
     }
 
+    public String getNameWithoutNamespace() {
+        String[] arrOfStr = name.split("\\.");
+        if (arrOfStr.length > 1) {
+            return arrOfStr[1];
+        }
+        return "";
+    }
+
     public String getValue() {
         return value;
     }

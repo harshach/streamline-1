@@ -21,12 +21,14 @@ package com.hortonworks.streamline.storage.impl.jdbc.provider.postgresql.factory
 
 import com.google.common.cache.CacheBuilder;
 import com.hortonworks.registries.common.Schema;
+import com.hortonworks.streamline.common.QueryParam;
 import com.hortonworks.streamline.common.transaction.TransactionIsolation;
 import com.hortonworks.streamline.storage.OrderByField;
 import com.hortonworks.streamline.storage.Storable;
 import com.hortonworks.streamline.storage.StorableKey;
 import com.hortonworks.streamline.storage.impl.jdbc.config.ExecutionConfig;
 import com.hortonworks.streamline.storage.impl.jdbc.connection.ConnectionBuilder;
+import com.hortonworks.streamline.storage.impl.jdbc.provider.mysql.query.MySqlSelectQuery;
 import com.hortonworks.streamline.storage.impl.jdbc.provider.postgresql.query.PostgresqlDeleteQuery;
 import com.hortonworks.streamline.storage.impl.jdbc.provider.postgresql.query.PostgresqlInsertQuery;
 import com.hortonworks.streamline.storage.impl.jdbc.provider.postgresql.query.PostgresqlSelectQuery;
@@ -179,5 +181,8 @@ public class PostgresqlExecutor extends AbstractQueryExecutor {
         }
     }
 
-
+    @Override
+    public <T extends Storable> Collection<T> select(StorableKey storableKey, List<QueryParam> queryParams, List<OrderByField> orderByFields, String joinTableName, String primaryTableKey, String joinTableKey, long offset, long limit) {
+        throw new UnsupportedOperationException("Not implemented.");
+    }
 }

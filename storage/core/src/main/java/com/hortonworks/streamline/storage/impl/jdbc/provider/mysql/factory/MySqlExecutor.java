@@ -18,6 +18,7 @@ package com.hortonworks.streamline.storage.impl.jdbc.provider.mysql.factory;
 
 import com.google.common.cache.CacheBuilder;
 import com.google.common.collect.Lists;
+import com.hortonworks.streamline.common.QueryParam;
 import com.hortonworks.streamline.storage.OrderByField;
 import com.hortonworks.streamline.storage.Storable;
 import com.hortonworks.streamline.storage.StorableKey;
@@ -125,6 +126,11 @@ public class MySqlExecutor extends AbstractQueryExecutor {
     @Override
     public <T extends Storable> Collection<T> select(StorableKey storableKey, List<OrderByField> orderByFields, long offset, long limit) {
         return executeQuery(storableKey.getNameSpace(), new MySqlSelectQuery(storableKey, orderByFields, offset, limit));
+    }
+
+    @Override
+    public <T extends Storable> Collection<T> select(StorableKey storableKey, List<QueryParam> queryParams, List<OrderByField> orderByFields, String joinTableName, String primaryTableKey, String joinTableKey, long offset, long limit) {
+        return executeQueryWithoutExtraFields(storableKey.getNameSpace(), new MySqlSelectQuery(storableKey, queryParams, orderByFields, joinTableName, primaryTableKey, joinTableKey, offset, limit));
     }
 
     private void insertOrUpdateWithUniqueId(final Storable storable, final SqlQuery sqlQuery) {

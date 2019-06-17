@@ -45,10 +45,12 @@ public class WSUtils {
     public static final String TOPOLOGY_ID = "topologyId";
     public static final String VERSION_ID = "versionId";
     public static final String NAME = "name";
+    public static final String TOPOLOGY_VERSION_NAME = "topology_version.name";
     public static final String FROM_ID = "fromId";
     public static final String TO_ID = "toId";
     public static final String AUTH_SCHEME_KERBEROS = "kerberos";
     public static final String AUTH_SCHEME_OPENID = "openid";
+    private static final String PROJECTID = "projectId";
 
     private WSUtils() {
     }
@@ -123,6 +125,13 @@ public class WSUtils {
 
     public static List<QueryParam> currentVersionQueryParam() {
         return Collections.singletonList(new QueryParam(NAME, CURRENT_VERSION));
+    }
+
+    public static List<QueryParam> currentVersionAndProjectQueryParam(long projectId) {
+        List<QueryParam> queryParams = new ArrayList<>();
+        queryParams.add(new QueryParam(TOPOLOGY_VERSION_NAME, CURRENT_VERSION));
+        queryParams.add(new QueryParam(PROJECTID, String.valueOf(projectId)));
+        return queryParams;
     }
 
     public static List<QueryParam> topologyVersionsQueryParam(Long topologyId) {

@@ -133,6 +133,15 @@ public interface StorageManager {
 
     <T extends Storable> Collection<T> find(String namespace, List<QueryParam> queryParams, List<OrderByField> orderByFields, long offset, long limit);
 
+    <T extends Storable> Collection<T> find(String namespace,
+                                            List<QueryParam> queryParams,
+                                            List<OrderByField> orderByFields,
+                                            String joinTableName,
+                                            String primaryTableKey,
+                                            String joinTableKey,
+                                            long offset,
+                                            long limit);
+
     /**
      *
      * @param searchQuery the search query

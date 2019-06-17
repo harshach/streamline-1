@@ -57,7 +57,7 @@ public class SqlSelectQuery extends AbstractSelectQuery {
     }
 
     @Override
-    protected String getParameterizedSqlWithLimit() {
+    protected String getParameterizedJoinSql() {
         String sql = "SELECT * FROM " + tableName;
         //where clause is defined by columns specified in the PrimaryKey
         if (columns != null) {

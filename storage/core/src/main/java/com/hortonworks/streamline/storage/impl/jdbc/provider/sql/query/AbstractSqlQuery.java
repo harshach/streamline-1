@@ -32,6 +32,9 @@ public abstract class AbstractSqlQuery implements SqlQuery {
     protected static final Logger LOG = LoggerFactory.getLogger(AbstractSqlQuery.class);
     protected List<Schema.Field> columns;
     protected String tableName;
+    protected String joinTableName;
+    protected String primaryTableKey;
+    protected String joinTableKey;
     protected PrimaryKey primaryKey;
     private String sql;
 

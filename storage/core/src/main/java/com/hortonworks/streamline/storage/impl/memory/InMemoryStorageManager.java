@@ -237,4 +237,15 @@ public class InMemoryStorageManager implements StorageManager {
     public void registerStorables(Collection<Class<? extends Storable>> classes) throws StorageException {
     }
 
+    @Override
+    public <T extends Storable> Collection<T> find(String namespace,
+                                            List<QueryParam> queryParams,
+                                            List<OrderByField> orderByFields,
+                                            String joinTableName,
+                                            String primaryTableKey,
+                                            String joinTableKey,
+                                            long offset,
+                                            long limit) throws StorageException {
+        throw new UnsupportedOperationException("Not implemented.");
+    }
 }

@@ -96,6 +96,19 @@ public abstract class AbstractStorable implements Storable {
         return this;
     }
 
+    public Optional<Storable> fromMapIgnoreExtraFields(Map<String, Object> map) {
+        for(Map.Entry<String, Object> entry: map.entrySet()) {
+            try {
+                if(entry.getValue() != null) {
+                    ReflectionHelper.invokeSetter(entry.getKey(), this, entry.getValue());
+                }
+            } catch (NoSuchMethodException|InvocationTargetException|IllegalAccessException e) {
+                LOG.debug("No matching field "  + entry.getKey());
+            }
+        }
+        return Optional.of(this);
+    }
+
     /**
      * Default implementation that will generate schema by reading all the field names in the class and use its
      * define type to convert to the Schema type.

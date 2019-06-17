@@ -322,6 +322,10 @@ public abstract class AbstractQueryExecutor implements QueryExecutor {
         return getQueryExecution(sqlBuilder).executeQuery(namespace);
     }
 
+    protected <T extends Storable> Collection<T> executeQueryWithoutExtraFields(String namespace, SqlQuery sqlBuilder) {
+        return getQueryExecution(sqlBuilder).executeQueryWithoutExtraFields(namespace);
+    }
+
     protected QueryExecution getQueryExecution(SqlQuery sqlQuery) {
         return new QueryExecution(sqlQuery);
     }
@@ -339,6 +343,19 @@ public abstract class AbstractQueryExecutor implements QueryExecutor {
             try {
                 ResultSet resultSet = getPreparedStatement().executeQuery();
                 result = getStorablesFromResultSet(resultSet, namespace);
+            } catch (SQLException | ExecutionException e) {
+                throw new StorageException(e);
+            } finally {
+                closeConn();
+            }
+            return result;
+        }
+
+        <T extends Storable> Collection<T> executeQueryWithoutExtraFields(String namespace) {
+            Collection<T> result;
+            try {
+                ResultSet resultSet = getPreparedStatement().executeQuery();
+                result = getStorablesFromResultSetWithoutExtraFields(resultSet, namespace);
             } catch (SQLException | ExecutionException e) {
                 throw new StorageException(e);
             } finally {
@@ -456,6 +473,22 @@ public abstract class AbstractQueryExecutor implements QueryExecutor {
                     if (map != null) {
                         T storable = newStorableInstance(nameSpace);
                         storable.fromMap(map);      // populates the Storable object state
+                        storables.add(storable);
+                    }
+                }
+            }
+            return storables;
+        }
+
+        private <T extends Storable> Collection<T> getStorablesFromResultSetWithoutExtraFields(ResultSet resultSet, String nameSpace) {
+            final Collection<T> storables = new ArrayList<>();
+            // maps contains the data to populate the state of Storable objects
+            final List<Map<String, Object>> maps = getMapsFromResultSet(resultSet);
+            if (maps != null && !maps.isEmpty()) {
+                for (Map<String, Object> map : maps) {
+                    if (map != null) {
+                        T storable = newStorableInstance(nameSpace);
+                        storable.fromMapIgnoreExtraFields(map);      // populates the Storable object state
                         storables.add(storable);
                     }
                 }

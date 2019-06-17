@@ -80,6 +80,18 @@ public interface Storable {
     Storable fromMap(Map<String, Object> map);
 
     /**
+     * Converts the given map to a storable instance and returns that instance.
+     * Could just be a static method but we want overriding behavior.
+     * It will ignore the fields that could not be matched.
+     *
+     * @param map the map
+     * @return the storable
+     */
+    default Optional<Storable> fromMapIgnoreExtraFields(Map<String, Object> map) {
+        return Optional.empty();
+    }
+
+    /**
      * A unique Id to identify the storable.
      *
      * @return the id.

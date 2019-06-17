@@ -149,4 +149,9 @@ public class OracleExecutor extends AbstractQueryExecutor {
             }
         }
     }
+
+    @Override
+    public <T extends Storable> Collection<T> select(StorableKey storableKey, List<QueryParam> queryParams, List<OrderByField> orderByFields, String joinTableName, String primaryTableKey, String joinTableKey, long offset, long limit) {
+        throw new UnsupportedOperationException("Not implemented.");
+    }
 }

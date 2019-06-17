@@ -16,6 +16,7 @@
 package com.hortonworks.streamline.storage.impl.jdbc.provider.mysql.query;
 
 import com.hortonworks.registries.common.Schema;
+import com.hortonworks.streamline.common.QueryParam;
 import com.hortonworks.streamline.storage.OrderByField;
 import com.hortonworks.streamline.storage.StorableKey;
 import com.hortonworks.streamline.storage.impl.jdbc.provider.sql.query.AbstractSelectQuery;
@@ -50,6 +51,10 @@ public class MySqlSelectQuery extends AbstractSelectQuery {
         super(storableKey, orderByFields, offset, limit);
     }
 
+    public MySqlSelectQuery(StorableKey storableKey, List<QueryParam> queryParams, List<OrderByField> orderByFields, String joinTableName, String primaryTableKey, String joinTableKey, long offset, long limit) {
+        super(storableKey, queryParams, orderByFields, joinTableName, primaryTableKey, joinTableKey, offset, limit);
+    }
+
     public MySqlSelectQuery(SearchQuery searchQuery, Schema schema) {
         super(searchQuery, schema);
     }
@@ -66,18 +71,27 @@ public class MySqlSelectQuery extends AbstractSelectQuery {
         if (columns != null) {
             sql += " WHERE " + join(getColumnNames(columns, "`%s` = ?"), " AND ");
         }
+
+        if (limit > 0 && offset >= 0) {
+            sql += " LIMIT " + limit + " OFFSET " + offset;
+        }
         LOG.debug(sql);
         return sql;
     }
 
     @Override
-    protected String getParameterizedSqlWithLimit() {
-        String sql = "SELECT * FROM " + tableName;
-        //where clause is defined by columns specified in the PrimaryKey
+    protected String getParameterizedJoinSql() {
+        String sql = "SELECT * FROM " + tableName +
+                    " INNER JOIN " + joinTableName +
+                    " ON " + primaryTableKey + " = " + joinTableKey;
         if (columns != null) {
-            sql += " WHERE " + join(getColumnNames(columns, "`%s` = ?"), " AND ");
+            sql += " WHERE " + join(getColumnNames(columns, "%s = ?"), " AND ");
         }
-        sql += " LIMIT " + limit + " OFFSET " + offset;
+
+        if (limit > 0 && offset >= 0) {
+            sql += " LIMIT " + limit + " OFFSET " + offset;
+        }
+
         LOG.debug(sql);
         return sql;
     }

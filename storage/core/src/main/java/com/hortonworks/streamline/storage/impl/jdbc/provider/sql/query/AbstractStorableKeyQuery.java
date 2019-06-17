@@ -15,9 +15,12 @@
  **/
 package com.hortonworks.streamline.storage.impl.jdbc.provider.sql.query;
 
+import com.hortonworks.registries.common.Schema;
+import com.hortonworks.streamline.common.QueryParam;
 import com.hortonworks.streamline.storage.StorableKey;
 
 import java.util.LinkedList;
+import java.util.List;
 
 public abstract class AbstractStorableKeyQuery extends AbstractSqlQuery {
     public AbstractStorableKeyQuery(String nameSpace) {
@@ -28,5 +31,14 @@ public abstract class AbstractStorableKeyQuery extends AbstractSqlQuery {
         tableName = storableKey.getNameSpace();
         primaryKey = storableKey.getPrimaryKey();
         columns = new LinkedList<>(storableKey.getPrimaryKey().getFieldsToVal().keySet());
+    }
+
+    public AbstractStorableKeyQuery(StorableKey storableKey, List<QueryParam> queryParams) {
+        tableName = storableKey.getNameSpace();
+        primaryKey = storableKey.getPrimaryKey();
+        columns = new LinkedList<>();
+        for (QueryParam queryParam : queryParams) {
+            columns.add(new Schema.Field(queryParam.getName(), Schema.Type.getTypeOfVal(queryParam.getValue())));
+        }
     }
 }

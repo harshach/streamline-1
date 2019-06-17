@@ -16,6 +16,7 @@
 
 package com.hortonworks.streamline.storage.impl.jdbc.provider.sql.factory;
 
+import com.hortonworks.streamline.common.QueryParam;
 import com.hortonworks.streamline.common.transaction.TransactionIsolation;
 import com.hortonworks.streamline.storage.OrderByField;
 import com.hortonworks.streamline.storage.Storable;
@@ -105,6 +106,8 @@ public interface QueryExecutor {
 
     <T extends Storable> Collection<T> select(StorableKey storableKey, List<OrderByField> orderByFields, long offset, long limit);
 
+
+    <T extends Storable> Collection<T> select(StorableKey storableKey, List<QueryParam> queryParams, List<OrderByField> orderByFields, String joinTableName, String primaryTableKey, String joinTableKey, long offset, long limit);
     /**
      * @return The next available id for the autoincrement column in the specified {@code namespace}
      * @exception NonIncrementalColumnException if {@code namespace} has no autoincrement column

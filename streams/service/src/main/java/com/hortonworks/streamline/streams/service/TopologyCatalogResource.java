@@ -382,10 +382,16 @@ public class TopologyCatalogResource {
     @Path("/projects/{projectId}/topologies")
     @Timed
     public Response listTopologies (@PathParam("projectId") Long projectId,
-                                    @Context SecurityContext securityContext, @Session HttpSession httpSession) {
-
-        Set<String> userGroups = SecurityUtil.getAllUserGroups(httpSession);
-        return listTopologies(securityContext, userGroups, projectId);
+                                    @Context SecurityContext securityContext,
+                                    @Session HttpSession httpSession,
+                                    @DefaultValue("false") @javax.ws.rs.QueryParam("withcount") Boolean withCount,
+                                    @DefaultValue("0")   @javax.ws.rs.QueryParam("offset") Long offset,
+                                    @DefaultValue("10")  @javax.ws.rs.QueryParam("limit") Long limit) {
+        if (projectId == null) {
+            return listTopologies(securityContext, StreamCatalogService.PLACEHOLDER_ID, offset, limit, withCount);
+        } else {
+            return listTopologies(securityContext, projectId, offset, limit, withCount);
+        }
     }
 
 
@@ -882,29 +888,6 @@ public class TopologyCatalogResource {
         throw EntityNotFoundException.byId(topologyId.toString());
     }
 
-    private Response listTopologies(SecurityContext securityContext, Set<String> userGroups, Long projectId) {
-        boolean adminUser = SecurityUtil.hasRole(authorizer, securityContext, Roles.ROLE_ADMIN);
-        Collection<Topology> topologies;
-        if (projectId == null) {
-            topologies = catalogService.listTopologies();
-        } else {
-            topologies = catalogService.listTopologiesWithVersionName(projectId);
-        }
-        if (adminUser) {
-            LOG.debug("Returning all topologies since user has role: {}", Roles.ROLE_ADMIN);
-        } else {
-            topologies = SecurityUtil.filter(authorizer, securityContext, userGroups, NAMESPACE, topologies, READ);
-        }
-
-        Response response;
-        if (topologies != null) {
-            response = WSUtils.respondEntities(topologies, OK);
-        } else {
-            response = WSUtils.respondEntities(Collections.emptyList(), OK);
-        }
-        return response;
-    }
-
     private Response listTopologies (SecurityContext securityContext, Long projectId, long offset, long limit, boolean withCount) {
         boolean topologyUser = SecurityUtil.hasRole(authorizer, securityContext, Roles.ROLE_TOPOLOGY_USER);
         Collection<Topology> topologies;
@@ -912,12 +895,12 @@ public class TopologyCatalogResource {
         if (projectId == null) {
             topologies = catalogService.listTopologies(offset, limit);
             if (withCount) {
-                topologiesWithCount = catalogService.listTopologies(OFFSET, LIMIT);
+                topologiesWithCount = catalogService.listTopologies(offset, LIMIT);
             }
         } else {
-            topologies = catalogService.listTopologies(projectId, offset, limit);
+            topologies = catalogService.listTopologiesWithVersionName(projectId, offset, limit);
             if (withCount) {
-                topologiesWithCount = catalogService.listTopologies(projectId, OFFSET, LIMIT);
+                topologiesWithCount = catalogService.listTopologiesWithVersionName(projectId, OFFSET, LIMIT);
             }
         }
 
@@ -939,7 +922,9 @@ public class TopologyCatalogResource {
 
         Response response;
         if (topologies != null) {
-            response = WSUtils.respondEntities(topologies, OK);
+            TopologiesPaginationDto topologiesPaginationDto = new TopologiesPaginationDto();
+            topologiesPaginationDto.setTopologies(topologies);
+            return WSUtils.respondEntity(topologiesPaginationDto, OK);
         } else {
             response = WSUtils.respondEntities(Collections.emptyList(), OK);
         }

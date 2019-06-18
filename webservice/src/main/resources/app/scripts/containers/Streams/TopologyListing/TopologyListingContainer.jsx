@@ -366,8 +366,8 @@ class TopologyListingContainer extends Component {
       sourceLen = results[1].entities.length;
 
       // All topology results[2]
-      let records = results[2].totalRecords ? results[2].topologies : results[2].entities;
-      let recordsCount = results[2].totalRecords ? results[2].totalRecords : results[2].entities.length;
+      let records = results[2].totalRecords !== undefined ? results[2].topologies : results[2].entities;
+      let recordsCount = results[2].totalRecords !== undefined ? results[2].totalRecords : results[2].entities.length;
       let resultEntities = Utils.sortArray(records.slice(), 'timestamp', false);
       this.syncDatacenterStatus(resultEntities);
       if (sourceLen !== 0) {

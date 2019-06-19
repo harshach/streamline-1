@@ -44,12 +44,16 @@ const sortArray = function(sortingArr, keyName, ascendingFlag) {
 };
 
 const numberToMilliseconds = function(number, type) {
-  if (type === 'Seconds') {
-    return number * 1000;
-  } else if (type === 'Minutes') {
-    return number * 60000;
-  } else if (type === 'Hours') {
-    return number * 3600000;
+  let millisecond = 1000;
+  type = type.toLowerCase();
+  if (type === 'seconds') {
+    return number * millisecond;
+  } else if (type === 'minutes') {
+    return number * (millisecond * 60);
+  } else if (type === 'hours') {
+    return number * (millisecond * 60 * 60);
+  } else if (type === 'days'){
+    return number * (millisecond * 60 * 60 * 24);
   }
 };
 
@@ -277,6 +281,30 @@ const eventTimeData = function(inputFields) {
 // gets difference of minutes between two dates excluding the seconds
 const getTimeDiffInMinutes = function(end, start) {
   return  moment.duration(end.diff(start, 'minutes')).asMinutes();
+};
+
+const findBeginingEndingTime = function(startDate, start_time, end_time, lastDataObj, time_unit, time_interval, currentOffset){
+  let begining, ending, momentObj;
+  let timeUnit = time_unit.toLowerCase();
+  //checking to add s character at the end of minute/second/hour string
+  if(timeUnit[timeUnit.length - 1] !== 's'){
+    timeUnit += 's';
+  }
+  if(lastDataObj){
+    momentObj = moment(end_time);
+  } else {
+    momentObj = startDate ? moment(startDate.valueOf()) : moment(end_time);
+  }
+  //time manipulation as per local browser time offset
+  momentObj.add(-(currentOffset), 'minutes');
+  //to show timeline chart from right
+  momentObj.subtract(time_interval * 21, timeUnit);
+  begining = momentObj.valueOf();
+  //to always have 24 ticks in execution metrics and then scrolling works (to resolve overlapping issue)
+  ending = moment(moment(begining).toDate()).add(time_interval * 24, timeUnit).valueOf();
+  return {
+    begining, ending, timeUnit
+  };
 };
 
 const inputFieldsData = function(inputFields,nodeType, noNestedFields) {
@@ -1053,6 +1081,7 @@ export default {
   validateReconfigFlag,
   noSpecialCharString,
   getTimeDiffInMinutes,
+  findBeginingEndingTime,
   abbreviateNumber,
   string,
   dateTimeLabel,

@@ -144,16 +144,19 @@ class TopologyViewContainer extends TopologyEditorContainer {
 
   onFetchedData(){
     const {isAppRunning} = this.state;
+    let time_interval = this.statusObj.extra.executionInterval;
+    let time_unit = this.statusObj.extra.executionIntervalUnit;
     if(isAppRunning) {
       if(this.engine.type === 'batch'){
         let currentOffset = new Date().getTimezoneOffset();
-        let startTimeObj = moment(this.statusObj.extra.startExecutionDate);
-        startTimeObj.add(-(currentOffset), 'minutes');
-        let endTimeObj = moment(this.statusObj.extra.latestExecutionDate);
-        endTimeObj.add(-(currentOffset), 'minutes');
-        let startTime = startTimeObj.valueOf();
-        let endTime = endTimeObj.valueOf();
-        this.fetchCatalogInfoAndMetrics(startTime, endTime);
+        let latestExTimeObj = moment(this.statusObj.extra.latestExecutionDate);
+        let startExTimeObj = moment(this.statusObj.extra.startExecutionDate);
+        startExTimeObj.add(-(currentOffset), 'minutes');
+        let startDate = startExTimeObj.valueOf();
+        let timeObj = Utils.findBeginingEndingTime(null, null, latestExTimeObj, null, time_unit, time_interval, currentOffset);
+        let startTime = timeObj.begining;
+        let endTime = timeObj.ending;
+        this.fetchCatalogInfoAndMetrics(startTime, endTime,startDate);
       } else {
         this.setState({startDate: moment().subtract(6, 'hours'), endDate: moment()},()=>{
           this.fetchCatalogInfoAndMetrics(this.state.startDate, this.state.endDate);
@@ -334,10 +337,12 @@ class TopologyViewContainer extends TopologyEditorContainer {
 
   fetchExecutions = (fromTime, toTime) => {
     let {viewModeData, executionInfoPageSize, executionInfoPage, startDate, endDate} = this.state;
+    this.fromTimeInMS = startDate ? startDate.valueOf() : fromTime;
+    this.toTimeInMS = endDate ? endDate.valueOf() : toTime;
 
     return ViewModeREST.getAllExecutions(this.topologyId, {
-      from: startDate ? startDate.valueOf() : fromTime,
-      to: endDate ? endDate.valueOf() : toTime,
+      from: this.fromTimeInMS,
+      to: this.toTimeInMS,
       pageSize: executionInfoPageSize,
       page: executionInfoPage,
       namespaceId: this.selectedDataCenterId
@@ -418,13 +423,13 @@ class TopologyViewContainer extends TopologyEditorContainer {
     return promiseArr;
   }
 
-  fetchCatalogInfoAndMetrics(fromTime, toTime) {
+  fetchCatalogInfoAndMetrics(fromTime, toTime, startDate) {
     let {viewModeData, executionInfoPageSize, executionInfoPage} = this.state;
 
     let promiseArr = [];
 
     if(this.engine.type == 'batch'){
-      const req = this.fetchExecutions(fromTime, toTime);
+      const req = this.fetchExecutions(startDate ? startDate : fromTime, toTime);
       promiseArr.push(req);
       const timeseriesMetricReqs = this.fetchTimeSeriesMetrics(fromTime, toTime);
       promiseArr.push.apply(promiseArr, [...timeseriesMetricReqs]);
@@ -542,6 +547,9 @@ class TopologyViewContainer extends TopologyEditorContainer {
     }, ()=>{
       this.fetchCatalogInfoAndMetrics(startDate.toDate().getTime(), endDate.toDate().getTime());
     });
+  }
+  handleClickCallback = (begining, ending) =>{
+    this.fetchTimeSeriesMetrics(begining,ending);
   }
   modeSelectCallback = (selectedMode) => {
     let {viewModeData} = this.state;
@@ -709,6 +717,7 @@ class TopologyViewContainer extends TopologyEditorContainer {
         compSelectCallback={this.compSelectCallback}
         components={this.graphData.nodes}
         datePickerCallback={this.datePickerCallback}
+        handleClickCallback={this.handleClickCallback}
         timeseriesData={this.timeseriesData}
         handleDataCenterChange={this.handleDataCenterChange}
         selectedDataCenter={this.selectedDataCenter}
@@ -721,6 +730,10 @@ class TopologyViewContainer extends TopologyEditorContainer {
         end_time={new Date(this.statusObj.extra.latestExecutionDate).getTime()}
         time_interval = {this.statusObj.extra.executionInterval || "5"}
         time_unit= {this.statusObj.extra.executionIntervalUnit || "Minute"}
+        topologyId={this.topologyId}
+        namespaceId={this.selectedDataCenterId}
+        fromTimeInMS={this.fromTimeInMS}
+        toTimeInMS={this.toTimeInMS}
     />;
   }
 

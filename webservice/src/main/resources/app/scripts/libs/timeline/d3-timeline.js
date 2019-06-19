@@ -80,12 +80,16 @@ import Utils from '../../utils/Utils';
       showAxisHeaderBackground = false,
       showAxisNav = false,
       showAxisCalendarYear = false,
-      axisBgColor = "white", initialDrag = 0,offset = 0,initialScaleDrag=0,
-      chartData = {}, clickConstant = 0, moveConstant = 5000,
+      axisBgColor = "white",
+      chartData = {},
       rightClickAPICall = function(){};
 
     self.stopLeftClick = true;
     self.stopRightClick = true;
+
+    let constants = {
+      initialDrag : 0, offset : 0, initialScaleDrag : 0,  clickConstant : 0, moveConstant : 5000
+    };
 
     var wrap = function(text) {
       text.each(function(){
@@ -313,30 +317,30 @@ import Utils from '../../utils/Utils';
       var move = function() {
         if(!self.stopLeftClick && !self.stopRightClick){
           let translate = d3.event.translate[0];
-          if(offset){
-            translate = translate - offset;
-            offset += translate;
+          if(constants.offset){
+            translate = translate - constants.offset;
+            constants.offset += translate;
           }
 
-          var diff = d3.event.translate[0] - initialScaleDrag;
+          var diff = d3.event.translate[0] - constants.initialScaleDrag;
           if(diff == 0){
             return;
           }else{
-            updatedBegining -= (moveConstant)*diff;
-            updatedEnding -= (moveConstant)*diff;
+            updatedBegining -= (constants.moveConstant)*diff;
+            updatedEnding -= (constants.moveConstant)*diff;
           }
           moveOp();
-          initialDrag = d3.event.translate[0];
-          initialScaleDrag = d3.event.translate[0];
+          constants.initialDrag = d3.event.translate[0];
+          constants.initialScaleDrag = d3.event.translate[0];
         }
       };
 
       var moveLeft = function(beginning, ending){
         //multiply by 4 to move that many executions on single click
-        clickConstant = Utils.numberToMilliseconds(timeInterval, timeUnit) * 4;
+        constants.clickConstant = Utils.numberToMilliseconds(timeInterval, timeUnit) * 4;
 
-        updatedBegining = beginning + clickConstant;
-        updatedEnding = ending + clickConstant;
+        updatedBegining = beginning + constants.clickConstant;
+        updatedEnding = ending + constants.clickConstant;
         moveOp();
         leftButton();
         rightButton();
@@ -344,10 +348,10 @@ import Utils from '../../utils/Utils';
 
       var moveRight = function(beginning,ending){
         //multiply by 4 to move that many executions on single click
-        clickConstant = Utils.numberToMilliseconds(timeInterval, timeUnit) * 4;
+        constants.clickConstant = Utils.numberToMilliseconds(timeInterval, timeUnit) * 4;
 
-        updatedBegining = beginning - clickConstant;
-        updatedEnding = ending - clickConstant;
+        updatedBegining = beginning - constants.clickConstant;
+        updatedEnding = ending - constants.clickConstant;
         moveOp();
         leftButton();
       };
@@ -357,8 +361,8 @@ import Utils from '../../utils/Utils';
         gParent.select('.axis').call(xAxis).selectAll(".tick text").call(wrap);
 
         gParent.selectAll('.tempRect').forEach((elems)=>{
-          if(initialDrag){
-            offset = JSON.parse(JSON.stringify(initialDrag));
+          if(constants.initialDrag){
+            constants.offset = JSON.parse(JSON.stringify(constants.initialDrag));
           }
           self.stopLeftClick = true;
           self.stopRightClick = true;
@@ -369,7 +373,7 @@ import Utils from '../../utils/Utils';
             });
           });
         });
-        initialDrag = 0;
+        constants.initialDrag = 0;
       };
 
       var zoom = d3.behavior.zoom().x(xScale).scaleExtent([1,1]).on("zoom", move);

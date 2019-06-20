@@ -15,6 +15,7 @@
 import React, {Component} from 'react';
 import PropTypes from 'prop-types';
 import ReactDOM from 'react-dom';
+import VisualSearch from '../../../libs/visual-search/VisualSearch';
 import _ from 'lodash';
 import {Link} from 'react-router';
 import moment from 'moment';
@@ -366,8 +367,8 @@ class TopologyListingContainer extends Component {
       sourceLen = results[1].entities.length;
 
       // All topology results[2]
-      let records = results[2].totalRecords ? results[2].topologies : results[2].entities;
-      let recordsCount = results[2].totalRecords ? results[2].totalRecords : results[2].entities.length;
+      let records = results[2].hasOwnProperty('totalRecords') ? results[2].topologies : results[2].entities;
+      let recordsCount = results[2].hasOwnProperty('totalRecords') ? results[2].totalRecords : results[2].entities.length;
       let resultEntities = Utils.sortArray(records.slice(), 'timestamp', false);
       this.syncDatacenterStatus(resultEntities);
       if (sourceLen !== 0) {
@@ -944,6 +945,10 @@ class TopologyListingContainer extends Component {
     }
   }
 
+  onFilter = (filters) => {
+    console.log(filters);
+  }
+
   render() {
     const {
       entities,
@@ -1001,15 +1006,24 @@ class TopologyListingContainer extends Component {
             ? <div className="row">
                 <div className="col-sm-12">
                   <div className="page-title-box clearfix">
-                    <div className="search-container text-right">
-                      <FormGroup className="search-box">
+                    <div className="search-container">
+                      {/* <FormGroup className="search-box">
                         <InputGroup>
                           <InputGroup.Addon>
                             <i className="fa fa-search"></i>
                           </InputGroup.Addon>
-                          <FormControl data-stest="searchBox" type="text" placeholder="Search by name" onKeyUp={this.onFilterChange} className="" />
+                           <FormControl data-stest="searchBox" type="text" placeholder="Search by name" onKeyUp={this.onFilterChange} className="" />
                         </InputGroup>
-                      </FormGroup>
+                          </FormGroup> */}
+                      <VisualSearch
+                            category= {[
+                              {label: "Name",name:"name",type: "text"},
+                              // {label: "First Name",name:"firstName",type: "text"},
+                              {label: "Type", name:"type",type: "list", options:[{label:"Piper",value: "Piper"},{label:"Athenax",value: "Athenax"}]},
+                              {label: "Owner", name:"owner",type: "text"}
+                            ]}
+                            onFilter = {this.onFilter}
+                          />
                     </div>
                     {/* <div className="add-btn text-center"><button className="actionDropdown text-medium btn btn-default" onClick={this.downloadCSV.bind(this)}><i className="fa fa-download"></i> &ensp;  Download</button></div>   */}
                     {hasEditCapability(accessCapabilities.APPLICATION) && (entities.length || filterValue) ?

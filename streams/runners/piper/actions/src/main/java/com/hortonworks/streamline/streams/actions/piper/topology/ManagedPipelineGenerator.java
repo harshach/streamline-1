@@ -164,8 +164,8 @@ public class ManagedPipelineGenerator extends TopologyDagVisitor {
             pipeline.setPipelineDescription(topologyConfig.get(PIPER_TOPOLOGY_CONFIG_DESCRIPTION));
         }
         if (topologyConfig.contains(PIPER_TOPOLOGY_CONFIG_OWNER_LDAP_GROUPS)) {
-            String groups = topologyConfig.get(PIPER_TOPOLOGY_CONFIG_OWNER_LDAP_GROUPS);
-            pipeline.setOwnerLdapGroups(Arrays.asList(groups.split(",")));
+            List<String> groups = (List<String>)topologyConfig.getProperties().get(PIPER_TOPOLOGY_CONFIG_OWNER_LDAP_GROUPS);
+            pipeline.setOwnerLdapGroups(groups);
         }
         pipeline.setStartDate(convertCalendarToISO(topologyConfig.get(PIPER_TOPOLOGY_CONFIG_START_DATE)));
         if (topologyConfig.contains(PIPER_TOPOLOGY_CONFIG_END_DATE)) {

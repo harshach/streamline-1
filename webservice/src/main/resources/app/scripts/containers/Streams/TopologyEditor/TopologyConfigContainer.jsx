@@ -69,7 +69,7 @@ export default class TopologyConfigContainer extends Component {
 
       let ldapGroupObj = formField.fields.find((o)=>{return o.fieldName === 'topology.ownerLDAPGroups';});
       if(ldapGroupObj){
-        ldapGroupObj.type = "enumstring";
+        ldapGroupObj.type = "array.enumstring";
         ldapGroupObj.options = result[3] || [];
       }
 

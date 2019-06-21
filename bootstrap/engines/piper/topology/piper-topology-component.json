@@ -33,7 +33,7 @@
         "type": "array.enumstring",
         "options": [],
         "hint": "datacenter-showAll",
-        "isUserInput": false
+        "isUserInput": true
       },
       {
         "uiName": "Owner",

@@ -93,6 +93,11 @@
             <groupId>com.hortonworks.registries</groupId>
             <artifactId>registry-common</artifactId>
         </dependency>
+        <dependency>
+          <groupId>com.uber.engsec</groupId>
+          <artifactId>upkiclient</artifactId>
+          <classifier>shaded</classifier>
+        </dependency>
 
         <!--test-->
         <dependency>

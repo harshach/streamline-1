@@ -185,6 +185,7 @@
         <unsclient.version>1.0.0</unsclient.version>
         <json.version>20180813</json.version>
         <snakeyaml.version>1.24</snakeyaml.version>
+        <upki.version>0.1-SNAPSHOT</upki.version>
         <!-- Runtime Scope Dependencies -->
         <logback.version>1.2.3</logback.version>
 
@@ -1105,6 +1106,13 @@
                 <artifactId>webservice</artifactId>
                 <version>${project.version}</version>
             </dependency>
+            <dependency>
+              <groupId>com.uber.engsec</groupId>
+              <artifactId>upkiclient</artifactId>
+              <version>${upki.version}</version>
+              <classifier>shaded</classifier>
+            </dependency>
+
 
             <!-- END Project Artifact Dependencies -->
 

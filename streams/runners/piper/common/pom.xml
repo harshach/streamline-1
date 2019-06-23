@@ -28,12 +28,6 @@
             <groupId>com.hortonworks.streamline</groupId>
             <artifactId>common</artifactId>
         </dependency>
-        <dependency>
-            <groupId>com.uber.engsec</groupId>
-            <artifactId>upkiclient</artifactId>
-            <version>0.1-SNAPSHOT</version>
-            <classifier>shaded</classifier>
-        </dependency>
     </dependencies>
 
 </project>

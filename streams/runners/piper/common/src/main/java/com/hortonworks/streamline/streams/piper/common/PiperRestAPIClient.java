@@ -1,13 +1,9 @@
 package com.hortonworks.streamline.streams.piper.common;
 
 import com.hortonworks.streamline.common.JsonClientUtil;
+import com.hortonworks.streamline.common.credentials.UPKITokenManager;
 import com.hortonworks.streamline.common.exception.WrappedWebApplicationException;
-import com.uber.engsec.upkiclient.UPKIClient;
-import com.uber.engsec.upkiclient.UPKIClientFactory;
-import com.uber.engsec.upkiclient.UPKITokenService;
-import com.uber.engsec.upkiclient.config.SpiffeConfig;
 import com.uber.engsec.upkiclient.utoken.UToken;
-import com.uber.engsec.upkiclient.utoken.UTokenException;
 import org.glassfish.jersey.client.ClientConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -38,8 +34,7 @@ public class PiperRestAPIClient {
     private final String apiRootUrl;
     private final Subject subject;
     private final Client client;
-    private UPKITokenService upkiTokenService;
-    private final String upkiSpiffeEndPoint = "/var/cache/udocker_mnt/worf.sock";
+    private final UPKITokenManager upkiTokenManager;
 
 
 
@@ -51,13 +46,11 @@ public class PiperRestAPIClient {
         this.client = client;
         this.apiRootUrl = apiRootUrl;
         this.subject = subject;
-        try {
-            SpiffeConfig.SpiffeConfigBuilder builder = new SpiffeConfig.SpiffeConfigBuilder().
-                    withSpiffeEndpointSocket(upkiSpiffeEndPoint);
-            UPKIClient upkiClient = UPKIClientFactory.getUPKIClient(builder);
-            this.upkiTokenService = new UPKITokenService(upkiClient);
-        } catch (Exception e ) {
-            LOG.error("Failed to configure upkiTokenService ",e);
+        this.upkiTokenManager = UPKITokenManager.acquireUPKITokenManager();
+        if (upkiTokenManager != null) {
+            LOG.info("Acquired token manager");
+        } else {
+            LOG.info("failed to Acquired token manager");
         }
     }
 
@@ -122,7 +115,7 @@ public class PiperRestAPIClient {
 
             Map<String, String> headers = new HashMap<>();
             headers.put(X_UBER_SOURCE, UWORC_UBER_SERVICE_NAME);
-            UToken uToken = generateUToken();
+            UToken uToken = upkiTokenManager.generateUToken();
             if (uToken != null) {
                 headers.put(HEADER_UPKI_TOKEN, uToken.toString());
             }
@@ -150,7 +143,7 @@ public class PiperRestAPIClient {
         try {
             Map<String, String> headers = new HashMap<>();
             headers.put(X_UBER_SOURCE, UWORC_UBER_SERVICE_NAME);
-            UToken uToken = generateUToken();
+            UToken uToken = upkiTokenManager.generateUToken();
             if (uToken != null) {
                 headers.put(HEADER_UPKI_TOKEN, uToken.toString());
             }
@@ -181,10 +174,6 @@ public class PiperRestAPIClient {
 
             Map<String, String> headers = new HashMap<>();
             headers.put(X_UBER_SOURCE, UWORC_UBER_SERVICE_NAME);
-            UToken uToken = generateUToken();
-            if (uToken != null) {
-                headers.put(HEADER_UPKI_TOKEN, uToken.toString());
-            }
 
             return Subject.doAs(subject, new PrivilegedAction<Map>() {
                 @Override
@@ -205,15 +194,5 @@ public class PiperRestAPIClient {
 
             throw ex;
         }
-    }
-
-    private UToken generateUToken() {
-        UToken uToken = null;
-        try {
-            uToken = upkiTokenService.createSingleHop("piper");
-        } catch (UTokenException e) {
-            LOG.error("Failed to create a utoken", e);
-        }
-        return uToken;
     }
 }

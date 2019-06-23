@@ -80,7 +80,7 @@ fi
 
 echo "CLASSPATH: ${CLASSPATH}"
 
-CLASSPATH="/home/udocker/uworc/hortonworks-streamline-0.6.0-SNAPSHOT/libs/upkiclient-1.0-20190501.232008-4-shaded.jar":$CLASSPATH
+CLASSPATH="/home/udocker/uworc/hortonworks-streamline-0.6.0-SNAPSHOT/libs/upkiclient-0.1-20190620.035111-7-shaded.jar":$CLASSPATH
 #JAAS config file params
 if [ -z "$STREAMLINE_KERBEROS_PARAMS" ]; then
     STREAMLINE_KERBEROS_PARAMS=""

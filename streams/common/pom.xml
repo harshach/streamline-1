@@ -36,6 +36,10 @@
             <artifactId>jmockit</artifactId>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>apphealth</groupId>
+            <artifactId>apphealth-logger-logback-dw</artifactId>
+        </dependency>
     </dependencies>
 
 </project>

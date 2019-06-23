@@ -141,6 +141,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
         <!-- Compile Scope Dependencies -->
+        <apphealth.version>1.0.1-1088-31cccfc133</apphealth.version>
         <avro.version>1.8.2</avro.version>
         <calcite.version>1.11.0</calcite.version>
         <calcite-avatica.version>1.9.0</calcite-avatica.version>
@@ -1129,6 +1130,13 @@
                     </exclusion>
                 </exclusions>
             </dependency>
+
+            <dependency>
+                <groupId>apphealth</groupId>
+                <artifactId>apphealth-logger-logback-dw</artifactId>
+                <version>${apphealth.version}</version>
+            </dependency>
+
             <!-- Test Scope Dependencies -->
             <dependency>
                 <groupId>com.hortonworks.streamline</groupId>

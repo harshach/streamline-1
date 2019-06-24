@@ -266,7 +266,7 @@ const dependsOnHintsFunction = function(val){
       getSchemaBranches.call(this,this.props.data[this.props.value]);
     } else {
       //Get schema directly from topic
-      getSchema.call(this, this.props.data[this.props.value], 'MASTER', true);
+      getSchema.call(this, this.props.data[this.props.value]);
     }
   } else if (this.props.fieldJson.fieldName === "securityProtocol"){
     if(Form.props.handleSecurityProtocol){
@@ -1055,7 +1055,7 @@ export class creatableField extends BaseField {
 
   getSchemaForKafka(){
     //Get schema directly from topic
-    getSchema.call(this, this.props.data[this.props.value], 'MASTER', true);
+    getSchema.call(this, this.props.data[this.props.value]);
   }
 
   validate() {

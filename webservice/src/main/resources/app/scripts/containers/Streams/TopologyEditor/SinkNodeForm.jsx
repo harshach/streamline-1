@@ -165,6 +165,10 @@ export default class SinkNodeForm extends Component {
       stateObj.hasSecurity = hasSecurity;
       stateObj.validSchema = true;
       this.schemaTopicKeyName = Utils.getSchemaKeyName(stateObj.uiSpecification,'schema');
+      this.schemaVersionKeyName = Utils.getSchemaKeyName(stateObj.uiSpecification, 'schemaVersion');
+      if (!_.isEmpty(stateObj.formData) && !!stateObj.formData[this.schemaTopicKeyName]) {
+        this.fetchSchemaVersions(stateObj.formData);
+      }
       this.setState(stateObj, () => {
         stateExecuted = true;
         if (stateObj.formData.clusters !== undefined) {
@@ -201,6 +205,14 @@ export default class SinkNodeForm extends Component {
           this.allSourceChildNodeData = sourceResults;
         });
       });
+    });
+  }
+
+  fetchSchemaVersions = (data) => {
+    TopologyREST.getSchemaVersionsForKafka(data[this.schemaTopicKeyName]).then((results) => {
+      const { uiSpecification } = this.state;
+      let tempConfigJson = Utils.populateSchemaVersionOptions(results, uiSpecification);
+      this.setState({ uiSpecification: tempConfigJson });
     });
   }
 

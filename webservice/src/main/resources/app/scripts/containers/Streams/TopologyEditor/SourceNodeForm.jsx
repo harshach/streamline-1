@@ -132,9 +132,15 @@ export default class SourceNodeForm extends Component {
         stateObj.configJSON = this.pushClusterFields(tempArr, stateObj.configJSON);
       }
 
+      this.schemaVersionKeyName = Utils.getSchemaKeyName(stateObj.configJSON, 'schemaVersion');
       this.schemaTopicKeyName = Utils.getSchemaKeyName(stateObj.configJSON,'schema');
 
       stateObj.formData = this.nodeData.config.properties;
+
+      if (!_.isEmpty(stateObj.formData) && !!stateObj.formData[this.schemaTopicKeyName]) {
+        this.fetchSchemaVersions(stateObj.formData);
+      }
+
       stateObj.description = this.nodeData.description;
       stateObj.fetchLoader = false;
       stateObj.hasSecurity = hasSecurity;
@@ -146,6 +152,14 @@ export default class SourceNodeForm extends Component {
           this.setState({streamObj: this.state.streamObj});
         }
       });
+    });
+  }
+
+  fetchSchemaVersions = (data) => {
+    TopologyREST.getSchemaVersionsForKafka(data[this.schemaTopicKeyName]).then((results) => {
+      const { configJSON } = this.state;
+      let tempConfigJson = Utils.populateSchemaVersionOptions(results, configJSON);
+      this.setState({ configJSON: tempConfigJson });
     });
   }
 

@@ -368,7 +368,12 @@ const TopologyREST = {
     options.method = options.method || 'GET';
     options.credentials = 'same-origin';
     topicName = encodeURIComponent(topicName);
-    let url = "/api/v1/schemas/" + topicName +"/" + branchName + "/versions";
+    let url = "/api/v1/schemas/" + topicName + "/";
+    if(branchName){
+      url += branchName + "/versions";
+    } else {
+      url += "versions";
+    }
     return fetch(url, options)
       .then((response) => {
         return response.json();

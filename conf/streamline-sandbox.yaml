@@ -141,7 +141,7 @@ logging:
       timeZone: UTC
       maxFileSize: 50MB
     - type: healthline
-      threshold: INFO
+      threshold: WARN
 
 #Set below 3 properties if server needs a proxy to connect. Useful to download mysql jar/maven artifacts for storm topology submission
 #httpProxyUrl: "http://proxyHost:port"

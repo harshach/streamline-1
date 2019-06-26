@@ -242,9 +242,23 @@ export default class ComponentNodeContainer extends Component {
           imgPath = "styles/img/"+iconsFrom+"icon-custom.png";
           subType = 'Custom';
         }
-        return (<NodeContainer accepts={nodeType} dataArr={toolbarTypeArr} moveIcon={this.moveIcon.bind(this)} onDrop={this.onDrop.bind(this)} index={i} key={i} imgPath={imgPath} name={nodeName} type={source.type} nodeLable={nodeName} nodeType={subType} hideSourceOnDrag={false} topologyComponentBundleId={source.id} defaultImagePath={defaultImagePath} testRunActivated={testRunActivated} eventLogData/>);
+        let isDeprecated = source.deprecated;
+        return (<NodeContainer
+          accepts={nodeType} dataArr={toolbarTypeArr} moveIcon={this.moveIcon.bind(this)}
+          onDrop={this.onDrop.bind(this)} index={i} key={i} imgPath={imgPath} name={nodeName}
+          type={source.type} nodeLable={nodeName} nodeType={subType} hideSourceOnDrag={false}
+          topologyComponentBundleId={source.id} defaultImagePath={defaultImagePath}
+          testRunActivated={testRunActivated} eventLogData deprecated={isDeprecated}
+        />);
       }else if(s && s.type == 'folder'){
-        return (<NodeContainer accepts={editToolbar ? nodeType : ''} onFolderNameChange={this.onFolderNameChange.bind(this)} editToolbar={editToolbar} data={s} dataArr={toolbarTypeArr} dropArr={s.children} moveIcon={this.moveIcon.bind(this)} onDrop={this.onDrop.bind(this)} index={i} viewType="folder" key={i} imgPath={"styles/img/"+iconsFrom+"/icon-.png"} name={s.name} type={''} nodeLable={''} nodeType={''} hideSourceOnDrag={false} topologyComponentBundleId={999} defaultImagePath='' testRunActivated={testRunActivated}>{
+        return (<NodeContainer
+          accepts={editToolbar ? nodeType : ''} onFolderNameChange={this.onFolderNameChange.bind(this)}
+          editToolbar={editToolbar} data={s} dataArr={toolbarTypeArr} dropArr={s.children}
+          moveIcon={this.moveIcon.bind(this)} onDrop={this.onDrop.bind(this)} index={i} viewType="folder"
+          key={i} imgPath={"styles/img/"+iconsFrom+"/icon-.png"} name={s.name} type={''} nodeLable={''}
+          nodeType={''} hideSourceOnDrag={false} topologyComponentBundleId={999} defaultImagePath={defaultImagePath}
+          testRunActivated={testRunActivated}
+        >{
             s.children.map((child, i) => {
               const source = _.find(entityTypeArr, {id: child.bundleId});
               nodeName = source.name.toUpperCase();
@@ -257,7 +271,15 @@ export default class ComponentNodeContainer extends Component {
                 imgPath = "styles/img/"+iconsFrom+"icon-custom.png";
                 subType = 'Custom';
               }
-              return (<NodeContainer accepts={nodeType} dataArr={s.children} isChildren={true} moveIcon={this.moveIcon.bind(this)} index={i} key={i} imgPath={imgPath} name={nodeName} type={source.type} nodeLable={nodeName} nodeType={subType} hideSourceOnDrag={false} topologyComponentBundleId={source.id} defaultImagePath={defaultImagePath} testRunActivated={testRunActivated} eventLogData={eventLogData}/>);
+              let isDeprecated = source.deprecated;
+              return (<NodeContainer
+                accepts={nodeType} dataArr={s.children} isChildren={true}
+                moveIcon={this.moveIcon.bind(this)} index={i} key={i} imgPath={imgPath}
+                name={nodeName} type={source.type} nodeLable={nodeName} nodeType={subType}
+                hideSourceOnDrag={false} topologyComponentBundleId={source.id}
+                defaultImagePath={defaultImagePath} testRunActivated={testRunActivated}
+                eventLogData={eventLogData} deprecated={isDeprecated}
+              />);
             })
           }</NodeContainer>);
       }else{

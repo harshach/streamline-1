@@ -97,7 +97,7 @@ const nodeTarget = {
 
 const nodeSource = {
   canDrag(props , monitor){
-    return !props.testRunActivated;
+    return !props.deprecated && !props.testRunActivated;
   },
   beginDrag(props, monitor, component) {
     return _.clone(props);
@@ -126,7 +126,8 @@ export default class NodeContainer extends Component {
     nodeType: PropTypes.string.isRequired,
     topologyComponentBundleId: PropTypes.number.isRequired,
     defaultImagePath: PropTypes.string.isRequired,
-    testRunActivated : PropTypes.bool.isRequired
+    testRunActivated : PropTypes.bool.isRequired,
+    deprecated: PropTypes.bool
   };
 
   getPopover() {
@@ -152,12 +153,16 @@ export default class NodeContainer extends Component {
       connectDropTarget,
       viewType,
       children,
-      accepts
+      accepts,
+      deprecated
     } = this.props;
     const showHighlight = canDrop && isOver;
     let className = [];
     if(showHighlight && !this.props.isChildren){
       className.push('highlight');
+    }
+    if (deprecated){
+      className.push('deprecated');
     }
     if((!viewType && accepts != ItemTypes.Nodes) || (viewType == 'folder' && accepts != '')){
       className.push.apply(className, ['tada', 'animated', 'infinite']);
@@ -166,14 +171,16 @@ export default class NodeContainer extends Component {
       <li className={className.join(' ')}>
         { viewType != 'folder'
         ?
-        <div className="nodeContainer"><span className="drag-handle"></span><img src={imgPath} ref="img" style={{filter: 'url(#blue-wash)'}} onError={() => {
-          this.refs.img.src = defaultImagePath;
-        }}/></div>
+          <div className="nodeContainer"><span className={deprecated ? "" : "drag-handle"}></span><img src={imgPath} ref="img" style={{filter: 'url(#blue-wash)'}} onError={() => {
+            this.refs.img.src = defaultImagePath;
+          }}/></div>
         :
         <OverlayTrigger trigger="click" rootClose placement="right" ref="folderOverlay" overlay={this.getPopover()}>
           <div className={"nodeContainerFolder"}>
             {children.map((child, i) => {
-              return <img src={child.props.imgPath} key={i}/>;
+              return <img src={child.props.imgPath} ref="folderImg" key={i} onError={() => {
+                this.refs.folderImg.src = defaultImagePath;
+              }}/>;
             })}
           </div>
         </OverlayTrigger>

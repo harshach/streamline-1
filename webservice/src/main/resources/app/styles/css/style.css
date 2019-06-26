@@ -1346,6 +1346,10 @@ label {
   width: 24px;
 }
 
+.component-list>li.deprecated>div.nodeContainer>img {
+  pointer-events: none;
+}
+
 .drag-handle {
   content: '';
   position: absolute;
@@ -6435,4 +6439,9 @@ background: #fff
 
 .pagination > .active > a, .pagination > .active > span, .pagination > .active > a:hover, .pagination > .active > span:hover, .pagination > .active > a:focus, .pagination > .active > span:focus{
   z-index: 0;
+}
+.deprecated {
+  cursor: not-allowed;
+  filter: grayscale(1);
+  opacity: 0.75;
 }

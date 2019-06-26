@@ -69,6 +69,7 @@ public class KafkaRTATopologyActionImpl implements TopologyActions {
             namespaces.append(nameSpace.getName());
         }
         rtaRestAPIClient.addToRequestHeader(rtaRestAPIClient.RPC_ROUTING_ZONE, namespaces.toString());
+        rtaRestAPIClient.addToRequestHeader(rtaRestAPIClient.RPC_ROUTING_DELEGATE, rtaRestAPIClient.DELEGATE_CROSSZONE);
 
         rtaRestAPIClient.createTable(JsonClientUtil.convertRequestToJson(rtaCreateTableRequest));
 

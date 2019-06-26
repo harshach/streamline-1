@@ -27,6 +27,8 @@ public class RTARestAPIClient implements DataSchemaServiceClient {
     private static final String RTA_TABLE_DEFINITION_PATH = "tables/definitions/";
     private static final String RTA_TABLE_DEPLOY_PATH = "tables/%s/deployments/";
     public static final String RPC_ROUTING_ZONE = "Rpc-Routing-Zone";
+    public static final String RPC_ROUTING_DELEGATE = "Rpc-Routing-Delegate";
+    public static final String DELEGATE_CROSSZONE = "crosszone";
 
     private final String apiRootUrl;
     private final Subject subject;

@@ -456,12 +456,52 @@ export class datetime extends date {
 }
 
 export class datetimerange extends BaseField{
+
+  // This class stores 2 representation of the dates, one that matches
+  // the format in the input and another that matches format expected by
+  // the server.  The change handlers update both.
+  toServerFormat(dateString) {
+    if (dateString) {
+      const date = moment(dateString, "MM-DD-YY HH:mm:ss", true);
+      return date.isValid() ? date.format("YYYY-MM-DD HH:mm:ss") : 'Invalid';
+    }
+    return '';
+  }
+
+  toFieldFormat(dateString) {
+    if (dateString) {
+      const date = moment(dateString, "YYYY-MM-DD HH:mm:ss");
+      return date.isValid() ? date.format("MM-DD-YY HH:mm:ss") : '';
+    }
+    return '';
+  }
+
+  componentWillMount() {
+    // On init, if values aren't set, set default as now with no seconds
+    if (!this.props.data[this.props.value]) {
+      const nowString = new moment().format("YYYY-MM-DD HH:mm:00");
+      this.props.data[this.props.value] = nowString;
+    }
+
+    if (!this.props.data["topology.endDate"]) {
+      this.props.data["topology.endDate"] = '';
+    }
+
+    // Set intermediate value in client format
+    this.startDate = this.toFieldFormat(this.props.data[this.props.value]);
+    this.endDate = this.toFieldFormat(this.props.data["topology.endDate"]);
+
+    const {Form} = this.context;
+    Form.setState(Form.state);
+  }
+
   handleChangeOnStart = (obj) => {
     const {Form} = this.context;
     let startDate = obj.date ? obj.date : '';
     let startTime = obj.time ? obj.time : '';
-    let value = startDate.replace(/\//g, '-') + ' ' + startTime;
-    this.props.data[this.props.value] = value;
+
+    this.startDate = startDate.replace(/\//g, '-') + ' ' + startTime;
+    this.props.data[this.props.value] = this.toServerFormat(this.startDate);
     Form.setState(Form.state);
   }
 
@@ -469,16 +509,26 @@ export class datetimerange extends BaseField{
     const {Form} = this.context;
     let endDate = obj.date ? obj.date : '';
     let endTime = obj.time ? obj.time : '';
-    let value = endDate.replace(/\//g, '-') + ' ' + endTime;
-    this.props.data['topology.endDate'] = value;
+
+    this.endDate = endDate.replace(/\//g, '-') + ' ' + endTime;
+    this.props.data['topology.endDate'] = this.toServerFormat(this.endDate);
     Form.setState(Form.state);
   }
 
   validate() {
-    let isValid = super.validate(this.props.data[this.props.value]);
+    const startValue = this.props.data[this.props.value];
+    const endValue = this.props.data['topology.endDate'];
+
+    let isValid = super.validate(startValue);
+
     if(isValid){
-      let endValue = this.props.data['topology.endDate'];
-      isValid = !validation['datetime'](endValue, this.context.Form, this);
+      let errorMsg = endValue ? validation['datetime'](endValue, this.context.Form, this) : '';
+      if (errorMsg) {
+        const {Form} = this.context;
+        Form.state.Errors[this.props.valuePath] = 'End ' + errorMsg;
+        Form.setState(Form.state);
+        isValid = false;
+      }
     }
     if(!isValid){
       this.datePickerRef.scrollIntoViewIfNeeded();
@@ -487,8 +537,7 @@ export class datetimerange extends BaseField{
   }
 
   getStartDate = () => {
-    const form_value = this.props.data[this.props.value] || '';
-    let dateRange = form_value.split(' ');
+    let dateRange = this.startDate.split(' ');
     let value = {
       date: dateRange[0],
       time: dateRange[1]
@@ -497,8 +546,7 @@ export class datetimerange extends BaseField{
   }
 
   getEndDate = () => {
-    const form_value = this.props.data['topology.endDate'] || '';
-    let dateRange = form_value.split(' ');
+    let dateRange = this.endDate.split(' ');
     let value = {
       date: dateRange[0],
       time: dateRange[1]
@@ -879,7 +927,7 @@ export class boolean extends BaseField {
             <label>{this.props.label}
               {this.props.validation && this.props.validation.indexOf('required') !== -1
                 ? <span className="text-danger">*</span>
-                : null}</label>  
+                : null}</label>
           </OverlayTrigger>
           <label className="toggle-group">
             <Switch theme="graphite-small" ref="input" className="d-flex" enabled={this.props.data[this.props.value]} onClick={this.handleChange} />

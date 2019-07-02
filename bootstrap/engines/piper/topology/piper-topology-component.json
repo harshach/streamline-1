@@ -131,10 +131,10 @@
         ]
       },
       {
-        "uiName": "Start Date",
+        "uiName": "Start Date (UTC)",
         "fieldName": "topology.startDate",
         "isOptional": false,
-        "tooltip": "Start Date of Pipeline",
+        "tooltip": "Start Date of Pipeline (UTC)",
         "type": "datetimerange"
       },
       {

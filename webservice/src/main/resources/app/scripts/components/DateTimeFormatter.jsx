@@ -18,6 +18,7 @@ import Cleave from 'cleave.js/dist/cleave-react';
 class DateTimeFormatter extends Component {
   constructor(props){
     super(props);
+
     this.state = {
       date: props.value.date ? props.value.date : '',
       time: props.value.time ? props.value.time : ''
@@ -50,7 +51,7 @@ class DateTimeFormatter extends Component {
           <Cleave className="form-control" placeholder="00:00:00" options={{time: true, timePattern: ['h', 'm', 's']}}
                           onChange={this.handleChangeOnTime}
                           value={this.state.time}/>
-          <span className="help-block">HH/MM/SS</span>
+          <span className="help-block">HH:MM:SS</span>
         </div>
       </div>
     );

@@ -52,7 +52,8 @@ let ValidationRules = {
       return '';
     } else {
       if( typeof value === "string"){
-        let date = new moment(value, "mm-dd-yy hh:mm:ss");
+        // Use strict parsing
+        let date = new moment(value, "YYYY-MM-DD HH:mm:ss", true);
         return date.isValid() ? '' : 'Date or time is not in proper format';
       }
       return '';

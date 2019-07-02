@@ -13,6 +13,7 @@
 **/
 
 import React, {Component} from 'react';
+import ReactGA from 'react-ga';
 import ReactDOM, {findDOMNode} from 'react-dom';
 import update from 'react/lib/update';
 import {ItemTypes, Components, toastOpt,pageSize} from '../../../utils/Constants';
@@ -514,6 +515,13 @@ export class TopologyEditorContainer extends Component {
   }
   deployTopology() {
     // this.refs.BaseContainer.refs.Confirm.show({title: 'Are you sure you want to deploy this Workflow?'}).then((confirmBox) => {
+    ReactGA.event({
+      category: 'Workflow',
+      action: 'Deploy',
+      label: this.engine.type,
+      value: this.topologyId
+    });
+
     this.refs.deployLoadingModal.show();
     this.setState({topologyStatus: 'DEPLOYING...', progressCount: 12,deployFlag : false});
     TopologyREST.validateTopology(this.topologyId, this.versionId).then(result => {

@@ -12,6 +12,7 @@
   * limitations under the License.
 **/
 import React from 'react';
+import ReactGA from 'react-ga';
 import { Router, Route, hashHistory, browserHistory, IndexRoute } from 'react-router';
 
 import ProjectListContainer from '../containers/Streams/ProjectListing/ProjectListingContainer';
@@ -35,6 +36,7 @@ import {menuName} from '../utils/Constants';
 import {hasModuleAccess} from '../utils/ACLUtils';
 import SamplingsComponent from '../containers/Samplings/SamplingsComponent';
 import AccessDeniedComponent  from '../components/AccessDeniedComponent';
+
 
 const onEnter = (nextState, replace, callback) => {
   var sidebarRoute = nextState.routes[1];
@@ -61,6 +63,9 @@ const onEnter = (nextState, replace, callback) => {
   if(!hasAccess){
     replace('/no-access');
   }
+
+  ReactGA.pageview(nextState.location.pathname);
+
   callback();
 };
 

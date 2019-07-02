@@ -25,6 +25,7 @@ import app_state from './app_state';
 import CommonNotification from './utils/CommonNotification';
 import UnKnownAccess  from './components/UnKnownAccess';
 import {observer} from 'mobx-react';
+import ReactGA from 'react-ga';
 
 @observer
 class App extends Component {
@@ -33,6 +34,7 @@ class App extends Component {
     this.state = {
       showLoading: true
     };
+    ReactGA.initialize('UA-7157694-88', {debug: false});
     this.fetchData();
   }
   verifyCookie(){
